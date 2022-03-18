@@ -54,8 +54,6 @@
     <codingstyle.library.version>2.16.0</codingstyle.library.version>
     <commons.lang.version>3.12.0</commons.lang.version>
 
-    <junit-pioneer.version>0.3.0</junit-pioneer.version>
-
   </properties>
 
   <dependencies>
