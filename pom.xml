@@ -53,6 +53,7 @@
     <!-- Project Dependencies Configuration -->
     <codingstyle.library.version>2.16.0</codingstyle.library.version>
     <commons.lang.version>3.12.0</commons.lang.version>
+    <junit-pioneer.version>1.6.2</junit-pioneer.version>
 
   </properties>
 
