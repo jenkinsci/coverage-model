@@ -259,19 +259,13 @@ public class CoverageNode implements Serializable {
      * @return coverage ratio
      */
     public Coverage getCoverage(final CoverageMetric searchMetric) {
+        Coverage childrenCoverage = aggregateChildren(searchMetric);
         if (searchMetric.isLeaf()) {
-            Coverage childrenCoverage = children.stream()
-                    .map(node -> node.getCoverage(searchMetric))
-                    .reduce(Coverage.NO_COVERAGE, Coverage::add);
             return leaves.stream()
                     .map(node -> node.getCoverage(searchMetric))
                     .reduce(childrenCoverage, Coverage::add);
         }
         else {
-            Coverage childrenCoverage = children.stream()
-                    .map(node -> node.getCoverage(searchMetric))
-                    .reduce(Coverage.NO_COVERAGE, Coverage::add);
-
             if (metric.equals(searchMetric)) {
                 if (getCoverage(CoverageMetric.LINE).getCovered() > 0) {
                     return childrenCoverage.add(COVERED_NODE);
@@ -282,6 +276,12 @@ public class CoverageNode implements Serializable {
             }
             return childrenCoverage;
         }
+    }
+
+    private Coverage aggregateChildren(final CoverageMetric searchMetric) {
+        return children.stream()
+                .map(node -> node.getCoverage(searchMetric))
+                .reduce(Coverage.NO_COVERAGE, Coverage::add);
     }
 
     /**
@@ -330,6 +330,8 @@ public class CoverageNode implements Serializable {
      *         the metric to look for
      *
      * @return all nodes for the given metric
+     * @throws AssertionError
+     *         if the coverage metric is a LEAF metric
      */
     public List<CoverageNode> getAll(final CoverageMetric searchMetric) {
         Ensure.that(searchMetric.isLeaf())
