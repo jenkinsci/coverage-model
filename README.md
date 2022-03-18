@@ -1,8 +1,7 @@
 # Code coverage model 
 
-[![Changelog](https://img.shields.io/github/release/uhafner/coverage-model.svg?label=changelog)](https://github.com/uhafner/coverage-model/releases/latest)
-[![GitHub Actions](https://github.com/uhafner/coverage-model/workflows/GitHub%20CI/badge.svg?branch=master)](https://github.com/uhafner/coverage-model/actions)
-[![Codecov](https://codecov.io/gh/uhafner/coverage-model/branch/master/graph/badge.svg)](https://codecov.io/gh/uhafner/coverage-model)
+[![CI on all platforms](https://github.com/uhafner/coverage-model/workflows/GitHub%20CI/badge.svg?branch=main)](https://github.com/jenkinsci/analysis-model/actions)
+[![Codecov](https://codecov.io/gh/uhafner/coverage-model/branch/main/graph/badge.svg)](https://codecov.io/gh/uhafner/coverage-model)
 [![LGTM grade](https://img.shields.io/lgtm/grade/java/g/uhafner/coverage-model.svg?logo=lgtm&logoWidth=18&label=lgtm%20grade)](https://lgtm.com/projects/g/uhafner/coverage-model/context:java)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/uhafner/coverage-model.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/uhafner/coverage-model/alerts/)
 
