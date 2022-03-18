@@ -345,22 +345,6 @@ public class CoverageNode implements Serializable {
     }
 
     /**
-     * Returns recursively all nodes of the instance {@link FileCoverageNode}.
-     *
-     * @return all file coverage nodes
-     */
-    public List<FileCoverageNode> getAllFileCoverageNodes() {
-        List<FileCoverageNode> childNodes = children.stream()
-                .map(CoverageNode::getAllFileCoverageNodes)
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-        if (this instanceof FileCoverageNode) {
-            childNodes.add((FileCoverageNode) this);
-        }
-        return childNodes;
-    }
-
-    /**
      * Finds the coverage metric with the given name starting from this node.
      *
      * @param searchMetric
