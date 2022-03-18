@@ -1,0 +1,29 @@
+{
+  "name": "coverage-model",
+  "version": "1.0.0",
+  "description": "Provides a Java API and model to collect code coverage results",
+  "directories": {
+    "doc": "doc"
+  },
+  "dependencies": {
+    "remark-cli": "^10.0.0",
+    "remark-lint": "^9.1.0",
+    "remark-preset-lint-recommended": "^6.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "lint-md": "remark ."
+  },
+  "remarkConfig": {
+    "plugins": [
+      "remark-preset-lint-recommended"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uhafner/coverage-model.git"
+  },
+  "author": "Ullrich Hafner",
+  "license": "MIT",
+  "homepage": "https://github.com/uhafner/coverage-model#readme"
+}

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>edu.hm.hafner</groupId>
+    <artifactId>codingstyle-pom</artifactId>
+    <version>2.18.0</version>
+    <relativePath />
+  </parent>
+
+  <groupId>edu.hm.hafner</groupId>
+  <artifactId>coverage-model</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <packaging>jar</packaging>
+
+  <name>Code Coverage Model and Parsers</name>
+  <description>Provides a Java API and model to parse and collect code coverage results</description>
+
+  <scm>
+    <connection>scm:git:git://github.com/uhafner/coverage-model.git</connection>
+    <developerConnection>scm:git:git@github.com:uhafner/coverage-model.git</developerConnection>
+    <url>https://github.com/uhafner/coverage-model</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>MIT license</name>
+      <comments>All source code is copyrighted by Ullrich Hafner and licensed under the MIT license.</comments>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Ullrich Hafner</name>
+      <id>uhafner</id>
+      <email>ullrich.hafner@hm.edu</email>
+      <organization>Munich University of Applied Sciences</organization>
+      <organizationUrl>https://www.hm.edu/en/index.en.html</organizationUrl>
+    </developer>
+  </developers>
+
+  <url>https://www.cs.hm.edu/die_fakultaet/ansprechpartner/professoren/hafner/index.de.html</url>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <module.name>edu.hm.hafner.coverage</module.name>
+
+    <!-- Project Dependencies Configuration -->
+    <codingstyle.library.version>2.16.0</codingstyle.library.version>
+    <commons.lang.version>3.12.0</commons.lang.version>
+
+    <junit-pioneer.version>0.3.0</junit-pioneer.version>
+
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>edu.hm.hafner</groupId>
+      <artifactId>codingstyle</artifactId>
+      <version>${codingstyle.library.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons.lang.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit-pioneer</groupId>
+      <artifactId>junit-pioneer</artifactId>
+      <version>${junit-pioneer.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <analysisConfiguration>
+            <revapi.semver.ignore>
+              <enabled>true</enabled>
+            </revapi.semver.ignore>
+            <revapi.differences>
+              <justification>The class Fraction is part of our API in order to represent coverage values</justification>
+              <criticality>allowed</criticality>
+              <differences combine.children="append">
+                <item>
+                  <classQualifiedName>org.apache.commons.lang3.math.Fraction</classQualifiedName>
+                  <code>java.class.externalClassExposedInAPI</code>
+                </item>
+              </differences>
+            </revapi.differences>
+          </analysisConfiguration>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+        <configuration>
+          <packages>
+            <package>edu.hm.hafner.coverage</package>
+          </packages>
+          <entryPointClassPackage>edu.hm.hafner.coverage.assertions</entryPointClassPackage>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>**/*Assert*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+</project>
