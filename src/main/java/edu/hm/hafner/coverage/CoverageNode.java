@@ -448,9 +448,7 @@ public class CoverageNode implements Serializable {
      * @return the root node of the copied tree
      */
     public CoverageNode copyTree() {
-        CoverageNode copy = copyEmpty();
-        copyChildrenAndLeaves(this, copy);
-        return copy;
+        return copyTree(null);
     }
 
     /**
@@ -467,24 +465,12 @@ public class CoverageNode implements Serializable {
             copy.setParent(copiedParent);
         }
 
-        copyChildrenAndLeaves(this, copy);
+        getChildren().stream()
+                .map(node -> node.copyTree(this))
+                .forEach(copy::add);
+        getLeaves().forEach(copy::add);
 
         return copy;
-    }
-
-    /**
-     * Copies the children and leaves of a {@link CoverageNode} to another one.
-     *
-     * @param from
-     *         The node which values should be copied
-     * @param to
-     *         The node which receives the copied values
-     */
-    protected void copyChildrenAndLeaves(final CoverageNode from, final CoverageNode to) {
-        from.getChildren().stream()
-                .map(node -> node.copyTree(from))
-                .forEach(copy -> to.getChildren().add(copy));
-        from.getLeaves().forEach(leaf -> to.getLeaves().add(leaf));
     }
 
     /**

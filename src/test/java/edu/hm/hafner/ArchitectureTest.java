@@ -1,0 +1,46 @@
+package edu.hm.hafner;
+
+import java.io.Serializable;
+
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
+
+import edu.hm.hafner.util.ArchitectureRules;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
+
+/**
+ * Defines several architecture rules for the code coverage model.
+ *
+ * @author Ullrich Hafner
+ */
+@SuppressWarnings("hideutilityclassconstructor")
+@AnalyzeClasses(packages = "edu.hm.hafner")
+class ArchitectureTest {
+    @ArchTest
+    static final ArchRule NO_PUBLIC_TEST_CLASSES = ArchitectureRules.NO_PUBLIC_TEST_CLASSES;
+
+    @ArchTest
+    static final ArchRule ONLY_PACKAGE_PRIVATE_TEST_METHODS = ArchitectureRules.ONLY_PACKAGE_PRIVATE_TEST_METHODS;
+
+    @ArchTest
+    static final ArchRule NO_PUBLIC_ARCHITECTURE_TESTS = ArchitectureRules.NO_PUBLIC_ARCHITECTURE_TESTS;
+
+    @ArchTest
+    static final ArchRule NO_TEST_API_CALLED = ArchitectureRules.NO_TEST_API_CALLED;
+
+    @ArchTest
+    static final ArchRule NO_FORBIDDEN_PACKAGE_ACCESSED = ArchitectureRules.NO_FORBIDDEN_PACKAGE_ACCESSED;
+
+    @ArchTest
+    static final ArchRule NO_FORBIDDEN_CLASSES_CALLED = ArchitectureRules.NO_FORBIDDEN_CLASSES_CALLED;
+
+    @ArchTest
+    static final ArchRule NO_FORBIDDEN_ANNOTATION_USED = ArchitectureRules.NO_FORBIDDEN_ANNOTATION_USED;
+
+    @ArchTest
+    static final ArchRule READ_RESOLVE_SHOULD_BE_PROTECTED =             methods().that().haveName("readResolve").and().haveRawReturnType(Object.class)
+            .should().beDeclaredInClassesThat().implement(Serializable.class)
+            .andShould().beProtected().allowEmptyShould(true);
+}
