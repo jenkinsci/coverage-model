@@ -42,6 +42,7 @@ class CoverageTest {
         assertThat(coverage.formatMissedPercentage()).isEqualTo("40.00%");
 
         assertThat(coverage.add(Coverage.NO_COVERAGE)).isEqualTo(coverage);
+
         Coverage sum = coverage.add(new Coverage(10, 0));
         assertThat(sum).isEqualTo(new Coverage(16, 4));
         assertThat(sum.formatCoveredPercentage()).isEqualTo("80.00%");

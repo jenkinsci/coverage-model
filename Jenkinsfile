@@ -2,7 +2,7 @@ node {
     def mvnHome = tool 'mvn-default'
 
     stage ('Checkout') {
-        git branch:'master', url: 'https://github.com/uhafner/coverage-model.git'
+        git branch:'main', url: 'https://github.com/uhafner/coverage-model.git'
     }
 
     stage ('Build and Static Analysis') {
