@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Value of a code coverage item. The code coverage is measured using the number of covered and missed items. The type
@@ -166,7 +167,7 @@ public final class Coverage implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@CheckForNull final Object o) {
         if (this == o) {
             return true;
         }

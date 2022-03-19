@@ -8,11 +8,11 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
+import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -117,8 +117,8 @@ public class CoverageNode implements Serializable {
      *
      * @return the elements in this tree
      */
-    public SortedSet<CoverageMetric> getMetrics() {
-        SortedSet<CoverageMetric> elements = children.stream()
+    public NavigableSet<CoverageMetric> getMetrics() {
+        NavigableSet<CoverageMetric> elements = children.stream()
                 .map(CoverageNode::getMetrics)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toCollection(TreeSet::new));
@@ -454,21 +454,6 @@ public class CoverageNode implements Serializable {
     }
 
     /**
-     * Copies the children and leaves of a {@link CoverageNode} to another one.
-     *
-     * @param from
-     *         The node which values should be copied
-     * @param to
-     *         The node which receives the copied values
-     */
-    protected void copyChildrenAndLeaves(final CoverageNode from, final CoverageNode to) {
-        from.getChildren().stream()
-                .map(node -> node.copyTree(from))
-                .forEach(copy -> to.getChildren().add(copy));
-        from.getLeaves().forEach(leaf -> to.getLeaves().add(leaf));
-    }
-
-    /**
      * Recursively copies the coverage tree with the passed {@link CoverageNode} as root.
      *
      * @param copiedParent
@@ -485,6 +470,21 @@ public class CoverageNode implements Serializable {
         copyChildrenAndLeaves(this, copy);
 
         return copy;
+    }
+
+    /**
+     * Copies the children and leaves of a {@link CoverageNode} to another one.
+     *
+     * @param from
+     *         The node which values should be copied
+     * @param to
+     *         The node which receives the copied values
+     */
+    protected void copyChildrenAndLeaves(final CoverageNode from, final CoverageNode to) {
+        from.getChildren().stream()
+                .map(node -> node.copyTree(from))
+                .forEach(copy -> to.getChildren().add(copy));
+        from.getLeaves().forEach(leaf -> to.getLeaves().add(leaf));
     }
 
     /**
@@ -520,7 +520,7 @@ public class CoverageNode implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@CheckForNull final Object o) {
         if (this == o) {
             return true;
         }

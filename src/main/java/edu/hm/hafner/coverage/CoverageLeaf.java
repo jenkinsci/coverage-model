@@ -3,6 +3,8 @@ package edu.hm.hafner.coverage;
 import java.io.Serializable;
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+
 /**
  * A leaf in the coverage hierarchy. A leaf is a non-divisible coverage metric like line, instruction or branch
  * coverage.
@@ -57,7 +59,7 @@ public final class CoverageLeaf implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@CheckForNull final Object o) {
         if (this == o) {
             return true;
         }

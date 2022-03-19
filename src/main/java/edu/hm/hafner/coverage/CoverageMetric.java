@@ -166,7 +166,7 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@CheckForNull final Object o) {
         if (this == o) {
             return true;
         }

@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+
 /**
  * A {@link CoverageNode} for a specific method.
  *
@@ -43,7 +45,7 @@ public class MethodCoverageNode extends CoverageNode {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(@CheckForNull final Object o) {
         if (this == o) {
             return true;
         }
