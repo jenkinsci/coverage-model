@@ -140,10 +140,11 @@ public class CoverageNode implements Serializable {
     }
 
     public SortedMap<CoverageMetric, Fraction> getMetricsPercentages() {
-        return getMetrics().stream()
-                .collect(Collectors.toMap(Function.identity(),
-                        searchMetric -> getCoverage(searchMetric).getCoveredPercentage(), (o1, o2) -> o1,
-                        TreeMap::new));
+        return getMetrics().stream().collect(Collectors.toMap(
+                Function.identity(),
+                searchMetric -> getCoverage(searchMetric).getCoveredPercentage(),
+                (o1, o2) -> o1,
+                TreeMap::new));
     }
 
     public String getName() {
@@ -447,27 +448,8 @@ public class CoverageNode implements Serializable {
      * @return the root node of the copied tree
      */
     public CoverageNode copyTree() {
-        CoverageNode copy = new CoverageNode(metric, name);
+        CoverageNode copy = copyEmpty();
         copyChildrenAndLeaves(this, copy);
-        return copy;
-    }
-
-    /**
-     * Recursively copies the coverage tree with the passed {@link CoverageNode} as root.
-     *
-     * @param copiedParent
-     *         The root node
-     *
-     * @return the copied tree
-     */
-    protected CoverageNode copyTree(@CheckForNull final CoverageNode copiedParent) {
-        CoverageNode copy = new CoverageNode(metric, name);
-        if (copiedParent != null) {
-            copy.setParent(copiedParent);
-        }
-
-        copyChildrenAndLeaves(this, copy);
-
         return copy;
     }
 
@@ -484,6 +466,34 @@ public class CoverageNode implements Serializable {
                 .map(node -> node.copyTree(from))
                 .forEach(copy -> to.getChildren().add(copy));
         from.getLeaves().forEach(leaf -> to.getLeaves().add(leaf));
+    }
+
+    /**
+     * Recursively copies the coverage tree with the passed {@link CoverageNode} as root.
+     *
+     * @param copiedParent
+     *         The root node
+     *
+     * @return the copied tree
+     */
+    protected CoverageNode copyTree(@CheckForNull final CoverageNode copiedParent) {
+        CoverageNode copy = copyEmpty();
+        if (copiedParent != null) {
+            copy.setParent(copiedParent);
+        }
+
+        copyChildrenAndLeaves(this, copy);
+
+        return copy;
+    }
+
+    /**
+     * Creates a copied instance of this node that has no children, leaves, and parent yet.
+     *
+     * @return the new and empty node
+     */
+    protected CoverageNode copyEmpty() {
+        return new CoverageNode(metric, name);
     }
 
     private void insertPackage(final CoverageNode aPackage, final Deque<String> packageLevels) {
@@ -526,5 +536,10 @@ public class CoverageNode implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(metric, name, children, leaves, parent);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s", getMetric(), getName());
     }
 }

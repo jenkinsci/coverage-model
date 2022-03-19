@@ -1,5 +1,5 @@
 /**
- * Generic coverage model that tries to replace all the existing functionality with a more versatile model.
+ * Generic coverage model to parse and collect code coverage results of different tools.
  *
  * @author Ullrich Hafner
  */

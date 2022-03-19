@@ -61,4 +61,9 @@ public class MethodCoverageNode extends CoverageNode {
     public int hashCode() {
         return Objects.hash(super.hashCode(), lineNumber);
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + String.format(" (%d)", lineNumber);
+    }
 }
