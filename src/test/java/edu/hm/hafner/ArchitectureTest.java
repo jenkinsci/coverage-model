@@ -1,14 +1,10 @@
 package edu.hm.hafner;
 
-import java.io.Serializable;
-
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 import edu.hm.hafner.util.ArchitectureRules;
-
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
 /**
  * Defines several architecture rules for the code coverage model.
@@ -40,7 +36,5 @@ class ArchitectureTest {
     static final ArchRule NO_FORBIDDEN_ANNOTATION_USED = ArchitectureRules.NO_FORBIDDEN_ANNOTATION_USED;
 
     @ArchTest
-    static final ArchRule READ_RESOLVE_SHOULD_BE_PROTECTED =             methods().that().haveName("readResolve").and().haveRawReturnType(Object.class)
-            .should().beDeclaredInClassesThat().implement(Serializable.class)
-            .andShould().beProtected().allowEmptyShould(true);
+    static final ArchRule READ_RESOLVE_SHOULD_BE_PROTECTED = ArchitectureRules.READ_RESOLVE_SHOULD_BE_PROTECTED;
 }
