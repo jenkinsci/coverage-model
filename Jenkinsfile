@@ -1,12 +1,16 @@
-node {
-    def mvnHome = tool 'mvn-default'
-
+node('java11-agent') {
     stage ('Checkout') {
-        git branch:'main', url: 'https://github.com/uhafner/coverage-model.git'
+        checkout scm
     }
 
-    stage ('Build and Static Analysis') {
-        withMaven(maven: 'mvn-default', mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
+    stage ('Git mining') {
+        discoverGitReferenceBuild()
+        mineRepository()
+        gitDiffStat()
+    }
+
+    stage ('Build, Test, and Static Analysis') {
+        withMaven(mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
             sh 'mvn -V -e clean verify -Dmaven.test.failure.ignore -Dgpg.skip'
         }
 
@@ -14,25 +18,18 @@ node {
         recordIssues tool: errorProne(), healthy: 1, unhealthy: 20
 
         junit testResults: '**/target/*-reports/TEST-*.xml'
+        publishCoverage adapters: [jacocoAdapter('**/*/jacoco.xml')], sourceFileResolver: sourceFiles('STORE_ALL_BUILD')
 
         recordIssues tools: [checkStyle(pattern: 'target/checkstyle-result.xml'),
             spotBugs(pattern: 'target/spotbugsXml.xml'),
             pmdParser(pattern: 'target/pmd.xml'),
-            cpd(pattern: 'target/cpd.xml')],
+            cpd(pattern: 'target/cpd.xml'),
+            taskScanner(highTags:'FIXME', normalTags:'TODO', includePattern: '**/*.java', excludePattern: 'target/**/*')],
             qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
-        recordIssues tool: taskScanner(highTags:'FIXME', normalTags:'TODO',
-                includePattern: '**/*.java', excludePattern: 'target/**/*')
-    }
-
-    stage ('Line and Branch Coverage') {
-        withMaven(maven: 'mvn-default', mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
-            sh "mvn -V -U -e jacoco:prepare-agent test jacoco:report -Dmaven.test.failure.ignore"
-        }
-        publishCoverage adapters: [jacocoAdapter('**/*/jacoco.xml')], sourceFileResolver: sourceFiles('STORE_ALL_BUILD')
     }
 
     stage ('Mutation Coverage') {
-        withMaven(maven: 'mvn-default', mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
+        withMaven(mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
             sh "mvn org.pitest:pitest-maven:mutationCoverage"
         }
         step([$class: 'PitPublisher', mutationStatsFile: 'target/pit-reports/**/mutations.xml'])
