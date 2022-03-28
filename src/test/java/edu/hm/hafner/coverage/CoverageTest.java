@@ -4,6 +4,8 @@ import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -47,5 +49,10 @@ class CoverageTest {
         assertThat(sum).isEqualTo(new Coverage(16, 4));
         assertThat(sum.formatCoveredPercentage()).isEqualTo("80.00%");
         assertThat(sum.formatMissedPercentage()).isEqualTo("20.00%");
+    }
+
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(Coverage.class).verify();
     }
 }
