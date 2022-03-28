@@ -507,7 +507,7 @@ public class CoverageNode implements Serializable {
     }
 
     @Override
-    public boolean equals(@CheckForNull final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -516,13 +516,12 @@ public class CoverageNode implements Serializable {
         }
         CoverageNode that = (CoverageNode) o;
         return Objects.equals(metric, that.metric) && Objects.equals(name, that.name)
-                && Objects.equals(children, that.children) && Objects.equals(leaves, that.leaves)
-                && Objects.equals(parent, that.parent);
+                && Objects.equals(children, that.children) && Objects.equals(leaves, that.leaves);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metric, name, children, leaves, parent);
+        return Objects.hash(metric, name, children, leaves);
     }
 
     @Override
