@@ -85,5 +85,4 @@ class CoverageTest {
     void shouldCorrectlyCalculateEqualityAndHashCode() {
         EqualsVerifier.forClass(Coverage.class).verify();
     }
-
 }
