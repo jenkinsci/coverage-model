@@ -51,6 +51,9 @@ class CoverageTest {
         assertThat(sum.formatMissedPercentage()).isEqualTo("20.00%");
     }
 
+    /**
+     * Tests equals() method.
+     */
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(Coverage.class).verify();

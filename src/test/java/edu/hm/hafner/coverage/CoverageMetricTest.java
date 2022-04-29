@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -69,5 +71,49 @@ class CoverageMetricTest {
                 CoverageMetric.INSTRUCTION,
                 CoverageMetric.BRANCH
         );
+    }
+
+    /**
+     * Tests for creating predefined metrics with their names.
+     */
+    @Test
+    void shouldCreatePredefinedMetrics() {
+        // When & Then
+        assertThat(CoverageMetric.valueOf("MODULE")).isEqualTo(CoverageMetric.MODULE).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("REPORT")).isEqualTo(CoverageMetric.MODULE).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("PACKAGE")).isEqualTo(CoverageMetric.PACKAGE).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("FILE")).isEqualTo(CoverageMetric.FILE).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("CLASS")).isEqualTo(CoverageMetric.CLASS).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("METHOD")).isEqualTo(CoverageMetric.METHOD).isNotLeaf();
+        assertThat(CoverageMetric.valueOf("INSTRUCTION")).isEqualTo(CoverageMetric.INSTRUCTION).isLeaf();
+        assertThat(CoverageMetric.valueOf("LINE")).isEqualTo(CoverageMetric.LINE).isLeaf();
+        assertThat(CoverageMetric.valueOf("BRANCH")).isEqualTo(CoverageMetric.BRANCH).isLeaf();
+        assertThat(CoverageMetric.valueOf("CONDITIONAL")).isEqualTo(CoverageMetric.BRANCH).isLeaf();
+    }
+
+    /**
+     * Test for creating a new metric with name.
+     */
+    @Test
+    void shouldCreateNewMetric() {
+        // Given
+        String newMetricName = "Subpackage";
+
+        // When
+        CoverageMetric actualMetric = CoverageMetric.valueOf(newMetricName);
+
+        // Then
+        assertThat(actualMetric)
+                .hasName(newMetricName)
+                .hasToString(newMetricName)
+                .isNotLeaf();
+    }
+
+    /**
+     * Tests equals() method.
+     */
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(CoverageMetric.class).withIgnoredFields("order", "leaf").verify();
     }
 }
