@@ -43,6 +43,8 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
     public static final CoverageMetric BRANCH = new CoverageMetric("Branch", 12, MetricType.LEAF);
     private static final CoverageMetric CONDITIONAL = new CoverageMetric("Conditional", 12, MetricType.LEAF);
     // Decision coverage currently is not used since no tools is using it
+    /** Complexity coverage. */
+    public static final CoverageMetric COMPLEXITY = new CoverageMetric("Complexity", 13, MetricType.LEAF);
 
     /**
      * Creates a new {@link CoverageMetric} with the specified name. If the name is the same as the name of one of the
@@ -79,6 +81,9 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
         if (BRANCH.equalsIgnoreCase(name) || CONDITIONAL.equalsIgnoreCase(name)) {
             return BRANCH;
         }
+        if (COMPLEXITY.equalsIgnoreCase(name) || COMPLEXITY.equalsIgnoreCase(name)) {
+            return COMPLEXITY;
+        }
         return new CoverageMetric(name, DEFAULT_ORDER);
     }
 
@@ -88,7 +93,7 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
      * @return the available metrics
      */
     public static List<CoverageMetric> getAvailableCoverageMetrics() {
-        return Arrays.asList(LINE, BRANCH, INSTRUCTION, METHOD, CLASS, FILE, PACKAGE, MODULE);
+        return Arrays.asList(COMPLEXITY, LINE, BRANCH, INSTRUCTION, METHOD, CLASS, FILE, PACKAGE, MODULE);
     }
 
     /**

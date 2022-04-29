@@ -27,12 +27,14 @@ class CoverageMetricTest {
         all.add(CoverageMetric.LINE);
         all.add(CoverageMetric.BRANCH);
         all.add(CoverageMetric.INSTRUCTION);
+        all.add(CoverageMetric.COMPLEXITY);
 
         Collections.sort(all);
         verifyOrder(all);
 
         Collections.reverse(all);
         assertThat(all).containsExactly(
+                CoverageMetric.COMPLEXITY,
                 CoverageMetric.BRANCH,
                 CoverageMetric.INSTRUCTION,
                 CoverageMetric.LINE,
@@ -49,6 +51,7 @@ class CoverageMetricTest {
     @Test
     void shouldGetAvailableMetrics() {
         assertThat(CoverageMetric.getAvailableCoverageMetrics()).containsExactlyInAnyOrder(
+                CoverageMetric.COMPLEXITY,
                 CoverageMetric.BRANCH,
                 CoverageMetric.INSTRUCTION,
                 CoverageMetric.LINE,
@@ -69,7 +72,8 @@ class CoverageMetricTest {
                 CoverageMetric.METHOD,
                 CoverageMetric.LINE,
                 CoverageMetric.INSTRUCTION,
-                CoverageMetric.BRANCH
+                CoverageMetric.BRANCH,
+                CoverageMetric.COMPLEXITY
         );
     }
 
@@ -89,6 +93,7 @@ class CoverageMetricTest {
         assertThat(CoverageMetric.valueOf("LINE")).isEqualTo(CoverageMetric.LINE).isLeaf();
         assertThat(CoverageMetric.valueOf("BRANCH")).isEqualTo(CoverageMetric.BRANCH).isLeaf();
         assertThat(CoverageMetric.valueOf("CONDITIONAL")).isEqualTo(CoverageMetric.BRANCH).isLeaf();
+        assertThat(CoverageMetric.valueOf("COMPLEXITY")).isEqualTo(CoverageMetric.COMPLEXITY).isLeaf();
     }
 
     /**

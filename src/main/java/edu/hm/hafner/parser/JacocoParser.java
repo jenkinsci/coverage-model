@@ -193,6 +193,9 @@ public class JacocoParser {
             case "BRANCH":
                 coverageMetric = CoverageMetric.BRANCH;
                 break;
+            case "COMPLEXITY":
+                coverageMetric = CoverageMetric.COMPLEXITY;
+                break;
             default:
                 return;
         }
