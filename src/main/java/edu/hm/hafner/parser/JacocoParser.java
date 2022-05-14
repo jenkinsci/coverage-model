@@ -31,6 +31,11 @@ public class JacocoParser {
     private static final QName TYPE = new QName("type");
     private static final QName MISSED = new QName("missed");
     private static final QName COVERED = new QName("covered");
+    private static final QName NR = new QName("nr");
+    private static final QName MI = new QName("mi");
+    private static final QName CI = new QName("ci");
+    private static final QName MB = new QName("mb");
+    private static final QName CB = new QName("cb");
 
     private static CoverageNode rootNode;
     private static CoverageNode currentPackageNode;
@@ -88,6 +93,7 @@ public class JacocoParser {
 
     /**
      * Creates a node or a leaf depending on the given element type.
+     * Ignore group and sessioninfo.
      *
      * @param element the complete tag element including attributes
      */
@@ -95,7 +101,7 @@ public class JacocoParser {
         String name = element.getName().toString();
 
         switch (name) {
-            case "report":
+            case "report": // currentNode = null, rootNode after
                 // module name consists of name attribute of the element together with the filename, divided with :
                 String moduleName = element.getAttributeByName(NAME).getValue() + ": " + filename;
 
@@ -103,7 +109,7 @@ public class JacocoParser {
                 currentNode = rootNode;
                 break;
 
-            case "package":
+            case "package": // currentNode = rootNode, packageNode after
                 String packageName = element.getAttributeByName(NAME).getValue();
                 CoverageNode packageNode = new PackageCoverageNode(packageName.replaceAll("/", "."));
                 rootNode.add(packageNode);
@@ -112,11 +118,23 @@ public class JacocoParser {
                 currentNode = packageNode;
                 break;
 
-            case "class":
+            case "class": // currentNode = packageNode, classNode after
                 handleClassElement(element);
                 break;
 
-            case "sourcefile":
+            case "method": // currentNode = classNode, methodNode after
+                CoverageNode methodNode = new CoverageNode(CoverageMetric.METHOD,
+                        element.getAttributeByName(NAME).getValue());
+
+                currentNode.add(methodNode);
+                currentNode = methodNode;
+                break;
+
+            case "counter": // currentNode = methodNode, methodNode after
+                handleCounterElement(element);
+                break;
+
+            case "sourcefile": // currentNode = packageNode, fileNode after
                 String fileName = element.getAttributeByName(NAME).getValue();
                 CoverageNode fileNode = new FileCoverageNode(fileName);
 
@@ -127,18 +145,11 @@ public class JacocoParser {
                 }
 
                 currentPackageNode.add(fileNode);
+                currentNode = fileNode;
                 break;
 
-            case "method":
-                CoverageNode methodNode = new CoverageNode(CoverageMetric.METHOD,
-                        element.getAttributeByName(NAME).getValue());
-
-                currentNode.add(methodNode);
-                currentNode = methodNode;
-                break;
-
-            case "counter":
-                handleCounterElement(element);
+            case "line": // currentNode = fileNode, fileNode after
+                handleLineElement(element);
                 break;
         }
     }
@@ -208,10 +219,35 @@ public class JacocoParser {
     }
 
     /**
+     * Creates an instruction or branch leaf and add it to the current fileNode.
+     *
+     * @param element the current report element
+     */
+    private static void handleLineElement(final StartElement element) {
+        int lineNumber = Integer.parseInt(element.getAttributeByName(NR).getValue());
+        int missedInstructions = Integer.parseInt(element.getAttributeByName(MI).getValue());
+        int coveredInstructions = Integer.parseInt(element.getAttributeByName(CI).getValue());
+        int missedBranches = Integer.parseInt(element.getAttributeByName(MB).getValue());
+        int coveredBranches = Integer.parseInt(element.getAttributeByName(CB).getValue());
+
+        if (coveredInstructions > 0 || missedInstructions > 0) {
+            CoverageLeaf instructionLeaf = new CoverageLeaf(CoverageMetric.INSTRUCTION,
+                    new Coverage(coveredInstructions, missedInstructions));
+            ((FileCoverageNode) currentNode).getLineToInstructionCoverage().put(lineNumber, instructionLeaf);
+        }
+
+        if (coveredBranches > 0 || missedBranches > 0) {
+            CoverageLeaf branchLeaf = new CoverageLeaf(CoverageMetric.BRANCH,
+                    new Coverage(coveredBranches, missedBranches));
+            ((FileCoverageNode) currentNode).getLineToBranchCoverage().put(lineNumber, branchLeaf);
+        }
+    }
+
+    /**
      * Depending on the tag, either resets the map containing the class objects
      * or sets the current node back to the class node.
      *
-     * @param qName name of the ending tag
+     * @param element the current report element
      */
     private static void endElement(final QName qName) {
         switch (qName.toString()) {

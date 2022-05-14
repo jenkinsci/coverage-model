@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageMetric;
 import edu.hm.hafner.coverage.CoverageNode;
+import edu.hm.hafner.coverage.FileCoverageNode;
 
 import static edu.hm.hafner.coverage.CoverageMetric.*;
 import static edu.hm.hafner.coverage.CoverageMetric.CLASS;
@@ -140,6 +141,24 @@ class JacocoParserTest {
     }
 
     private void verifyCoverageMetrics(final CoverageNode tree) {
+        List<CoverageNode> nodes = tree.getAll(FILE);
+
+        long missedInstructions = 0;
+        long coveredInstructions = 0;
+        long missedBranches = 0;
+        long coveredBranches = 0;
+        for (CoverageNode node : nodes) {
+            missedInstructions = missedInstructions + ((FileCoverageNode) node).getMissedInstructions();
+            coveredInstructions = coveredInstructions + ((FileCoverageNode) node).getCoveredInstructions();
+            missedBranches = missedBranches + ((FileCoverageNode) node).getMissedBranches();
+            coveredBranches = coveredBranches + ((FileCoverageNode) node).getCoveredBranches();
+        }
+
+        assertThat(missedInstructions).isEqualTo(90);
+        assertThat(coveredInstructions).isEqualTo(1260);
+        assertThat(missedBranches).isEqualTo(7);
+        assertThat(coveredBranches).isEqualTo(109);
+
         assertThat(tree.getCoverage(LINE)).isSet()
                 .hasCovered(294)
                 .hasCoveredPercentage(Fraction.getFraction(294, 294 + 29))
@@ -166,6 +185,15 @@ class JacocoParserTest {
                 .hasTotal(1260 + 90);
         assertThat(tree.printCoverageFor(INSTRUCTION)).isEqualTo("93.33%");
         assertThat(tree.printCoverageFor(INSTRUCTION, Locale.GERMAN)).isEqualTo("93,33%");
+
+        assertThat(tree.getCoverage(COMPLEXITY)).isSet()
+                .hasCovered(148)
+                .hasCoveredPercentage(Fraction.getFraction(148, 148 + 12))
+                .hasMissed(12)
+                .hasMissedPercentage(Fraction.getFraction(12, 148 + 12))
+                .hasTotal(148 + 12);
+        assertThat(tree.printCoverageFor(COMPLEXITY)).isEqualTo("92.50%");
+        assertThat(tree.printCoverageFor(COMPLEXITY, Locale.GERMAN)).isEqualTo("92,50%");
 
         assertThat(tree.getCoverage(MODULE)).isSet()
                 .hasCovered(1)
