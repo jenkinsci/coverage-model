@@ -148,10 +148,10 @@ class JacocoParserTest {
         long missedBranches = 0;
         long coveredBranches = 0;
         for (CoverageNode node : nodes) {
-            missedInstructions = missedInstructions + ((FileCoverageNode) node).getMissedInstructions();
-            coveredInstructions = coveredInstructions + ((FileCoverageNode) node).getCoveredInstructions();
-            missedBranches = missedBranches + ((FileCoverageNode) node).getMissedBranches();
-            coveredBranches = coveredBranches + ((FileCoverageNode) node).getCoveredBranches();
+            missedInstructions = missedInstructions + ((FileCoverageNode) node).getMissedInstructionsCount();
+            coveredInstructions = coveredInstructions + ((FileCoverageNode) node).getCoveredInstructionsCount();
+            missedBranches = missedBranches + ((FileCoverageNode) node).getMissedBranchesCount();
+            coveredBranches = coveredBranches + ((FileCoverageNode) node).getCoveredBranchesCount();
         }
 
         assertThat(missedInstructions).isEqualTo(90);

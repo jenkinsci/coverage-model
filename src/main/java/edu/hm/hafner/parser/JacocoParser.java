@@ -1,13 +1,9 @@
 package edu.hm.hafner.parser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -23,7 +19,7 @@ import edu.hm.hafner.coverage.PackageCoverageNode;
  *
  * @author Melissa Bauer
  */
-public class JacocoParser {
+public class JacocoParser extends XmlParser {
 
     /** Attributes of the XML elements. */
     private static final QName NAME = new QName("name");
@@ -37,15 +33,10 @@ public class JacocoParser {
     private static final QName MB = new QName("mb");
     private static final QName CB = new QName("cb");
 
-    private static CoverageNode rootNode;
-    private static CoverageNode currentPackageNode;
-    private static CoverageNode currentNode;
-    private static String filename;
-    private static HashMap<String, ArrayList<CoverageNode>> classNodesMap = new HashMap<>();
-
-    public CoverageNode getRootNode() {
-        return rootNode;
-    }
+    private CoverageNode currentPackageNode;
+    private CoverageNode currentNode;
+    private String filename;
+    private HashMap<String, ArrayList<CoverageNode>> classNodesMap = new HashMap<>();
 
     /**
      * Creates a new JacocoParser which parses the given Jacoco xml report into a java data model.
@@ -56,39 +47,11 @@ public class JacocoParser {
         parseFile(path);
     }
 
-    /**
-     * Parses xml report at given path.
-     *
-     * @param path path to report file
-     */
-    private static void parseFile(final String path) {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        System.out.println("FACTORY: " + factory);
-
-        XMLEventReader r;
-        try {
-            r = factory.createXMLEventReader(path, new FileInputStream(path));
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
-
-                if (e.isStartDocument()) {
-                    String systemId = e.getLocation().getSystemId();
-                    String[] parts = systemId.split("/");
-                    filename = parts[parts.length - 1];
-                }
-
-                if (e.isStartElement()) {
-                    startElement(e.asStartElement());
-                }
-
-                if (e.isEndElement()) {
-                    endElement(e.asEndElement().getName());
-                }
-            }
-        }
-        catch (XMLStreamException | FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
+    @Override
+    protected void startDocument(final XMLEvent event) {
+        String systemId = event.getLocation().getSystemId();
+        String[] parts = systemId.split("/");
+        filename = parts[parts.length - 1];
     }
 
     /**
@@ -97,7 +60,8 @@ public class JacocoParser {
      *
      * @param element the complete tag element including attributes
      */
-    private static void startElement(final StartElement element) {
+    @Override
+    protected void startElement(final StartElement element) {
         String name = element.getName().toString();
 
         switch (name) {
@@ -105,14 +69,14 @@ public class JacocoParser {
                 // module name consists of name attribute of the element together with the filename, divided with :
                 String moduleName = element.getAttributeByName(NAME).getValue() + ": " + filename;
 
-                rootNode = new CoverageNode(CoverageMetric.MODULE, moduleName);
-                currentNode = rootNode;
+                setRootNode(new CoverageNode(CoverageMetric.MODULE, moduleName));
+                currentNode = getRootNode();
                 break;
 
             case "package": // currentNode = rootNode, packageNode after
                 String packageName = element.getAttributeByName(NAME).getValue();
                 CoverageNode packageNode = new PackageCoverageNode(packageName.replaceAll("/", "."));
-                rootNode.add(packageNode);
+                getRootNode().add(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
                 currentNode = packageNode;
@@ -161,7 +125,7 @@ public class JacocoParser {
      *
      * @param element the current report element
      */
-    private static void handleClassElement(final StartElement element) {
+    private void handleClassElement(final StartElement element) {
         CoverageNode classNode = new CoverageNode(CoverageMetric.CLASS, element.getAttributeByName(NAME).getValue());
 
         String sourcefileName = element.getAttributeByName(SOURCEFILENAME).getValue();
@@ -185,7 +149,7 @@ public class JacocoParser {
      *
      * @param element the current report element
      */
-    private static void handleCounterElement(final StartElement element) {
+    private void handleCounterElement(final StartElement element) {
         String currentType = element.getAttributeByName(TYPE).getValue();
 
         // We only look for data on method layer
@@ -223,7 +187,7 @@ public class JacocoParser {
      *
      * @param element the current report element
      */
-    private static void handleLineElement(final StartElement element) {
+    private void handleLineElement(final StartElement element) {
         int lineNumber = Integer.parseInt(element.getAttributeByName(NR).getValue());
         int missedInstructions = Integer.parseInt(element.getAttributeByName(MI).getValue());
         int coveredInstructions = Integer.parseInt(element.getAttributeByName(CI).getValue());
@@ -233,13 +197,13 @@ public class JacocoParser {
         if (coveredInstructions > 0 || missedInstructions > 0) {
             CoverageLeaf instructionLeaf = new CoverageLeaf(CoverageMetric.INSTRUCTION,
                     new Coverage(coveredInstructions, missedInstructions));
-            ((FileCoverageNode) currentNode).getLineToInstructionCoverage().put(lineNumber, instructionLeaf);
+            ((FileCoverageNode) currentNode).getLineNumberToInstructionCoverage().put(lineNumber, instructionLeaf);
         }
 
         if (coveredBranches > 0 || missedBranches > 0) {
             CoverageLeaf branchLeaf = new CoverageLeaf(CoverageMetric.BRANCH,
                     new Coverage(coveredBranches, missedBranches));
-            ((FileCoverageNode) currentNode).getLineToBranchCoverage().put(lineNumber, branchLeaf);
+            ((FileCoverageNode) currentNode).getLineNumberToBranchCoverage().put(lineNumber, branchLeaf);
         }
     }
 
@@ -249,10 +213,11 @@ public class JacocoParser {
      *
      * @param element the current report element
      */
-    private static void endElement(final QName qName) {
-        switch (qName.toString()) {
+    @Override
+    protected void endElement(final EndElement element) {
+        switch (element.getName().toString()) {
             case "package":
-                currentNode = rootNode;
+                currentNode = getRootNode();
                 currentPackageNode = null;
                 classNodesMap = new HashMap<>();
                 break;

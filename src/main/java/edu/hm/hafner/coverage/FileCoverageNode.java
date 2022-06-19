@@ -11,8 +11,8 @@ import java.util.Map;
 public class FileCoverageNode extends CoverageNode {
     private static final long serialVersionUID = -3795695377267542624L;
 
-    private final Map<Integer, CoverageLeaf> lineToBranchCoverage = new HashMap<>();
-    private final Map<Integer, CoverageLeaf> lineToInstructionCoverage = new HashMap<>();
+    private final Map<Integer, CoverageLeaf> lineNumberToBranchCoverage = new HashMap<>();
+    private final Map<Integer, CoverageLeaf> lineNumberToInstructionCoverage = new HashMap<>();
 
     /**
      * Creates a new {@link FileCoverageNode} with the given name.
@@ -24,12 +24,12 @@ public class FileCoverageNode extends CoverageNode {
         super(CoverageMetric.FILE, name);
     }
 
-    public Map<Integer, CoverageLeaf> getLineToBranchCoverage() {
-        return lineToBranchCoverage;
+    public Map<Integer, CoverageLeaf> getLineNumberToBranchCoverage() {
+        return lineNumberToBranchCoverage;
     }
 
-    public Map<Integer, CoverageLeaf> getLineToInstructionCoverage() {
-        return lineToInstructionCoverage;
+    public Map<Integer, CoverageLeaf> getLineNumberToInstructionCoverage() {
+        return lineNumberToInstructionCoverage;
     }
 
     /**
@@ -37,8 +37,8 @@ public class FileCoverageNode extends CoverageNode {
      *
      * @return number of missed instructions
      */
-    public long getMissedInstructions() {
-        return lineToInstructionCoverage.values().stream()
+    public long getMissedInstructionsCount() {
+        return lineNumberToInstructionCoverage.values().stream()
                 .mapToInt(leaf -> leaf.getCoverage().getMissed())
                 .sum();
     }
@@ -48,8 +48,8 @@ public class FileCoverageNode extends CoverageNode {
      *
      * @return number of covered instructions
      */
-    public long getCoveredInstructions() {
-        return lineToInstructionCoverage.values().stream()
+    public long getCoveredInstructionsCount() {
+        return lineNumberToInstructionCoverage.values().stream()
                 .mapToInt(leaf -> leaf.getCoverage().getCovered())
                 .sum();
     }
@@ -59,8 +59,8 @@ public class FileCoverageNode extends CoverageNode {
      *
      * @return number of missed branches
      */
-    public long getMissedBranches() {
-        return lineToBranchCoverage.values().stream()
+    public long getMissedBranchesCount() {
+        return lineNumberToBranchCoverage.values().stream()
                 .mapToInt(leaf -> leaf.getCoverage().getMissed())
                 .sum();
     }
@@ -70,8 +70,8 @@ public class FileCoverageNode extends CoverageNode {
      *
      * @return number of covered instructions
      */
-    public long getCoveredBranches() {
-        return lineToBranchCoverage.values().stream()
+    public long getCoveredBranchesCount() {
+        return lineNumberToBranchCoverage.values().stream()
                 .mapToInt(leaf -> leaf.getCoverage().getCovered())
                 .sum();
     }
