@@ -1,9 +1,7 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Locale;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -12,12 +10,8 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  *
  * @author Ullrich Hafner
  */
+@DefaultLocale("en")
 class CoverageNodeTest {
-    @BeforeAll
-    static void beforeAll() {
-        Locale.setDefault(Locale.ENGLISH);
-    }
-
     @Test
     void shouldSplitPackagesWithoutPackageNodes() {
         CoverageNode root = new CoverageNode(CoverageMetric.MODULE, "Root");
