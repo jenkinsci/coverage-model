@@ -8,13 +8,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
-import edu.hm.hafner.coverage.CoverageMetric;
-import edu.hm.hafner.coverage.CoverageNode;
-import edu.hm.hafner.coverage.FileCoverageNode;
+import edu.hm.hafner.model.Metric;
+import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.Node;
 
-import static edu.hm.hafner.coverage.CoverageMetric.*;
-import static edu.hm.hafner.coverage.CoverageMetric.CLASS;
-import static edu.hm.hafner.coverage.CoverageMetric.FILE;
+import static edu.hm.hafner.model.Metric.*;
+import static edu.hm.hafner.model.Metric.CLASS;
+import static edu.hm.hafner.model.Metric.FILE;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -31,21 +31,39 @@ class JacocoParserTest {
     }
 
     @Test
-    void shouldReturnEmptyCoverageIfNotFound() {
-        CoverageNode root = readExampleReport();
+    void testGetCoverage() {
+        JacocoParser parser = new JacocoParser("src/test/resources/jacoco-small.xml");
+        Node tree = parser.getRootNode();
 
-        assertThat(root.getCoverage(CoverageMetric.valueOf("new"))).isNotSet();
+        tree.getCoverage(LINE);
+
+        tree.getCoverage(MODULE);
+
+        tree.getCoverage(PACKAGE);
+        tree.getCoverage(FILE);
+        tree.getCoverage(CLASS);
+        tree.getCoverage(METHOD);
+
+        tree.getCoverage(BRANCH);
+        tree.getCoverage(COMPLEXITY);
+    }
+
+    @Test
+    void shouldReturnEmptyCoverageIfNotFound() {
+        Node root = readExampleReport();
+
+        assertThat(root.getCoverage(Metric.valueOf("new"))).isNotSet();
     }
 
     @Test
     void shouldConvertCodingStyleToTree() {
-        CoverageNode tree = readExampleReport();
+        Node tree = readExampleReport();
 
         verifyCoverageMetrics(tree);
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
-        List<CoverageNode> files = tree.getAll(FILE);
+        List<Node> files = tree.getAll(FILE);
         assertThat(files).hasSize(10);
         assertThat(tree.getAll(CLASS)).hasSize(18);
         assertThat(tree.getAll(METHOD)).hasSize(102);
@@ -80,7 +98,7 @@ class JacocoParserTest {
 
     @Test
     void shouldSplitPackages() {
-        CoverageNode tree = readExampleReport();
+        Node tree = readExampleReport();
 
         tree.splitPackages();
 
@@ -99,11 +117,11 @@ class JacocoParserTest {
 
     @Test
     void shouldNotSplitPackagesIfOnWrongHierarchyNode() {
-        CoverageNode tree = readExampleReport();
-        CoverageNode packageNode = tree.getChildren().get(0);
+        Node tree = readExampleReport();
+        Node packageNode = (Node) tree.getChildren().get(0);
         assertThat(packageNode).hasName("edu.hm.hafner.util").hasPath("edu/hm/hafner/util");
 
-        List<CoverageNode> files = packageNode.getChildren();
+        List<Node> files = packageNode.getChildren();
 
         packageNode.splitPackages();
         assertThat(packageNode).hasName("edu.hm.hafner.util");
@@ -112,7 +130,7 @@ class JacocoParserTest {
 
     @Test
     void shouldThrowExceptionWhenObtainingAllBasicBlocks() {
-        CoverageNode tree = readExampleReport();
+        Node tree = readExampleReport();
 
         assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> tree.getAll(LINE));
         assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> tree.getAll(BRANCH));
@@ -121,7 +139,7 @@ class JacocoParserTest {
 
     @Test
     void shouldCreatePackageName() {
-        CoverageNode tree = readExampleReport();
+        Node tree = readExampleReport();
 
         String fileName = "Ensure.java";
         assertThat(tree.find(FILE, fileName)).isNotEmpty().hasValueSatisfying(
@@ -140,18 +158,18 @@ class JacocoParserTest {
         );
     }
 
-    private void verifyCoverageMetrics(final CoverageNode tree) {
-        List<CoverageNode> nodes = tree.getAll(FILE);
+    private void verifyCoverageMetrics(final Node tree) {
+        List<Node> nodes = tree.getAll(FILE);
 
         long missedInstructions = 0;
         long coveredInstructions = 0;
         long missedBranches = 0;
         long coveredBranches = 0;
-        for (CoverageNode node : nodes) {
-            missedInstructions = missedInstructions + ((FileCoverageNode) node).getMissedInstructionsCount();
-            coveredInstructions = coveredInstructions + ((FileCoverageNode) node).getCoveredInstructionsCount();
-            missedBranches = missedBranches + ((FileCoverageNode) node).getMissedBranchesCount();
-            coveredBranches = coveredBranches + ((FileCoverageNode) node).getCoveredBranchesCount();
+        for (Node node : nodes) {
+            missedInstructions = missedInstructions + ((FileNode) node).getMissedInstructionsCount();
+            coveredInstructions = coveredInstructions + ((FileNode) node).getCoveredInstructionsCount();
+            missedBranches = missedBranches + ((FileNode) node).getMissedBranchesCount();
+            coveredBranches = coveredBranches + ((FileNode) node).getCoveredBranchesCount();
         }
 
         assertThat(missedInstructions).isEqualTo(90);
@@ -210,8 +228,8 @@ class JacocoParserTest {
                 .hasMetric(MODULE).hasParentName("^");
     }
 
-    private CoverageNode readExampleReport() {
+    private Node readExampleReport() {
         JacocoParser parser = new JacocoParser("src/test/resources/jacoco-codingstyle.xml");
-        return parser.getRootNode();
+        return (Node) parser.getRootNode();
     }
 }

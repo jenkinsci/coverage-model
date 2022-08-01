@@ -1,4 +1,4 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  *
  * @author Ullrich Hafner
  */
-public final class CoverageMetric implements Comparable<CoverageMetric>, Serializable {
+public final class Metric implements Comparable<Metric>, Serializable {
     private static final long serialVersionUID = 3664773349525399092L;
     private static final int DEFAULT_ORDER = 100;
 
@@ -25,29 +25,31 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
     }
 
     /** Module coverage. */
-    public static final CoverageMetric MODULE = new CoverageMetric("Module", -10);
-    private static final CoverageMetric REPORT = new CoverageMetric("Report", -10);
+    public static final Metric MODULE = new Metric("Module", -10);
+    private static final Metric REPORT = new Metric("Report", -10);
     /** Package or namespace coverage. */
-    public static final CoverageMetric PACKAGE = new CoverageMetric("Package", 1);
+    public static final Metric PACKAGE = new Metric("Package", 1);
     /** File coverage. */
-    public static final CoverageMetric FILE = new CoverageMetric("File", 2);
+    public static final Metric FILE = new Metric("File", 2);
     /** Class coverage. */
-    public static final CoverageMetric CLASS = new CoverageMetric("Class", 3);
+    public static final Metric CLASS = new Metric("Class", 3);
     /** Method coverage. */
-    public static final CoverageMetric METHOD = new CoverageMetric("Method", 4);
+    public static final Metric METHOD = new Metric("Method", 4);
     /** Instruction coverage. */
-    public static final CoverageMetric INSTRUCTION = new CoverageMetric("Instruction", 11, MetricType.LEAF);
+    public static final Metric INSTRUCTION = new Metric("Instruction", 11, MetricType.LEAF);
     /** Line coverage. */
-    public static final CoverageMetric LINE = new CoverageMetric("Line", 10, MetricType.LEAF);
+    public static final Metric LINE = new Metric("Line", 10, MetricType.LEAF);
     /** Branch or conditional coverage. */
-    public static final CoverageMetric BRANCH = new CoverageMetric("Branch", 12, MetricType.LEAF);
-    private static final CoverageMetric CONDITIONAL = new CoverageMetric("Conditional", 12, MetricType.LEAF);
+    public static final Metric BRANCH = new Metric("Branch", 12, MetricType.LEAF);
+    private static final Metric CONDITIONAL = new Metric("Conditional", 12, MetricType.LEAF);
     // Decision coverage currently is not used since no tools is using it
     /** Complexity coverage. */
-    public static final CoverageMetric COMPLEXITY = new CoverageMetric("Complexity", 13, MetricType.LEAF);
+    public static final Metric COMPLEXITY = new Metric("Complexity", 13, MetricType.LEAF);
+    /** Mutation. */
+    public static final Metric MUTATION = new Metric("Mutation", 14, MetricType.LEAF);
 
     /**
-     * Creates a new {@link CoverageMetric} with the specified name. If the name is the same as the name of one of the
+     * Creates a new {@link Metric} with the specified name. If the name is the same as the name of one of the
      * predefined metrics, then the existing metric is returned.
      *
      * @param name
@@ -56,7 +58,7 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
      * @return the metric
      */
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.NPathComplexity"})
-    public static CoverageMetric valueOf(final String name) {
+    public static Metric valueOf(final String name) {
         if (MODULE.equalsIgnoreCase(name) || REPORT.equalsIgnoreCase(name)) {
             return MODULE;
         }
@@ -81,19 +83,22 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
         if (BRANCH.equalsIgnoreCase(name) || CONDITIONAL.equalsIgnoreCase(name)) {
             return BRANCH;
         }
-        if (COMPLEXITY.equalsIgnoreCase(name) || COMPLEXITY.equalsIgnoreCase(name)) {
+        if (COMPLEXITY.equalsIgnoreCase(name)) {
             return COMPLEXITY;
         }
-        return new CoverageMetric(name, DEFAULT_ORDER);
+        if (MUTATION.equalsIgnoreCase(name)) {
+            return MUTATION;
+        }
+        return new Metric(name, DEFAULT_ORDER);
     }
 
     /**
-     * Provides all available values of {@link CoverageMetric}.
+     * Provides all available values of {@link Metric}.
      *
      * @return the available metrics
      */
-    public static List<CoverageMetric> getAvailableCoverageMetrics() {
-        return Arrays.asList(COMPLEXITY, LINE, BRANCH, INSTRUCTION, METHOD, CLASS, FILE, PACKAGE, MODULE);
+    public static List<Metric> getAvailableCoverageMetrics() {
+        return Arrays.asList(MUTATION, COMPLEXITY, LINE, BRANCH, INSTRUCTION, METHOD, CLASS, FILE, PACKAGE, MODULE);
     }
 
     /**
@@ -142,11 +147,11 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
     private final int order;
     private final boolean leaf;
 
-    private CoverageMetric(final String name, final int order) {
+    private Metric(final String name, final int order) {
         this(name, order, MetricType.COMPOSITE);
     }
 
-    private CoverageMetric(final String name, final int order, final MetricType type) {
+    private Metric(final String name, final int order, final MetricType type) {
         this.name = name;
         this.order = order;
         this.leaf = type == MetricType.LEAF;
@@ -166,7 +171,7 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
     }
 
     @Override
-    public int compareTo(final CoverageMetric other) {
+    public int compareTo(final Metric other) {
         return order - other.order;
     }
 
@@ -179,7 +184,7 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
             return false;
         }
 
-        CoverageMetric that = (CoverageMetric) o;
+        Metric that = (Metric) o;
 
         return name.equals(that.name);
     }

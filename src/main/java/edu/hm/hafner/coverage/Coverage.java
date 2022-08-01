@@ -6,12 +6,13 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.math.Fraction;
 
+import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Value of a code coverage item. The code coverage is measured using the number of covered and missed items. The type
- * of items (line, instruction, branch, file, etc.) is provided by the companion class {@link CoverageMetric}.
+ * of items (line, instruction, branch, file, etc.) is provided by the companion class {@link Metric}.
  *
  * @author Ullrich Hafner
  */

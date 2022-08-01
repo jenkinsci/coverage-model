@@ -1,27 +1,29 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.hm.hafner.coverage.CoverageLeaf;
+
 /**
- * A {@link CoverageNode} for a specific file. It stores the actual file name along the coverage information.
+ * A {@link Node} for a specific file. It stores the actual file name along the coverage information.
  *
  * @author Ullrich Hafner
  */
-public class FileCoverageNode extends CoverageNode {
+public class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
 
     private final Map<Integer, CoverageLeaf> lineNumberToBranchCoverage = new HashMap<>();
     private final Map<Integer, CoverageLeaf> lineNumberToInstructionCoverage = new HashMap<>();
 
     /**
-     * Creates a new {@link FileCoverageNode} with the given name.
+     * Creates a new {@link FileNode} with the given name.
      *
      * @param name
      *         the human-readable name of the node
      */
-    public FileCoverageNode(final String name) {
-        super(CoverageMetric.FILE, name);
+    public FileNode(final String name) {
+        super(Metric.FILE, name);
     }
 
     public Map<Integer, CoverageLeaf> getLineNumberToBranchCoverage() {
@@ -82,7 +84,7 @@ public class FileCoverageNode extends CoverageNode {
     }
 
     @Override
-    protected CoverageNode copyEmpty() {
-        return new FileCoverageNode(getName());
+    public Node copyEmpty() {
+        return new FileNode(getName());
     }
 }

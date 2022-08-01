@@ -1,15 +1,18 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.Node;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link FileCoverageNode}.
+ * Tests the class {@link FileNode}.
  *
  * @author Michael Gasser
  */
-class FileCoverageNodeTest {
+class FileNodeTest {
     /**
      * Test if the correct path is returned.
      */
@@ -17,7 +20,7 @@ class FileCoverageNodeTest {
     void shouldGetPath() {
         // Given
         String fileName = "main.c";
-        FileCoverageNode fileNode = new FileCoverageNode(fileName);
+        FileNode fileNode = new FileNode(fileName);
 
         // When & Then
         assertThat(fileNode.getPath()).isEqualTo(fileName);
@@ -30,17 +33,17 @@ class FileCoverageNodeTest {
     void shouldCopyEmpty() {
         // Given
         String fileName = "main.c";
-        FileCoverageNode fileNode = new FileCoverageNode(fileName);
-        FileCoverageNode fileChild = new FileCoverageNode("file.c");
+        FileNode fileNode = new FileNode(fileName);
+        FileNode fileChild = new FileNode("file.c");
         fileNode.add(fileChild);
 
         // When
-        CoverageNode actualEmptyCopy = fileNode.copyEmpty();
+        Node actualEmptyCopy = fileNode.copyEmpty();
 
         // Then
         assertThat(actualEmptyCopy)
                 .hasName(fileName)
                 .hasNoChildren()
-                .isEqualTo(new FileCoverageNode(fileName));
+                .isEqualTo(new FileNode(fileName));
     }
 }

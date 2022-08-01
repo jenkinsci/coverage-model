@@ -1,15 +1,15 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link PackageCoverageNode}.
+ * Tests the class {@link PackageNode}.
  *
  * @author Michael Gasser
  */
-class PackageCoverageNodeTest {
+class PackageNodeTest {
     /**
      * Tests if correct package path is returned.
      */
@@ -17,12 +17,12 @@ class PackageCoverageNodeTest {
     void shouldGetPath() {
         // Given
         String pkgName = ".ui.home.model";
-        PackageCoverageNode pkg = new PackageCoverageNode(pkgName);
+        PackageNode pkg = new PackageNode(pkgName);
 
         // When & Then
         assertThat(pkg)
                 .hasName(pkgName)
-                .hasMetric(CoverageMetric.PACKAGE);
+                .hasMetric(Metric.PACKAGE);
         assertThat(pkg.getPath()).isEqualTo("/ui/home/model");
     }
 
@@ -33,8 +33,8 @@ class PackageCoverageNodeTest {
     void shouldMergePath() {
         // Given
         String parentName = "ui";
-        PackageCoverageNode parent = new PackageCoverageNode(parentName);
-        PackageCoverageNode child = new PackageCoverageNode("model");
+        PackageNode parent = new PackageNode(parentName);
+        PackageNode child = new PackageNode("model");
         child.setParent(parent);
 
         // When & Then
@@ -49,18 +49,18 @@ class PackageCoverageNodeTest {
     void shouldCopyEmpty() {
         // Given
         String parentName = ".ui.home.model";
-        PackageCoverageNode parent = new PackageCoverageNode(parentName);
-        PackageCoverageNode child = new PackageCoverageNode("data");
+        PackageNode parent = new PackageNode(parentName);
+        PackageNode child = new PackageNode("data");
         parent.add(child);
 
         // When
-        CoverageNode actualEmptyCopy = parent.copyEmpty();
+        Node actualEmptyCopy = parent.copyEmpty();
 
         // Then
         assertThat(actualEmptyCopy)
                 .hasName(parentName)
                 .hasNoChildren()
-                .isEqualTo(new PackageCoverageNode(parentName));
+                .isEqualTo(new PackageNode(parentName));
     }
 
     /**
@@ -70,11 +70,11 @@ class PackageCoverageNodeTest {
     void shouldMatchPath() {
         // Given
         String pkgName = ".ui.home.model";
-        PackageCoverageNode pkg = new PackageCoverageNode(pkgName);
+        PackageNode pkg = new PackageNode(pkgName);
 
         // When & Then
-        assertThat(pkg.matches(CoverageMetric.PACKAGE, "/ui/home/model".hashCode())).isTrue();
-        assertThat(pkg.matches(CoverageMetric.PACKAGE, "/test/path".hashCode())).isFalse();
+        assertThat(pkg.matches(Metric.PACKAGE, "/ui/home/model".hashCode())).isTrue();
+        assertThat(pkg.matches(Metric.PACKAGE, "/test/path".hashCode())).isFalse();
     }
 
     /**
@@ -83,7 +83,7 @@ class PackageCoverageNodeTest {
     @Test
     void shouldNotSplitPackage() {
         // Given
-        PackageCoverageNode pkg = new PackageCoverageNode(".ui.home.model");
+        PackageNode pkg = new PackageNode(".ui.home.model");
 
         // When
         pkg.splitPackages();

@@ -1,11 +1,11 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 /**
- * A {@link CoverageNode} for a specific package. It converts a package structure to a corresponding path structure.
+ * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
  *
  * @author Ullrich Hafner
  */
-public class PackageCoverageNode extends CoverageNode {
+public class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
 
     /**
@@ -14,8 +14,8 @@ public class PackageCoverageNode extends CoverageNode {
      * @param name
      *         the human-readable name of the node
      */
-    public PackageCoverageNode(final String name) {
-        super(CoverageMetric.PACKAGE, name);
+    public PackageNode(final String name) {
+        super(Metric.PACKAGE, name);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class PackageCoverageNode extends CoverageNode {
     }
 
     @Override
-    protected CoverageNode copyEmpty() {
-        return new PackageCoverageNode(getName());
+    public Node copyEmpty() {
+        return new PackageNode(getName());
     }
 }

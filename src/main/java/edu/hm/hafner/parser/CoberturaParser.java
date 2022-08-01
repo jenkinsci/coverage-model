@@ -12,10 +12,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageLeaf;
-import edu.hm.hafner.coverage.CoverageMetric;
-import edu.hm.hafner.coverage.CoverageNode;
-import edu.hm.hafner.coverage.FileCoverageNode;
-import edu.hm.hafner.coverage.PackageCoverageNode;
+import edu.hm.hafner.model.Metric;
+import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.Node;
+import edu.hm.hafner.model.MethodNode;
+import edu.hm.hafner.model.ModuleNode;
+import edu.hm.hafner.model.PackageNode;
 
 /**
  * A parser which parses reports made by Cobertura into a Java Object Model.
@@ -23,6 +25,7 @@ import edu.hm.hafner.coverage.PackageCoverageNode;
  * @author Melissa Bauer
  */
 public class CoberturaParser extends XmlParser {
+    private static final long serialVersionUID = -3625341318291829577L;
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
@@ -35,9 +38,9 @@ public class CoberturaParser extends XmlParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-    private PackageCoverageNode currentPackageNode;
-    private FileCoverageNode currentFileNode;
-    private CoverageNode currentNode;
+    private PackageNode currentPackageNode;
+    private FileNode currentFileNode;
+    private Node currentNode;
 
     private int linesCovered = 0;
     private int linesMissed = 0;
@@ -66,7 +69,7 @@ public class CoberturaParser extends XmlParser {
         String[] parts = systemId.split("/", 0);
         String filename = parts[parts.length - 1];
 
-        setRootNode(new CoverageNode(CoverageMetric.MODULE, filename));
+        setRootNode(new ModuleNode(filename));
         currentNode = getRootNode();
     }
 
@@ -83,7 +86,7 @@ public class CoberturaParser extends XmlParser {
         switch (name) {
             case "package":
                 String packageName = element.getAttributeByName(NAME).getValue();
-                PackageCoverageNode packageNode = new PackageCoverageNode(packageName);
+                PackageNode packageNode = new PackageNode(packageName);
                 getRootNode().add(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
@@ -95,11 +98,11 @@ public class CoberturaParser extends XmlParser {
                 break;
 
             case "method": // currentNode = classNode, methodNode after
-                CoverageNode methodNode = new CoverageNode(CoverageMetric.METHOD,
+                Node methodNode = new Node(Metric.METHOD,
                         element.getAttributeByName(NAME).getValue());
 
                 long complexity = Long.parseLong(element.getAttributeByName(COMPLEXITY).getValue());
-                CoverageLeaf complexityLeaf = new CoverageLeaf(CoverageMetric.COMPLEXITY,
+                CoverageLeaf complexityLeaf = new CoverageLeaf(Metric.COMPLEXITY,
                         new Coverage((int) complexity, 0));
 
                 methodNode.add(complexityLeaf);
@@ -123,14 +126,14 @@ public class CoberturaParser extends XmlParser {
      *         the current report element
      */
     private void handleClassElement(final StartElement element) {
-        CoverageNode classNode = new CoverageNode(CoverageMetric.CLASS, element.getAttributeByName(NAME).getValue());
+        Node classNode = new Node(Metric.CLASS, element.getAttributeByName(NAME).getValue());
 
         // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
         String sourcefilePath = element.getAttributeByName(SOURCEFILENAME).getValue();
         String[] parts = sourcefilePath.split("/", 0);
         String sourcefileName = parts[parts.length - 1];
 
-        List<CoverageNode> fileNodes = currentPackageNode.getChildren();
+        List<Node> fileNodes = currentPackageNode.getChildren();
 
         // add class node to file node if found
         AtomicBoolean found = new AtomicBoolean(false);
@@ -139,14 +142,14 @@ public class CoberturaParser extends XmlParser {
                 if (fileNode.getName().equals(sourcefileName)) {
                     fileNode.add(classNode);
                     found.set(true);
-                    currentFileNode = (FileCoverageNode) fileNode;
+                    currentFileNode = (FileNode) fileNode;
                 }
             });
         }
 
         // create new file node if not found/not existing
         if (!found.get()) {
-            FileCoverageNode fileNode = new FileCoverageNode(sourcefileName);
+            FileNode fileNode = new FileNode(sourcefileName);
             fileNode.add(classNode);
             currentPackageNode.add(fileNode);
             currentFileNode = fileNode;
@@ -173,7 +176,7 @@ public class CoberturaParser extends XmlParser {
         }
 
         // collect linenumber to coverage information
-        if (!currentNode.getMetric().equals(CoverageMetric.METHOD)) {
+        if (!currentNode.getMetric().equals(Metric.METHOD)) {
             Coverage coverage;
             CoverageLeaf coverageLeaf;
 
@@ -185,7 +188,7 @@ public class CoberturaParser extends XmlParser {
                     coverage = new Coverage(0, 1);
                 }
 
-                coverageLeaf = new CoverageLeaf(CoverageMetric.LINE, coverage);
+                coverageLeaf = new CoverageLeaf(Metric.LINE, coverage);
                 currentFileNode.getLineNumberToInstructionCoverage().put(lineNumber, coverageLeaf);
             }
             else {
@@ -199,7 +202,7 @@ public class CoberturaParser extends XmlParser {
                     coverage = new Coverage(0, 1);
                 }
 
-                coverageLeaf = new CoverageLeaf(CoverageMetric.BRANCH, coverage);
+                coverageLeaf = new CoverageLeaf(Metric.BRANCH, coverage);
                 currentFileNode.getLineNumberToBranchCoverage().put(lineNumber, coverageLeaf);
             }
         }
@@ -245,13 +248,14 @@ public class CoberturaParser extends XmlParser {
             case "method": // currentNode = methodNode, classNode after
                 // create leaves
                 Coverage lineCoverage = new Coverage(linesCovered, linesMissed);
-                CoverageLeaf lines = new CoverageLeaf(CoverageMetric.LINE, lineCoverage);
-
-                Coverage branchCoverage = new Coverage(branchesCovered, branchesMissed);
-                CoverageLeaf branches = new CoverageLeaf(CoverageMetric.BRANCH, branchCoverage);
-
+                CoverageLeaf lines = new CoverageLeaf(Metric.LINE, lineCoverage);
                 currentNode.add(lines);
-                currentNode.add(branches);
+
+                if (branchesMissed + branchesCovered > 0) {
+                    Coverage branchCoverage = new Coverage(branchesCovered, branchesMissed);
+                    CoverageLeaf branches = new CoverageLeaf(Metric.BRANCH, branchCoverage);
+                    currentNode.add(branches);
+                }
 
                 // reset values
                 linesCovered = 0;
@@ -259,7 +263,7 @@ public class CoberturaParser extends XmlParser {
                 branchesCovered = 0;
                 branchesMissed = 0;
 
-                currentNode = currentNode.getParent(); // go to class node
+                currentNode = (MethodNode) currentNode.getParent(); // go to class node
                 break;
             default: break;
         }

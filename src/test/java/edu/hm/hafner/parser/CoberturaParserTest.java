@@ -8,13 +8,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
-import edu.hm.hafner.coverage.CoverageMetric;
-import edu.hm.hafner.coverage.CoverageNode;
-import edu.hm.hafner.coverage.FileCoverageNode;
+import edu.hm.hafner.model.Metric;
+import edu.hm.hafner.model.Node;
+import edu.hm.hafner.model.FileNode;
 
-import static edu.hm.hafner.coverage.CoverageMetric.*;
-import static edu.hm.hafner.coverage.CoverageMetric.CLASS;
-import static edu.hm.hafner.coverage.CoverageMetric.FILE;
+import static edu.hm.hafner.model.Metric.*;
+import static edu.hm.hafner.model.Metric.CLASS;
+import static edu.hm.hafner.model.Metric.FILE;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class CoberturaParserTest {
@@ -26,14 +26,14 @@ class CoberturaParserTest {
 
     @Test
     void shouldReturnEmptyCoverageIfNotFound() {
-        CoverageNode root = readExampleReport();
+        Node root = readExampleReport();
 
-        assertThat(root.getCoverage(CoverageMetric.valueOf("new"))).isNotSet();
+        assertThat(root.getCoverage(Metric.valueOf("new"))).isNotSet();
     }
 
     @Test
     void shouldConvertCoberturaBigToTree() {
-        CoverageNode tree = readExampleReport();
+        Node tree = readExampleReport();
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(5);
@@ -41,7 +41,7 @@ class CoberturaParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(4);
         assertThat(tree.getAll(METHOD)).hasSize(10);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY)
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, COMPLEXITY)
                 .hasToString("[Module] " + "cobertura-big.xml");
         assertThat(tree.getMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
@@ -50,7 +50,6 @@ class CoberturaParserTest {
                 entry(CLASS, new Coverage(4, 0)),
                 entry(METHOD, new Coverage(7, 3)),
                 entry(LINE, new Coverage(63, 19)),
-                entry(BRANCH, new Coverage(0, 0)),
                 entry(COMPLEXITY, new Coverage(22, 0)));
         assertThat(tree.getMetricsPercentages()).containsExactly(
                 entry(MODULE, Fraction.ONE),
@@ -59,7 +58,6 @@ class CoberturaParserTest {
                 entry(CLASS, Fraction.getFraction(4, 4)),
                 entry(METHOD, Fraction.getFraction(7, 7 + 3)),
                 entry(LINE, Fraction.getFraction(63, 63 + 19)),
-                entry(BRANCH, Fraction.ZERO),
                 entry(COMPLEXITY, Fraction.getFraction(22, 22)));
 
         assertThat(tree.getChildren()).hasSize(5).element(0).satisfies(
@@ -71,18 +69,18 @@ class CoberturaParserTest {
 
     @Test
     void testAmountOfLinenumberTolines() {
-        CoverageNode tree = readExampleReport();
-        List<CoverageNode> nodes = tree.getAll(FILE);
+        Node tree = readExampleReport();
+        List<Node> nodes = tree.getAll(FILE);
 
         long missedLines = 0;
         long coveredLines = 0;
         long missedBranches = 0;
         long coveredBranches = 0;
-        for (CoverageNode node : nodes) {
-            missedLines = missedLines + ((FileCoverageNode) node).getMissedInstructionsCount();
-            coveredLines = coveredLines + ((FileCoverageNode) node).getCoveredInstructionsCount();
-            missedBranches = missedBranches + ((FileCoverageNode) node).getMissedBranchesCount();
-            coveredBranches = coveredBranches + ((FileCoverageNode) node).getCoveredBranchesCount();
+        for (Node node : nodes) {
+            missedLines = missedLines + ((FileNode) node).getMissedInstructionsCount();
+            coveredLines = coveredLines + ((FileNode) node).getCoveredInstructionsCount();
+            missedBranches = missedBranches + ((FileNode) node).getMissedBranchesCount();
+            coveredBranches = coveredBranches + ((FileNode) node).getCoveredBranchesCount();
         }
 
         assertThat(missedLines).isEqualTo(19);
@@ -91,7 +89,7 @@ class CoberturaParserTest {
         assertThat(coveredBranches).isEqualTo(0);
     }
 
-    private void verifyCoverageMetrics(final CoverageNode tree) {
+    private void verifyCoverageMetrics(final Node tree) {
         assertThat(tree.getCoverage(LINE)).isSet() // 20 + 17 + 7 + 19
                 .hasCovered(63) // 8 + 1 + 10
                 .hasCoveredPercentage(Fraction.getFraction(63, 63 + 19))
@@ -127,9 +125,9 @@ class CoberturaParserTest {
                 .hasMetric(MODULE).hasParentName("^");
     }
 
-    private CoverageNode readExampleReport() {
+    private Node readExampleReport() {
         CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura-big.xml");
-        return parser.getRootNode();
+        return (Node) parser.getRootNode();
     }
 
 }

@@ -1,17 +1,21 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.MethodNode;
+import edu.hm.hafner.model.Node;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link MethodCoverageNode}.
+ * Tests the class {@link MethodNode}.
  *
  * @author Michael Gasser
  */
-class MethodCoverageNodeTest {
+class MethodNodeTest {
     /**
      * Tests with a valid line number.
      */
@@ -19,9 +23,9 @@ class MethodCoverageNodeTest {
     void shouldGetValidLineNumber() {
         // Given
         int validLineNumber = 5;
-        MethodCoverageNode node = new MethodCoverageNode("main", validLineNumber);
+        MethodNode node = new MethodNode("main", validLineNumber);
         int secondValidLineNumber = 1;
-        MethodCoverageNode secondNode = new MethodCoverageNode("main", secondValidLineNumber);
+        MethodNode secondNode = new MethodNode("main", secondValidLineNumber);
 
         // When & Then
         assertThat(node)
@@ -38,8 +42,8 @@ class MethodCoverageNodeTest {
     @Test
     void shouldCheckInvalidLineNumber() {
         // Given
-        MethodCoverageNode node = new MethodCoverageNode("main", -1);
-        MethodCoverageNode secondNode = new MethodCoverageNode("main", 0);
+        MethodNode node = new MethodNode("main", -1);
+        MethodNode secondNode = new MethodNode("main", 0);
 
         // When & Then
         assertThat(node).doesNotHaveValidLineNumber();
@@ -51,11 +55,11 @@ class MethodCoverageNodeTest {
      */
     @Test
     void shouldAdhereToEquals() {
-        EqualsVerifier.simple().forClass(MethodCoverageNode.class)
+        EqualsVerifier.simple().forClass(MethodNode.class)
                 .withPrefabValues(
-                        CoverageNode.class,
-                        new FileCoverageNode("main.c"),
-                        new FileCoverageNode("test.c")
+                        Node.class,
+                        new FileNode("main.c"),
+                        new FileNode("test.c")
                 )
                 .withIgnoredFields("parent")
                 .verify();
@@ -67,7 +71,7 @@ class MethodCoverageNodeTest {
     @Test
     void shouldTextuallyRepresent() {
         // Given
-        MethodCoverageNode node = new MethodCoverageNode("main", 5);
+        MethodNode node = new MethodNode("main", 5);
 
         // When & Then
         assertThat(node).hasToString("[Method] main (5)");
