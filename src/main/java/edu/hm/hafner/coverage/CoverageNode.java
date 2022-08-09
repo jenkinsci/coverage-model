@@ -105,7 +105,7 @@ public class CoverageNode implements Serializable {
     }
 
     /**
-     * Returns the type if the coverage metric for this node.
+     * Returns the type of the coverage metric for this node.
      *
      * @return the element type
      */
