@@ -10,13 +10,15 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.complexity.ComplexityLeaf;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageLeaf;
-import edu.hm.hafner.model.Metric;
+import edu.hm.hafner.model.ClassNode;
 import edu.hm.hafner.model.FileNode;
-import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.MethodNode;
+import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.ModuleNode;
+import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.PackageNode;
 
 /**
@@ -98,12 +100,10 @@ public class CoberturaParser extends XmlParser {
                 break;
 
             case "method": // currentNode = classNode, methodNode after
-                Node methodNode = new Node(Metric.METHOD,
-                        element.getAttributeByName(NAME).getValue());
+                Node methodNode = new MethodNode(element.getAttributeByName(NAME).getValue());
 
                 long complexity = Long.parseLong(element.getAttributeByName(COMPLEXITY).getValue());
-                CoverageLeaf complexityLeaf = new CoverageLeaf(Metric.COMPLEXITY,
-                        new Coverage((int) complexity, 0));
+                ComplexityLeaf complexityLeaf = new ComplexityLeaf((int) complexity);
 
                 methodNode.add(complexityLeaf);
 
@@ -126,7 +126,7 @@ public class CoberturaParser extends XmlParser {
      *         the current report element
      */
     private void handleClassElement(final StartElement element) {
-        Node classNode = new Node(Metric.CLASS, element.getAttributeByName(NAME).getValue());
+        ClassNode classNode = new ClassNode(element.getAttributeByName(NAME).getValue());
 
         // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
         String sourcefilePath = element.getAttributeByName(SOURCEFILENAME).getValue();
@@ -175,58 +175,67 @@ public class CoberturaParser extends XmlParser {
             isBranch = Boolean.parseBoolean(branchAttribute.getValue());
         }
 
-        // collect linenumber to coverage information
+        // collect linenumber to coverage information in "lines" part
         if (!currentNode.getMetric().equals(Metric.METHOD)) {
-            Coverage coverage;
-            CoverageLeaf coverageLeaf;
-
-            if (!isBranch) {
-                if (lineHits > 0) {
-                    coverage = new Coverage(1, 0);
-                }
-                else {
-                    coverage = new Coverage(0, 1);
-                }
-
-                coverageLeaf = new CoverageLeaf(Metric.LINE, coverage);
-                currentFileNode.getLineNumberToInstructionCoverage().put(lineNumber, coverageLeaf);
-            }
-            else {
-                String[] coveredAllInformation = parseConditionCoverage(element);
-                int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
-
-                if (covered > 0) {
-                    coverage = new Coverage(1, 0);
-                }
-                else {
-                    coverage = new Coverage(0, 1);
-                }
-
-                coverageLeaf = new CoverageLeaf(Metric.BRANCH, coverage);
-                currentFileNode.getLineNumberToBranchCoverage().put(lineNumber, coverageLeaf);
-            }
+            getLinenumberToCoverage(element, lineNumber, lineHits, isBranch);
         }
         // only count lines/branches for method coverage
         else {
-            if (!isBranch) {
-                if (lineHits > 0) {
-                    linesCovered++;
-                }
-                else {
-                    linesMissed++;
-                }
+            computeMethodCoverage(element, lineHits, isBranch);
+        }
+    }
+
+    private void getLinenumberToCoverage(final StartElement element, final int lineNumber, final int lineHits,
+            final boolean isBranch) {
+        Coverage coverage;
+        CoverageLeaf coverageLeaf;
+
+        if (!isBranch) {
+            if (lineHits > 0) {
+                coverage = new Coverage(1, 0);
             }
             else {
-                String[] coveredAllInformation = parseConditionCoverage(element);
-                int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
-                int all = Integer.parseInt(StringUtils.chop(coveredAllInformation[1]));
+                coverage = new Coverage(0, 1);
+            }
 
-                if (covered > 0) {
-                    branchesCovered = branchesCovered + covered;
-                }
-                else {
-                    branchesMissed = branchesMissed + (all - covered);
-                }
+            coverageLeaf = new CoverageLeaf(Metric.LINE, coverage);
+            currentFileNode.getLineNumberToInstructionCoverage().put(lineNumber, coverageLeaf);
+        }
+        else {
+            String[] coveredAllInformation = parseConditionCoverage(element);
+            int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
+
+            if (covered > 0) {
+                coverage = new Coverage(1, 0);
+            }
+            else {
+                coverage = new Coverage(0, 1);
+            }
+
+            coverageLeaf = new CoverageLeaf(Metric.BRANCH, coverage);
+            currentFileNode.getLineNumberToBranchCoverage().put(lineNumber, coverageLeaf);
+        }
+    }
+
+    private void computeMethodCoverage(final StartElement element, final int lineHits, final boolean isBranch) {
+        if (!isBranch) {
+            if (lineHits > 0) {
+                linesCovered++;
+            }
+            else {
+                linesMissed++;
+            }
+        }
+        else {
+            String[] coveredAllInformation = parseConditionCoverage(element);
+            int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
+            int all = Integer.parseInt(StringUtils.chop(coveredAllInformation[1]));
+
+            if (covered > 0) {
+                branchesCovered = branchesCovered + covered;
+            }
+            else {
+                branchesMissed = branchesMissed + (all - covered);
             }
         }
     }
@@ -263,7 +272,7 @@ public class CoberturaParser extends XmlParser {
                 branchesCovered = 0;
                 branchesMissed = 0;
 
-                currentNode = (MethodNode) currentNode.getParent(); // go to class node
+                currentNode = currentNode.getParent(); // go to class node
                 break;
             default: break;
         }

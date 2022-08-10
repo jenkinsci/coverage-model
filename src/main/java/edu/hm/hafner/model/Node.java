@@ -23,8 +23,11 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
+import edu.hm.hafner.complexity.ComplexityLeaf;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageLeaf;
+import edu.hm.hafner.mutation.MutationLeaf;
+import edu.hm.hafner.mutation.MutationResult;
 import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
@@ -50,10 +53,10 @@ public class Node implements Serializable {
     private Node parent;
 
     /**
-     * Creates a new coverage item node with the given name.
+     * Creates a new node with the given name.
      *
      * @param metric
-     *         the coverage metric this node belongs to
+     *         the metric this node belongs to
      * @param name
      *         the human-readable name of the node
      */
@@ -107,7 +110,7 @@ public class Node implements Serializable {
     }
 
     /**
-     * Returns the type if the coverage metric for this node.
+     * Returns the type of the metric for this node.
      *
      * @return the element type
      */
@@ -116,7 +119,7 @@ public class Node implements Serializable {
     }
 
     /**
-     * Returns the available coverage metrics for the whole tree starting with this node.
+     * Returns the available metrics for the whole tree starting with this node.
      *
      * @return the elements in this tree
      */
@@ -130,24 +133,6 @@ public class Node implements Serializable {
         leaves.stream().map(Leaf::getMetric).forEach(elements::add);
 
         return elements;
-    }
-
-    /**
-     * Returns a mapping of metric to coverage. The root of the tree will be skipped.
-     *
-     * @return a mapping of metric to coverage.
-     */
-    public NavigableMap<Metric, Coverage> getMetricsDistribution() {
-        return getMetrics().stream()
-                .collect(Collectors.toMap(Function.identity(), this::getCoverage, (o1, o2) -> o1, TreeMap::new));
-    }
-
-    public NavigableMap<Metric, Fraction> getMetricsPercentages() {
-        return getMetrics().stream().collect(Collectors.toMap(
-                Function.identity(),
-                searchMetric -> getCoverage(searchMetric).getCoveredPercentage(),
-                (o1, o2) -> o1,
-                TreeMap::new));
     }
 
     public String getName() {
@@ -228,136 +213,6 @@ public class Node implements Serializable {
     }
 
     /**
-     * Prints the coverage for the specified element. Uses {@code Locale.getDefault()} to format the percentage.
-     *
-     * @param searchMetric
-     *         the element to print the coverage for
-     *
-     * @return coverage ratio in a human-readable format
-     * @see #printCoverageFor(Metric, Locale)
-     */
-    public String printCoverageFor(final Metric searchMetric) {
-        return printCoverageFor(searchMetric, Locale.getDefault());
-    }
-
-    /**
-     * Prints the coverage for the specified element.
-     *
-     * @param searchMetric
-     *         the element to print the coverage for
-     * @param locale
-     *         the locale to use when formatting the percentage
-     *
-     * @return coverage ratio in a human-readable format
-     */
-    public String printCoverageFor(final Metric searchMetric, final Locale locale) {
-        return getCoverage(searchMetric).formatCoveredPercentage(locale);
-    }
-
-    /**
-     * Returns the coverage for the specified metric.
-     *
-     * @param searchMetric
-     *         the element to get the coverage for
-     *
-     * @return coverage ratio
-     */
-    public Coverage getCoverage(final Metric searchMetric) {
-        //Coverage childrenCoverage = aggregateChildren(searchMetric);
-        Coverage childrenCoverage = children.stream()
-                .map(node -> node.getCoverage(searchMetric))
-                .reduce(Coverage.NO_COVERAGE, Coverage::add);
-
-        if (searchMetric.isLeaf()) {
-            return leaves.stream()
-                    .map(CoverageLeaf.class::cast)
-                    .map(node -> node.getCoverage(searchMetric))
-                    .reduce(childrenCoverage, Coverage::add);
-        }
-        else {
-            if (metric.equals(searchMetric)) {
-                if (getCoverage(Metric.LINE).getCovered() > 0) {
-                    return childrenCoverage.add(COVERED_NODE);
-                }
-                else {
-                    return childrenCoverage.add(MISSED_NODE);
-                }
-            }
-            return childrenCoverage;
-        }
-    }
-
-    /*public Result getResult(final Metric searchMetric) {
-        Result childrenResult = aggregateChildrenResult(searchMetric);
-        if (searchMetric.isLeaf()) {
-            // TODO doSth
-        } else {
-            if (metric.equals(searchMetric)) {
-                if (getCoverage(Metric.LINE).getCovered() > 0) {
-                    return childrenCoverage.add(COVERED_NODE);
-                }
-                else {
-                    return childrenCoverage.add(MISSED_NODE);
-                }
-            }
-            return childrenResult;
-        }
-
-        return null;
-    }*/
-
-   /* private Result aggregateChildrenResult(final Metric searchMetric) {
-        return children.stream()
-                .map(node -> node.getResult(searchMetric))
-                .reduce(new Result(searchMetric, 0), Result::add); //TODO inital value
-    }*/
-
-    private Coverage aggregateChildren(final Metric searchMetric) {
-        return children.stream()
-                .map(node -> node.getCoverage(searchMetric))
-                .reduce(Coverage.NO_COVERAGE, Coverage::add);
-    }
-
-    /**
-     * Computes the coverage delta between this node and the specified reference node.
-     *
-     * @param reference
-     *         the reference node
-     *
-     * @return the delta coverage for each available metric
-     */
-    public SortedMap<Metric, Fraction> computeDelta(final Node reference) {
-        SortedMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
-        SortedMap<Metric, Fraction> metricPercentages = getMetricsPercentages();
-        SortedMap<Metric, Fraction> referencePercentages = reference.getMetricsPercentages();
-        metricPercentages.forEach((key, value) ->
-                deltaPercentages.put(key,
-                        saveSubtractFraction(value, referencePercentages.getOrDefault(key, Fraction.ZERO))));
-        return deltaPercentages;
-    }
-
-    /**
-     * Calculates the difference between two fraction. Since there might be an arithmetic exception due to an overflow,
-     * the method handles it and calculates the difference based on the double values of the fractions.
-     *
-     * @param minuend
-     *         The minuend as a fraction
-     * @param subtrahend
-     *         The subtrahend as a fraction
-     *
-     * @return the difference as a fraction
-     */
-    private Fraction saveSubtractFraction(final Fraction minuend, final Fraction subtrahend) {
-        try {
-            return minuend.subtract(subtrahend);
-        }
-        catch (ArithmeticException e) {
-            double diff = minuend.doubleValue() - subtrahend.doubleValue();
-            return Fraction.getFraction(diff);
-        }
-    }
-
-    /**
      * Returns recursively all nodes for the specified metric type.
      *
      * @param searchMetric
@@ -381,10 +236,10 @@ public class Node implements Serializable {
     }
 
     /**
-     * Finds the coverage metric with the given name starting from this node.
+     * Finds the metric with the given name starting from this node.
      *
      * @param searchMetric
-     *         the coverage metric to search for
+     *         the metric to search for
      * @param searchName
      *         the name of the node
      *
@@ -401,10 +256,10 @@ public class Node implements Serializable {
     }
 
     /**
-     * Finds the coverage metric with the given hash code starting from this node.
+     * Finds the metric with the given hash code starting from this node.
      *
      * @param searchMetric
-     *         the coverage metric to search for
+     *         the metric to search for
      * @param searchNameHashCode
      *         the hash code of the node name
      *
@@ -421,10 +276,10 @@ public class Node implements Serializable {
     }
 
     /**
-     * Returns whether this node matches the specified coverage metric and name.
+     * Returns whether this node matches the specified metric and name.
      *
      * @param searchMetric
-     *         the coverage metric to search for
+     *         the metric to search for
      * @param searchName
      *         the name of the node
      *
@@ -435,10 +290,10 @@ public class Node implements Serializable {
     }
 
     /**
-     * Returns whether this node matches the specified coverage metric and name.
+     * Returns whether this node matches the specified metric and name.
      *
      * @param searchMetric
-     *         the coverage metric to search for
+     *         the metric to search for
      * @param searchNameHashCode
      *         the hash code of the node name
      *
@@ -476,7 +331,7 @@ public class Node implements Serializable {
     }
 
     /**
-     * Creates a deep copy of the coverage tree with this as root node.
+     * Creates a deep copy of the tree with this as root node.
      *
      * @return the root node of the copied tree
      */
@@ -485,7 +340,7 @@ public class Node implements Serializable {
     }
 
     /**
-     * Recursively copies the coverage tree with the passed {@link Node} as root.
+     * Recursively copies the tree with the passed {@link Node} as root.
      *
      * @param copiedParent
      *         The root node
@@ -559,5 +414,181 @@ public class Node implements Serializable {
     @Override
     public String toString() {
         return String.format("[%s] %s", getMetric(), getName());
+    }
+
+    //---------------------------- Coverage methods ---------------------------------------------
+
+    /**
+     * Returns a mapping of metric to coverage. The root of the tree will be skipped.
+     *
+     * @return a mapping of metric to coverage.
+     */
+    public NavigableMap<Metric, Coverage> getCoverageMetricsDistribution() {
+        return getMetrics().stream().filter(tmpMetric -> !tmpMetric.equals(Metric.COMPLEXITY)).collect(Collectors.toMap(
+                Function.identity(),
+                this::getCoverage,
+                (o1, o2) -> o1,
+                TreeMap::new));
+    }
+
+    public NavigableMap<Metric, Fraction> getCoverageMetricsPercentages() {
+        return getMetrics().stream().filter(tmpMetric -> !tmpMetric.equals(Metric.COMPLEXITY)).collect(Collectors.toMap(
+                Function.identity(),
+                searchMetric -> getCoverage(searchMetric).getCoveredPercentage(),
+                (o1, o2) -> o1,
+                TreeMap::new));
+    }
+
+    /**
+     * Prints the coverage for the specified element. Uses {@code Locale.getDefault()} to format the percentage.
+     *
+     * @param searchMetric
+     *         the element to print the coverage for
+     *
+     * @return coverage ratio in a human-readable format
+     * @throws AssertionError
+     *         if coverage of complexity is wanted
+     * @see #printCoverageFor(Metric, Locale)
+     */
+    public String printCoverageFor(final Metric searchMetric) {
+        if ("Complexity".equals(searchMetric.getName())) {
+            throw new AssertionError("Complexity is no coverage metric.");
+        }
+        return printCoverageFor(searchMetric, Locale.getDefault());
+    }
+
+    /**
+     * Prints the coverage for the specified element.
+     *
+     * @param searchMetric
+     *         the element to print the coverage for
+     * @param locale
+     *         the locale to use when formatting the percentage
+     *
+     * @return coverage ratio in a human-readable format
+     * @throws AssertionError
+     *         if coverage of complexity is wanted
+     */
+    public String printCoverageFor(final Metric searchMetric, final Locale locale) {
+        if ("Complexity".equals(searchMetric.getName())) {
+            throw new AssertionError("Complexity is no coverage metric.");
+        }
+
+        return getCoverage(searchMetric).formatCoveredPercentage(locale);
+    }
+
+    /**
+     * Returns the coverage for the specified metric.
+     *
+     * @param searchMetric
+     *         the element to get the coverage for
+     *
+     * @return coverage ratio
+     */
+    public Coverage getCoverage(final Metric searchMetric) {
+        Coverage childrenCoverage = aggregateChildren(searchMetric);
+
+        if (searchMetric.isLeaf()) {
+            return leaves.stream()
+                    .filter(leaf -> !leaf.getMetric().equals(Metric.COMPLEXITY)) // all except complexity leaves
+                    .map(CoverageLeaf.class::cast)
+                    .map(node -> node.getCoverage(searchMetric))
+                    .reduce(childrenCoverage, Coverage::add);
+        }
+        else {
+            if (metric.equals(searchMetric)) {
+                if (getCoverage(Metric.LINE).getCovered() > 0) {
+                    return childrenCoverage.add(COVERED_NODE);
+                }
+                else {
+                    return childrenCoverage.add(MISSED_NODE);
+                }
+            }
+            return childrenCoverage;
+        }
+    }
+
+    private Coverage aggregateChildren(final Metric searchMetric) {
+        return children.stream()
+                .map(node -> node.getCoverage(searchMetric))
+                .reduce(Coverage.NO_COVERAGE, Coverage::add);
+    }
+
+    /**
+     * Computes the coverage delta between this node and the specified reference node.
+     *
+     * @param reference
+     *         the reference node
+     *
+     * @return the delta coverage for each available metric
+     */
+    public SortedMap<Metric, Fraction> computeDelta(final Node reference) {
+        SortedMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
+        SortedMap<Metric, Fraction> metricPercentages = getCoverageMetricsPercentages();
+        SortedMap<Metric, Fraction> referencePercentages = reference.getCoverageMetricsPercentages();
+        metricPercentages.forEach((key, value) ->
+                deltaPercentages.put(key,
+                        saveSubtractFraction(value, referencePercentages.getOrDefault(key, Fraction.ZERO))));
+        return deltaPercentages;
+    }
+
+    /**
+     * Calculates the difference between two fraction. Since there might be an arithmetic exception due to an overflow,
+     * the method handles it and calculates the difference based on the double values of the fractions.
+     *
+     * @param minuend
+     *         The minuend as a fraction
+     * @param subtrahend
+     *         The subtrahend as a fraction
+     *
+     * @return the difference as a fraction
+     */
+    private Fraction saveSubtractFraction(final Fraction minuend, final Fraction subtrahend) {
+        try {
+            return minuend.subtract(subtrahend);
+        }
+        catch (ArithmeticException e) {
+            double diff = minuend.doubleValue() - subtrahend.doubleValue();
+            return Fraction.getFraction(diff);
+        }
+    }
+
+    //---------------------------- Complexity methods ---------------------------------------------
+
+    /**
+     * Sums up the complexity of all methods and returns it. Complexity of the complete module is equal to the
+     * complexity of all methods.
+     *
+     * @return the complexity
+     */
+    public int getComplexity() {
+        int childrenComplexity = children.stream()
+                .map(Node::getComplexity)
+                .reduce(0, Integer::sum);
+
+        return leaves.stream()
+                .filter(leaf -> leaf.getMetric().equals(Metric.COMPLEXITY)) // only complexity leaves
+                .map(ComplexityLeaf.class::cast)
+                .map(ComplexityLeaf::getComplexity)
+                .reduce(childrenComplexity, Integer::sum);
+    }
+
+    //---------------------------- Mutation methods ---------------------------------------------
+
+    /**
+     * Sums up all killed/survived mutations.
+     *
+     * @return The amount of killed/survived mutations.
+     */
+    public MutationResult getMutationResult() {
+        MutationResult mutationResult = children.stream()
+                .map(Node::getMutationResult)
+                .reduce(new MutationResult(), MutationResult::add);
+
+        return leaves.stream()
+                .filter(leaf -> leaf.getMetric().equals(Metric.MUTATION)) // only mutation leaves
+                .map(MutationLeaf.class::cast)
+                .map(MutationLeaf::getResult)
+                .reduce(mutationResult, MutationResult::add);
     }
 }

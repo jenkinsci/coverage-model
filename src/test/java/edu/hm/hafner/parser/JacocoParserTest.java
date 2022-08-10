@@ -8,14 +8,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
-import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.Node;
 
-import static edu.hm.hafner.model.Metric.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.model.Metric.*;
 
 /**
  * Tests the class {@link JacocoParser}.
@@ -31,24 +31,6 @@ class JacocoParserTest {
     }
 
     @Test
-    void testGetCoverage() {
-        JacocoParser parser = new JacocoParser("src/test/resources/jacoco-small.xml");
-        Node tree = parser.getRootNode();
-
-        tree.getCoverage(LINE);
-
-        tree.getCoverage(MODULE);
-
-        tree.getCoverage(PACKAGE);
-        tree.getCoverage(FILE);
-        tree.getCoverage(CLASS);
-        tree.getCoverage(METHOD);
-
-        tree.getCoverage(BRANCH);
-        tree.getCoverage(COMPLEXITY);
-    }
-
-    @Test
     void shouldReturnEmptyCoverageIfNotFound() {
         Node root = readExampleReport();
 
@@ -59,8 +41,6 @@ class JacocoParserTest {
     void shouldConvertCodingStyleToTree() {
         Node tree = readExampleReport();
 
-        verifyCoverageMetrics(tree);
-
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
         List<Node> files = tree.getAll(FILE);
@@ -70,7 +50,7 @@ class JacocoParserTest {
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, INSTRUCTION, COMPLEXITY)
                 .hasToString("[Module] " + PROJECT_NAME);
-        assertThat(tree.getMetricsDistribution()).containsExactly(
+        assertThat(tree.getCoverageMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
                 entry(PACKAGE, new Coverage(1, 0)),
                 entry(FILE, new Coverage(7, 3)),
@@ -78,9 +58,8 @@ class JacocoParserTest {
                 entry(METHOD, new Coverage(97, 5)),
                 entry(LINE, new Coverage(294, 29)),
                 entry(INSTRUCTION, new Coverage(1260, 90)),
-                entry(BRANCH, new Coverage(109, 7)),
-                entry(COMPLEXITY, new Coverage(148, 12)));
-        assertThat(tree.getMetricsPercentages()).containsExactly(
+                entry(BRANCH, new Coverage(109, 7)));
+        assertThat(tree.getCoverageMetricsPercentages()).containsExactly(
                 entry(MODULE, Fraction.ONE),
                 entry(PACKAGE, Fraction.ONE),
                 entry(FILE, Fraction.getFraction(7, 7 + 3)),
@@ -88,12 +67,16 @@ class JacocoParserTest {
                 entry(METHOD, Fraction.getFraction(97, 97 + 5)),
                 entry(LINE, Fraction.getFraction(294, 294 + 29)),
                 entry(INSTRUCTION, Fraction.getFraction(1260, 1260 + 90)),
-                entry(BRANCH, Fraction.getFraction(109, 109 + 7)),
-                entry(COMPLEXITY, Fraction.getFraction(148, 148 + 12)));
+                entry(BRANCH, Fraction.getFraction(109, 109 + 7)));
 
         assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(
                 packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util")
+
         );
+
+        verifyCoverageMetrics(tree);
+        assertThat(tree.getComplexity()).isEqualTo(160);
+        assertThat(tree.getMutationResult()).hasKilled(0);
     }
 
     @Test
@@ -105,7 +88,7 @@ class JacocoParserTest {
         verifyCoverageMetrics(tree);
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
-        assertThat(tree.getMetricsDistribution()).contains(
+        assertThat(tree.getCoverageMetricsDistribution()).contains(
                 entry(PACKAGE, new Coverage(4, 0)));
 
         assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(
@@ -118,14 +101,13 @@ class JacocoParserTest {
     @Test
     void shouldNotSplitPackagesIfOnWrongHierarchyNode() {
         Node tree = readExampleReport();
-        Node packageNode = (Node) tree.getChildren().get(0);
+        Node packageNode = tree.getChildren().get(0);
         assertThat(packageNode).hasName("edu.hm.hafner.util").hasPath("edu/hm/hafner/util");
 
         List<Node> files = packageNode.getChildren();
 
         packageNode.splitPackages();
-        assertThat(packageNode).hasName("edu.hm.hafner.util");
-        assertThat(packageNode).hasChildren(files);
+        assertThat(packageNode).hasName("edu.hm.hafner.util").hasChildren(files);
     }
 
     @Test
@@ -204,15 +186,6 @@ class JacocoParserTest {
         assertThat(tree.printCoverageFor(INSTRUCTION)).isEqualTo("93.33%");
         assertThat(tree.printCoverageFor(INSTRUCTION, Locale.GERMAN)).isEqualTo("93,33%");
 
-        assertThat(tree.getCoverage(COMPLEXITY)).isSet()
-                .hasCovered(148)
-                .hasCoveredPercentage(Fraction.getFraction(148, 148 + 12))
-                .hasMissed(12)
-                .hasMissedPercentage(Fraction.getFraction(12, 148 + 12))
-                .hasTotal(148 + 12);
-        assertThat(tree.printCoverageFor(COMPLEXITY)).isEqualTo("92.50%");
-        assertThat(tree.printCoverageFor(COMPLEXITY, Locale.GERMAN)).isEqualTo("92,50%");
-
         assertThat(tree.getCoverage(MODULE)).isSet()
                 .hasCovered(1)
                 .hasCoveredPercentage(Fraction.ONE)
@@ -230,6 +203,6 @@ class JacocoParserTest {
 
     private Node readExampleReport() {
         JacocoParser parser = new JacocoParser("src/test/resources/jacoco-codingstyle.xml");
-        return (Node) parser.getRootNode();
+        return parser.getRootNode();
     }
 }

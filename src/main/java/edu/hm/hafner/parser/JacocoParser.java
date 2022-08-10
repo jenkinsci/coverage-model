@@ -7,13 +7,16 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import edu.hm.hafner.complexity.ComplexityLeaf;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageLeaf;
-import edu.hm.hafner.model.Metric;
+import edu.hm.hafner.model.ClassNode;
 import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.Leaf;
 import edu.hm.hafner.model.MethodNode;
-import edu.hm.hafner.model.Node;
+import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.ModuleNode;
+import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.PackageNode;
 
 /**
@@ -40,7 +43,7 @@ public class JacocoParser extends XmlParser {
     private PackageNode currentPackageNode;
     private Node currentNode;
     private String filename;
-    private HashMap<String, ArrayList<Node>> classNodesMap = new HashMap<>();
+    private HashMap<String, ArrayList<ClassNode>> classNodesMap = new HashMap<>();
 
     /**
      * Creates a new JacocoParser which parses the given Jacoco xml report into a java data model.
@@ -79,7 +82,7 @@ public class JacocoParser extends XmlParser {
 
             case "package": // currentNode = rootNode, packageNode after
                 String packageName = element.getAttributeByName(NAME).getValue();
-                PackageNode packageNode = new PackageNode(packageName.replaceAll("/", "."));
+                PackageNode packageNode = new PackageNode(packageName.replace("/", "."));
                 getRootNode().add(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
@@ -107,8 +110,8 @@ public class JacocoParser extends XmlParser {
                 FileNode fileNode = new FileNode(fileName);
 
                 // add all classNodes to current fileNode
-                ArrayList<Node> classNodeList = classNodesMap.get(fileName);
-                for (Node classNode : classNodeList) {
+                ArrayList<ClassNode> classNodeList = classNodesMap.get(fileName);
+                for (ClassNode classNode : classNodeList) {
                     fileNode.add(classNode);
                 }
 
@@ -132,12 +135,12 @@ public class JacocoParser extends XmlParser {
      * @param element the current report element
      */
     private void handleClassElement(final StartElement element) {
-        Node classNode = new Node(Metric.CLASS, element.getAttributeByName(NAME).getValue());
+        ClassNode classNode = new ClassNode(element.getAttributeByName(NAME).getValue());
 
         String sourcefileName = element.getAttributeByName(SOURCEFILENAME).getValue();
 
         // Adds current class node as part of a list to the map
-        ArrayList<Node> classNodesList;
+        ArrayList<ClassNode> classNodesList;
         if (classNodesMap.containsKey(sourcefileName)) {
             classNodesList = classNodesMap.get(sourcefileName);
         }
@@ -163,29 +166,25 @@ public class JacocoParser extends XmlParser {
             return;
         }
 
-        Metric metric;
+        Leaf leaf;
         switch (currentType) {
             case "LINE":
-                metric = Metric.LINE;
-                break;
             case "INSTRUCTION":
-                metric = Metric.INSTRUCTION;
-                break;
             case "BRANCH":
-                metric = Metric.BRANCH;
+                leaf =  new CoverageLeaf(Metric.valueOf(currentType),
+                        new Coverage(Integer.parseInt(element.getAttributeByName(COVERED).getValue()),
+                                Integer.parseInt(element.getAttributeByName(MISSED).getValue())));
                 break;
             case "COMPLEXITY":
-                metric = Metric.COMPLEXITY;
+                int complexity = Integer.parseInt(element.getAttributeByName(COVERED).getValue())
+                        + Integer.parseInt(element.getAttributeByName(MISSED).getValue());
+                leaf = new ComplexityLeaf(complexity);
                 break;
             default:
                 return;
         }
+        currentNode.add(leaf);
 
-        CoverageLeaf coverageLeaf = new CoverageLeaf(metric,
-                new Coverage(Integer.parseInt(element.getAttributeByName(COVERED).getValue()),
-                        Integer.parseInt(element.getAttributeByName(MISSED).getValue())));
-
-        currentNode.add(coverageLeaf);
     }
 
     /**
@@ -223,13 +222,13 @@ public class JacocoParser extends XmlParser {
     protected void endElement(final EndElement element) {
         switch (element.getName().toString()) {
             case "package":
-                currentNode = (Node) getRootNode();
+                currentNode = getRootNode();
                 currentPackageNode = null;
                 classNodesMap = new HashMap<>();
                 break;
 
             case "method":
-                currentNode = (Node) currentNode.getParent();
+                currentNode = currentNode.getParent();
                 break;
 
             default: break;

@@ -134,15 +134,15 @@
         </class>
       </classes>
     </package>
-    <package name="" line-rate="1" branch-rate="0" complexity="3">
+    <package name="" line-rate="1" branch-rate="0.5" complexity="3">
       <classes>
         <class name="Invocare\InventoryBranch\Plugin\InventoryAdminUi\SourceDataProvider\PopulateBranchExtensionAttributesPlugin" filename="Plugin/InventoryAdminUi/SourceDataProvider/PopulateBranchExtensionAttributesPlugin.php" line-rate="1" branch-rate="0" complexity="3">
           <methods>
             <method name="afterGetData" signature="Magento\InventoryAdminUi\Ui\DataProvider\SourceDataProvider $subject, array $result" line-rate="1" branch-rate="0" complexity="3">
               <lines>
-                <line number="28" hits="2"/>
+                <line number="28" hits="2" branch="true" condition-coverage="100% (2/2)"/>
                 <line number="29" hits="2"/>
-                <line number="38" hits="2"/>
+                <line number="38" hits="2" branch="true" condition-coverage="0% (0/2)"/>
                 <line number="39" hits="2"/>
                 <line number="40" hits="1"/>
                 <line number="41" hits="1"/>
@@ -151,9 +151,9 @@
             </method>
           </methods>
           <lines>
-            <line number="28" hits="2"/>
+            <line number="28" hits="2" branch="true" condition-coverage="100% (2/2)"/>
             <line number="29" hits="2"/>
-            <line number="38" hits="2"/>
+            <line number="38" hits="2" branch="true" condition-coverage="0% (0/2)"/>
             <line number="39" hits="2"/>
             <line number="40" hits="1"/>
             <line number="41" hits="1"/>
@@ -164,7 +164,7 @@
     </package>
     <package name="" line-rate="0.63333333333333" branch-rate="0" complexity="8">
       <classes>
-        <class name="Invocare\InventoryBranch\Plugin\InventoryApi\SourceRepository\SetBranchExtensionAttributesPlugin" filename="Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php" line-rate="0.63333333333333" branch-rate="0" complexity="8">
+        <class name="Invocare\InventoryBranch\Plugin\InventoryApi\SourceRepository\SetBranchExtensionAttributesPlugin" filename="Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php" line-rate="0.9231" branch-rate="0" complexity="4">
           <methods>
             <method name="__construct" signature="Magento\InventoryApi\Api\Data\SourceExtensionInterfaceFactory $sourceExtensionFactory" line-rate="0" branch-rate="0" complexity="1">
               <lines>
@@ -191,6 +191,25 @@
                 <line number="72" hits="1"/>
               </lines>
             </method>
+          </methods>
+          <lines>
+            <line number="30" hits="0"/>
+            <line number="45" hits="1"/>
+            <line number="46" hits="1"/>
+            <line number="61" hits="1"/>
+            <line number="62" hits="1"/>
+            <line number="63" hits="1"/>
+            <line number="64" hits="1"/>
+            <line number="65" hits="1"/>
+            <line number="66" hits="1"/>
+            <line number="67" hits="1"/>
+            <line number="68" hits="1"/>
+            <line number="69" hits="1"/>
+            <line number="72" hits="1"/>
+          </lines>
+        </class>
+        <class name="Invocare\InventoryBranch\Plugin\InventoryApi\SourceRepository\SetBranchExtensionPlugin" filename="Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php" line-rate="0.4118" branch-rate="0" complexity="4">
+          <methods>
             <method name="afterGetList" signature="Magento\InventoryApi\Api\SourceRepositoryInterface $subject, Magento\InventoryApi\Api\Data\SourceSearchResultsInterface $result" line-rate="1" branch-rate="0" complexity="2">
               <lines>
                 <line number="89" hits="1"/>
@@ -218,19 +237,6 @@
             </method>
           </methods>
           <lines>
-            <line number="30" hits="0"/>
-            <line number="45" hits="1"/>
-            <line number="46" hits="1"/>
-            <line number="61" hits="1"/>
-            <line number="62" hits="1"/>
-            <line number="63" hits="1"/>
-            <line number="64" hits="1"/>
-            <line number="65" hits="1"/>
-            <line number="66" hits="1"/>
-            <line number="67" hits="1"/>
-            <line number="68" hits="1"/>
-            <line number="69" hits="1"/>
-            <line number="72" hits="1"/>
             <line number="89" hits="1"/>
             <line number="90" hits="1"/>
             <line number="92" hits="1"/>

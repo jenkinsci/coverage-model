@@ -2,10 +2,6 @@ package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.model.FileNode;
-import edu.hm.hafner.model.MethodNode;
-import edu.hm.hafner.model.Node;
-
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -16,6 +12,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * @author Michael Gasser
  */
 class MethodNodeTest {
+
     /**
      * Tests with a valid line number.
      */
@@ -48,6 +45,15 @@ class MethodNodeTest {
         // When & Then
         assertThat(node).doesNotHaveValidLineNumber();
         assertThat(secondNode).doesNotHaveValidLineNumber();
+    }
+
+    @Test
+    void shouldCheckLineNumberZero() {
+        // Given
+        MethodNode node = new MethodNode("main");
+
+        // When & Then
+        assertThat(node).hasMetric(Metric.METHOD).hasLineNumber(0);
     }
 
     /**

@@ -3,6 +3,8 @@ package edu.hm.hafner.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import edu.hm.hafner.util.Ensure;
+
 /**
  * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction or branch
  * coverage or mutation r complexity.
@@ -21,6 +23,8 @@ public class Leaf implements Serializable {
      *         the coverage metric
      */
     public Leaf(final Metric metric) {
+        Ensure.that(metric.isLeaf()).isTrue("Metrics like '%s' are no leaf metrics", metric);
+
         this.metric = metric;
     }
 

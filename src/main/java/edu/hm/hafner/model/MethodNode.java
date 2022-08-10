@@ -18,7 +18,7 @@ public class MethodNode extends Node {
     private final int lineNumber;
 
     /**
-     * Creates a new coverage item node with the given name.
+     * Creates a new item node with the given name.
      *
      * @param name
      *         The human-readable name of the node
@@ -29,6 +29,17 @@ public class MethodNode extends Node {
         super(Metric.METHOD, name);
 
         this.lineNumber = lineNumber;
+    }
+
+    /**
+     * Creates a new method node with the given name.
+     *
+     * @param name
+     *         The human-readable name of the node
+     */
+    public MethodNode(final String name) {
+        super(Metric.METHOD, name);
+        this.lineNumber = 0;
     }
 
     /**

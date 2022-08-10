@@ -2,6 +2,7 @@ package edu.hm.hafner.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import edu.hm.hafner.coverage.CoverageLeaf;
 
@@ -86,5 +87,27 @@ public class FileNode extends Node {
     @Override
     public Node copyEmpty() {
         return new FileNode(getName());
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        FileNode fileNode = (FileNode) o;
+
+        return lineNumberToBranchCoverage.equals(fileNode.lineNumberToBranchCoverage)
+                && lineNumberToInstructionCoverage.equals(fileNode.lineNumberToInstructionCoverage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), lineNumberToBranchCoverage, lineNumberToInstructionCoverage);
     }
 }

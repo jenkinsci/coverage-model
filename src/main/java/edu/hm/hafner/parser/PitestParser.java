@@ -13,9 +13,9 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.model.MethodNode;
 import edu.hm.hafner.model.ClassNode;
 import edu.hm.hafner.model.FileNode;
+import edu.hm.hafner.model.MethodNode;
 import edu.hm.hafner.model.ModuleNode;
 import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.PackageNode;
@@ -147,11 +147,11 @@ public class PitestParser extends XmlParser {
                 break;
 
             case "mutatedClass":
-                handleMutatedClass();
+                handleClass();
                 break;
 
             case "mutatedMethod":
-                handleMutatedMethod();
+                handleMethod();
                 break;
 
             case "lineNumber":
@@ -176,7 +176,7 @@ public class PitestParser extends XmlParser {
     /**
      * Creates a new packageNode, fileNode and classNode if they do not exist yet.
      */
-    private void handleMutatedClass() {
+    private void handleClass() {
         String packagePath = StringUtils.substringBeforeLast(currentData, ".");
         String className = StringUtils.substringAfterLast(currentData, ".");
 
@@ -230,7 +230,7 @@ public class PitestParser extends XmlParser {
     /**
      * Creates a new method node if it does not exist yet.
      */
-    private void handleMutatedMethod() {
+    private void handleMethod() {
         List<Node> methodNodes = classNode.getChildren();
         MethodNode currentMethodNode = null;
         for (Node method : methodNodes) {

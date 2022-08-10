@@ -1,27 +1,17 @@
 package edu.hm.hafner.complexity;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.Leaf;
-import edu.hm.hafner.model.Result;
-import edu.hm.hafner.util.VisibleForTesting;
+import edu.hm.hafner.model.Metric;
 
 /**
  * Leaf which represents the complexity.
  *
  * @author Melissa Bauer
  */
-public class ComplexityLeaf extends Leaf implements Serializable {
+public class ComplexityLeaf extends Leaf {
     private static final long serialVersionUID = -1626223071392791727L;
-
-    // TODO: notwendig?
-    /** Null object that indicates that the complexity has not been measured. */
-    public static final ComplexityLeaf NO_COMPLEXITY = new ComplexityLeaf(0);
-
-    @VisibleForTesting
-    static final String NO_COMPLEXITY_AVAILABLE = "-";
 
     private final int complexity;
 
@@ -46,15 +36,6 @@ public class ComplexityLeaf extends Leaf implements Serializable {
     }
 
     /**
-     * Returns the result of compleedjenfje TODO.
-     *
-     * @return the result
-     */
-    public Result getResult() {
-        return new Result(Metric.COMPLEXITY, complexity);
-    }
-
-    /**
      * Add the complexity from the specified instance to the complexity of this instance.
      *
      * @param additional
@@ -70,8 +51,6 @@ public class ComplexityLeaf extends Leaf implements Serializable {
      * Returns if the current complexity is set.
      *
      * @return if the complexity is set
-     *         <p>
-     *                 TODO: kann eine Komplexität 0 sein? -> Literatur
      */
     public boolean isSet() {
         return complexity > 0;

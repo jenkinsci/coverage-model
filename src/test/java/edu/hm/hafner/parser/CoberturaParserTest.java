@@ -8,14 +8,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.model.FileNode;
 import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.Node;
-import edu.hm.hafner.model.FileNode;
 
-import static edu.hm.hafner.model.Metric.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.model.Metric.*;
 
 class CoberturaParserTest {
 
@@ -38,33 +38,35 @@ class CoberturaParserTest {
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(5);
         assertThat(tree.getAll(FILE)).hasSize(4);
-        assertThat(tree.getAll(CLASS)).hasSize(4);
+        assertThat(tree.getAll(CLASS)).hasSize(5);
         assertThat(tree.getAll(METHOD)).hasSize(10);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, COMPLEXITY)
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY)
                 .hasToString("[Module] " + "cobertura-big.xml");
-        assertThat(tree.getMetricsDistribution()).containsExactly(
+        assertThat(tree.getCoverageMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
                 entry(PACKAGE, new Coverage(4, 1)),
                 entry(FILE, new Coverage(4, 0)),
-                entry(CLASS, new Coverage(4, 0)),
+                entry(CLASS, new Coverage(5, 0)),
                 entry(METHOD, new Coverage(7, 3)),
-                entry(LINE, new Coverage(63, 19)),
-                entry(COMPLEXITY, new Coverage(22, 0)));
-        assertThat(tree.getMetricsPercentages()).containsExactly(
+                entry(LINE, new Coverage(61, 19)),
+                entry(BRANCH, new Coverage(2, 2)));
+        assertThat(tree.getCoverageMetricsPercentages()).containsExactly(
                 entry(MODULE, Fraction.ONE),
                 entry(PACKAGE, Fraction.getFraction(4, 4 + 1)),
                 entry(FILE, Fraction.getFraction(4, 4)),
-                entry(CLASS, Fraction.getFraction(4, 4)),
+                entry(CLASS, Fraction.getFraction(5, 5)),
                 entry(METHOD, Fraction.getFraction(7, 7 + 3)),
-                entry(LINE, Fraction.getFraction(63, 63 + 19)),
-                entry(COMPLEXITY, Fraction.getFraction(22, 22)));
+                entry(LINE, Fraction.getFraction(61, 61 + 19)),
+                entry(BRANCH, Fraction.getFraction(2, 2 + 2)));
 
         assertThat(tree.getChildren()).hasSize(5).element(0).satisfies(
                 packageNode -> assertThat(packageNode).hasName("")
         );
 
         verifyCoverageMetrics(tree);
+        assertThat(tree.getComplexity()).isEqualTo(22);
+        assertThat(tree.getMutationResult()).hasKilled(0);
     }
 
     @Test
@@ -84,31 +86,29 @@ class CoberturaParserTest {
         }
 
         assertThat(missedLines).isEqualTo(19);
-        assertThat(coveredLines).isEqualTo(63);
-        assertThat(missedBranches).isEqualTo(0);
-        assertThat(coveredBranches).isEqualTo(0);
+        assertThat(coveredLines).isEqualTo(61);
+        assertThat(missedBranches).isEqualTo(1);
+        assertThat(coveredBranches).isEqualTo(1);
     }
 
     private void verifyCoverageMetrics(final Node tree) {
-        assertThat(tree.getCoverage(LINE)).isSet() // 20 + 17 + 7 + 19
-                .hasCovered(63) // 8 + 1 + 10
-                .hasCoveredPercentage(Fraction.getFraction(63, 63 + 19))
+        assertThat(tree.getCoverage(LINE)).isSet()
+                .hasCovered(61)
+                .hasCoveredPercentage(Fraction.getFraction(61, 61 + 19))
                 .hasMissed(19)
-                .hasMissedPercentage(Fraction.getFraction(19, 63 + 19))
-                .hasTotal(63 + 19);
-        assertThat(tree.printCoverageFor(LINE)).isEqualTo("76.83%");
-        assertThat(tree.printCoverageFor(LINE, Locale.GERMAN)).isEqualTo("76,83%");
+                .hasMissedPercentage(Fraction.getFraction(19, 61 + 19))
+                .hasTotal(61 + 19);
+        assertThat(tree.printCoverageFor(LINE)).isEqualTo("76.25%");
+        assertThat(tree.printCoverageFor(LINE, Locale.GERMAN)).isEqualTo("76,25%");
 
-        assertThat(tree.getCoverage(BRANCH)).isNotSet();
-
-        assertThat(tree.getCoverage(COMPLEXITY)).isSet()
-                .hasCovered(22)
-                .hasCoveredPercentage(Fraction.getFraction(22, 22))
-                .hasMissed(0)
-                .hasMissedPercentage(Fraction.getFraction(0, 22))
-                .hasTotal(22);
-        assertThat(tree.printCoverageFor(COMPLEXITY)).isEqualTo("100.00%");
-        assertThat(tree.printCoverageFor(COMPLEXITY, Locale.GERMAN)).isEqualTo("100,00%");
+        assertThat(tree.getCoverage(BRANCH)).isSet()
+                .hasCovered(2)
+                .hasCoveredPercentage(Fraction.getFraction(2, 2 + 2))
+                .hasMissed(2)
+                .hasMissedPercentage(Fraction.getFraction(2, 2 + 2))
+                .hasTotal(2 + 2);
+        assertThat(tree.printCoverageFor(BRANCH)).isEqualTo("50.00%");
+        assertThat(tree.printCoverageFor(BRANCH, Locale.GERMAN)).isEqualTo("50,00%");
 
         assertThat(tree.getCoverage(MODULE)).isSet()
                 .hasCovered(1)
@@ -127,7 +127,7 @@ class CoberturaParserTest {
 
     private Node readExampleReport() {
         CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura-big.xml");
-        return (Node) parser.getRootNode();
+        return parser.getRootNode();
     }
 
 }

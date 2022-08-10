@@ -24,28 +24,28 @@ public final class Metric implements Comparable<Metric>, Serializable {
         COMPOSITE
     }
 
-    /** Module coverage. */
+    /** Module metric. */
     public static final Metric MODULE = new Metric("Module", -10);
     private static final Metric REPORT = new Metric("Report", -10);
-    /** Package or namespace coverage. */
+    /** Package or namespace metric. */
     public static final Metric PACKAGE = new Metric("Package", 1);
-    /** File coverage. */
+    /** File metric. */
     public static final Metric FILE = new Metric("File", 2);
-    /** Class coverage. */
+    /** Class metric. */
     public static final Metric CLASS = new Metric("Class", 3);
-    /** Method coverage. */
+    /** Method metric. */
     public static final Metric METHOD = new Metric("Method", 4);
-    /** Instruction coverage. */
+    /** Instruction metric. */
     public static final Metric INSTRUCTION = new Metric("Instruction", 11, MetricType.LEAF);
-    /** Line coverage. */
+    /** Line metric. */
     public static final Metric LINE = new Metric("Line", 10, MetricType.LEAF);
-    /** Branch or conditional coverage. */
+    /** Branch or conditional metric. */
     public static final Metric BRANCH = new Metric("Branch", 12, MetricType.LEAF);
     private static final Metric CONDITIONAL = new Metric("Conditional", 12, MetricType.LEAF);
     // Decision coverage currently is not used since no tools is using it
-    /** Complexity coverage. */
+    /** Complexity metric. */
     public static final Metric COMPLEXITY = new Metric("Complexity", 13, MetricType.LEAF);
-    /** Mutation. */
+    /** Mutation metric. */
     public static final Metric MUTATION = new Metric("Mutation", 14, MetricType.LEAF);
 
     /**

@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 import edu.hm.hafner.model.Leaf;
@@ -12,7 +11,7 @@ import edu.hm.hafner.model.Metric;
  *
  * @author Ullrich Hafner
  */
-public final class CoverageLeaf extends Leaf implements Serializable {
+public final class CoverageLeaf extends Leaf {
     private static final long serialVersionUID = -1062406664372222691L;
 
     private final Coverage coverage;

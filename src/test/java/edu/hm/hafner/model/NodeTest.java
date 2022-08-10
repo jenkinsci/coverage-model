@@ -13,6 +13,8 @@ import edu.hm.hafner.coverage.CoverageLeaf;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.model.Metric.FILE;
+import static edu.hm.hafner.model.Metric.*;
 
 /**
  * Tests the class {@link Node}.
@@ -28,40 +30,40 @@ class NodeTest {
 
     @Test
     void shouldSplitPackagesWithoutPackageNodes() {
-        Node root = new Node(Metric.MODULE, "Root");
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        Node root = new Node(MODULE, "Root");
+        assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        root.add(new Node(Metric.FILE, "file.c"));
+        root.add(new Node(FILE, "file.c"));
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        assertThat(root.getAll(PACKAGE)).isEmpty();
     }
 
     @Test
     void shouldSplitPackagesWithoutName() {
-        Node root = new Node(Metric.MODULE, "Root");
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        Node root = new Node(MODULE, "Root");
+        assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        root.add(new Node(Metric.PACKAGE, ""));
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(1);
+        root.add(new Node(PACKAGE, ""));
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
     }
 
     @Test
     void shouldSplitPackagesWithSingleDot() {
-        Node root = new Node(Metric.MODULE, "Root");
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        Node root = new Node(MODULE, "Root");
+        assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(0);
+        assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        root.add(new Node(Metric.PACKAGE, "."));
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(1);
+        root.add(new Node(PACKAGE, "."));
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
     }
 
     /**
@@ -70,20 +72,20 @@ class NodeTest {
     @Test
     void shouldSplitPackagesWithMultipleDots() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        root.add(new Node(Metric.PACKAGE, ".ui.rating"));
+        Node root = new Node(MODULE, "Root");
+        root.add(new Node(PACKAGE, ".ui.rating"));
 
         // When & Then
         root.splitPackages();
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(3);
+        assertThat(root.getAll(PACKAGE)).hasSize(3);
 
         // When & Then
-        Node child = new Node(Metric.PACKAGE, ".ui.home");
-        child.add(new Node(Metric.PACKAGE, "view"));
+        Node child = new Node(PACKAGE, ".ui.home");
+        child.add(new Node(PACKAGE, "view"));
         root.add(child);
         root.splitPackages();
         assertThat(child.getChildren()).hasSize(1);
-        assertThat(root.getAll(Metric.PACKAGE)).hasSize(5);
+        assertThat(root.getAll(PACKAGE)).hasSize(5);
     }
 
     /**
@@ -92,8 +94,8 @@ class NodeTest {
     @Test
     void shouldKeepChildAfterSplit() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        Node child = new Node(Metric.PACKAGE, "ui");
+        Node root = new Node(MODULE, "Root");
+        Node child = new Node(PACKAGE, "ui");
         root.add(child);
 
         // When
@@ -104,13 +106,13 @@ class NodeTest {
     }
 
     /**
-     * Checks for exception if getAll() method is called with a LEAF metric.
+     * Checks for exception if getAll() method is called with a LEAF.
      */
     @Test
     void shouldThrowExceptionWithLeafMetric() {
         // Given
-        Metric leafMetric = Metric.LINE;
-        Node root = new Node(Metric.MODULE, "Root");
+        Metric leafMetric = LINE;
+        Node root = new Node(MODULE, "Root");
 
         // When & Then
         assertThatExceptionOfType(AssertionError.class)
@@ -125,10 +127,10 @@ class NodeTest {
     void shouldAddChildren() {
         // Given
         String parentName = "Root";
-        Node parent = new Node(Metric.MODULE, parentName);
+        Node parent = new Node(MODULE, parentName);
         String childName = ".";
-        Node child = new Node(Metric.PACKAGE, childName);
-        Node secondChild = new Node(Metric.PACKAGE, "ui");
+        Node child = new Node(PACKAGE, childName);
+        Node secondChild = new Node(PACKAGE, "ui");
 
         // When
         parent.add(child);
@@ -157,7 +159,7 @@ class NodeTest {
     @Test
     void shouldThrowExceptionWithoutParent() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
+        Node root = new Node(MODULE, "Root");
 
         // When & Then
         assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(root::getParent);
@@ -169,8 +171,8 @@ class NodeTest {
     @Test
     void shouldMergePath() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        Node child = new Node(Metric.PACKAGE, ".");
+        Node root = new Node(MODULE, "Root");
+        Node child = new Node(PACKAGE, ".");
         child.setParent(root);
 
         // When & Then
@@ -187,7 +189,7 @@ class NodeTest {
     void shouldInitializeNode() {
         // Given
         String name = "Root";
-        Metric metric = Metric.MODULE;
+        Metric metric = MODULE;
         Node root = new Node(metric, name);
 
         // When & Then
@@ -202,9 +204,9 @@ class NodeTest {
     @Test
     void shouldGetMetrics() {
         // Given
-        Metric rootMetric = Metric.MODULE;
+        Metric rootMetric = MODULE;
         Node root = new Node(rootMetric, "Root");
-        Metric childMetric = Metric.PACKAGE;
+        Metric childMetric = PACKAGE;
         Node child = new Node(childMetric, ".");
         root.add(child);
 
@@ -222,8 +224,8 @@ class NodeTest {
      * @return the new node
      */
     private static Node getNodeWithLineCoverage(final Coverage coverage) {
-        Node root = new Node(Metric.MODULE, "Root");
-        CoverageLeaf leaf = new CoverageLeaf(Metric.LINE, coverage);
+        Node root = new Node(MODULE, "Root");
+        CoverageLeaf leaf = new CoverageLeaf(LINE, coverage);
         root.add(leaf);
         return root;
     }
@@ -240,13 +242,13 @@ class NodeTest {
         Node root = getNodeWithLineCoverage(new Coverage(linesCovered, linesMissed));
 
         // When & Then
-        assertThat(root.getMetricsDistribution()).containsExactly(
-                entry(Metric.MODULE, new Coverage(1, 0)),
-                entry(Metric.LINE, new Coverage(linesCovered, linesMissed))
+        assertThat(root.getCoverageMetricsDistribution()).containsExactly(
+                entry(MODULE, new Coverage(1, 0)),
+                entry(LINE, new Coverage(linesCovered, linesMissed))
         );
-        assertThat(root.getMetricsPercentages()).containsExactly(
-                entry(Metric.MODULE, Fraction.ONE),
-                entry(Metric.LINE, coveredPercentage)
+        assertThat(root.getCoverageMetricsPercentages()).containsExactly(
+                entry(MODULE, Fraction.ONE),
+                entry(LINE, coveredPercentage)
         );
     }
 
@@ -262,13 +264,13 @@ class NodeTest {
         Node root = getNodeWithLineCoverage(new Coverage(linesCovered, linesMissed));
 
         // When & Then
-        assertThat(root.getCoverage(Metric.LINE))
+        assertThat(root.getCoverage(LINE))
                 .hasCovered(linesCovered)
                 .hasMissed(linesMissed)
                 .hasCoveredPercentage(coveredPercentage);
-        assertThat(root.printCoverageFor(Metric.LINE, Locale.GERMAN)).isEqualTo("25,00%");
+        assertThat(root.printCoverageFor(LINE, Locale.GERMAN)).isEqualTo("25,00%");
         // Default Locale is set to English using beforeAll()
-        assertThat(root.printCoverageFor(Metric.LINE)).isEqualTo("25.00%");
+        assertThat(root.printCoverageFor(LINE)).isEqualTo("25.00%");
     }
 
     /**
@@ -277,12 +279,12 @@ class NodeTest {
     @Test
     void shouldGetModuleCoverage() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
+        Node root = new Node(MODULE, "Root");
         PackageNode pkg = new PackageNode("ui");
         root.add(pkg);
 
         // When & Then
-        assertThat(root.getCoverage(Metric.MODULE)).hasCovered(0);
+        assertThat(root.getCoverage(MODULE)).hasCovered(0);
     }
 
     /**
@@ -296,8 +298,8 @@ class NodeTest {
 
         // When & Then
         assertThat(fullCovered.computeDelta(halfCovered)).containsExactly(
-                entry(Metric.MODULE, Fraction.ZERO),
-                entry(Metric.LINE, Fraction.ONE_HALF)
+                entry(MODULE, Fraction.ZERO),
+                entry(LINE, Fraction.ONE_HALF)
         );
     }
 
@@ -314,13 +316,13 @@ class NodeTest {
 
         // When & Then
         assertThat(hugeMissed.computeDelta(otherHugeMissed)).containsExactly(
-                entry(Metric.MODULE, Fraction.ZERO),
-                entry(Metric.LINE, Fraction.ZERO)
+                entry(MODULE, Fraction.ZERO),
+                entry(LINE, Fraction.ZERO)
         );
 
         assertThat(hugeCovered.computeDelta(halfCovered)).containsExactly(
-                entry(Metric.MODULE, Fraction.ZERO),
-                entry(Metric.LINE, Fraction.ONE_HALF)
+                entry(MODULE, Fraction.ZERO),
+                entry(LINE, Fraction.ONE_HALF)
         );
     }
 
@@ -330,8 +332,8 @@ class NodeTest {
     @Test
     void shouldFindMetric() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        Metric childMetric = Metric.PACKAGE;
+        Node root = new Node(MODULE, "Root");
+        Metric childMetric = PACKAGE;
         String childName = ".";
         Node child = new Node(childMetric, childName);
         root.add(child);
@@ -347,7 +349,7 @@ class NodeTest {
     @Test
     void shouldMatchMetricAndName() {
         // Given
-        Metric metric = Metric.MODULE;
+        Metric metric = MODULE;
         String name = "Root";
         Node root = new Node(metric, name);
 
@@ -355,7 +357,7 @@ class NodeTest {
         assertThat(root.matches(metric, name)).isTrue();
         assertThat(root.matches(metric, name.hashCode())).isTrue();
 
-        assertThat(root.matches(Metric.LINE, name)).isFalse();
+        assertThat(root.matches(LINE, name)).isFalse();
         assertThat(root.matches(metric, "wrongName")).isFalse();
     }
 
@@ -365,9 +367,9 @@ class NodeTest {
     @Test
     void shouldAddChildAndLeaf() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        Node child = new Node(Metric.PACKAGE, ".");
-        CoverageLeaf leaf = new CoverageLeaf(Metric.FILE, Coverage.NO_COVERAGE);
+        Node root = new Node(MODULE, "Root");
+        Node child = new Node(PACKAGE, ".");
+        CoverageLeaf leaf = new CoverageLeaf(LINE, Coverage.NO_COVERAGE);
 
         // When
         root.add(child);
@@ -385,7 +387,7 @@ class NodeTest {
     @Test
     void shouldTextuallyRepresent() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
+        Node root = new Node(MODULE, "Root");
 
         // When & Then
         assertThat(root).hasToString("[Module] Root");
@@ -412,17 +414,17 @@ class NodeTest {
     @Test
     void shouldCopyWithChild() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        Node newRoot = new Node(Metric.MODULE, "New root");
-        Node child = new Node(Metric.PACKAGE, ".");
+        Node root = new Node(MODULE, "Root");
+        Node newRoot = new Node(MODULE, "New root");
+        Node child = new Node(PACKAGE, ".");
         root.add(child);
 
         // When
-        Node withoutRootCopy = (Node) root.copyTree();
-        Node withRootCopy = (Node) root.copyTree(newRoot);
+        Node withoutRootCopy = root.copyTree();
+        Node withRootCopy = root.copyTree(newRoot);
 
         // Then
-        assertThat(withoutRootCopy.copyEmpty()).isEqualTo(new Node(Metric.MODULE, "Root"));
+        assertThat(withoutRootCopy.copyEmpty()).isEqualTo(new Node(MODULE, "Root"));
         assertThat(withoutRootCopy)
                 .hasOnlyChildren(child)
                 .isEqualTo(root);
@@ -438,8 +440,8 @@ class NodeTest {
     @Test
     void shouldCopyLeaf() {
         // Given
-        Node root = new Node(Metric.MODULE, "Root");
-        CoverageLeaf leaf = new CoverageLeaf(Metric.LINE, Coverage.NO_COVERAGE);
+        Node root = new Node(MODULE, "Root");
+        CoverageLeaf leaf = new CoverageLeaf(LINE, Coverage.NO_COVERAGE);
         root.add(leaf);
 
         // When & Then

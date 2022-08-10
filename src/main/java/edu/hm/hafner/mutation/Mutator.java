@@ -2,8 +2,8 @@ package edu.hm.hafner.mutation;
 
 /**
  * Enum which maps the path of a mutator to its short name. Source of path and short names:
- * https://github.com/hcoles/pitest/tree/master/pitest/src/main/java/org/pitest/mutationtest/engine/gregor/mutators and
- * https://github.com/hcoles/pitest/tree/master/pitest/src/main/java/org/pitest/mutationtest/engine/gregor/mutators/returns
+ * <a href="https://github.com/hcoles/pitest/tree/master/pitest/src/main/java/org/pitest/mutationtest/engine/gregor/mutators">...</a> and
+ * <a href="https://github.com/hcoles/pitest/tree/master/pitest/src/main/java/org/pitest/mutationtest/engine/gregor/mutators/returns">...</a>
  *
  * @author Melissa Buer
  */

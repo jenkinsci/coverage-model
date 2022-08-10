@@ -10,8 +10,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.ModuleNode;
+import edu.hm.hafner.model.Node;
 
 /**
  * Base class for xml parser.
@@ -21,7 +21,7 @@ import edu.hm.hafner.model.ModuleNode;
 public abstract class XmlParser implements Serializable {
     private static final long serialVersionUID = -181158607646148018L;
 
-    private static ModuleNode rootNode;
+    private ModuleNode rootNode;
 
     public Node getRootNode() {
         return rootNode;

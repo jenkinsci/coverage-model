@@ -1,19 +1,22 @@
 package edu.hm.hafner.mutation;
 
 import org.junit.jupiter.api.Test;
-
-import edu.hm.hafner.coverage.Coverage;
-import edu.hm.hafner.coverage.CoverageLeaf;
-import edu.hm.hafner.model.Metric;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
+/**
+ * Tests the class {@link MutationLeaf}.
+ *
+ * @author Melissa Bauer
+ */
+@DefaultLocale("en")
 class MutationLeafTest {
 
     @Test
-    void shouldCreateMutation() {
+    void shouldCreateKilledMutationLeaf() {
         MutationLeaf mutationLeaf = new MutationLeaf(true, MutationStatus.KILLED);
         mutationLeaf.setMutator(Mutator.VOID_METHOD_CALLS);
         mutationLeaf.setKillingTest("shouldKillMutation");
@@ -25,26 +28,37 @@ class MutationLeafTest {
                 .hasLineNumber(1)
                 .hasMutator(Mutator.VOID_METHOD_CALLS)
                 .hasKillingTest("shouldKillMutation")
-                .hasToString("[Mutation]: Killed");
+                .hasToString("[Mutation]: isDetected=true, status=KILLED, lineNumber=1, mutator=VOID_METHOD_CALLS, killingTest='shouldKillMutation'");
+
+        assertThat(mutationLeaf.getResult()).hasKilled(1);
+        assertThat(mutationLeaf.getResult()).hasSurvived(0);
     }
 
-    /*@Test
-    void shouldCreateLeaf() {
-        CoverageLeaf coverageLeaf = new CoverageLeaf(Metric.LINE, COVERED);
+    @Test
+    void shouldCreateSurvivedMutationLeaf() {
+        MutationLeaf mutationLeaf = new MutationLeaf(true, MutationStatus.SURVIVED);
+        mutationLeaf.setMutator(Mutator.VOID_METHOD_CALLS);
+        mutationLeaf.setKillingTest("shouldNotKillMutation");
+        mutationLeaf.setLineNumber(1);
 
-        assertThat(coverageLeaf)
-                .hasMetric(Metric.LINE)
-                .hasCoverage(COVERED)
-                .hasToString("[Line]: 100.00% (1/1)");
-        assertThat(coverageLeaf.getCoverage(Metric.LINE)).isEqualTo(COVERED);
-        assertThat(coverageLeaf.getCoverage(Metric.MODULE)).isEqualTo(Coverage.NO_COVERAGE);
-    }*/
+        assertThat(mutationLeaf)
+                .isDetected()
+                .hasStatus(MutationStatus.SURVIVED)
+                .hasLineNumber(1)
+                .hasMutator(Mutator.VOID_METHOD_CALLS)
+                .hasKillingTest("shouldNotKillMutation")
+                .hasToString("[Mutation]: isDetected=true, status=SURVIVED, lineNumber=1, mutator=VOID_METHOD_CALLS, killingTest='shouldNotKillMutation'");
+
+        assertThat(mutationLeaf.getResult()).hasKilled(0);
+        assertThat(mutationLeaf.getResult()).hasSurvived(1);
+
+    }
 
     /**
      * Tests equals() method.
      */
     @Test
     void shouldAdhereToEquals() {
-        EqualsVerifier.simple().forClass(MutationLeaf.class).withNonnullFields("metric").verify();
+        EqualsVerifier.simple().forClass(MutationLeaf.class).withNonnullFields("metric", "isDetected", "status", "lineNumber", "mutator", "killingTest").verify();
     }
 }
