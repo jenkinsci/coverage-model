@@ -24,6 +24,7 @@ public final class Metric implements Comparable<Metric>, Serializable {
         COMPOSITE
     }
 
+    /** Module metric. */
     /** Group Coverage. */
     public static final Metric GROUP = new Metric("Group", -20);
     /** Module metric. */
