@@ -1,11 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.math.Fraction;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -55,34 +51,9 @@ class CoverageTest {
         assertThat(sum.formatMissedPercentage()).isEqualTo("20.00%");
     }
 
-    @ParameterizedTest(name = "Test {index}: Covered items ''{0}''")
-    @ValueSource(ints = {0, 1, 2, 3, 4, 5})
-    @DisplayName("Coverage creation")
-    void shouldCreateCoverage(final int covered) {
-        Coverage coverage = new Coverage(covered, 5 - covered);
-
-        assertThat(coverage).hasCovered(covered).hasTotal(5);
-        assertThat(coverage.toString()).contains(covered + "/");
-    }
-
-    @ParameterizedTest(name = "Test {index}: Covered ''{0}'', Missed ''{1}'', toString ''({2})'''")
-    @CsvSource({
-            "0, 1, 0/1",
-            "1, 0, 1/1",
-            "0, 2, 0/2",
-            "1, 1, 1/2",
-            "2, 0, 2/2"
-    })
-    @DisplayName("Coverage creation")
-    void shouldCreateCoverage(final int covered, final int missed, final String toString) {
-        Coverage coverage = new Coverage(covered, missed);
-
-        assertThat(coverage).hasCovered(covered).hasMissed(missed);
-        assertThat(coverage.toString()).endsWith(String.format("(%s)", toString));
-    }
-
     @Test
-    void shouldAdhereToEquals() {
+    void shouldCorrectlyCalculateEqualityAndHashCode() {
         EqualsVerifier.forClass(Coverage.class).verify();
     }
+
 }

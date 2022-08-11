@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  * @author Ullrich Hafner
  */
 public final class CoverageMetric implements Comparable<CoverageMetric>, Serializable {
+
     private static final long serialVersionUID = 3664773349525399092L;
     private static final int DEFAULT_ORDER = 100;
 
@@ -24,6 +25,8 @@ public final class CoverageMetric implements Comparable<CoverageMetric>, Seriali
         COMPOSITE
     }
 
+    /** Group Coverage. */
+    public static final CoverageMetric GROUP = new CoverageMetric("Group", -20);
     /** Module coverage. */
     public static final CoverageMetric MODULE = new CoverageMetric("Module", -10);
     private static final CoverageMetric REPORT = new CoverageMetric("Report", -10);
