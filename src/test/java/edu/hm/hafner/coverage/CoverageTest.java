@@ -82,7 +82,8 @@ class CoverageTest {
     }
 
     @Test
-    void shouldAdhereToEquals() {
+    void shouldCorrectlyCalculateEqualityAndHashCode() {
         EqualsVerifier.forClass(Coverage.class).verify();
     }
+
 }

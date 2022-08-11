@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -14,6 +16,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * @author Ullrich Hafner
  */
 class CoverageMetricTest {
+
     @Test
     void shouldSortMetrics() {
         List<CoverageMetric> all = new ArrayList<>();
@@ -58,6 +61,27 @@ class CoverageMetricTest {
         );
     }
 
+    @Test
+    void shouldGetCorrespondingValueByName() {
+        CoverageMetric.getAvailableCoverageMetrics().forEach(coverageMetric ->
+                assertThat(CoverageMetric.valueOf(coverageMetric.getName())).isEqualTo(coverageMetric));
+
+        assertThat(CoverageMetric.valueOf("CUSTOM")).hasName("CUSTOM").isNotLeaf();
+    }
+
+    @Test
+    void shouldGetCorrespondingValueByNameForSpecialMetrics() {
+        assertThat(CoverageMetric.valueOf("cOnDITional")).isEqualTo(CoverageMetric.BRANCH);
+        assertThat(CoverageMetric.valueOf("RePoRT")).isEqualTo(CoverageMetric.MODULE);
+
+    }
+
+    @Test
+    void shouldDetermineIfMetricIsLeaf() {
+        assertThat(CoverageMetric.FILE).isNotLeaf();
+        assertThat(CoverageMetric.BRANCH).isLeaf();
+    }
+
     private void verifyOrder(final List<CoverageMetric> all) {
         assertThat(all).containsExactly(
                 CoverageMetric.MODULE,
@@ -69,5 +93,10 @@ class CoverageMetricTest {
                 CoverageMetric.INSTRUCTION,
                 CoverageMetric.BRANCH
         );
+    }
+
+    @Test
+    void shouldAdhereToEquals() {
+        EqualsVerifier.forClass(CoverageMetric.class).withIgnoredFields("order", "leaf").verify();
     }
 }
