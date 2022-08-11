@@ -74,6 +74,20 @@ class CoverageNodeTest {
     }
 
     @Test
+    void shouldNotBreakEquals() {
+        // Given
+        CoverageNode root = new CoverageNode(CoverageMetric.MODULE, "Root");
+        CoverageNode child = new CoverageNode(CoverageMetric.PACKAGE, ".");
+        root.add(child);
+
+        // When
+        CoverageNode actualCopy = root.copyTree();
+
+        // Then
+        assertThat(actualCopy).isEqualTo(root);
+    }
+
+    @Test
     void shouldSplitPackagesIntoHierarchy() {
         CoverageNode root = new CoverageNode(CoverageMetric.MODULE, "Root");
         assertThat(root.getAll(CoverageMetric.PACKAGE)).hasSize(0);

@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -135,12 +136,12 @@ public class CoverageNode implements Serializable {
      *
      * @return a mapping of metric to coverage.
      */
-    public SortedMap<CoverageMetric, Coverage> getMetricsDistribution() {
+    public NavigableMap<CoverageMetric, Coverage> getMetricsDistribution() {
         return getMetrics().stream()
                 .collect(Collectors.toMap(Function.identity(), this::getCoverage, (o1, o2) -> o1, TreeMap::new));
     }
 
-    public SortedMap<CoverageMetric, Fraction> getMetricsPercentages() {
+    public NavigableMap<CoverageMetric, Fraction> getMetricsPercentages() {
         return getMetrics().stream().collect(Collectors.toMap(
                 Function.identity(),
                 searchMetric -> getCoverage(searchMetric).getCoveredPercentage(),
