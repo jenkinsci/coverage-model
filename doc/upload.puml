@@ -171,6 +171,7 @@ loop
     deactivate IssueEntity
     Mapper -> Mapper : getIssue()
 end
+
 Mapper -> ReportEntity : getToolId()
 activate ReportEntity
 Mapper <-- ReportEntity : "checkstyle"
