@@ -137,9 +137,6 @@ Browser <-- IssuesDetailController: ResponseEntity
 deactivate IssuesDetailController
 
 
-
-
-
 deactivate AnalysisDashboardController
 Browser ->> IssuesDetailController: getCategories(tool: "checkstyle", reference: "checkstyle-result.xml")
 activate IssuesDetailController
