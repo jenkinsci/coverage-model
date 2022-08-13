@@ -42,7 +42,7 @@ class CoberturaParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(10);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY)
-                .hasToString("[Module] " + "cobertura-big.xml");
+                .hasToString("[Module] " + "cobertura.xml");
         assertThat(tree.getCoverageMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
                 entry(PACKAGE, new Coverage(4, 1)),
@@ -119,14 +119,14 @@ class CoberturaParserTest {
         assertThat(tree.printCoverageFor(MODULE)).isEqualTo("100.00%");
         assertThat(tree.printCoverageFor(MODULE, Locale.GERMAN)).isEqualTo("100,00%");
 
-        assertThat(tree).hasName("cobertura-big.xml")
+        assertThat(tree).hasName("cobertura.xml")
                 .doesNotHaveParent()
                 .isRoot()
                 .hasMetric(MODULE).hasParentName("^");
     }
 
     private Node readExampleReport() {
-        CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura-big.xml");
+        CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura.xml");
         return parser.getRootNode();
     }
 
