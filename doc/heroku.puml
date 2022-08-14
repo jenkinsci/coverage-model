@@ -1,0 +1,91 @@
+@startuml
+' @author Lena Hartmann
+
+skinparam componentStyle uml2
+skinparam FontName Arial Black
+skinparam classFontName Arial
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+skinparam classFontSize 24
+skinparam componentStyle uml2
+skinparam ArrowColor black
+
+skinparam node {
+  BackgroundColor #C6C6C6
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor black
+}
+
+skinparam artifact {
+  BackgroundColor #3E46D9
+  StereotypeFontColor #white
+  FontColor #white
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor #white
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+  StereotypeFontSize 14
+}
+
+skinparam artifact {
+  BackgroundColor #3E46D9
+  StereotypeFontColor #white
+  FontColor #white
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor #white
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+  StereotypeFontSize 14
+}
+
+rectangle "Heroku" {
+
+    node ":Heroku Webserver (Dyno)" <<device>> {
+        node ":JVM OpenJDK v11.0.15+0" <<execution environment>> {
+            node ":Tomcat v9.0.60" <<execution environment>> as tomcat  {
+                 artifact "analysis-dashboard.jar" <<artifact>>
+            }
+        }
+    }
+
+
+    node ":Amazon AWS" <<device>> {
+        database "PostgreSQL Database v14.2" as db {
+            artifact "create.sql" <<artifact>>
+        }
+    }
+}
+
+node ":Benutzer Laptop" <<device>> {
+    node ":macOS Monterey v12.3.1" <<execution environment>> {
+        node ":Browser Firefox v99.0.1" <<execution environment>> as browser {
+
+                artifact "details.js" <<artifact>>
+                artifact "issues.js" <<artifact>>
+                artifact "HTML files" <<artifact>>
+
+                rectangle "included external" #line.dashed {
+
+                    artifact "jquery.min.js" <<artifact>>
+                    artifact "popper.min.js" <<artifact>>
+                    artifact "tether.min.js" <<artifact>>
+                    artifact "Chart.bundle.js" <<artifact>>
+                    artifact "bootstrap.min.js" <<artifact>>
+                    artifact "datatables.min.js" <<artifact>>
+               }
+        }
+    }
+}
+
+left to right direction
+
+tomcat -- db
+browser ---- tomcat : https 443:5000
+
+
+@enduml
