@@ -1,0 +1,88 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam FontName Arial Black
+skinparam classFontName Arial
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+skinparam classFontSize 24
+skinparam componentStyle uml2
+skinparam ArrowColor black
+
+skinparam node {
+  BackgroundColor #C6C6C6
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor black
+}
+
+skinparam artifact {
+  BackgroundColor #3E46D9
+  StereotypeFontColor #white
+  FontColor #white
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor #white
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+  StereotypeFontSize 14
+}
+
+skinparam artifact {
+  BackgroundColor #3E46D9
+  StereotypeFontColor #white
+  FontColor #white
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor #white
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+  StereotypeFontSize 14
+}
+
+
+
+node ":Laptop" <<device>> as laptop {
+
+
+    node ":JVM OpenJDK v11.0.2+9" <<execution environment>> as javavm {
+    node ":Tomcat v9.0.60" <<execution environment>> as tomcat  {
+         artifact "analysis-dashboard.jar" <<artifact>>
+
+
+        }
+    }
+
+    node ":macOS Monterey v12.3.1" <<execution environment>> {
+    node ":Browser Firefox v99.0.1" <<execution environment>> as browser {
+            artifact "issues.js" <<artifact>>
+            artifact "details.js" <<artifact>>
+            artifact "HTML files" <<artifact>>
+
+            rectangle "included external" #line.dashed {
+
+                artifact "jquery.min.js" <<artifact>>
+                artifact "popper.min.js" <<artifact>>
+                artifact "tether.min.js" <<artifact>>
+                artifact "Chart.bundle.js" <<artifact>>
+                artifact "bootstrap.min.js" <<artifact>>
+                artifact "datatables.min.js" <<artifact>>
+           }
+        }
+        database "PostgreSQL Database V14.2"  as db {
+                artifact "create.sql" <<artifact>>
+
+            }
+
+    }
+
+
+}
+
+tomcat -- browser : https 5555
+tomcat -- db
+
+
+@enduml
