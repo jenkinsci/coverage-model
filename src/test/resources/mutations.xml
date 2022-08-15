@@ -6,7 +6,7 @@
     <mutatedMethod>add</mutatedMethod>
     <methodDescription>(Ledu/hm/hafner/coverage/CoverageNode;)V</methodDescription>
     <lineNumber>175</lineNumber>
-    <mutator>org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator</mutator>
+    <mutator>NotExisting</mutator>
     <index>12</index>
     <block>1</block>
     <killingTest>

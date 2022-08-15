@@ -160,7 +160,7 @@ public class PitestParser extends XmlParser {
                 break;
 
             case "mutator":
-                Mutator mutator = Mutator.getMutator(currentData);
+                Mutator mutator = Mutator.fromPath(currentData);
                 mutationLeaf.setMutator(mutator);
                 break;
 

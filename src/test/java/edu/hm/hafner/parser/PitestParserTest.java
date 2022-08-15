@@ -1,11 +1,15 @@
 package edu.hm.hafner.parser;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.model.Leaf;
 import edu.hm.hafner.model.Node;
+import edu.hm.hafner.mutation.MutationLeaf;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 import static edu.hm.hafner.model.Metric.*;
@@ -34,6 +38,20 @@ class PitestParserTest {
 
         assertThat(tree.getMutationResult()).hasKilled(222).hasSurvived(24);
 
+        assertThat(getMutationLeaves(tree).stream()
+                .map(MutationLeaf.class::cast)
+                .filter(leaf -> leaf.getMutator().name().equals("NOT_SPECIFIED"))
+                .count()).isOne();
+    }
+
+    private List<Leaf> getMutationLeaves(final Node tree) {
+
+        List<Leaf> children = tree.getChildren().stream()
+                .map(this::getMutationLeaves)
+                .flatMap(List::stream).collect(Collectors.toList());
+
+        children.addAll(tree.getLeaves());
+        return children;
     }
 
     private Node readExampleReport() {
