@@ -47,6 +47,7 @@ public class Node implements Serializable {
 
     private final Metric metric;
     private final String name;
+    private final List<String> sources = new ArrayList<>();
     private final List<Node> children = new ArrayList<>();
     private final List<Leaf> leaves = new ArrayList<>();
     @CheckForNull
@@ -139,6 +140,10 @@ public class Node implements Serializable {
         return name;
     }
 
+    public List<String> getSources() {
+        return sources;
+    }
+
     public List<Node> getChildren() {
         return children;
     }
@@ -170,6 +175,16 @@ public class Node implements Serializable {
      */
     public void add(final Leaf leaf) {
         leaves.add(leaf);
+    }
+
+    /**
+     * Appends the specified source to the list of sources.
+     *
+     * @param source
+     *         the source to add
+     */
+    public void addSource(final String source) {
+        sources.add(source);
     }
 
     /**
@@ -401,14 +416,14 @@ public class Node implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Node that = (Node) o;
-        return Objects.equals(metric, that.metric) && Objects.equals(name, that.name)
-                && Objects.equals(children, that.children) && Objects.equals(leaves, that.leaves);
+        Node node = (Node) o;
+        return Objects.equals(metric, node.metric) && Objects.equals(name, node.name) && Objects.equals(sources, node.sources)
+                && Objects.equals(children, node.children) && Objects.equals(leaves, node.leaves);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metric, name, children, leaves);
+        return Objects.hash(metric, name, sources, children, leaves);
     }
 
     @Override

@@ -1,8 +1,13 @@
 package edu.hm.hafner.parser;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -20,6 +25,7 @@ import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.ModuleNode;
 import edu.hm.hafner.model.Node;
 import edu.hm.hafner.model.PackageNode;
+import edu.hm.hafner.util.PathUtil;
 
 /**
  * A parser which parses reports made by Cobertura into a Java Object Model.
@@ -48,6 +54,7 @@ public class CoberturaParser extends XmlParser {
     private int linesMissed = 0;
     private int branchesCovered = 0;
     private int branchesMissed = 0;
+    private boolean isSource;
 
     /**
      * Creates a new JacocoParser which parses the given Jacoco xml report into a java data model.
@@ -56,7 +63,40 @@ public class CoberturaParser extends XmlParser {
      *         path to report file
      */
     public CoberturaParser(final String path) {
-        super.parseFile(path);
+        parseFile(path);
+    }
+
+    @Override
+    void parseFile(final String path) {
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+
+        XMLEventReader r;
+        try {
+            r = factory.createXMLEventReader(path, new FileInputStream(path));
+            while (r.hasNext()) {
+                XMLEvent e = r.nextEvent();
+
+                if (e.isStartDocument()) {
+                    startDocument(e);
+                }
+
+                else if (e.isStartElement()) {
+                    startElement(e.asStartElement());
+                }
+
+                else if (isSource && e.isCharacters()) {
+                    String source = new PathUtil().getRelativePath(e.asCharacters().getData());
+                    getRootNode().addSource(source);
+                }
+
+                else if (e.isEndElement()) {
+                    endElement(e.asEndElement());
+                }
+            }
+        }
+        catch (XMLStreamException | FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -86,9 +126,12 @@ public class CoberturaParser extends XmlParser {
         String name = element.getName().toString();
 
         switch (name) {
+            case "source":
+                isSource = true;
+                break;
             case "package":
                 String packageName = element.getAttributeByName(NAME).getValue();
-                PackageNode packageNode = new PackageNode(packageName);
+                PackageNode packageNode = new PackageNode(packageName.replace("/", "."));
                 getRootNode().add(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
@@ -126,7 +169,8 @@ public class CoberturaParser extends XmlParser {
      *         the current report element
      */
     private void handleClassElement(final StartElement element) {
-        ClassNode classNode = new ClassNode(element.getAttributeByName(NAME).getValue());
+        final String classPath = element.getAttributeByName(NAME).getValue();
+        ClassNode classNode = new ClassNode(new PathUtil().getRelativePath(classPath));
 
         // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
         String sourcefilePath = element.getAttributeByName(SOURCEFILENAME).getValue();
@@ -250,6 +294,9 @@ public class CoberturaParser extends XmlParser {
     @Override
     protected void endElement(final EndElement element) {
         switch (element.getName().toString()) {
+            case "source":
+                isSource = false;
+                break;
             case "package": // reset
                 currentNode = getRootNode();
                 break;

@@ -91,6 +91,14 @@ class CoberturaParserTest {
         assertThat(coveredBranches).isEqualTo(1);
     }
 
+    @Test
+    void shouldHaveOneSource() {
+        Node tree = readExampleReport();
+
+        assertThat(tree.getSources().size()).isOne();
+        assertThat(tree.getSources().get(0)).isEqualTo("/app/app/code/Invocare/InventoryBranch");
+    }
+
     private void verifyCoverageMetrics(final Node tree) {
         assertThat(tree.getCoverage(LINE)).isSet()
                 .hasCovered(61)
