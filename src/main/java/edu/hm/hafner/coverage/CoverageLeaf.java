@@ -1,9 +1,9 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.hm.hafner.model.Leaf;
+import edu.hm.hafner.model.Metric;
 
 /**
  * A leaf in the coverage hierarchy. A leaf is a non-divisible coverage metric like line, instruction or branch
@@ -11,10 +11,9 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  *
  * @author Ullrich Hafner
  */
-public final class CoverageLeaf implements Serializable {
+public final class CoverageLeaf extends Leaf {
     private static final long serialVersionUID = -1062406664372222691L;
 
-    private final CoverageMetric metric;
     private final Coverage coverage;
 
     /**
@@ -25,13 +24,9 @@ public final class CoverageLeaf implements Serializable {
      * @param coverage
      *         the coverage of the element
      */
-    public CoverageLeaf(final CoverageMetric metric, final Coverage coverage) {
-        this.metric = metric;
+    public CoverageLeaf(final Metric metric, final Coverage coverage) {
+        super(metric);
         this.coverage = coverage;
-    }
-
-    public CoverageMetric getMetric() {
-        return metric;
     }
 
     public Coverage getCoverage() {
@@ -46,8 +41,8 @@ public final class CoverageLeaf implements Serializable {
      *
      * @return coverage ratio
      */
-    public Coverage getCoverage(final CoverageMetric searchMetric) {
-        if (metric.equals(searchMetric)) {
+    public Coverage getCoverage(final Metric searchMetric) {
+        if (super.getMetric().equals(searchMetric)) {
             return coverage;
         }
         return Coverage.NO_COVERAGE;
@@ -55,23 +50,26 @@ public final class CoverageLeaf implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[%s]: %s", metric, coverage);
+        return String.format("[%s]: %s", super.getMetric(), coverage);
     }
 
     @Override
-    public boolean equals(@CheckForNull final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        if (!super.equals(o)) {
+            return false;
+        }
         CoverageLeaf that = (CoverageLeaf) o;
-        return Objects.equals(metric, that.metric) && Objects.equals(coverage, that.coverage);
+        return coverage.equals(that.coverage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metric, coverage);
+        return Objects.hash(super.hashCode(), coverage);
     }
 }

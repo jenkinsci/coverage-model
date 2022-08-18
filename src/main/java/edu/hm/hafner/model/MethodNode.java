@@ -1,15 +1,15 @@
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.model;
 
 import java.util.Objects;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
- * A {@link CoverageNode} for a specific method.
+ * A {@link Node} for a specific method.
  *
  * @author Florian Orendi
  */
-public class MethodCoverageNode extends CoverageNode {
+public class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
     /**
@@ -18,17 +18,28 @@ public class MethodCoverageNode extends CoverageNode {
     private final int lineNumber;
 
     /**
-     * Creates a new coverage item node with the given name.
+     * Creates a new item node with the given name.
      *
      * @param name
      *         The human-readable name of the node
      * @param lineNumber
      *         The line number where the method begins (not including the method head)
      */
-    public MethodCoverageNode(final String name, final int lineNumber) {
-        super(CoverageMetric.METHOD, name);
+    public MethodNode(final String name, final int lineNumber) {
+        super(Metric.METHOD, name);
 
         this.lineNumber = lineNumber;
+    }
+
+    /**
+     * Creates a new method node with the given name.
+     *
+     * @param name
+     *         The human-readable name of the node
+     */
+    public MethodNode(final String name) {
+        super(Metric.METHOD, name);
+        this.lineNumber = 0;
     }
 
     /**
@@ -55,7 +66,7 @@ public class MethodCoverageNode extends CoverageNode {
         if (!super.equals(o)) {
             return false;
         }
-        MethodCoverageNode that = (MethodCoverageNode) o;
+        MethodNode that = (MethodNode) o;
         return lineNumber == that.lineNumber;
     }
 
