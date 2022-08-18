@@ -48,10 +48,10 @@ class FileNodeTest {
                 .isEqualTo(new FileNode(fileName));
     }
 
-    /*/**
+    /**
      * Tests equals() method.
      */
-    /*@Test
+    @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.simple().forClass(FileNode.class)
                 .withPrefabValues(
@@ -59,7 +59,8 @@ class FileNodeTest {
                         new PackageNode("src"),
                         new PackageNode("test")
                 )
+                .withIgnoredFields("parent")
                 .withNonnullFields("metric", "name", "lineNumberToBranchCoverage", "lineNumberToInstructionCoverage")
                 .verify();
-    }*/
+    }
 }
