@@ -450,6 +450,74 @@ public class Node implements Serializable {
         return String.format("[%s] %s", getMetric(), getName());
     }
 
+    /**
+     * Combines two related or unrelated coverage-reports.
+     * @param other module to combine with
+     * @return combined report
+     */
+    public Node combineWith(final Node other) {
+
+        if (!other.getMetric().equals(Metric.MODULE)) {
+            throw new IllegalArgumentException("Provided Node is not of MetricType MODULE");
+        }
+        if (!this.getMetric().equals(Metric.MODULE)) {
+            throw new IllegalStateException("Cannot perform combineWith on a non-module Node");
+        }
+
+        final Node combinedReport;
+        if (this.getName().equals(other.getName())) {
+            combinedReport = this.copyTree();
+            combinedReport.safelyCombineChildren(other);
+        }
+        else {
+            combinedReport = new Node(Metric.GROUP, "Combined Report");
+            combinedReport.add(this.copyTree());
+            combinedReport.add(other.copyTree());
+        }
+
+        return combinedReport;
+    }
+
+    private void safelyCombineChildren(final Node other) {
+        if (!this.leaves.isEmpty()) {
+            if (other.getChildren().isEmpty()) {
+                mergeLeaves(this.getMetricsDistribution(), other.getMetricsDistribution());
+                return;
+            }
+            this.leaves.clear();
+        }
+
+        other.getChildren().forEach(otherChild -> {
+            Optional<Node> existingChild = this.getChildren().stream()
+                    .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
+            if (existingChild.isPresent()) {
+                existingChild.get().safelyCombineChildren(otherChild);
+            }
+            else {
+                this.add(otherChild.copyTree());
+            }
+        });
+    }
+
+    private void mergeLeaves(final SortedMap<Metric, Coverage> metricsDistribution, final SortedMap<Metric, Coverage> metricsDistributionOther) {
+        if (!metricsDistribution.keySet().equals(metricsDistributionOther.keySet())) {
+            throw new IllegalStateException(
+                    String.format("Reports to combine have a mismatch of leaves in %s %s", this.getMetric(), this.getName()));
+        }
+
+        leaves.clear();
+        metricsDistribution.keySet().forEach(key -> {
+            if (metricsDistribution.get(key).getTotal() != metricsDistributionOther.get(key).getTotal()) {
+                throw new IllegalStateException(
+                        String.format("Reports to combine have a mismatch of total %s coverage in %s %s",
+                                key.getName(), this.getMetric(), this.getName()));
+            }
+            Coverage maxCoverage = Stream.of(metricsDistribution.get(key), metricsDistributionOther.get(key))
+                    .max(Comparator.comparing(Coverage::getCovered)).get();
+            leaves.add(new CoverageLeaf(key, maxCoverage));
+        });
+    }
+
     //---------------------------- Coverage methods ---------------------------------------------
 
     /**
