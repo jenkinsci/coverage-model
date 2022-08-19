@@ -1,6 +1,7 @@
 package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -12,6 +13,7 @@ import static edu.hm.hafner.model.Metric.*;
  *
  * @author Melissa Bauer
  */
+@DefaultLocale("en")
 class LeafTest {
 
     @Test

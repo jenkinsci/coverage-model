@@ -13,6 +13,17 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  */
 class MethodNodeTest {
 
+    @Test
+    void shouldCreateMethodCoverageNode() {
+        assertThat(new MethodNode("shouldCreateMethodCoverageNode()", 16))
+                .hasMetric(Metric.METHOD)
+                .hasName("shouldCreateMethodCoverageNode()")
+                .hasLineNumber(16)
+                .hasValidLineNumber()
+                .hasToString("[Method] shouldCreateMethodCoverageNode() (16)");
+
+    }
+
     /**
      * Tests with a valid line number.
      */

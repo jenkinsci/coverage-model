@@ -3039,7 +3039,7 @@
     <index>8</index>
     <block>2</block>
     <killingTest>
-      edu.hm.hafner.coverage.FileCoverageNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.coverage.FileCoverageNodeTest]/[method:shouldCopyEmpty()]
+      edu.hm.hafner.model.FileNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.model.FileNodeTest]/[method:shouldCopyEmpty()]
     </killingTest>
     <description>replaced return value with null for edu/hm/hafner/coverage/FileCoverageNode::copyEmpty</description>
   </mutation>
@@ -3145,7 +3145,7 @@
     <index>7</index>
     <block>2</block>
     <killingTest>
-      edu.hm.hafner.coverage.FileCoverageNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.coverage.FileCoverageNodeTest]/[method:shouldGetPath()]
+      edu.hm.hafner.model.FileNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.model.FileNodeTest]/[method:shouldGetPath()]
     </killingTest>
     <description>replaced return value with &#34;&#34; for edu/hm/hafner/coverage/FileCoverageNode::getPath
     </description>

@@ -13,6 +13,7 @@ import edu.hm.hafner.coverage.CoverageLeaf;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
 import static edu.hm.hafner.model.Metric.*;
 
@@ -20,9 +21,10 @@ import static edu.hm.hafner.model.Metric.*;
  * Tests the class {@link Node}.
  *
  * @author Ullrich Hafner
- * @author Michael Gasser
  */
+@SuppressWarnings("PMD.GodClass")
 class NodeTest {
+
     @BeforeAll
     static void beforeAll() {
         Locale.setDefault(Locale.ENGLISH);
@@ -47,10 +49,21 @@ class NodeTest {
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        root.add(new Node(PACKAGE, ""));
+        Node packageNode = new Node(PACKAGE, "");
+        root.add(packageNode);
         assertThat(root.getAll(PACKAGE)).hasSize(1);
+
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).hasSize(1);
+        assertThat(root).hasOnlyChildren(packageNode);
+    }
+
+    @Test
+    void shouldNotSplitPackagesIfNotExecutedOnModuleNode() {
+        Node packageNode = new Node(PACKAGE, "edu.hm.hafer");
+
+        packageNode.splitPackages();
+        assertThat(packageNode.getAll(PACKAGE)).hasSize(1);
     }
 
     @Test
@@ -66,387 +79,732 @@ class NodeTest {
         assertThat(root.getAll(PACKAGE)).hasSize(1);
     }
 
-    /**
-     * Tests if the class can split packages with multiple dots and children.
-     */
     @Test
-    void shouldSplitPackagesWithMultipleDots() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-        root.add(new Node(PACKAGE, ".ui.rating"));
-
-        // When & Then
-        root.splitPackages();
-        assertThat(root.getAll(PACKAGE)).hasSize(3);
-
-        // When & Then
-        Node child = new Node(PACKAGE, ".ui.home");
-        child.add(new Node(PACKAGE, "view"));
-        root.add(child);
-        root.splitPackages();
-        assertThat(child.getChildren()).hasSize(1);
-        assertThat(root.getAll(PACKAGE)).hasSize(5);
-    }
-
-    /**
-     * Tests if a node keeps its child package after splitting.
-     */
-    @Test
-    void shouldKeepChildAfterSplit() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-        Node child = new Node(PACKAGE, "ui");
-        root.add(child);
-
-        // When
-        root.splitPackages();
-
-        // Then
-        assertThat(root).hasOnlyChildren(child);
-    }
-
-    /**
-     * Checks for exception if getAll() method is called with a LEAF.
-     */
-    @Test
-    void shouldThrowExceptionWithLeafMetric() {
-        // Given
-        Metric leafMetric = LINE;
-        Node root = new Node(MODULE, "Root");
-
-        // When & Then
-        assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> root.getAll(leafMetric))
-                .withMessageContaining(leafMetric.getName());
-    }
-
-    /**
-     * Tests all add and parent functionality.
-     */
-    @Test
-    void shouldAddChildren() {
-        // Given
-        String parentName = "Root";
-        Node parent = new Node(MODULE, parentName);
-        String childName = ".";
-        Node child = new Node(PACKAGE, childName);
-        Node secondChild = new Node(PACKAGE, "ui");
-
-        // When
-        parent.add(child);
-        child.add(secondChild);
-
-        // Then
-        assertThat(parent)
-                .doesNotHaveParent()
-                .isRoot()
-                .hasParentName(Node.ROOT);
-
-        assertThat(child)
-                .hasParent()
-                .hasParent(parent)
-                .hasParentName(parentName);
-
-        assertThat(secondChild)
-                .hasParent()
-                .hasParent(child)
-                .hasParentName(childName);
-    }
-
-    /**
-     * Checks for exception if no parent was set.
-     */
-    @Test
-    void shouldThrowExceptionWithoutParent() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-
-        // When & Then
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(root::getParent);
-    }
-
-    /**
-     * Tests all merge functionality.
-     */
-    @Test
-    void shouldMergePath() {
+    void shouldNotBreakEquals() {
         // Given
         Node root = new Node(MODULE, "Root");
         Node child = new Node(PACKAGE, ".");
-        child.setParent(root);
-
-        // When & Then
-        assertThat(root).hasPath("");
-        assertThat(root.mergePath("-")).isEqualTo("");
-        assertThat(root.mergePath("test/path")).isEqualTo("test/path");
-        assertThat(child.mergePath("test/path")).isEqualTo("test/path");
-    }
-
-    /**
-     * Tests the constructor and relevant getters.
-     */
-    @Test
-    void shouldInitializeNode() {
-        // Given
-        String name = "Root";
-        Metric metric = MODULE;
-        Node root = new Node(metric, name);
-
-        // When & Then
-        assertThat(root)
-                .hasName(name)
-                .hasMetric(metric);
-    }
-
-    /**
-     * Tests getMetrics() method.
-     */
-    @Test
-    void shouldGetMetrics() {
-        // Given
-        Metric rootMetric = MODULE;
-        Node root = new Node(rootMetric, "Root");
-        Metric childMetric = PACKAGE;
-        Node child = new Node(childMetric, ".");
         root.add(child);
 
-        // When & Then
-        assertThat(root).hasOnlyMetrics(rootMetric, childMetric);
-        assertThat(child).hasOnlyMetrics(childMetric);
+        // When
+        Node actualCopy = root.copyTree();
+
+        // Then
+        assertThat(actualCopy).isEqualTo(root);
     }
 
-    /**
-     * Helper method to construct a new MODULE node with a LINE leaf of the given coverage.
-     *
-     * @param coverage
-     *         the line coverage to set
-     *
-     * @return the new node
-     */
-    private static Node getNodeWithLineCoverage(final Coverage coverage) {
-        Node root = new Node(MODULE, "Root");
-        CoverageLeaf leaf = new CoverageLeaf(LINE, coverage);
-        root.add(leaf);
-        return root;
-    }
-
-    /**
-     * Tests the calculation of getMetricsDistribution() and getMetricsPercentages() methods.
-     */
     @Test
-    void shouldGetMetricsDistributionAndPercentages() {
-        // Given
-        int linesCovered = 25;
-        int linesMissed = 75;
-        Fraction coveredPercentage = Fraction.getFraction(linesCovered, linesCovered + linesMissed);
-        Node root = getNodeWithLineCoverage(new Coverage(linesCovered, linesMissed));
+    void shouldSplitPackagesIntoHierarchy() {
+        Node root = new Node(MODULE, "Root");
+        assertThat(root.getAll(PACKAGE)).isEmpty();
+        root.splitPackages();
+        assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        // When & Then
-        assertThat(root.getCoverageMetricsDistribution()).containsExactly(
-                entry(MODULE, new Coverage(1, 0)),
-                entry(LINE, new Coverage(linesCovered, linesMissed))
-        );
-        assertThat(root.getCoverageMetricsPercentages()).containsExactly(
-                entry(MODULE, Fraction.ONE),
-                entry(LINE, coveredPercentage)
+        root.add(new Node(PACKAGE, "edu.hm.hafner"));
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
+        root.splitPackages();
+        assertThat(root.getAll(PACKAGE)).hasSize(3).satisfiesExactly(
+                s -> assertThat(s).hasName("hafner"),
+                s -> assertThat(s).hasName("hm"),
+                s -> assertThat(s).hasName("edu")
         );
     }
 
-    /**
-     * Tests line coverage functionality.
-     */
     @Test
-    void shouldGetAndPrintLineCoverage() {
-        // Given
-        int linesCovered = 25;
-        int linesMissed = 75;
-        Fraction coveredPercentage = Fraction.getFraction(linesCovered, linesCovered + linesMissed);
-        Node root = getNodeWithLineCoverage(new Coverage(linesCovered, linesMissed));
+    void shouldDetectExistingPackagesOnSplit() {
+        Node root = new Node(MODULE, "Root");
+        Node eduPackage = new Node(PACKAGE, "edu");
+        Node differentPackage = new Node(PACKAGE, "org");
 
-        // When & Then
-        assertThat(root.getCoverage(LINE))
-                .hasCovered(linesCovered)
-                .hasMissed(linesMissed)
-                .hasCoveredPercentage(coveredPercentage);
-        assertThat(root.printCoverageFor(LINE, Locale.GERMAN)).isEqualTo("25,00%");
-        // Default Locale is set to English using beforeAll()
-        assertThat(root.printCoverageFor(LINE)).isEqualTo("25.00%");
+        root.add(differentPackage);
+        root.add(eduPackage);
+
+        assertThat(root.getAll(PACKAGE)).hasSize(2);
+
+        root.add(new Node(PACKAGE, "edu.hm.hafner"));
+        root.splitPackages();
+
+        assertThat(root.getAll(PACKAGE)).hasSize(4);
     }
 
-    /**
-     * Tests module coverage functionality.
-     */
     @Test
-    void shouldGetModuleCoverage() {
-        // Given
+    void shouldNotRecreateExistingChildOnSplitPackages() {
         Node root = new Node(MODULE, "Root");
-        PackageNode pkg = new PackageNode("ui");
+        Node eduPackage = new Node(PACKAGE, "edu");
+        Node unsplittedPackage = new Node(PACKAGE, "edu.hm.hafner");
+
+        root.add(eduPackage);
+        root.add(unsplittedPackage);
+
+        assertThat(root.getAll(PACKAGE)).hasSize(2);
+        root.splitPackages();
+
+        assertThat(root).hasOnlyChildren(eduPackage);
+    }
+
+    @Test
+    void shouldKeepNodesAfterSplitting() {
+        Node root = new Node(MODULE, "Root");
+        Node pkg = new Node(PACKAGE, "edu.hm.hafner");
+        Node file = new Node(FILE, "HelloWorld.java");
+
         root.add(pkg);
+        pkg.add(file);
+        root.splitPackages();
 
-        // When & Then
-        assertThat(root.getCoverage(MODULE)).hasCovered(0);
+        assertThat(root.getAll(PACKAGE)).hasSize(3);
+        assertThat(root.getAll(FILE)).hasSize(1);
+
     }
 
-    /**
-     * Tests computeDelta() method.
-     */
     @Test
-    void shouldComputeDelta() {
-        // Given
-        Node fullCovered = getNodeWithLineCoverage(new Coverage(100, 0));
-        Node halfCovered = getNodeWithLineCoverage(new Coverage(50, 50));
-
-        // When & Then
-        assertThat(fullCovered.computeDelta(halfCovered)).containsExactly(
-                entry(MODULE, Fraction.ZERO),
-                entry(LINE, Fraction.ONE_HALF)
-        );
-    }
-
-    /**
-     * Tests computeDelta() method with an occurring overflow.
-     */
-    @Test
-    void shouldComputeDeltaWithOverflow() {
-        // Given
-        Node hugeMissed = getNodeWithLineCoverage(new Coverage(1, Integer.MAX_VALUE - 1));
-        Node otherHugeMissed = getNodeWithLineCoverage(new Coverage(1, Integer.MAX_VALUE - 2));
-        Node hugeCovered = getNodeWithLineCoverage(new Coverage(Integer.MAX_VALUE - 1, 1));
-        Node halfCovered = getNodeWithLineCoverage(new Coverage(Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2));
-
-        // When & Then
-        assertThat(hugeMissed.computeDelta(otherHugeMissed)).containsExactly(
-                entry(MODULE, Fraction.ZERO),
-                entry(LINE, Fraction.ZERO)
-        );
-
-        assertThat(hugeCovered.computeDelta(halfCovered)).containsExactly(
-                entry(MODULE, Fraction.ZERO),
-                entry(LINE, Fraction.ONE_HALF)
-        );
-    }
-
-    /**
-     * Tests all find functionality.
-     */
-    @Test
-    void shouldFindMetric() {
-        // Given
+    void shouldHandleNonExistingParent() {
         Node root = new Node(MODULE, "Root");
-        Metric childMetric = PACKAGE;
-        String childName = ".";
-        Node child = new Node(childMetric, childName);
+
+        assertThat(root).doesNotHaveParent();
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(root::getParent)
+                .withMessage("Parent is not set");
+        assertThat(root).hasParentName(Node.ROOT);
+    }
+
+    @Test
+    void shouldReturnParentOfNodeAndItsName() {
+        Node parent = new Node(MODULE, "Parent");
+        Node child = new Node(PACKAGE, "Child");
+        Node subPackage = new Node(PACKAGE, "SubPackage");
+        Node subSubPackage = new Node(PACKAGE, "SubSubPackage");
+
+        parent.add(child);
+        child.add(subPackage);
+        subPackage.add(subSubPackage);
+
+        assertThat(child.getParent()).isEqualTo(parent);
+
+        //boundary-interior demonstration (Path "Don't enter loop" is impossible in this case)
+        assertThat(child.getParentName()).isEqualTo("Parent"); // boundary -> Enter only once and cover all branches
+        assertThat(subSubPackage.getParentName()).isEqualTo("Child.SubPackage"); // interior -> Enter twice and cover all branches
+
+    }
+
+    @Test
+    void shouldReturnCorrectChildNodes() {
+        Node parent = new Node(MODULE, "Parent");
+        Node child1 = new Node(PACKAGE, "ChildOne");
+        Node child2 = new Node(PACKAGE, "ChildTwo");
+
+        assertThat(parent).hasNoChildren();
+
+        parent.add(child1);
+        assertThat(parent).hasOnlyChildren(child1);
+        assertThat(parent).doesNotHaveChildren(child2);
+
+        parent.add(child2);
+        assertThat(parent).hasOnlyChildren(child1, child2);
+    }
+
+    @Test
+    void shouldReturnCorrectPathInBaseClass() {
+        Node root = new Node(MODULE, "Root");
+        FileNode child = new FileNode("Child");
+        Node childOfChild = new Node(LINE, "ChildOfChild");
+
         root.add(child);
+        child.add(childOfChild);
 
-        // When & Then
-        assertThat(root.find(childMetric, childName)).hasValue(child);
-        assertThat(root.findByHashCode(childMetric, childName.hashCode())).hasValue(child);
+        assertThat(root).hasPath("");
+        assertThat(root.mergePath("-")).isEmpty();
+        assertThat(child.mergePath("/local/path")).isEqualTo("/local/path");
+        assertThat(childOfChild.mergePath("")).isEqualTo("Child");
+
     }
 
-    /**
-     * Tests all match functionality.
-     */
     @Test
-    void shouldMatchMetricAndName() {
-        // Given
-        Metric metric = MODULE;
-        String name = "Root";
-        Node root = new Node(metric, name);
+    void shouldPrintAllMetricsForNodeAndChildNodes() {
+        Node parent = new Node(MODULE, "Parent");
+        Node child1 = new Node(PACKAGE, "ChildOne");
+        Node child2 = new Node(PACKAGE, "ChildTwo");
+        Node childOfChildOne = new Node(FILE, "ChildOfChildOne");
 
-        // When & Then
-        assertThat(root.matches(metric, name)).isTrue();
-        assertThat(root.matches(metric, name.hashCode())).isTrue();
+        parent.add(child1);
+        parent.add(child2);
+        child1.add(childOfChildOne);
 
-        assertThat(root.matches(LINE, name)).isFalse();
-        assertThat(root.matches(metric, "wrongName")).isFalse();
+        assertThat(parent.getMetrics().pollFirst()).isEqualTo(MODULE);
+        assertThat(parent.getMetrics()).contains(FILE);
     }
 
-    /**
-     * Tests add functionality for child and leaf.
-     */
     @Test
-    void shouldAddChildAndLeaf() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-        Node child = new Node(PACKAGE, ".");
-        CoverageLeaf leaf = new CoverageLeaf(LINE, Coverage.NO_COVERAGE);
+    void shouldCalculateDistributedMetrics() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
 
-        // When
-        root.add(child);
-        root.add(leaf);
+        node.add(leafOne);
+        node.add(leafTwo);
 
-        // Then
-        assertThat(root)
-                .hasOnlyChildren(child)
-                .hasOnlyLeaves(leaf);
+        assertThat(node.getMetricsDistribution()).hasSize(2);
+        assertThat(node.getMetricsDistribution().get(LINE)).isEqualTo(new Coverage(1, 1));
+
+        assertThat(node.getMetricsPercentages()).hasSize(2);
+        assertThat(node.getMetricsPercentages().get(LINE)).isEqualTo(Fraction.ONE_HALF);
+
     }
 
-    /**
-     * Tests the toString() method.
-     */
     @Test
-    void shouldTextuallyRepresent() {
-        // Given
-        Node root = new Node(MODULE, "Root");
+    void shouldCalculateDeltaBetweenNodes() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
 
-        // When & Then
-        assertThat(root).hasToString("[Module] Root");
+        node.add(leafOne);
+        node.add(leafTwo);
+        Node deltaNode = node.copyTree();
+        node.getLeaves().add(new CoverageLeaf(LINE, new Coverage(1, 0)));
+
+        assertThat(node.computeDelta(deltaNode).get(LINE)).isEqualTo(Fraction.getFraction(1, 6));
+
     }
 
-    /**
-     * Tests equals() method.
-     */
+    @Test
+    void shouldHandlePotentialOverflowOnDeltaComputation() {
+        Node nodeOne = new Node(MODULE, "Node");
+        Node nodeTwo = new Node(MODULE, "NodeTwo");
+        Coverage coverageOne = new Coverage(Integer.MAX_VALUE, Integer.MIN_VALUE);
+        Coverage coverageTwo = new Coverage(Integer.MAX_VALUE, Integer.MAX_VALUE);
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, coverageOne);
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, coverageTwo);
+
+        assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> coverageOne.getCoveredPercentage().subtract(coverageTwo.getCoveredPercentage()));
+
+        nodeOne.add(leafOne);
+        nodeTwo.add(leafTwo);
+
+        assertThat(nodeOne.computeDelta(nodeTwo).get(LINE)).isNotNull(); // works if no error is thrown.
+    }
+
+    @Test
+    void shouldHandleLeaves() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+
+        assertThat(node).hasNoLeaves();
+
+        node.add(leafOne);
+        assertThat(node).hasOnlyLeaves(leafOne);
+
+        node.add(leafTwo);
+        assertThat(node).hasOnlyLeaves(leafOne, leafTwo);
+
+    }
+
+    @Test
+    void shouldReturnAllNodesOfSpecificMetricType() {
+        Node parent = new Node(MODULE, "Parent");
+        Node child1 = new Node(PACKAGE, "ChildOne");
+        Node child2 = new Node(PACKAGE, "ChildTwo");
+        Node childOfChildOne = new Node(FILE, "ChildOfChildOne");
+        Node childOfChildTwo = new Node(FILE, "ChildOfChildTwo");
+
+        parent.add(child1);
+        parent.add(child2);
+        child1.add(childOfChildOne);
+        child2.add(childOfChildTwo);
+
+        assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> parent.getAll(INSTRUCTION));
+        assertThat(parent.getAll(FILE))
+                .hasSize(2)
+                .containsOnly(childOfChildOne, childOfChildTwo);
+
+    }
+
+    @Test
+    void shouldCalculateCorrectCoverageWithLeafOnlyStructure() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+
+        node.add(leafOne);
+        assertThat(node.getCoverage(LINE)).hasCoveredPercentage(Fraction.ONE);
+
+        node.add(leafTwo);
+        assertThat(node.getCoverage(LINE)).hasCoveredPercentage(Fraction.ONE_HALF);
+
+    }
+
+    @Test
+    void shouldCalculateCorrectCoverageForModule() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+
+        node.add(leafOne);
+
+        assertThat(node.getCoverage(MODULE)).hasCoveredPercentage(Fraction.ONE);
+    }
+
+    @Test
+    void shouldCalculateCorrectCoverageWithNestedStructure() {
+        Node node = new Node(MODULE, "Node");
+        Node missedFile = new Node(FILE, "fileMissed");
+        Node coveredFile = new Node(FILE, "fileCovered");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+
+        node.add(missedFile);
+        node.add(coveredFile);
+        coveredFile.add(leafOne);
+        missedFile.add(leafTwo);
+
+        assertThat(node.getCoverage(LINE)).hasCoveredPercentage(Fraction.ONE_HALF);
+        assertThat(node.getCoverage(FILE)).hasCoveredPercentage(Fraction.ONE_HALF);
+
+    }
+
+    @Test
+    void shouldPrintCoverageWithDefaultOrSpecifiedLocale() {
+        Node node = new Node(MODULE, "Node");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+
+        node.add(leafOne);
+        node.add(leafTwo);
+
+        assertThat(node.printCoverageFor(LINE)).isEqualTo("50.00%");
+        assertThat(node.printCoverageFor(LINE, Locale.GERMAN)).isEqualTo("50,00%");
+    }
+
+    @Test
+    void shouldDeepCopyNodeTree() {
+        Node node = new Node(MODULE, "Node");
+        Node childNode = new Node(FILE, "childNode");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+
+        node.add(leafOne);
+        node.add(childNode);
+        childNode.add(leafTwo);
+        Node copiedNode = node.copyTree();
+
+        assertThat(node).isNotSameAs(copiedNode);
+        assertThat(node.getChildren().get(0)).isNotSameAs(copiedNode.getChildren().get(0));
+    }
+
+    @Test
+    void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
+        Node node = new Node(MODULE, "Node");
+        Node childNode = new Node(FILE, "childNode");
+        CoverageLeaf leafOne = new CoverageLeaf(LINE, new Coverage(1, 0));
+        CoverageLeaf leafTwo = new CoverageLeaf(LINE, new Coverage(0, 1));
+        Node newParent = new Node(MODULE, "parent");
+
+        node.add(leafOne);
+        node.add(childNode);
+        childNode.add(leafTwo);
+        Node copiedNode = node.copyTree(newParent);
+
+        assertThat(copiedNode).hasParent(newParent);
+    }
+
+    @Test
+    void shouldDetectMatchingOfMetricTypeAndNameOrHashCode() {
+        Node node = new Node(MODULE, "Node");
+
+        assertThat(node.matches(MODULE, "WrongName")).isFalse();
+        assertThat(node.matches(PACKAGE, "Node")).isFalse();
+        assertThat(node.matches(node.getMetric(), node.getName())).isTrue();
+
+        assertThat(node.matches(MODULE, node.getName().hashCode())).isTrue();
+        assertThat(node.matches(MODULE, "WrongName".hashCode())).isFalse();
+        assertThat(node.matches(MODULE, node.getPath().hashCode())).isTrue();
+    }
+
+    @Test
+    void shouldFindNodeByNameOrHashCode() {
+        Node node = new Node(MODULE, "Node");
+        Node childNode = new Node(FILE, "childNode");
+        node.add(childNode);
+
+        assertThat(node.find(BRANCH, "NotExisting")).isNotPresent();
+        assertThat(node.find(FILE, childNode.getName())).isPresent().get().isEqualTo(childNode);
+
+        assertThat(node.findByHashCode(BRANCH, "NotExisting".hashCode())).isNotPresent();
+        assertThat(node.findByHashCode(FILE, childNode.getName().hashCode())).isPresent().get().isEqualTo(childNode);
+    }
+
+    @Test
+    void shouldPrintObjectHumanReadableInToString() {
+        Node node = new Node(MODULE, "Node");
+
+        assertThat(node).hasToString(String.format("[%s] Node", MODULE));
+    }
+
     @Test
     void shouldAdhereToEquals() {
+        Node parentForTestOne = new Node(PACKAGE, "edu");
+        Node parentForTestTwo = new Node(PACKAGE, "hm");
+
         EqualsVerifier.simple().forClass(Node.class)
-                .withPrefabValues(
-                        Node.class,
-                        new FileNode("main.c"),
-                        new PackageNode("ui")
-                )
                 .withIgnoredFields("parent")
+                .withPrefabValues(Node.class, parentForTestOne, parentForTestTwo)
                 .verify();
     }
 
-    /**
-     * Tests copy functionality with a child.
-     */
+    // TDD PART
     @Test
-    void shouldCopyWithChild() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-        Node newRoot = new Node(MODULE, "New root");
-        Node child = new Node(PACKAGE, ".");
-        root.add(child);
+    void shouldCombineTwoSimpleCoverageReports() {
+        Node moduleOne = new Node(MODULE, "edu.hm.hafner.module1");
+        Node moduleTwo = new Node(MODULE, "edu.hm.hafner.module2");
 
-        // When
-        Node withoutRootCopy = root.copyTree();
-        Node withRootCopy = root.copyTree(newRoot);
+        Node combinedWithItself = moduleOne.combineWith(moduleOne);
+        Node combinedWithModuleTwo = moduleOne.combineWith(moduleTwo);
 
-        // Then
-        assertThat(withoutRootCopy.copyEmpty()).isEqualTo(new Node(MODULE, "Root"));
-        assertThat(withoutRootCopy)
-                .hasOnlyChildren(child)
-                .isEqualTo(root);
+        assertThat(combinedWithItself.getAll(MODULE))
+                .as("Combined report should still have only one module")
+                .hasSize(1);
+        assertThat(combinedWithModuleTwo.getAll(MODULE))
+                .as("Combined report should consist of two modules")
+                .hasSize(2);
+        assertThat(combinedWithModuleTwo)
+                .as("Combined report root should be of MetricType Group")
+                .hasMetric(GROUP);
+    }
 
-        assertThat(withRootCopy)
-                .hasParent(newRoot)
-                .hasOnlyChildren(child);
+    @Test
+    void shouldThrowExceptionIfNodesAreNotOfTypeModule() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "edu.hm.hafner.pkg");
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .as("Should not accept non-module node")
+                .isThrownBy(() -> module.combineWith(pkg));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .as("Should combine if executed on non-module node")
+                .isThrownBy(() -> pkg.combineWith(module));
+    }
+
+    @Test
+    void shouldCombineReportsOfSameModuleContainingDifferentPackages() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkgOne = new Node(PACKAGE, "coverage");
+        Node pkgTwo = new Node(PACKAGE, "autograding");
+
+        module.add(pkgOne);
+        sameModule.add(pkgTwo);
+        Node combinedReport = module.combineWith(sameModule);
+
+        assertThat(combinedReport).hasMetric(MODULE);
+        assertThat(combinedReport.getAll(MODULE)).hasSize(1);
+        assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
+
+    }
+
+    @Test
+    void shouldCombineReportsOfSameModuleContainingSamePackage() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node samePackage = new Node(PACKAGE, "coverage");
+
+        module.add(pkg);
+        sameModule.add(samePackage);
+        Node combinedReport = module.combineWith(sameModule);
+        assertThat(combinedReport).hasMetric(MODULE);
+        assertThat(combinedReport.getAll(MODULE)).hasSize(1);
+        assertThat(combinedReport.getAll(PACKAGE)).hasSize(1);
+    }
+
+    @Test
+    void shouldCombineReportsOfSameModuleContainingSameAndDifferentPackages() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node pkgTwo = new Node(PACKAGE, "autograding");
+
+        module.add(pkg);
+        sameModule.add(pkgTwo);
+        sameModule.add(pkg.copyEmpty());
+        Node combinedReport = module.combineWith(sameModule);
+
+        assertThat(combinedReport).hasMetric(MODULE);
+        assertThat(combinedReport.getAll(MODULE)).hasSize(1);
+        assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
+        assertThat(combinedReport.getAll(PACKAGE)).satisfiesExactlyInAnyOrder(
+                p -> assertThat(p.getName()).isEqualTo(pkg.getName()),
+                p -> assertThat(p.getName()).isEqualTo(pkgTwo.getName())
+        );
+    }
+
+    @Test
+    void shouldKeepChildNodesAfterCombiningReportWithSamePackage() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node samePackage = new Node(PACKAGE, "coverage");
+
+        Node fileToKeep = new Node(FILE, "KeepMe");
+        Node otherFileToKeep = new Node(FILE, "KeepMeToo");
+
+        pkg.add(fileToKeep);
+        module.add(pkg);
+        samePackage.add(otherFileToKeep);
+        sameModule.add(samePackage);
+        Node combinedReport = module.combineWith(sameModule);
+
+        assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep, otherFileToKeep);
+
+    }
+
+    @Test
+    void shouldKeepChildNodesAfterCombiningMoreComplexReportWithDifferencesOnClassLevel() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node samePackage = new Node(PACKAGE, "coverage");
+        Node fileToKeep = new Node(FILE, "KeepMe");
+        Node sameFileToKeep = new Node(FILE, "KeepMe");
+        Node classA = new Node(CLASS, "ClassA");
+        Node classB = new Node(CLASS, "ClassB");
+
+        module.add(pkg);
+        pkg.add(fileToKeep);
+        fileToKeep.add(classA);
+
+        sameModule.add(samePackage);
+        samePackage.add(sameFileToKeep);
+        sameFileToKeep.add(classA);
+
+        Node combinedReport = module.combineWith(sameModule);
+        assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep);
+        assertThat(combinedReport.getAll(CLASS)).hasSize(1);
+
+        sameFileToKeep.add(classB);
+        Node combinedReport2Classes = module.combineWith(sameModule);
+        assertThat(combinedReport2Classes.getAll(CLASS)).hasSize(2);
+        assertThat(combinedReport2Classes.getChildren().get(0).getChildren().get(0)).hasOnlyChildren(classA, classB);
+    }
+
+    private static Node setUpNodeTree() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node file = new Node(FILE, "Node.java");
+        Node covNodeClass = new Node(CLASS, "Node.class");
+        Node combineWithMethod = new MethodNode("combineWith", 10);
+
+        module.add(pkg);
+        pkg.add(file);
+        file.add(covNodeClass);
+        covNodeClass.add(combineWithMethod);
+
+        return module;
+    }
+
+    @Test
+    void shouldComputeCorrectCoverageAfterCombiningMethods() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node file = new Node(FILE, "Node.java");
+        Node covNodeClass = new Node(CLASS, "Node.class");
+        Node combineWithMethod = new MethodNode("combineWith", 10);
+        Node addMethod = new MethodNode("add", 1);
+
+        module.add(pkg);
+        pkg.add(file);
+        file.add(covNodeClass);
+        combineWithMethod.add(new CoverageLeaf(LINE, new Coverage(1, 0)));
+        addMethod.add(new CoverageLeaf(LINE, new Coverage(0, 1)));
+
+        Node otherNode = module.copyTree();
+        covNodeClass.add(combineWithMethod);
+        otherNode.getAll(CLASS).get(0).add(addMethod);
+
+        Node combinedReport = module.combineWith(otherNode);
+        assertThat(combinedReport.getAll(METHOD)).hasSize(2);
+        assertThat(combinedReport.getCoverage(LINE)).hasCovered(1).hasMissed(1);
+
+    }
+
+    @Test
+    void shouldTakeMaxCoverageIfTwoLineCoverageValuesForSameMethodExist() {
+        Node module = setUpNodeTree();
+        Node sameProject = setUpNodeTree();
+        Node method = module.getAll(METHOD).get(0);
+        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
+
+        method.add(new CoverageLeaf(LINE, new Coverage(2, 8)));
+        methodOtherCov.add(new CoverageLeaf(LINE, new Coverage(5, 5)));
+
+        Node combinedReport = module.combineWith(sameProject);
+        assertThat(combinedReport.getAll(METHOD)).hasSize(1);
+        assertThat(combinedReport.getCoverage(LINE)).hasCovered(5).hasMissed(5);
+
+    }
+
+    @Test
+    void shouldThrowErrorIfCoveredPlusMissedLinesDifferInReports() {
+        Node module = setUpNodeTree();
+        Node sameProject = setUpNodeTree();
+        Node method = module.getAll(METHOD).get(0);
+        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
+
+        module.combineWith(sameProject); // should not throw error if no line coverage exists for method
+
+        method.add(new CoverageLeaf(LINE, new Coverage(5, 5)));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> module.combineWith(sameProject))
+                .withMessageContaining("mismatch of leaves");
+
+        methodOtherCov.add(new CoverageLeaf(LINE, new Coverage(2, 7)));
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> module.combineWith(sameProject))
+                .withMessageContaining("mismatch")
+                .withMessageContaining(method.getName());
+
+    }
+
+    @Test
+    void shouldTakeMaxCoverageIfDifferentCoverageValuesOfDifferentMetricsExistForSameMethod() {
+        Node module = setUpNodeTree();
+        Node sameProject = setUpNodeTree();
+        Node method = module.getAll(METHOD).get(0);
+        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
+
+        method.add(new CoverageLeaf(LINE, new Coverage(2, 8)));
+        methodOtherCov.add(new CoverageLeaf(LINE, new Coverage(5, 5)));
+        method.add(new CoverageLeaf(BRANCH, new Coverage(10, 5)));
+        methodOtherCov.add(new CoverageLeaf(BRANCH, new Coverage(12, 3)));
+        method.add(new CoverageLeaf(INSTRUCTION, new Coverage(7, 8)));
+        methodOtherCov.add(new CoverageLeaf(INSTRUCTION, new Coverage(5, 5)));
+        methodOtherCov.add(new CoverageLeaf(INSTRUCTION, new Coverage(3, 2)));
+
+        Node combinedReport = module.combineWith(sameProject);
+        assertThat(combinedReport.getCoverage(LINE)).hasCovered(5).hasMissed(5);
+        assertThat(combinedReport.getCoverage(BRANCH)).hasCovered(12).hasMissed(3);
+        assertThat(combinedReport.getCoverage(INSTRUCTION)).hasCovered(8).hasMissed(7);
+
+    }
+
+    @Test
+    void shouldCorrectlyCombineTwoComplexReports() {
+        Node report = setUpNodeTree();
+        Node otherReport = setUpNodeTree();
+
+        // Difference on Package Level
+        PackageNode autograding = new PackageNode("autograding");
+        FileNode file = new FileNode("Main.java");
+        Node mainClass = new Node(CLASS, "Main.class");
+        MethodNode mainMethod = new MethodNode("main", 10);
+
+        otherReport.add(autograding);
+        autograding.add(file);
+        file.add(mainClass);
+        mainClass.add(mainMethod);
+        mainMethod.add(new CoverageLeaf(LINE, new Coverage(8, 2)));
+
+        // Difference on File Level
+        FileNode covLeavefile = new FileNode("CoverageLeaf");
+        FileNode pkgCovFile = new FileNode("HelloWorld");
+        covLeavefile.add(mainClass.copyTree());
+
+        report.getAll(PACKAGE).get(0).add(pkgCovFile);
+        otherReport.getAll(PACKAGE).get(0).add(covLeavefile);
+
+        Node combinedReport = report.combineWith(otherReport);
+        assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
+        assertThat(combinedReport.getAll(FILE)).hasSize(4);
+        assertThat(combinedReport.getAll(CLASS)).hasSize(3);
+        assertThat(combinedReport.getCoverage(LINE)).hasCovered(16).hasMissed(4);
+        assertThat(combinedReport.getCoverage(BRANCH)).isNotSet();
+
+    }
+
+    @Test
+    void shouldUseDeepCopiedNodesInCombineWithIfProjectsAreUnrelated() {
+        Node module = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameModule = new Node(MODULE, "edu.hm.hafner.module2");
+
+        Node combinedReport = module.combineWith(sameModule);
+
+        assertThat(combinedReport.find(MODULE, module.getName()).get()).isNotSameAs(module);
+        assertThat(combinedReport.find(MODULE, sameModule.getName()).get()).isNotSameAs(sameModule);
+    }
+
+    @Test
+    void shouldUseDeepCopiedNodesInCombineWithInRelatedProjects() {
+        Node project = new Node(MODULE, "edu.hm.hafner.module1");
+        Node sameProject = project.copyTree();
+        PackageNode coveragePkg = new PackageNode("coverage");
+        PackageNode autogradingPkg = new PackageNode("autograding");
+
+        project.add(coveragePkg);
+        sameProject.add(autogradingPkg);
+        Node combinedReport = project.combineWith(sameProject);
+
+        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).get())
+                .isNotSameAs(coveragePkg);
+        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).get())
+                .isNotSameAs(autogradingPkg);
+
+    }
+
+    @Test
+    void shouldAlsoHandleReportsThatStopAtHigherLevelThanMethod() {
+        Node report = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node file = new Node(FILE, "Node.java");
+        Node otherReport;
+
+        report.add(pkg);
+        pkg.add(file);
+        otherReport = report.copyTree();
+
+        otherReport.find(FILE, file.getName()).get().add(new CoverageLeaf(LINE, new Coverage(90, 10)));
+        report.find(FILE, file.getName()).get().add(new CoverageLeaf(LINE, new Coverage(80, 20)));
+
+        assertThat(report.combineWith(otherReport).getCoverage(LINE)).hasMissed(10).hasCovered(90);
+    }
+
+    @Test
+    void shouldAlsoHandleReportsThatStopAtHigherLevelAndOtherReportHasHigherCoverage() {
+        Node report = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node file = new Node(FILE, "Node.java");
+
+        report.add(pkg);
+        pkg.add(file);
+        Node otherReport = report.copyTree();
+        otherReport.find(FILE, file.getName()).get().add(new CoverageLeaf(LINE, new Coverage(70, 30)));
+        report.find(FILE, file.getName()).get().add(new CoverageLeaf(LINE, new Coverage(80, 20)));
+
+        assertThat(report.combineWith(otherReport).getCoverage(LINE)).hasMissed(20).hasCovered(80);
     }
 
     /**
-     * Tests copy functionality with a leaf.
+     * If one report stops e.g. at file level and other report goes down to class level,
+     * results of the report with higher depth should be used.
      */
     @Test
-    void shouldCopyLeaf() {
-        // Given
-        Node root = new Node(MODULE, "Root");
-        CoverageLeaf leaf = new CoverageLeaf(LINE, Coverage.NO_COVERAGE);
-        root.add(leaf);
+    void shouldHandleReportsOfDifferentDepth() {
+        Node report = new Node(MODULE, "edu.hm.hafner.module1");
+        Node pkg = new Node(PACKAGE, "coverage");
+        Node file = new Node(FILE, "Node.java");
+        Node covNodeClass = new Node(CLASS, "Node.class");
+        Node otherReport;
 
-        // When & Then
-        assertThat(root.copyTree())
-                .isEqualTo(root)
-                .hasOnlyLeaves(leaf);
+        report.add(pkg);
+        pkg.add(file);
+
+        otherReport = report.copyTree();
+        otherReport.find(file.getMetric(), file.getName()).get().add(covNodeClass);
+        covNodeClass.add(new CoverageLeaf(LINE, new Coverage(90, 10)));
+
+        report.find(FILE, file.getName()).get().add(new CoverageLeaf(LINE, new Coverage(80, 20)));
+
+        assertThat(report.combineWith(otherReport).getCoverage(LINE)).hasMissed(10).hasCovered(90);
+        assertThat(otherReport.combineWith(report).getCoverage(LINE)).hasMissed(10).hasCovered(90);
+        assertThat(report.combineWith(otherReport).find(covNodeClass.getMetric(), covNodeClass.getName()).get())
+                .isNotSameAs(covNodeClass);
+
     }
+
 }

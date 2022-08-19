@@ -142,12 +142,12 @@ public class Node implements Serializable {
      *
      * @return a mapping of metric to coverage.
      */
-    public NavigableMap<CoverageMetric, Coverage> getMetricsDistribution() {
+    public NavigableMap<Metric, Coverage> getMetricsDistribution() {
         return getMetrics().stream()
                 .collect(Collectors.toMap(Function.identity(), this::getCoverage, (o1, o2) -> o1, TreeMap::new));
     }
 
-    public NavigableMap<CoverageMetric, Fraction> getMetricsPercentages() {
+    public NavigableMap<Metric, Fraction> getMetricsPercentages() {
         return getMetrics().stream().collect(Collectors.toMap(
                 Function.identity(),
                 searchMetric -> getCoverage(searchMetric).getCoveredPercentage(),
@@ -455,22 +455,22 @@ public class Node implements Serializable {
      * @param other module to combine with
      * @return combined report
      */
-    public CoverageNode combineWith(final CoverageNode other) {
+    public Node combineWith(final Node other) {
 
-        if (!other.getMetric().equals(CoverageMetric.MODULE)) {
+        if (!other.getMetric().equals(Metric.MODULE)) {
             throw new IllegalArgumentException("Provided Node is not of MetricType MODULE");
         }
-        if (!this.getMetric().equals(CoverageMetric.MODULE)) {
+        if (!this.getMetric().equals(Metric.MODULE)) {
             throw new IllegalStateException("Cannot perform combineWith on a non-module Node");
         }
 
-        final CoverageNode combinedReport;
+        final Node combinedReport;
         if (this.getName().equals(other.getName())) {
             combinedReport = this.copyTree();
             combinedReport.safelyCombineChildren(other);
         }
         else {
-            combinedReport = new CoverageNode(CoverageMetric.GROUP, "Combined Report");
+            combinedReport = new Node(Metric.GROUP, "Combined Report");
             combinedReport.add(this.copyTree());
             combinedReport.add(other.copyTree());
         }
@@ -478,7 +478,7 @@ public class Node implements Serializable {
         return combinedReport;
     }
 
-    private void safelyCombineChildren(final CoverageNode other) {
+    private void safelyCombineChildren(final Node other) {
         if (!this.leaves.isEmpty()) {
             if (other.getChildren().isEmpty()) {
                 mergeLeaves(this.getMetricsDistribution(), other.getMetricsDistribution());
@@ -488,7 +488,7 @@ public class Node implements Serializable {
         }
 
         other.getChildren().forEach(otherChild -> {
-            Optional<CoverageNode> existingChild = this.getChildren().stream()
+            Optional<Node> existingChild = this.getChildren().stream()
                     .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
             if (existingChild.isPresent()) {
                 existingChild.get().safelyCombineChildren(otherChild);
@@ -499,7 +499,7 @@ public class Node implements Serializable {
         });
     }
 
-    private void mergeLeaves(final SortedMap<CoverageMetric, Coverage> metricsDistribution, final SortedMap<CoverageMetric, Coverage> metricsDistributionOther) {
+    private void mergeLeaves(final SortedMap<Metric, Coverage> metricsDistribution, final SortedMap<Metric, Coverage> metricsDistributionOther) {
         if (!metricsDistribution.keySet().equals(metricsDistributionOther.keySet())) {
             throw new IllegalStateException(
                     String.format("Reports to combine have a mismatch of leaves in %s %s", this.getMetric(), this.getName()));
@@ -693,5 +693,4 @@ public class Node implements Serializable {
                 .map(MutationLeaf::getResult)
                 .reduce(mutationResult, MutationResult::add);
     }
-}
 }

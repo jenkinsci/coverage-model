@@ -12,9 +12,9 @@ import edu.hm.hafner.model.Node;
 import edu.hm.hafner.mutation.MutationLeaf;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
-import static edu.hm.hafner.model.Metric.*;
 import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
+import static edu.hm.hafner.model.Metric.*;
 
 class PitestParserTest {
 

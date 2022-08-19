@@ -40,6 +40,7 @@ class CoverageLeafTest {
 
     @Test
     void shouldCorrectlyDetermineEquality() {
-        EqualsVerifier.forClass(CoverageLeaf.class).verify();
+        EqualsVerifier.forClass(CoverageLeaf.class)
+                .withNonnullFields("metric").verify();
     }
 }

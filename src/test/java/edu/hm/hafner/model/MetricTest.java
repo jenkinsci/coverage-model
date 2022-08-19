@@ -81,42 +81,25 @@ class MetricTest {
         );
     }
 
-    /**
-     * Tests for creating predefined metrics with their names.
-     */
     @Test
-    void shouldCreatePredefinedMetrics() {
-        // When & Then
-        assertThat(Metric.valueOf("MODULE")).isEqualTo(Metric.MODULE).isNotLeaf();
-        assertThat(Metric.valueOf("REPORT")).isEqualTo(Metric.MODULE).isNotLeaf();
-        assertThat(Metric.valueOf("PACKAGE")).isEqualTo(Metric.PACKAGE).isNotLeaf();
-        assertThat(Metric.valueOf("FILE")).isEqualTo(Metric.FILE).isNotLeaf();
-        assertThat(Metric.valueOf("CLASS")).isEqualTo(Metric.CLASS).isNotLeaf();
-        assertThat(Metric.valueOf("METHOD")).isEqualTo(Metric.METHOD).isNotLeaf();
-        assertThat(Metric.valueOf("INSTRUCTION")).isEqualTo(Metric.INSTRUCTION).isLeaf();
-        assertThat(Metric.valueOf("LINE")).isEqualTo(Metric.LINE).isLeaf();
-        assertThat(Metric.valueOf("BRANCH")).isEqualTo(Metric.BRANCH).isLeaf();
-        assertThat(Metric.valueOf("CONDITIONAL")).isEqualTo(Metric.BRANCH).isLeaf();
-        assertThat(Metric.valueOf("COMPLEXITY")).isEqualTo(Metric.COMPLEXITY).isLeaf();
-        assertThat(Metric.valueOf("MUTATION")).isEqualTo(Metric.MUTATION).isLeaf();
+    void shouldGetCorrespondingValueByName() {
+        Metric.getAvailableCoverageMetrics().forEach(coverageMetric ->
+                assertThat(Metric.valueOf(coverageMetric.getName())).isEqualTo(coverageMetric));
+
+        assertThat(Metric.valueOf("CUSTOM")).hasName("CUSTOM").isNotLeaf();
     }
 
-    /**
-     * Test for creating a new metric with name.
-     */
     @Test
-    void shouldCreateNewMetric() {
-        // Given
-        String newMetricName = "Subpackage";
+    void shouldGetCorrespondingValueByNameForSpecialMetrics() {
+        assertThat(Metric.valueOf("cOnDITional")).isEqualTo(Metric.BRANCH);
+        assertThat(Metric.valueOf("RePoRT")).isEqualTo(Metric.MODULE);
 
-        // When
-        Metric actualMetric = Metric.valueOf(newMetricName);
+    }
 
-        // Then
-        assertThat(actualMetric)
-                .hasName(newMetricName)
-                .hasToString(newMetricName)
-                .isNotLeaf();
+    @Test
+    void shouldDetermineIfMetricIsLeaf() {
+        assertThat(Metric.FILE).isNotLeaf();
+        assertThat(Metric.BRANCH).isLeaf();
     }
 
     /**
@@ -125,7 +108,7 @@ class MetricTest {
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(Metric.class)
-                .withNonnullFields("name")
-                .withIgnoredFields("order", "leaf").verify();
+                .withIgnoredFields("order", "leaf")
+                .withNonnullFields("name").verify();
     }
 }
