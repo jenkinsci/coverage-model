@@ -1,0 +1,203 @@
+@startuml
+actor Teammitglied
+activate Browser
+Teammitglied -> Browser : https://localhost:5000/upload
+Browser -> AnalysisDashboardController: createUpload()
+activate AnalysisDashboardController
+AnalysisDashboardController -> IssueService : findAllTools()
+activate IssueService
+IssueService --> AnalysisDashboardController
+deactivate IssueService
+AnalysisDashboardController --> Browser : upload
+deactivate AnalysisDashboardController
+Browser --> Teammitglied
+deactivate Browser
+Teammitglied -> Browser : upload on click
+activate Browser
+Browser -> UploadController : upload(checkstyle-result.xml)
+activate UploadController
+UploadController -> UploadController : getReaderFactory()
+UploadController -> IssueService : parse()
+activate IssueService
+IssueService --> UploadController : Report
+deactivate IssueService
+UploadController -> IssueService : save(Report)
+activate IssueService
+IssueService -> EntityService : insert(Report)
+activate EntityService
+EntityService -> Mapper : map ()
+activate Mapper
+create ReportEntity
+Mapper -->> ReportEntity : new()
+loop
+    Mapper -> Mapper : map()
+    create IssueEntity
+    Mapper -->> IssueEntity : new()
+    Mapper -> ReportEntity : addIssueEntity()
+    activate ReportEntity
+    ReportEntity -> ReportEntity : getIssues()
+    ReportEntity -> IssueEntity : setIssues()
+    activate IssueEntity
+    IssueEntity --> ReportEntity
+    deactivate IssueEntity
+    ReportEntity --> Mapper
+    deactivate ReportEntity
+end
+Mapper --> EntityService : ReportEntity
+deactivate Mapper
+EntityService -> Mapper : map()
+activate Mapper
+Mapper -> ReportEntity : getIssues()
+activate ReportEntity
+ReportEntity --> Mapper : List<Issues>
+deactivate ReportEntity
+loop
+    Mapper -> Mapper : map()
+    Mapper -> IssueEntity : getId()
+    activate IssueEntity
+    IssueEntity --> Mapper : id
+    deactivate IssueEntity
+    Mapper -> IssueEntity : getCategory()
+    activate IssueEntity
+    IssueEntity --> Mapper : category
+    deactivate IssueEntity
+    Mapper -> IssueEntity : ...15 weiter getter Aufrufe nach dem Schema
+    activate IssueEntity
+    IssueEntity --> Mapper :
+    deactivate IssueEntity
+    Mapper -> Mapper : getIssue()
+end
+Mapper -> ReportEntity : getToolId()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getToolName()
+activate ReportEntity
+Mapper <-- ReportEntity: "CheckStyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getOriginReportFile()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle-result.xml"
+deactivate ReportEntity
+Mapper --> EntityService : Report
+deactivate Mapper
+
+EntityService --> IssueService : Report
+deactivate EntityService
+IssueService --> UploadController
+deactivate IssueService
+UploadController --> Browser : details
+deactivate UploadController
+'hier endet der upload und der Browser lädt die Diagramme zum hochgeladenen File
+Browser ->> IssuesDetailController : getCategories(checkstyle, checkstyle-result.xml)
+activate IssuesDetailController
+IssuesDetailController -> IssueService : createDistributionByCategory()
+activate IssueService
+IssueService -> EntityService : selectReportByToolIdAndOriginReportFile()
+activate EntityService
+EntityService -> Mapper : map()
+activate Mapper
+Mapper -> ReportEntity : getIssues()
+activate ReportEntity
+ReportEntity --> Mapper : List<Issues>
+deactivate ReportEntity
+loop
+    Mapper -> Mapper : map()
+    Mapper -> IssueEntity : getId()
+    activate IssueEntity
+    IssueEntity --> Mapper : id
+    deactivate IssueEntity
+    Mapper -> IssueEntity : getCategory()
+    activate IssueEntity
+    IssueEntity --> Mapper : category
+    deactivate IssueEntity
+    Mapper -> IssueEntity : ...15 weiter getter Aufrufe nach dem Schema
+    activate IssueEntity
+    IssueEntity --> Mapper :
+    deactivate IssueEntity
+    Mapper -> Mapper : getIssue()
+end
+Mapper -> ReportEntity : getToolId()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getToolName()
+activate ReportEntity
+Mapper <-- ReportEntity: "CheckStyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getOriginReportFile()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle-result.xml"
+deactivate ReportEntity
+Mapper --> EntityService : Report
+deactivate Mapper
+EntityService --> IssueService   : Report
+deactivate EntityService
+create "category : IssuePropertyDistribution"
+IssueService -->> "category : IssuePropertyDistribution" : new()
+create "category : IssuesSizeList"
+activate "category : IssuePropertyDistribution"
+"category : IssuePropertyDistribution" -->> "category : IssuesSizeList" :new()
+deactivate "category : IssuePropertyDistribution"
+IssueService --> IssuesDetailController : IssuePropertyDistribution
+deactivate IssueService
+IssuesDetailController --> Browser : Response Entity
+deactivate IssuesDetailController
+Browser ->> IssuesDetailController : getTypes(checkstyle, checkstyle-result.xml)
+activate IssuesDetailController
+IssuesDetailController -> IssueService : createDistributionByType()
+activate IssueService
+IssueService -> EntityService : selectReportByToolIdAndOriginReportFile()
+activate EntityService
+EntityService -> Mapper : map()
+activate Mapper
+Mapper -> ReportEntity : getIssues()
+activate ReportEntity
+ReportEntity --> Mapper : List<Issues>
+deactivate ReportEntity
+loop
+    Mapper -> Mapper : map()
+    Mapper -> IssueEntity : getId()
+    activate IssueEntity
+    IssueEntity --> Mapper : id
+    deactivate IssueEntity
+    Mapper -> IssueEntity : getCategory()
+    activate IssueEntity
+    IssueEntity --> Mapper : category
+    deactivate IssueEntity
+    Mapper -> IssueEntity : ...15 weiter getter Aufrufe nach dem Schema
+    activate IssueEntity
+    IssueEntity --> Mapper :
+    deactivate IssueEntity
+    Mapper -> Mapper : getIssue()
+end
+
+Mapper -> ReportEntity : getToolId()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getToolName()
+activate ReportEntity
+Mapper <-- ReportEntity: "CheckStyle"
+deactivate ReportEntity
+Mapper -> ReportEntity : getOriginReportFile()
+activate ReportEntity
+Mapper <-- ReportEntity : "checkstyle-result.xml"
+deactivate ReportEntity
+Mapper --> EntityService : Report
+deactivate Mapper
+EntityService --> IssueService   : Report
+deactivate EntityService
+create "type : IssuePropertyDistribution"
+IssueService -->> "type : IssuePropertyDistribution" : new()
+create "type : IssuesSizeList"
+activate "type : IssuePropertyDistribution"
+"type : IssuePropertyDistribution" -->> "type : IssuesSizeList" :new()
+deactivate "type : IssuePropertyDistribution"
+IssueService --> IssuesDetailController : IssuePropertyDistribution
+deactivate IssueService
+IssuesDetailController --> Browser : Response Entity
+deactivate IssuesDetailController
+Browser --> Teammitglied
+deactivate Browser
+@enduml

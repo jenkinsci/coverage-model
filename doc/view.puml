@@ -1,0 +1,201 @@
+@startuml
+
+actor Teammitglied
+Teammitglied -> Browser: http://localhost:5000/issues
+activate Browser
+
+Browser -> AnalysisDashboardController: createIssues()
+activate AnalysisDashboardController
+AnalysisDashboardController --> Browser: "/issues"
+deactivate AnalysisDashboardController
+Browser -> IssuesDetailController: getIssues()
+
+activate IssuesDetailController
+
+
+IssuesDetailController -> IssuesService: createIssuesStatistics()
+
+activate IssuesService
+
+IssuesService -> EntityService: selectAllReports()
+activate EntityService
+
+create ReportEntity
+
+loop
+    EntityService -->> ReportEntity: new()
+end
+loop
+    EntityService -> Mapper: map()
+    activate Mapper
+    Mapper -> ReportEntity: getIssues()
+    activate ReportEntity
+    Mapper <-- ReportEntity: issues:List<IssueEntity>
+    deactivate ReportEntity
+
+    deactivate ReportEntity
+    loop
+        Mapper -> Mapper: map()
+        Mapper -> IssueEntity: getId(), getCategory(), ...
+        activate IssueEntity
+        Mapper <-- IssueEntity: id, category, ...
+        deactivate IssueEntity
+        Mapper -> Mapper: getIssue()
+    end
+    deactivate ReportEntity
+
+    Mapper -> ReportEntity: getToolId()
+    activate ReportEntity
+    Mapper <-- ReportEntity: getToolId
+    Mapper -> ReportEntity: getToolName()
+    Mapper <-- ReportEntity: toolName
+    Mapper -> ReportEntity: getOriginReportFile()
+    Mapper <-- ReportEntity: originReportFile
+    deactivate ReportEntity
+    EntityService <-- Mapper: Report
+end
+deactivate Mapper
+
+IssuesService <-- EntityService: Set<Report>
+deactivate EntityService
+
+
+create IssuesTable
+IssuesService -->> IssuesTable: new()
+activate IssuesTable
+loop
+    IssuesService -> IssuesTable: addRow()
+end
+deactivate IssuesTable
+IssuesDetailController <-- IssuesService: IssuesTable
+deactivate IssuesService
+Browser <-- IssuesDetailController: ResponseEntity
+deactivate IssuesDetailController
+deactivate Browser
+
+' Details eines speziellen Reports ansehen
+Teammitglied -> Browser: http://localhost:5000/details?tool=checkstyle&reference=checkstyle-result.xml
+activate Browser
+Browser -> AnalysisDashboardController: createDetails()
+
+activate AnalysisDashboardController
+Browser <-- AnalysisDashboardController: "/details"
+deactivate AnalysisDashboardController
+Browser ->> IssuesDetailController: getTypes(tool: "checkstyle", reference: "checkstyle-result.xml")
+activate IssuesDetailController
+IssuesDetailController -> IssuesService: createDistributionByType(toolId: "checkstyle", originFileName: "checkstyle-result.xml")
+activate IssuesService
+IssuesService -> EntityService: selectReportByToolIdAndOriginReportFile(toolId: "checkstyle", originFileName: "checkstyle-result.xml")
+activate EntityService
+create "checkStyleTypes : ReportEntity"
+EntityService -->> "checkStyleTypes : ReportEntity": new()
+EntityService -> Mapper: map(checkStyleTypes : ReportEntity)
+
+activate Mapper
+"checkStyleTypes : ReportEntity" <- Mapper: getIssues()
+activate "checkStyleTypes : ReportEntity"
+"checkStyleTypes : ReportEntity" --> Mapper: issues:List<IssueEntity>
+deactivate "checkStyleTypes : ReportEntity"
+
+loop
+    Mapper -> Mapper: map()
+    Mapper -> IssueEntity: getId(), getCategory(), ...
+    activate IssueEntity
+    Mapper <-- IssueEntity: id, category, ...
+    deactivate IssueEntity
+    Mapper -> Mapper: getIssue()
+    Mapper -> Mapper: getIssue()
+end
+Mapper -> "checkStyleTypes : ReportEntity": getToolId()
+activate "checkStyleTypes : ReportEntity"
+Mapper <-- "checkStyleTypes : ReportEntity": "checkstyle"
+deactivate "checkStyleTypes : ReportEntity"
+Mapper -> "checkStyleTypes : ReportEntity": getToolName()
+activate "checkStyleTypes : ReportEntity"
+Mapper <-- "checkStyleTypes : ReportEntity": "CheckStyle"
+deactivate "checkStyleTypes : ReportEntity"
+Mapper -> "checkStyleTypes : ReportEntity": getOriginReportFile()
+activate "checkStyleTypes : ReportEntity"
+Mapper <-- "checkStyleTypes : ReportEntity": "checkstyle-result.xml"
+deactivate "checkStyleTypes : ReportEntity"
+EntityService <-- Mapper: checkstyleReport : Report
+deactivate Mapper
+
+IssuesService <-- EntityService: checkstyleReport : Report
+deactivate EntityService
+create "types : IssuePropertyDistribution"
+IssuesService -->> "types : IssuePropertyDistribution": new(counts: Map<String, Integer>)
+activate "types : IssuePropertyDistribution"
+create "types : IssuesSizeList"
+"types : IssuePropertyDistribution" -->> "types : IssuesSizeList": new()
+deactivate "types : IssuePropertyDistribution"
+
+IssuesDetailController <-- IssuesService: CheckStyleTypes : IssuePropertyDistribution
+deactivate IssuesService
+Browser <-- IssuesDetailController: ResponseEntity
+
+deactivate IssuesDetailController
+
+
+deactivate AnalysisDashboardController
+Browser ->> IssuesDetailController: getCategories(tool: "checkstyle", reference: "checkstyle-result.xml")
+activate IssuesDetailController
+IssuesDetailController -> IssuesService: createDistributionByCategory(toolId: "checkstyle", originFileName: "checkstyle-result.xml")
+activate IssuesService
+IssuesService -> EntityService: selectReportByToolIdAndOriginReportFile(toolId: "checkstyle", originFileName: "checkstyle-result.xml")
+activate EntityService
+create "checkStyleCategories : ReportEntity"
+EntityService -->> "checkStyleCategories : ReportEntity": new()
+EntityService -> Mapper: map(checkStyleCategories:ReportEntity)
+
+activate Mapper
+"checkStyleCategories : ReportEntity" <- Mapper: getIssues()
+activate "checkStyleCategories : ReportEntity"
+"checkStyleCategories : ReportEntity" --> Mapper: issues:List<IssueEntity>
+deactivate "checkStyleCategories : ReportEntity"
+
+loop
+    Mapper -> Mapper: map()
+    Mapper -> IssueEntity: getId(), getCategory(), ...
+    activate IssueEntity
+    Mapper <-- IssueEntity: id, category, ...
+    deactivate IssueEntity
+    Mapper -> Mapper: getIssue()
+end
+
+Mapper -> "checkStyleCategories : ReportEntity": getToolId()
+activate "checkStyleCategories : ReportEntity"
+Mapper <-- "checkStyleCategories : ReportEntity": "checkstyle"
+deactivate "checkStyleCategories : ReportEntity"
+Mapper -> "checkStyleCategories : ReportEntity": getToolName()
+activate "checkStyleCategories : ReportEntity"
+Mapper <-- "checkStyleCategories : ReportEntity": "CheckStyle"
+deactivate "checkStyleCategories : ReportEntity"
+Mapper -> "checkStyleCategories : ReportEntity": getOriginReportFile()
+activate "checkStyleCategories : ReportEntity"
+Mapper <-- "checkStyleCategories : ReportEntity": "checkstyle-result.xml"
+deactivate "checkStyleCategories : ReportEntity"
+deactivate "checkStyleCategories : ReportEntity"
+EntityService <-- Mapper: checkstyleReport : Report
+deactivate Mapper
+
+IssuesService <-- EntityService: checkstyleReport : Report
+deactivate EntityService
+create "categories : IssuePropertyDistribution"
+IssuesService -->> "categories : IssuePropertyDistribution": new(counts: Map<String, Integer>)
+activate "categories : IssuePropertyDistribution"
+create "categories : IssuesSizeList"
+"categories : IssuePropertyDistribution" -->> "categories : IssuesSizeList": new()
+deactivate "categories : IssuePropertyDistribution"
+
+IssuesDetailController <-- IssuesService: CheckStyleCategories:IssuePropertyDistribution
+deactivate IssuesService
+Browser <-- IssuesDetailController: ResponseEntity
+deactivate IssuesDetailController
+deactivate Browser
+
+@enduml
+
+
+
+
