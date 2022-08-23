@@ -1,0 +1,135 @@
+@startuml
+
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+
+skinparam component {
+  BackgroundColor #FFFF00
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+  StereotypeFontSize 14
+}
+
+skinparam interface {
+  BackgroundColor #4AD386
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+skinparam class {
+  BackgroundColor #4AD386
+  BorderColor #a0a0a0
+  BackgroundColor<<Main>> gold
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+hide circle
+skinparam componentStyle uml2
+
+
+
+component Static-Analysis-Dashboard {
+
+    package edu.hm.hafner {
+
+    class AnalysisDashboard
+
+
+
+    component Benutzeroberfläche {
+    package ui  {
+    class AnalysisDashboardController
+    class IssuesDetailController
+    class UploadController
+    }
+
+    }
+
+
+
+
+    component Geschäftslogik {
+
+    package uc {
+        class IssuePropertyDistribution
+        class IssuesService
+        class IssuesSizeList
+        class IssuesTable
+        class IssuesTestData
+        }
+
+
+        IssuePropertyDistribution ..> "*" IssuesSizeList
+        IssuesService ..> IssuePropertyDistribution
+        IssuesService ..> IssuesTable
+        IssuesTestData ..> IssuesService
+        AnalysisDashboardController ..> IssuesService
+        IssuesDetailController ..> IssuesService
+        IssuesDetailController ..> IssuesTable
+        IssuesDetailController ....> IssuePropertyDistribution
+        UploadController ..> IssuesService
+    }
+
+    component Persistenz {
+        package db {
+            class EntityService
+            class IssueEntity
+            class Mapper
+            class ReportEntity
+            class WarningTypeEntity
+            interface IssueRepository <<interface>>
+            interface ReportRepository <<interface>>
+        }
+
+
+        EntityService ..> IssueRepository
+        EntityService ..> ReportRepository
+        EntityService ..> Mapper
+        EntityService ..> ReportEntity
+        EntityService ..> IssueEntity
+
+        IssueRepository ..> IssueEntity
+
+        IssueEntity "*" .. "1" ReportEntity
+        Mapper ..> ReportEntity
+        Mapper ..> IssueEntity
+        WarningTypeEntity ..> "*" ReportEntity
+        ReportRepository ..> ReportEntity
+
+        IssuesService ..> EntityService
+        IssuesTestData ..> EntityService
+
+    }
+
+
+    component Utilities {
+
+        package util {
+            UploadController ..> InputStreamSourceReaderFactory
+            IssuesService ..> InputStreamSourceReaderFactory
+            class InputStreamSourceReaderFactory
+        }
+    }
+
+    }
+
+}
+
+
+@enduml
