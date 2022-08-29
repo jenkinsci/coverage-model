@@ -1,7 +1,7 @@
 package edu.hm.hafner.parser;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.xml.namespace.QName;
@@ -71,8 +71,8 @@ public class CoberturaParser extends XmlParser {
         XMLInputFactory factory = XMLInputFactory.newInstance();
 
         XMLEventReader r;
-        try {
-            r = factory.createXMLEventReader(path, new FileInputStream(path));
+        try (FileInputStream fip = new FileInputStream(path)) {
+            r = factory.createXMLEventReader(path, fip);
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
 
@@ -94,7 +94,7 @@ public class CoberturaParser extends XmlParser {
                 }
             }
         }
-        catch (XMLStreamException | FileNotFoundException ex) {
+        catch (XMLStreamException | IOException ex) {
             ex.printStackTrace();
         }
     }
