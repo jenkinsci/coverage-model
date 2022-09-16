@@ -19,7 +19,7 @@ jobs:
           check-latest: true
           cache: 'maven'
       - name: Compile, Test and Analysis
-        run: mvn -V --color always -ntp clean verify -Dmaven.test.failure.ignore=true
+        run: mvn -V --color always -ntp clean verify -Dmaven.test.failure.ignore=true | tee maven.log
       - name: Mutation Coverage
         run: mvn -V --color always -ntp org.pitest:pitest-maven:mutationCoverage
       - name: Autograding
@@ -29,6 +29,32 @@ jobs:
           HEAD_SHA: ${{github.event.pull_request.head.sha}}
           CONFIG: >
             {
+                "tools": [
+                  {
+                    "id": "error-prone",
+                    "pattern": "**/*.log"
+                  },
+                  {
+                    "id": "java",
+                    "pattern": "**/*.log"
+                  },
+                  {
+                    "id": "javadoc-warnings",
+                    "pattern": "**/*.log"
+                  },
+                  {
+                    "id": "checkstyle",
+                    "pattern": "**/checkstyle-result.xml"
+                  },
+                  {
+                    "id": "pmd",
+                    "pattern": "**/pmd.xml"
+                  },
+                  {
+                    "id": "spotbugs",
+                    "pattern": "**/spotbugsXml.xml"
+                  }
+                ],
               "analysis": {
                 "maxScore": 100,
                 "errorImpact": -5,
