@@ -29,6 +29,7 @@ jobs:
           HEAD_SHA: ${{github.event.pull_request.head.sha}}
           CONFIG: >
             {
+              "analysis": {
                 "tools": [
                   {
                     "id": "error-prone",
@@ -55,7 +56,6 @@ jobs:
                     "pattern": "**/spotbugsXml.xml"
                   }
                 ],
-              "analysis": {
                 "maxScore": 100,
                 "errorImpact": -5,
                 "highImpact": -2,
