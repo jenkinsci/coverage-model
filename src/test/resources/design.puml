@@ -6,6 +6,9 @@ skinparam component {
   BackgroundColor #f8f8f8
 }
 
-[Coverage Model] <<..coverage..>>
+[Metric Model] <<..metric>>
+[Coverage Parsers] <<..parser>>
+
+[Coverage Parsers] -> [Metric Model]
 
 @enduml

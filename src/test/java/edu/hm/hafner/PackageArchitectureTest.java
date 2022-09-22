@@ -17,12 +17,11 @@ import static com.tngtech.archunit.library.plantuml.PlantUmlArchCondition.*;
  * @author Ullrich Hafner
  */
 @SuppressWarnings("hideutilityclassconstructor")
-@AnalyzeClasses(packages = "edu.hm.hafner.coverage..", importOptions = DoNotIncludeTests.class)
+@AnalyzeClasses(packages = "edu.hm.hafner.metric", importOptions = DoNotIncludeTests.class)
 class PackageArchitectureTest {
     private static final URL PACKAGE_DESIGN = PackageArchitectureTest.class.getResource("/design.puml");
 
     @ArchTest
     static final ArchRule ADHERES_TO_PACKAGE_DESIGN
-            = classes().should(adhereToPlantUmlDiagram(PACKAGE_DESIGN,
-            consideringOnlyDependenciesInAnyPackage("edu.hm.hafner.coverage..")));
+            = classes().should(adhereToPlantUmlDiagram(PACKAGE_DESIGN, consideringOnlyDependenciesInAnyPackage("edu.hm.hafner.metric")));
 }
