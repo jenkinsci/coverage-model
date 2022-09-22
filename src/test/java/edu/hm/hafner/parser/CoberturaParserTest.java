@@ -12,7 +12,7 @@ import edu.hm.hafner.model.FileNode;
 import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.Node;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
 import static edu.hm.hafner.model.Metric.*;
@@ -43,7 +43,7 @@ class CoberturaParserTest {
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY)
                 .hasToString("[Module] " + "cobertura.xml");
-        assertThat(tree.getCoverageMetricsDistribution()).containsExactly(
+        assertThat(tree.getMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
                 entry(PACKAGE, new Coverage(4, 1)),
                 entry(FILE, new Coverage(4, 0)),
@@ -51,7 +51,7 @@ class CoberturaParserTest {
                 entry(METHOD, new Coverage(7, 3)),
                 entry(LINE, new Coverage(61, 19)),
                 entry(BRANCH, new Coverage(2, 2)));
-        assertThat(tree.getCoverageMetricsPercentages()).containsExactly(
+        assertThat(tree.getMetricsPercentages()).containsExactly(
                 entry(MODULE, Fraction.ONE),
                 entry(PACKAGE, Fraction.getFraction(4, 4 + 1)),
                 entry(FILE, Fraction.getFraction(4, 4)),

@@ -12,7 +12,7 @@ import edu.hm.hafner.model.FileNode;
 import edu.hm.hafner.model.Metric;
 import edu.hm.hafner.model.Node;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 import static edu.hm.hafner.model.Metric.CLASS;
 import static edu.hm.hafner.model.Metric.FILE;
 import static edu.hm.hafner.model.Metric.*;
@@ -50,7 +50,7 @@ class JacocoParserTest {
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, INSTRUCTION, COMPLEXITY)
                 .hasToString("[Module] " + PROJECT_NAME);
-        assertThat(tree.getCoverageMetricsDistribution()).containsExactly(
+        assertThat(tree.getMetricsDistribution()).containsExactly(
                 entry(MODULE, new Coverage(1, 0)),
                 entry(PACKAGE, new Coverage(1, 0)),
                 entry(FILE, new Coverage(7, 3)),
@@ -59,7 +59,7 @@ class JacocoParserTest {
                 entry(LINE, new Coverage(294, 29)),
                 entry(INSTRUCTION, new Coverage(1260, 90)),
                 entry(BRANCH, new Coverage(109, 7)));
-        assertThat(tree.getCoverageMetricsPercentages()).containsExactly(
+        assertThat(tree.getMetricsPercentages()).containsExactly(
                 entry(MODULE, Fraction.ONE),
                 entry(PACKAGE, Fraction.ONE),
                 entry(FILE, Fraction.getFraction(7, 7 + 3)),
@@ -88,7 +88,7 @@ class JacocoParserTest {
         verifyCoverageMetrics(tree);
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
-        assertThat(tree.getCoverageMetricsDistribution()).contains(
+        assertThat(tree.getMetricsDistribution()).contains(
                 entry(PACKAGE, new Coverage(4, 0)));
 
         assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(

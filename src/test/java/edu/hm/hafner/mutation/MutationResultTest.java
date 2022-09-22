@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 
 class MutationResultTest {
 

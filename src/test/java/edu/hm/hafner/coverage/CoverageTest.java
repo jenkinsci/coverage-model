@@ -10,7 +10,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 
 /**
  * Tests the class {@link Coverage}.

@@ -7,7 +7,7 @@ import edu.hm.hafner.model.Metric;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 
 /**
  * Tests the class {@link CoverageLeaf}.

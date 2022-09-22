@@ -24,7 +24,6 @@ public final class Metric implements Comparable<Metric>, Serializable {
         COMPOSITE
     }
 
-    /** Module metric. */
     /** Group Coverage. */
     public static final Metric GROUP = new Metric("Group", -20);
     /** Module metric. */
@@ -100,7 +99,7 @@ public final class Metric implements Comparable<Metric>, Serializable {
      *
      * @return the available metrics
      */
-    public static List<Metric> getAvailableCoverageMetrics() {
+    public static List<Metric> getAvailableMetrics() {
         return Arrays.asList(MUTATION, COMPLEXITY, LINE, BRANCH, INSTRUCTION, METHOD, CLASS, FILE, PACKAGE, MODULE);
     }
 

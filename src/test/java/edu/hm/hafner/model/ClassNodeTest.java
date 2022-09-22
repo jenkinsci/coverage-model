@@ -2,7 +2,7 @@ package edu.hm.hafner.model;
 
 import org.junit.jupiter.api.Test;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.assertions.Assertions.*;
 
 class ClassNodeTest {
 

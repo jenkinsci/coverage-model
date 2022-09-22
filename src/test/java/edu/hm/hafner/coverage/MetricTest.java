@@ -1,10 +1,12 @@
-package edu.hm.hafner.model;
+package edu.hm.hafner.coverage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.model.Metric;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -16,6 +18,7 @@ import static edu.hm.hafner.assertions.Assertions.*;
  * @author Ullrich Hafner
  */
 class MetricTest {
+
     @Test
     void shouldSortMetrics() {
         List<Metric> all = new ArrayList<>();
@@ -66,25 +69,10 @@ class MetricTest {
         );
     }
 
-    private void verifyOrder(final List<Metric> all) {
-        assertThat(all).containsExactly(
-                Metric.MODULE,
-                Metric.PACKAGE,
-                Metric.FILE,
-                Metric.CLASS,
-                Metric.METHOD,
-                Metric.LINE,
-                Metric.INSTRUCTION,
-                Metric.BRANCH,
-                Metric.COMPLEXITY,
-                Metric.MUTATION
-        );
-    }
-
     @Test
     void shouldGetCorrespondingValueByName() {
-        Metric.getAvailableMetrics().forEach(coverageMetric ->
-                assertThat(Metric.valueOf(coverageMetric.getName())).isEqualTo(coverageMetric));
+        Metric.getAvailableMetrics().forEach(Metric ->
+                assertThat(Metric.valueOf(Metric.getName())).isEqualTo(Metric));
 
         assertThat(Metric.valueOf("CUSTOM")).hasName("CUSTOM").isNotLeaf();
     }
@@ -102,13 +90,64 @@ class MetricTest {
         assertThat(Metric.BRANCH).isLeaf();
     }
 
+    private void verifyOrder(final List<Metric> all) {
+        assertThat(all).containsExactly(
+                Metric.MODULE,
+                Metric.PACKAGE,
+                Metric.FILE,
+                Metric.CLASS,
+                Metric.METHOD,
+                Metric.LINE,
+                Metric.INSTRUCTION,
+                Metric.BRANCH,
+                Metric.COMPLEXITY,
+                Metric.MUTATION
+        );
+    }
+
+    /**
+     * Tests for creating predefined metrics with their names.
+     */
+    @Test
+    void shouldCreatePredefinedMetrics() {
+        // When & Then
+        assertThat(Metric.valueOf("MODULE")).isEqualTo(Metric.MODULE).isNotLeaf();
+        assertThat(Metric.valueOf("REPORT")).isEqualTo(Metric.MODULE).isNotLeaf();
+        assertThat(Metric.valueOf("PACKAGE")).isEqualTo(Metric.PACKAGE).isNotLeaf();
+        assertThat(Metric.valueOf("FILE")).isEqualTo(Metric.FILE).isNotLeaf();
+        assertThat(Metric.valueOf("CLASS")).isEqualTo(Metric.CLASS).isNotLeaf();
+        assertThat(Metric.valueOf("METHOD")).isEqualTo(Metric.METHOD).isNotLeaf();
+        assertThat(Metric.valueOf("INSTRUCTION")).isEqualTo(Metric.INSTRUCTION).isLeaf();
+        assertThat(Metric.valueOf("LINE")).isEqualTo(Metric.LINE).isLeaf();
+        assertThat(Metric.valueOf("BRANCH")).isEqualTo(Metric.BRANCH).isLeaf();
+        assertThat(Metric.valueOf("CONDITIONAL")).isEqualTo(Metric.BRANCH).isLeaf();
+        assertThat(Metric.valueOf("COMPLEXITY")).isEqualTo(Metric.COMPLEXITY).isLeaf();
+    }
+
+    /**
+     * Test for creating a new metric with name.
+     */
+    @Test
+    void shouldCreateNewMetric() {
+        // Given
+        String newMetricName = "Subpackage";
+
+        // When
+        Metric actualMetric = Metric.valueOf(newMetricName);
+
+        // Then
+        assertThat(actualMetric)
+                .hasName(newMetricName)
+                .hasToString(newMetricName)
+                .isNotLeaf();
+    }
+
     /**
      * Tests equals() method.
      */
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(Metric.class)
-                .withIgnoredFields("order", "leaf")
-                .withNonnullFields("name").verify();
+                .withNonnullFields("name").withIgnoredFields("order", "leaf").verify();
     }
 }

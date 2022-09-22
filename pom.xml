@@ -81,7 +81,7 @@
           <packages>
             <package>edu.hm.hafner</package>
           </packages>
-          <entryPointClassPackage>edu.hm.hafner.coverage.assertions</entryPointClassPackage>
+          <entryPointClassPackage>edu.hm.hafner.assertions</entryPointClassPackage>
         </configuration>
       </plugin>
       <plugin>
