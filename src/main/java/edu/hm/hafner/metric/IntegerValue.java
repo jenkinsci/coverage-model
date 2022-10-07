@@ -1,7 +1,7 @@
 package edu.hm.hafner.metric;
 
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Represents the value of an integer based metric.
@@ -14,14 +14,14 @@ public abstract class IntegerValue extends Value {
     private final int integer;
 
     /**
-     * Creates a new complexity leaf with the specified value.
+     * Creates a new leaf with the specified value.
      *
      * @param metric
      *         the metric for this value
      * @param integer
      *         the value to store
      */
-    public IntegerValue(final Metric metric, final int integer) {
+    IntegerValue(final Metric metric, final int integer) {
         super(metric);
 
         this.integer = integer;
@@ -56,7 +56,7 @@ public abstract class IntegerValue extends Value {
     }
 
     private IntegerValue castAndMap(final Value other,
-            final Function<IntegerValue, IntegerValue> mapper) {
+            final UnaryOperator<IntegerValue> mapper) {
         if (other.getClass().equals(getClass())) {
             return mapper.apply((IntegerValue) other);
         }

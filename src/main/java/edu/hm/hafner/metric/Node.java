@@ -3,7 +3,7 @@ package edu.hm.hafner.metric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -28,7 +28,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-// TODO: Make sure that we cannot create Nodes with Leaf Metrics and vice versa
 // TODO: Make sure that we do not have children with the same name in the same node
 @SuppressWarnings("PMD.GodClass")
 public abstract class Node implements Serializable {
@@ -38,9 +37,9 @@ public abstract class Node implements Serializable {
 
     private final Metric metric;
     private final String name;
-    private final List<String> sources = new ArrayList<>(); // FIXME: part of Module or Container only?
     private final List<Node> children = new ArrayList<>();
-    private final Map<Metric, Value> values = new HashMap<>();
+    private final Map<Metric, Value> values = new EnumMap<>(Metric.class);
+
     @CheckForNull
     private Node parent;
 
@@ -53,6 +52,8 @@ public abstract class Node implements Serializable {
      *         the human-readable name of the node
      */
     protected Node(final Metric metric, final String name) {
+        Ensure.that(Metric.isNodeMetric(metric))
+                .isTrue("Cannot create a node with a value metric");
         this.metric = metric;
         this.name = name;
     }
@@ -132,10 +133,6 @@ public abstract class Node implements Serializable {
         return name;
     }
 
-    public List<String> getSources() {
-        return sources;
-    }
-
     /**
      * Returns whether this node has children or not.
      *
@@ -171,7 +168,13 @@ public abstract class Node implements Serializable {
         child.parent = null;
     }
 
-    protected void addAllChildren(final List<Node> nodes) {
+    /**
+     * Adds alls given nodes as children to the current node.
+     *
+     * @param nodes
+     *         nodes to add
+     */
+    public void addAllChildren(final List<Node> nodes) {
         nodes.forEach(this::addChild);
     }
 
@@ -193,18 +196,18 @@ public abstract class Node implements Serializable {
         values.put(value.getMetric(), value);
     }
 
-    protected void addAllValues(final List<Value> additionalValues) {
-        additionalValues.forEach(this::addValue);
+    /**
+     * Replaces the specified value to the list of values to guarantee immutability.
+     *
+     * @param value
+     *         the value to replace
+     */
+    public void replaceMutationValue(final Value value) {
+        values.put(value.getMetric(), value);
     }
 
-    /**
-     * Appends the specified source to the list of sources.
-     *
-     * @param source
-     *         the source to add
-     */
-    public void addSource(final String source) {
-        sources.add(source);
+    protected void addAllValues(final List<Value> additionalValues) {
+        additionalValues.forEach(this::addValue);
     }
 
     /**
@@ -269,8 +272,6 @@ public abstract class Node implements Serializable {
      *         the metric to look for
      *
      * @return all nodes for the given metric
-     * @throws AssertionError
-     *         if the coverage metric is a LEAF metric
      */
     public List<Node> getAll(final Metric searchMetric) {
         List<Node> childNodes = children.stream()
@@ -458,13 +459,12 @@ public abstract class Node implements Serializable {
         }
         Node node = (Node) o;
         return Objects.equals(metric, node.metric) && Objects.equals(name, node.name)
-                && Objects.equals(sources, node.sources) && Objects.equals(children, node.children)
-                && Objects.equals(values, node.values);
+                && Objects.equals(children, node.children) && Objects.equals(values, node.values);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metric, name, sources, children, values);
+        return Objects.hash(metric, name, children, values);
     }
 
     @Override

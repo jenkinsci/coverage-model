@@ -1,11 +1,10 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
+import java.io.Reader;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
@@ -16,12 +15,18 @@ import org.apache.commons.lang3.StringUtils;
 import edu.hm.hafner.metric.ClassNode;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
+import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
+import edu.hm.hafner.metric.Mutation;
 import edu.hm.hafner.metric.MutationStatus;
 import edu.hm.hafner.metric.MutationValue;
 import edu.hm.hafner.metric.Mutator;
 import edu.hm.hafner.metric.Node;
 import edu.hm.hafner.metric.PackageNode;
+import edu.hm.hafner.metric.Value;
+import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * A parser which parses reports made by Pitest into a Java Object Model.
@@ -35,79 +40,60 @@ public class PitestParser extends XmlParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
+    private static final String MUTATION_ERROR_MESSAGE = "No mutation value available";
+
     /** Global variables. */
+    @CheckForNull
     private ClassNode classNode = null;
-    private MutationValue mutationLeaf = null;
+    @CheckForNull
+    private Mutation mutation = null;
+    @CheckForNull
     private String currentData = null;
+    @CheckForNull
     private String currentFileName = null;
-
-    /**
-     * Creates a new PitestParser which parses the given file.
-     *
-     * @param path
-     *         path to report file
-     */
-    public PitestParser(final String path) {
-        parseFile(path);
-    }
-
+    @CheckForNull
+    private String currentMethodName = null;
 
     /**
      * Parses the xml report at given path. Adds an "isCharacters" choice because the main information of this report is
      * located between the xml tags.
      *
-     * @param path
-     *         path to report file
+     * @param reader
+     *         the reader to wrap
      */
     @Override
-    void parseFile(final String path) {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
+    public ModuleNode parse(final Reader reader) {
+        SecureXmlParserFactory factory = new SecureXmlParserFactory();
 
         XMLEventReader r;
         try {
-            r = factory.createXMLEventReader(path, new FileInputStream(path));
+            r = factory.createXmlEventReader(reader);
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
 
-                if (e.isStartDocument()) {
-                    startDocument(e);
-                }
-
-                else if (e.isStartElement()) {
+                if (e.isStartElement()) {
                     startElement(e.asStartElement());
                 }
 
-                else if (e.isCharacters()) {
+                if (e.isCharacters()) {
                     currentData = e.asCharacters().getData();
                 }
 
-                else if (e.isEndElement()) {
+                if (e.isEndElement()) {
                     endElement(e.asEndElement());
                 }
             }
         }
-        catch (XMLStreamException | FileNotFoundException ex) {
-            ex.printStackTrace();
+        catch (XMLStreamException ex) {
+            throw new ParsingException(ex);
         }
+
+        return getRootNode();
     }
 
     /**
-     * Gets the document name and creates the root node.
-     *
-     * @param event
-     *         the xml event
-     */
-    @Override
-    protected void startDocument(final XMLEvent event) {
-        String systemId = event.getLocation().getSystemId();
-        String[] parts = systemId.split("/", 0);
-        String filename = parts[parts.length - 1];
-
-        setRootNode(new ModuleNode(filename));
-    }
-
-    /**
-     * Gets the detected and status information and saves them in a new mutationLeaf.
+     * Creates a new {@link ModuleNode} or gets the detected and status information and saves them in a new
+     * mutationLeaf.
      *
      * @param element
      *         the current report element
@@ -116,11 +102,14 @@ public class PitestParser extends XmlParser {
     protected void startElement(final StartElement element) {
         String name = element.getName().toString();
 
-        if ("mutation".equals(name)) {
-            boolean isDetected = Boolean.parseBoolean(element.getAttributeByName(DETECTED).getValue());
-            MutationStatus status = MutationStatus.valueOf(element.getAttributeByName(STATUS).getValue());
+        if ("mutations".equals(name)) {
+            setRootNode(new ModuleNode(""));
+        }
+        else if ("mutation".equals(name)) {
+            boolean isDetected = Boolean.parseBoolean(getValueOf(element, DETECTED));
+            MutationStatus status = MutationStatus.valueOf(getValueOf(element, STATUS));
 
-            mutationLeaf = new MutationValue(isDetected, status);
+            mutation = new Mutation(isDetected, status);
         }
     }
 
@@ -135,13 +124,6 @@ public class PitestParser extends XmlParser {
         String name = element.getName().toString();
 
         switch (name) {
-            case "mutation": // end of current mutation, reset all global variables
-                classNode = null;
-                mutationLeaf = null;
-                currentFileName = null;
-                currentData = null;
-                break;
-
             case "sourceFile": // save filename for later; need to determine package first
                 currentFileName = currentData;
                 break;
@@ -151,21 +133,46 @@ public class PitestParser extends XmlParser {
                 break;
 
             case "mutatedMethod":
+                currentMethodName = currentData;
+                break;
+
+            case "methodDescription":
                 handleMethod();
                 break;
 
             case "lineNumber":
-                int lineNumber = Integer.parseInt(currentData);
-                mutationLeaf.setLineNumber(lineNumber);
+                if (mutation == null) {
+                    throw new NoSuchElementException(MUTATION_ERROR_MESSAGE);
+                }
+                if (currentData == null) {
+                    throw new NoSuchElementException("CurrentData is not set");
+                }
+
+                mutation.setLineNumber(Integer.parseInt(currentData));
                 break;
 
             case "mutator":
-                Mutator mutator = Mutator.fromPath(currentData);
-                mutationLeaf.setMutator(mutator);
+                if (mutation == null) {
+                    throw new NoSuchElementException(MUTATION_ERROR_MESSAGE);
+                }
+
+                mutation.setMutator(Mutator.fromPath(currentData));
                 break;
 
             case "killingTest":
-                mutationLeaf.setKillingTest(currentData);
+                if (mutation == null) {
+                    throw new NoSuchElementException(MUTATION_ERROR_MESSAGE);
+                }
+
+                mutation.setKillingTest(currentData);
+                break;
+
+            case "mutation": // end of current mutation, reset all global variables
+                classNode = null;
+                mutation = null;
+                currentFileName = null;
+                currentMethodName = null;
+                currentData = null;
                 break;
 
             default:
@@ -178,48 +185,38 @@ public class PitestParser extends XmlParser {
      */
     private void handleClass() {
         String packagePath = StringUtils.substringBeforeLast(currentData, ".");
+        String normalizedPackagePath = PackageNode.normalizePackageName(packagePath);
         String className = StringUtils.substringAfterLast(currentData, ".");
 
         // Package
-        List<Node> packageNodes = getRootNode().getChildren();
-        PackageNode currentPackageNode = null;
-
-        for (Node packageNode : packageNodes) {
-            if (packageNode.getName().equals(packagePath)) {
-                currentPackageNode = (PackageNode) packageNode;
-            }
+        PackageNode currentPackageNode;
+        Optional<Node> optionalPackage = getRootNode().find(Metric.PACKAGE, normalizedPackagePath);
+        if (optionalPackage.isPresent()) {
+            currentPackageNode = (PackageNode) optionalPackage.get();
         }
-
-        if (currentPackageNode == null) {
-            currentPackageNode = new PackageNode(packagePath);
+        else {
+            currentPackageNode = new PackageNode(normalizedPackagePath);
             getRootNode().addChild(currentPackageNode);
         }
 
         // File
-        List<Node> fileNodes = currentPackageNode.getChildren();
-        FileNode currentFileNode = null;
-
-        for (Node fileNode : fileNodes) {
-            if (fileNode.getName().equals(currentFileName)) {
-                currentFileNode = (FileNode) fileNode;
-            }
+        FileNode currentFileNode;
+        Optional<Node> optionalFile = currentPackageNode.find(Metric.FILE, currentFileName);
+        if (optionalFile.isPresent()) {
+            currentFileNode = (FileNode) optionalFile.get();
         }
-
-        if (currentFileNode == null) {
+        else {
             currentFileNode = new FileNode(currentFileName);
             currentPackageNode.addChild(currentFileNode);
         }
 
-        // Method
-        List<Node> classNodes = currentFileNode.getChildren();
-        ClassNode currentClassNode = null;
-        for (Node tmpClassNode : classNodes) {
-            if (tmpClassNode.getName().equals(className)) {
-                currentClassNode = (ClassNode) tmpClassNode;
-            }
+        // Class
+        ClassNode currentClassNode;
+        Optional<Node> optionalClass = currentFileNode.find(Metric.CLASS, className);
+        if (optionalClass.isPresent()) {
+            currentClassNode = (ClassNode) optionalClass.get();
         }
-
-        if (currentClassNode == null) {
+        else {
             currentClassNode = new ClassNode(className);
             currentFileNode.addChild(currentClassNode);
         }
@@ -231,19 +228,26 @@ public class PitestParser extends XmlParser {
      * Creates a new method node if it does not exist yet.
      */
     private void handleMethod() {
-        List<Node> methodNodes = classNode.getChildren();
-        MethodNode currentMethodNode = null;
-        for (Node method : methodNodes) {
-            if (method.getName().equals(currentData)) {
-                currentMethodNode = (MethodNode) method;
-            }
+        if (classNode == null) {
+            throw new NoSuchElementException("Class node not set");
         }
 
-        if (currentMethodNode == null) {
-            currentMethodNode = new MethodNode(currentData, 0);
+        MethodNode currentMethodNode;
+        MutationValue newValue = new MutationValue(mutation);
+        Optional<MethodNode> potentialMethodNode = classNode.findMethodNode(currentMethodName, currentData);
+
+        // already exists a node and has the same signature?
+        if (potentialMethodNode.isPresent()) {
+            currentMethodNode = potentialMethodNode.get();
+            Optional<Value> potentialValue = currentMethodNode.getValue(Metric.MUTATION);
+            // value must be present as creating a new method node is accompanied by creating a mutation value
+            potentialValue.ifPresent(value -> currentMethodNode.replaceMutationValue(value.add(newValue)));
+
+        }
+        else {
+            currentMethodNode = new MethodNode(currentMethodName, currentData, 0);
+            currentMethodNode.addValue(newValue);
             classNode.addChild(currentMethodNode);
         }
-
-        currentMethodNode.addValue(mutationLeaf);
     }
 }

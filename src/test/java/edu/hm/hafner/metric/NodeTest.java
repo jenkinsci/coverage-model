@@ -363,7 +363,7 @@ class NodeTest {
         Node pkg = new PackageNode("coverage");
         Node file = new FileNode("Node.java");
         Node covNodeClass = new ClassNode("Node.class");
-        Node combineWithMethod = new MethodNode("combineWith", 10);
+        Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
 
         module.addChild(pkg);
         pkg.addChild(file);
@@ -379,7 +379,7 @@ class NodeTest {
         Node pkg = new PackageNode("edu.hm.hafner.package");
         Node file = new FileNode("Node.java");
         Node covNodeClass = new ClassNode("Node.class");
-        Node combineWithMethod = new MethodNode("combineWith", 10);
+        Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
 
         module.addChild(pkg);
         pkg.addChild(file);
@@ -388,7 +388,7 @@ class NodeTest {
         combineWithMethod.addValue(new Coverage(LINE, 1, 0));
 
         Node otherNode = module.copyTree();
-        Node addMethod = new MethodNode("add", 1);
+        Node addMethod = new MethodNode("add", "(Ljava/util/Map;)V", 1);
         otherNode.getAll(CLASS).get(0).addChild(addMethod); // the same class node in the copied tree
         addMethod.addValue(new Coverage(LINE, 0, 1));
 
@@ -458,7 +458,7 @@ class NodeTest {
         PackageNode autograding = new PackageNode("autograding");
         FileNode file = new FileNode("Main.java");
         Node mainClass = new ClassNode("Main.class");
-        MethodNode mainMethod = new MethodNode("main", 10);
+        MethodNode mainMethod = new MethodNode("main", "(Ljava/util/Map;)V", 10);
 
         otherReport.addChild(autograding);
         autograding.addChild(file);

@@ -1,7 +1,9 @@
 package edu.hm.hafner.metric;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,6 +18,8 @@ import org.apache.commons.lang3.StringUtils;
 public final class ModuleNode extends Node {
     private static final long serialVersionUID = 2393265115219226404L;
 
+    private final List<String> sources = new ArrayList<>();
+
     /**
      * Creates a new module node with the given name.
      *
@@ -29,6 +33,20 @@ public final class ModuleNode extends Node {
     @Override
     public ModuleNode copyEmpty() {
         return new ModuleNode(getName());
+    }
+
+    public List<String> getSources() {
+        return sources;
+    }
+
+    /**
+     * Appends the specified source to the list of sources.
+     *
+     * @param source
+     *         the source to add
+     */
+    public void addSource(final String source) {
+        sources.add(source);
     }
 
     /**
@@ -68,6 +86,26 @@ public final class ModuleNode extends Node {
                 mergeSinglePackage(localRoot);
             }
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        ModuleNode that = (ModuleNode) o;
+        return Objects.equals(sources, that.sources);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), sources);
     }
 
     private void mergeSinglePackage(final Node packageNode) {

@@ -1,12 +1,9 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.Reader;
+import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -25,6 +22,8 @@ import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
 import edu.hm.hafner.metric.PackageNode;
 import edu.hm.hafner.util.PathUtil;
+import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
  * A parser which parses reports made by Cobertura into a Java Object Model.
@@ -37,6 +36,7 @@ public class CoberturaParser extends XmlParser {
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
     private static final QName SOURCEFILENAME = new QName("filename");
+    private static final QName SIGNATURE = new QName("signature");
     private static final QName HITS = new QName("hits");
     private static final QName COMPLEXITY = new QName("complexity");
     private static final QName NUMBER = new QName("number");
@@ -55,63 +55,35 @@ public class CoberturaParser extends XmlParser {
     private int branchesMissed = 0;
     private boolean isSource;
 
-    /**
-     * Creates a new JacocoParser which parses the given Jacoco xml report into a java data model.
-     *
-     * @param path
-     *         path to report file
-     */
-    public CoberturaParser(final String path) {
-        parseFile(path);
-    }
-
     @Override
-    void parseFile(final String path) {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
+    public ModuleNode parse(final Reader reader) {
+        SecureXmlParserFactory factory = new SecureXmlParserFactory();
 
         XMLEventReader r;
         try {
-            r = factory.createXMLEventReader(path, new FileInputStream(path));
+            r = factory.createXmlEventReader(reader);
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
 
-                if (e.isStartDocument()) {
-                    startDocument(e);
-                }
-
-                else if (e.isStartElement()) {
+                if (e.isStartElement()) {
                     startElement(e.asStartElement());
                 }
 
-                else if (isSource && e.isCharacters()) {
+                if (isSource && e.isCharacters()) {
                     String source = new PathUtil().getRelativePath(e.asCharacters().getData());
                     getRootNode().addSource(source);
                 }
 
-                else if (e.isEndElement()) {
+                if (e.isEndElement()) {
                     endElement(e.asEndElement());
                 }
             }
         }
-        catch (XMLStreamException | FileNotFoundException ex) {
-            ex.printStackTrace();
+        catch (XMLStreamException ex) {
+            throw new ParsingException(ex);
         }
-    }
 
-    /**
-     * Gets the document name and creates the root node of the data tree.
-     *
-     * @param event
-     *         the xml element
-     */
-    @Override
-    protected void startDocument(final XMLEvent event) {
-        String systemId = event.getLocation().getSystemId();
-        String[] parts = systemId.split("/", 0);
-        String filename = parts[parts.length - 1];
-
-        setRootNode(new ModuleNode(filename));
-        currentNode = getRootNode();
+        return getRootNode();
     }
 
     /**
@@ -125,12 +97,18 @@ public class CoberturaParser extends XmlParser {
         String name = element.getName().toString();
 
         switch (name) {
+            case "coverage":
+                setRootNode(new ModuleNode(""));
+                currentNode = getRootNode();
+                break;
+
             case "source":
                 isSource = true;
                 break;
+
             case "package":
-                String packageName = element.getAttributeByName(NAME).getValue();
-                PackageNode packageNode = new PackageNode(packageName.replace("/", "."));
+                String packageName = PackageNode.normalizePackageName(getValueOf(element, NAME));
+                PackageNode packageNode = new PackageNode(packageName);
                 getRootNode().addChild(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
@@ -142,9 +120,9 @@ public class CoberturaParser extends XmlParser {
                 break;
 
             case "method": // currentNode = classNode, methodNode after
-                Node methodNode = new MethodNode(element.getAttributeByName(NAME).getValue());
+                Node methodNode = new MethodNode(getValueOf(element, NAME), getValueOf(element, SIGNATURE));
 
-                int complexity = Integer.parseInt(element.getAttributeByName(COMPLEXITY).getValue());
+                int complexity = Integer.parseInt(getValueOf(element, COMPLEXITY));
                 methodNode.addValue(new CyclomaticComplexity(complexity));
 
                 currentNode.addChild(methodNode);
@@ -154,6 +132,7 @@ public class CoberturaParser extends XmlParser {
             case "line": // currentNode = methodNode or classNode
                 handleLineElement(element);
                 break;
+
             default: break;
         }
     }
@@ -166,30 +145,20 @@ public class CoberturaParser extends XmlParser {
      *         the current report element
      */
     private void handleClassElement(final StartElement element) {
-        final String classPath = element.getAttributeByName(NAME).getValue();
+        final String classPath = getValueOf(element, NAME);
         ClassNode classNode = new ClassNode(new PathUtil().getRelativePath(classPath));
 
         // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
-        String sourcefilePath = element.getAttributeByName(SOURCEFILENAME).getValue();
+        String sourcefilePath = getValueOf(element, SOURCEFILENAME);
         String[] parts = sourcefilePath.split("/", 0);
         String sourcefileName = parts[parts.length - 1];
 
-        List<Node> fileNodes = currentPackageNode.getChildren();
-
-        // add class node to file node if found
-        AtomicBoolean found = new AtomicBoolean(false);
-        if (!fileNodes.isEmpty()) {
-            fileNodes.forEach(fileNode -> {
-                if (fileNode.getName().equals(sourcefileName)) {
-                    fileNode.addChild(classNode);
-                    found.set(true);
-                    currentFileNode = (FileNode) fileNode;
-                }
-            });
+        Optional<Node> potentialNode = currentPackageNode.find(Metric.FILE, sourcefileName);
+        if (potentialNode.isPresent()) {
+            currentFileNode = (FileNode) potentialNode.get();
+            currentFileNode.addChild(classNode);
         }
-
-        // create new file node if not found/not existing
-        if (!found.get()) {
+        else {
             FileNode fileNode = new FileNode(sourcefileName);
             fileNode.addChild(classNode);
             currentPackageNode.addChild(fileNode);
@@ -207,8 +176,8 @@ public class CoberturaParser extends XmlParser {
      */
     private void handleLineElement(final StartElement element) {
 
-        int lineNumber = Integer.parseInt(element.getAttributeByName(NUMBER).getValue());
-        int lineHits = Integer.parseInt(element.getAttributeByName(HITS).getValue());
+        int lineNumber = Integer.parseInt(getValueOf(element, NUMBER));
+        int lineHits = Integer.parseInt(getValueOf(element, HITS));
 
         boolean isBranch = false;
         Attribute branchAttribute = element.getAttributeByName(BRANCH);
@@ -238,7 +207,7 @@ public class CoberturaParser extends XmlParser {
                 coverage = new Coverage(Metric.LINE, 0, 1);
             }
 
-            currentFileNode.getLineNumberToInstructionCoverage().put(lineNumber, coverage);
+            currentFileNode.addLineCoverage(lineNumber, coverage);
         }
         else {
             String[] coveredAllInformation = parseConditionCoverage(element);
@@ -318,7 +287,7 @@ public class CoberturaParser extends XmlParser {
     }
 
     private String[] parseConditionCoverage(final StartElement element) {
-        String conditionCoverageAttribute = element.getAttributeByName(CONDITION_COVERAGE).getValue();
+        String conditionCoverageAttribute = getValueOf(element, CONDITION_COVERAGE);
         String[] conditionCoverage = conditionCoverageAttribute.split(" ", 0);
         return conditionCoverage[1].split("/", 0);
     }

@@ -11,10 +11,9 @@ import java.util.Objects;
  */
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
-
-    // FIXME: are these fields required? Or should those values be stored as leaves?
     private final Map<Integer, Value> lineNumberToBranchCoverage = new HashMap<>();
     private final Map<Integer, Value> lineNumberToInstructionCoverage = new HashMap<>();
+    private final Map<Integer, Value> lineNumberToLineCoverage = new HashMap<>();
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -39,6 +38,10 @@ public final class FileNode extends Node {
         return lineNumberToInstructionCoverage;
     }
 
+    public Map<Integer, Value> getLineNumberToLineCoverage() {
+        return lineNumberToLineCoverage;
+    }
+
     /**
      * Returns the amount of missed instructions.
      *
@@ -57,6 +60,28 @@ public final class FileNode extends Node {
      */
     public long getCoveredInstructionsCount() {
         return lineNumberToInstructionCoverage.values().stream()
+                .mapToInt(leaf -> getCoverage(leaf).getCovered())
+                .sum();
+    }
+
+    /**
+     * Returns the amount of missed lines.
+     *
+     * @return number of missed lines
+     */
+    public long getMissedLinesCount() {
+        return lineNumberToLineCoverage.values().stream()
+                .mapToInt(leaf -> getCoverage(leaf).getMissed())
+                .sum();
+    }
+
+    /**
+     * Returns the amount of covered lines.
+     *
+     * @return number of covered lines
+     */
+    public long getCoveredLinesCount() {
+        return lineNumberToLineCoverage.values().stream()
                 .mapToInt(leaf -> getCoverage(leaf).getCovered())
                 .sum();
     }
@@ -83,6 +108,33 @@ public final class FileNode extends Node {
                 .sum();
     }
 
+    /**
+     * Adds a new leaf to the instruction coverage map.
+     * @param lineNumber the line number
+     * @param instructionLeaf the leaf to add
+     */
+    public void addInstructionCoverage(final int lineNumber, final Coverage instructionLeaf) {
+        lineNumberToInstructionCoverage.put(lineNumber, instructionLeaf);
+    }
+
+    /**
+     * Adds a new leaf to the line coverage map.
+     * @param lineNumber the line number
+     * @param branchLeaf the leaf to add
+     */
+    public void addLineCoverage(final int lineNumber, final Coverage branchLeaf) {
+        lineNumberToLineCoverage.put(lineNumber, branchLeaf);
+    }
+
+    /**
+     * Adds a new leaf to the branch coverage map.
+     * @param lineNumber the line number
+     * @param branchLeaf the leaf to add
+     */
+    public void addBranchCoverage(final int lineNumber, final Coverage branchLeaf) {
+        lineNumberToBranchCoverage.put(lineNumber, branchLeaf);
+    }
+
     private static Coverage getCoverage(final Value value) {
         return (Coverage) value;
     }
@@ -104,13 +156,14 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-
         return lineNumberToBranchCoverage.equals(fileNode.lineNumberToBranchCoverage)
-                && lineNumberToInstructionCoverage.equals(fileNode.lineNumberToInstructionCoverage);
+                && lineNumberToInstructionCoverage.equals(fileNode.lineNumberToInstructionCoverage)
+                && lineNumberToLineCoverage.equals(fileNode.lineNumberToLineCoverage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), lineNumberToBranchCoverage, lineNumberToInstructionCoverage);
+        return Objects.hash(super.hashCode(), lineNumberToBranchCoverage, lineNumberToInstructionCoverage,
+                lineNumberToLineCoverage);
     }
 }

@@ -2,8 +2,6 @@ package edu.hm.hafner.metric;
 
 import java.util.Objects;
 
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-
 /**
  * A {@link Node} for a specific method.
  *
@@ -12,6 +10,10 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 public final class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
+    /**
+     * The signature of the method.
+     */
+    private final String signature;
     /**
      * The line number where the code of method begins (not including the method head).
      */
@@ -22,9 +24,11 @@ public final class MethodNode extends Node {
      *
      * @param name
      *         The human-readable name of the node
+     * @param signature
+     *         The signature of the method
      */
-    public MethodNode(final String name) {
-        this(name, 0);
+    public MethodNode(final String name, final String signature) {
+        this(name, signature, 0);
     }
 
     /**
@@ -32,18 +36,21 @@ public final class MethodNode extends Node {
      *
      * @param name
      *         The human-readable name of the node
+     * @param signature
+     *         The signature of the method
      * @param lineNumber
      *         The line number where the method begins (not including the method head)
      */
-    public MethodNode(final String name, final int lineNumber) {
+    public MethodNode(final String name, final String signature, final int lineNumber) {
         super(Metric.METHOD, name);
 
+        this.signature = signature;
         this.lineNumber = lineNumber;
     }
 
     @Override
     public Node copyEmpty() {
-        return new MethodNode(getName(), getLineNumber());
+        return new MethodNode(getName(), getSignature(), getLineNumber());
     }
 
     /**
@@ -59,8 +66,12 @@ public final class MethodNode extends Node {
         return lineNumber;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
     @Override
-    public boolean equals(@CheckForNull final Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -71,16 +82,19 @@ public final class MethodNode extends Node {
             return false;
         }
         MethodNode that = (MethodNode) o;
-        return lineNumber == that.lineNumber;
+        return lineNumber == that.lineNumber && signature.equals(that.signature);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), lineNumber);
+        return Objects.hash(super.hashCode(), signature, lineNumber);
     }
 
     @Override
     public String toString() {
-        return super.toString() + String.format(" (%d)", lineNumber);
+        return "MethodNode: "
+                + "name='" + getName() + '\''
+                + ", lineNumber=" + lineNumber
+                + ", signature=" + signature;
     }
 }

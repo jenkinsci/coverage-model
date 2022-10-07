@@ -11,7 +11,7 @@ public final class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
 
     /**
-     * Creates a new coverage item node with the given name.
+     * Creates a new coverage item node with the given name. / and \ in the name are replaced with a .
      *
      * @param name
      *         the human-readable name of the node
@@ -33,5 +33,30 @@ public final class PackageNode extends Node {
     @Override
     public Node copyEmpty() {
         return new PackageNode(getName());
+    }
+
+    /**
+     * Replace all / and \ with a .
+     *
+     * @param name
+     *         the package name to normalize
+     *
+     * @return the normalized name
+     */
+    public static String normalizePackageName(final String name) {
+        if (name != null && !name.isBlank()) {
+            if (name.contains("/")) {
+                return StringUtils.replace(name, "/", ".");
+            }
+            else if (name.contains("\\")) {
+                return StringUtils.replace(name, "\\", ".");
+            }
+            else {
+                return name;
+            }
+        }
+        else {
+            return "-";
+        }
     }
 }

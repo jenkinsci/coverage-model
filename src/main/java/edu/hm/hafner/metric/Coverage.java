@@ -2,7 +2,7 @@ package edu.hm.hafner.metric;
 
 import java.util.Locale;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.math.Fraction;
 
@@ -111,7 +111,7 @@ public final class Coverage extends Value {
         return otherCoverage;
     }
 
-    private Coverage castAndMap(final Value other, final Function<Coverage, Coverage> mapper) {
+    private Coverage castAndMap(final Value other, final UnaryOperator<Coverage> mapper) {
         if (hasSameMetric(other) && other instanceof Coverage) {
             return mapper.apply((Coverage) other);
         }
@@ -121,10 +121,6 @@ public final class Coverage extends Value {
 
     public int getTotal() {
         return missed + covered;
-    }
-
-    private boolean isSet() {
-        return getTotal() > 0;
     }
 
     @Override

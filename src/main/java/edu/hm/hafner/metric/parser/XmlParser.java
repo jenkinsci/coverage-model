@@ -1,16 +1,17 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.Reader;
 import java.io.Serializable;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import edu.hm.hafner.metric.ModuleNode;
+import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
  * Base class for xml parser.
@@ -33,21 +34,19 @@ public abstract class XmlParser implements Serializable {
     /**
      * Parses xml report at given path.
      *
-     * @param path
-     *         path to report file
+     * @param reader
+     *         the reader to wrap
+     *
+     * @return the created data model
      */
-    void parseFile(final String path) {
-        XMLInputFactory factory = XMLInputFactory.newInstance();
+    public ModuleNode parse(final Reader reader) {
+        SecureXmlParserFactory factory = new SecureXmlParserFactory();
 
         XMLEventReader r;
         try {
-            r = factory.createXMLEventReader(path, new FileInputStream(path));
+            r = factory.createXmlEventReader(reader);
             while (r.hasNext()) {
                 XMLEvent e = r.nextEvent();
-
-                if (e.isStartDocument()) {
-                    startDocument(e);
-                }
 
                 if (e.isStartElement()) {
                     startElement(e.asStartElement());
@@ -58,18 +57,12 @@ public abstract class XmlParser implements Serializable {
                 }
             }
         }
-        catch (XMLStreamException | FileNotFoundException ex) {
-            ex.printStackTrace();
+        catch (XMLStreamException ex) {
+            throw new ParsingException(ex);
         }
-    }
 
-    /**
-     * Method to handle the 'startDocument' element. It's possible to get the file name at this point.
-     *
-     * @param event
-     *         the xml event
-     */
-    protected abstract void startDocument(XMLEvent event);
+        return rootNode;
+    }
 
     /**
      * Method to handle the 'startElement' event.
@@ -86,4 +79,8 @@ public abstract class XmlParser implements Serializable {
      *         the current report element
      */
     protected abstract void endElement(EndElement element);
+
+    protected String getValueOf(final StartElement element, final QName attribute) {
+        return element.getAttributeByName(attribute).getValue();
+    }
 }

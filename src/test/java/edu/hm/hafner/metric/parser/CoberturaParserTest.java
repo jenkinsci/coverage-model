@@ -1,5 +1,8 @@
 package edu.hm.hafner.metric.parser;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import org.apache.commons.lang3.math.Fraction;
@@ -9,6 +12,7 @@ import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.Metric;
+import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
 
 import static edu.hm.hafner.metric.Metric.CLASS;
@@ -19,10 +23,16 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
 class CoberturaParserTest {
     @Test
     void shouldReadCoberturaIssue473() {
-        CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura-npe.xml");
-        Node tree = parser.getRootNode();
+        Node tree;
+        try (FileInputStream stream = new FileInputStream("src/test/resources/cobertura-npe.xml");
+                InputStreamReader reader = new InputStreamReader(stream)) {
+            tree = new CoberturaParser().parse(reader);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("cobertura-npe.xml");
+        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
         assertThat(tree.getAll(FILE)).hasSize(2).extracting(Node::getName).containsOnly("Program.cs", "Startup.cs");
         assertThat(tree.getAll(CLASS)).hasSize(2).extracting(Node::getName).containsOnly("Lisec.CoverageTest.Program", "Lisec.CoverageTest.Startup");
@@ -74,24 +84,18 @@ class CoberturaParserTest {
 
         long missedLines = 0;
         long coveredLines = 0;
-        long missedBranches = 0;
-        long coveredBranches = 0;
         for (Node node : nodes) {
-            missedLines = missedLines + ((FileNode) node).getMissedInstructionsCount();
-            coveredLines = coveredLines + ((FileNode) node).getCoveredInstructionsCount();
-            missedBranches = missedBranches + ((FileNode) node).getMissedBranchesCount();
-            coveredBranches = coveredBranches + ((FileNode) node).getCoveredBranchesCount();
+            missedLines = missedLines + ((FileNode) node).getMissedLinesCount();
+            coveredLines = coveredLines + ((FileNode) node).getCoveredLinesCount();
         }
 
         assertThat(missedLines).isEqualTo(19);
         assertThat(coveredLines).isEqualTo(61);
-        assertThat(missedBranches).isEqualTo(1);
-        assertThat(coveredBranches).isEqualTo(1);
     }
 
     @Test
     void shouldHaveOneSource() {
-        Node tree = readExampleReport();
+        ModuleNode tree = readExampleReport();
 
         assertThat(tree.getSources().size()).isOne();
         assertThat(tree.getSources().get(0)).isEqualTo("/app/app/code/Invocare/InventoryBranch");
@@ -123,14 +127,19 @@ class CoberturaParserTest {
                 .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(1);
 
-        assertThat(tree).hasName("cobertura.xml")
+        assertThat(tree).hasName("")
                 .doesNotHaveParent()
                 .isRoot()
                 .hasMetric(MODULE).hasParentName("^");
     }
 
-    private Node readExampleReport() {
-        CoberturaParser parser = new CoberturaParser("src/test/resources/cobertura.xml");
-        return parser.getRootNode();
+    private ModuleNode readExampleReport() {
+        try (FileInputStream stream = new FileInputStream("src/test/resources/cobertura.xml");
+                InputStreamReader reader = new InputStreamReader(stream)) {
+            return new CoberturaParser().parse(reader);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,23 +1,21 @@
 package edu.hm.hafner.metric.parser;
 
-import java.util.List;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.MutationValue;
-import edu.hm.hafner.metric.Node;
-import edu.hm.hafner.metric.Value;
 
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-@Disabled("FIXME: one leaf with the same name only?")
 class PitestParserTest {
     @BeforeAll
     static void beforeAll() {
@@ -26,37 +24,37 @@ class PitestParserTest {
 
     @Test
     void shouldConvertMutationsToTree() {
-        Node tree = readExampleReport();
+        ModuleNode tree = readExampleReport();
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
-        assertThat(tree.getAll(PACKAGE)).hasSize(4);
+        // edu.hm.hafner.coverage, edu.hm.hafner.metric.parser, edu.hm.hafner.metric
+        assertThat(tree.getAll(PACKAGE)).hasSize(3);
         assertThat(tree.getAll(FILE)).hasSize(10);
+        // CoverageNode, FileCoverageNode, CoverageLeaf, MethodCoverageNode, PackageCoverageNode
+        // CoberturaParser, JacocoParser, XmlParser
+        // Metric, Coverage
         assertThat(tree.getAll(CLASS)).hasSize(10);
-        assertThat(tree.getAll(METHOD)).hasSize(92);
+        assertThat(tree.getAll(METHOD)).hasSize(99);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, MUTATION)
-                .hasToString("[Module]" + " mutations.xml");
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, MUTATION);
 
-        assertThat(((MutationValue) tree.getValue(MUTATION).get()).getResult()).hasKilled(222).hasSurvived(24);
+        MutationValue mutationValue = (MutationValue) tree.getValue(MUTATION).get();
 
-        assertThat(getMutationLeaves(tree).stream()
-                .map(MutationValue.class::cast)
-                .filter(leaf -> leaf.getMutator().name().equals("NOT_SPECIFIED"))
+        // Total 246
+        assertThat(mutationValue).hasKilled(222).hasSurvived(24);
+
+        assertThat(mutationValue.getMutations().stream()
+                .filter(mutation -> mutation.getMutator().name().equals("NOT_SPECIFIED"))
                 .count()).isOne();
     }
 
-    private List<Value> getMutationLeaves(final Node tree) {
-
-        List<Value> children = tree.getChildren().stream()
-                .map(this::getMutationLeaves)
-                .flatMap(List::stream).collect(Collectors.toList());
-
-        children.addAll(tree.getValues());
-        return children;
-    }
-
-    private Node readExampleReport() {
-        PitestParser parser = new PitestParser("src/test/resources/mutations.xml");
-        return parser.getRootNode();
+    private ModuleNode readExampleReport() {
+        try (FileInputStream stream = new FileInputStream("src/test/resources/mutations.xml");
+                InputStreamReader reader = new InputStreamReader(stream)) {
+            return new PitestParser().parse(reader);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

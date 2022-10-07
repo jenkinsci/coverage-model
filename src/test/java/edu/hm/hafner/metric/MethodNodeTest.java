@@ -7,7 +7,7 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
 class MethodNodeTest extends AbstractNodeTest {
     @Override
     Node createNode(final String name) {
-        return new MethodNode(name, 1234);
+        return new MethodNode(name, "(Ljava/util/Map;)V", 1234);
     }
 
     @Override
@@ -17,9 +17,10 @@ class MethodNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldCreateMethodCoverageNode() {
-        assertThat(new MethodNode("shouldCreateMethodCoverageNode()", 16))
+        assertThat(new MethodNode("shouldCreateMethodCoverageNode()", "(Ljava/util/Map;)V", 16))
                 .hasMetric(Metric.METHOD)
                 .hasName("shouldCreateMethodCoverageNode()")
+                //TODO .hasSignature("(Ljava/util/Map;)V")
                 .hasLineNumber(16)
                 .hasValidLineNumber();
     }
@@ -31,9 +32,9 @@ class MethodNodeTest extends AbstractNodeTest {
     void shouldGetValidLineNumber() {
         // Given
         int validLineNumber = 5;
-        MethodNode node = new MethodNode("main", validLineNumber);
+        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V", validLineNumber);
         int secondValidLineNumber = 1;
-        MethodNode secondNode = new MethodNode("main", secondValidLineNumber);
+        MethodNode secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
 
         // When & Then
         assertThat(node)
@@ -50,8 +51,8 @@ class MethodNodeTest extends AbstractNodeTest {
     @Test
     void shouldCheckInvalidLineNumber() {
         // Given
-        MethodNode node = new MethodNode("main", -1);
-        MethodNode secondNode = new MethodNode("main", 0);
+        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V", -1);
+        MethodNode secondNode = new MethodNode("main", "(Ljava/util/Map;)V", 0);
 
         // When & Then
         assertThat(node).doesNotHaveValidLineNumber();
@@ -61,7 +62,7 @@ class MethodNodeTest extends AbstractNodeTest {
     @Test
     void shouldCheckLineNumberZero() {
         // Given
-        MethodNode node = new MethodNode("main");
+        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V");
 
         // When & Then
         assertThat(node).hasMetric(Metric.METHOD).hasLineNumber(0);

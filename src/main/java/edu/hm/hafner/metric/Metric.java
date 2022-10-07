@@ -1,6 +1,9 @@
 package edu.hm.hafner.metric;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -39,6 +42,21 @@ public enum Metric {
      */
     public Optional<Value> getValueFor(final Node node) {
         return evaluator.compute(node, this);
+    }
+
+    /**
+     * Returns if a given metric is a node metric.
+     *
+     * @param metric
+     *         the metric to check
+     *
+     * @return if the metric is a node metric
+     */
+    public static boolean isNodeMetric(final Metric metric) {
+        Set<Metric> nodeMetrics = new HashSet<>(Arrays.asList(
+                CONTAINER, MODULE, PACKAGE, FILE, CLASS, METHOD));
+
+        return nodeMetrics.contains(metric);
     }
 
     private abstract static class MetricEvaluator {
