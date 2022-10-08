@@ -21,8 +21,6 @@ public abstract class Value implements Serializable {
      *         the coverage metric
      */
     protected Value(final Metric metric) {
-        /*Ensure.that(Metric.isNodeMetric(metric))
-                .isFalse("Cannot create a value with a node metric");*/
         this.metric = metric;
     }
 
