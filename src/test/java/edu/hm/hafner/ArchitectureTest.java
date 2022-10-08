@@ -4,15 +4,13 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
-import edu.hm.hafner.util.ArchitectureRules;
-
 /**
  * Defines several architecture rules for the code coverage model.
  *
  * @author Ullrich Hafner
  */
 @SuppressWarnings("hideutilityclassconstructor")
-@AnalyzeClasses(packages = "edu.hm.hafner.coverage")
+@AnalyzeClasses(packages = "edu.hm.hafner.metric")
 class ArchitectureTest {
     @ArchTest
     static final ArchRule NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR = ArchitectureRules.NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR;
