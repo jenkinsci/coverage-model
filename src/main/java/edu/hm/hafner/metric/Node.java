@@ -6,18 +6,20 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -129,6 +131,37 @@ public abstract class Node implements Serializable {
                 new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
     }
 
+    /**
+     * Computes the coverage delta between this node and the specified reference node as fractions between 0 and 1.
+     *
+     * @param reference
+     *         the reference node
+     *
+     * @return the delta coverage for each available metric as fraction
+     */
+    public NavigableMap<Metric, Fraction> computeDelta(final Node reference) {
+        NavigableMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
+        NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
+        NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
+
+        for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
+            Metric key = entry.getKey();
+            if (referencePercentages.containsKey(key)) {
+                deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
+            }
+        }
+        return deltaPercentages;
+    }
+
+    /**
+     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
+     *
+     * @return {@code true} whether code changes have been detected
+     */
+    public boolean hasCodeChanges() {
+        return getChildren().stream().anyMatch(Node::hasCodeChanges);
+    }
+
     public String getName() {
         return name;
     }
@@ -146,8 +179,9 @@ public abstract class Node implements Serializable {
         return new ArrayList<>(children);
     }
 
-    protected void clearChildren() {
+    public void clear() {
         children.forEach(this::removeChild);
+        values.clear();
     }
 
     /**
@@ -196,6 +230,7 @@ public abstract class Node implements Serializable {
         values.put(value.getMetric(), value);
     }
 
+    // FIXME: why is this for mutation coverages only?
     /**
      * Replaces the specified value to the list of values to guarantee immutability.
      *
@@ -299,7 +334,7 @@ public abstract class Node implements Serializable {
         }
         return children.stream()
                 .map(child -> child.find(searchMetric, searchName))
-                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+                .flatMap(Optional::stream)
                 .findAny();
     }
 
@@ -319,7 +354,7 @@ public abstract class Node implements Serializable {
         }
         return children.stream()
                 .map(child -> child.findByHashCode(searchMetric, searchNameHashCode))
-                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+                .flatMap(Optional::stream)
                 .findAny();
     }
 
@@ -449,6 +484,22 @@ public abstract class Node implements Serializable {
         return searchMetric.getValueFor(this);
     }
 
+    /**
+     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
+     * of.
+     *
+     * @param searchMetric
+     *         the metric to get the value for
+     *
+     * @return coverage ratio
+     */
+    public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
+        var possiblyValue = searchMetric.getValueFor(this);
+
+        //noinspection unchecked
+        return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -470,5 +521,18 @@ public abstract class Node implements Serializable {
     @Override
     public String toString() {
         return String.format("[%s] %s <%d>", getMetric(), getName(), children.size());
+    }
+
+    /**
+     * Returns the file names that are contained within the subtree of this node.
+     *
+     * @return the file names
+     */
+    public Set<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(Set::stream).collect(Collectors.toSet());
+    }
+
+    public List<FileNode> getAllFileNodes() {
+        return getAll(Metric.FILE).stream().map(t -> (FileNode)t).collect(Collectors.toList());
     }
 }

@@ -17,11 +17,22 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldGetFilePath() {
-        FileNode folderCoverageNode = new FileNode("folder"); // just for testing
-        FileNode fileCoverageNode = new FileNode("Coverage.java");
+        ModuleNode module = new ModuleNode("top-level"); // just for testing
+        PackageNode folder = new PackageNode("folder"); // just for testing
+        FileNode file = new FileNode("Coverage.java");
 
-        folderCoverageNode.addChild(fileCoverageNode);
+        folder.addChild(file);
+        module.addChild(folder);
 
-        assertThat(fileCoverageNode.getPath()).isEqualTo("folder/Coverage.java");
+        var absolutePath = "folder/Coverage.java";
+
+        assertThat(file.getPath()).isEqualTo(absolutePath);
+        assertThat(file.getFiles()).containsExactly(absolutePath);
+        assertThat(folder.getFiles()).containsExactly(absolutePath);
+        assertThat(module.getFiles()).containsExactly(absolutePath);
+
+        assertThat(module.getAll(Metric.FILE)).containsExactly(file);
+        assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
+        assertThat(file.getAll(Metric.FILE)).containsExactly(file);
     }
 }

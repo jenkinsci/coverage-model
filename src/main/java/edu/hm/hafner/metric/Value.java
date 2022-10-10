@@ -3,9 +3,11 @@ package edu.hm.hafner.metric;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.apache.commons.lang3.math.Fraction;
+
 /**
  * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction or branch
- * coverage or mutation r complexity.
+ * coverage or mutation or complexity.
  *
  * @author Ullrich Hafner
  */
@@ -39,6 +41,16 @@ public abstract class Value implements Serializable {
     public abstract Value add(Value other);
 
     /**
+     * Computes the delta of this value with the specified value.
+     *
+     * @param other
+     *         the value to compare with
+     *
+     * @return the delta of this and the additional value
+     */
+    public abstract Fraction delta(final Value other);
+
+    /**
      * Merge this coverage with the specified coverage.
      *
      * @param other the other coverage
@@ -46,6 +58,7 @@ public abstract class Value implements Serializable {
      * @throws IllegalArgumentException if the totals
      */
     public abstract Value max(Value other);
+
 
     protected boolean hasSameMetric(final Value other) {
         return other.getMetric().equals(getMetric());

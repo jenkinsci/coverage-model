@@ -1,8 +1,15 @@
 package edu.hm.hafner.metric;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -11,9 +18,12 @@ import java.util.Objects;
  */
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
-    private final Map<Integer, Value> lineNumberToBranchCoverage = new HashMap<>();
-    private final Map<Integer, Value> lineNumberToInstructionCoverage = new HashMap<>();
-    private final Map<Integer, Value> lineNumberToLineCoverage = new HashMap<>();
+    private final NavigableMap<Integer, Coverage> lineNumberToBranchCoverage = new TreeMap<>();
+    private final NavigableMap<Integer, Coverage> lineNumberToInstructionCoverage = new TreeMap<>();
+    private final NavigableMap<Integer, Coverage> lineNumberToLineCoverage = new TreeMap<>();
+    private final SortedSet<Integer> changedCodeLines = new TreeSet<>(); // since 3.0.0
+    private final SortedMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>(); // since 3.0.0
+    private final SortedMap<Metric, Fraction> fileCoverageDelta = new TreeMap<>(); // since 3.0.0
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -30,16 +40,49 @@ public final class FileNode extends Node {
         return new FileNode(getName());
     }
 
-    public Map<Integer, Value> getLineNumberToBranchCoverage() {
+    // FIXME: do not expose fields
+    public Map<Integer, Coverage> getLineNumberToBranchCoverage() {
         return lineNumberToBranchCoverage;
     }
 
-    public Map<Integer, Value> getLineNumberToInstructionCoverage() {
+    public Map<Integer, Coverage> getLineNumberToInstructionCoverage() {
         return lineNumberToInstructionCoverage;
     }
 
-    public Map<Integer, Value> getLineNumberToLineCoverage() {
+    public NavigableMap<Integer, Coverage> getLineNumberToLineCoverage() {
         return lineNumberToLineCoverage;
+    }
+
+    public SortedSet<Integer> getChangedLines() {
+        return changedCodeLines;
+    }
+
+    public boolean hasCodeChanges() {
+        return !changedCodeLines.isEmpty();
+    }
+
+    public boolean hasChangedCodeLine(final int line) {
+        return changedCodeLines.contains(line);
+    }
+
+    /**
+     * Adds an indirect coverage change for a specific line.
+     *
+     * @param line
+     *         The line with the coverage change
+     * @param hitsDelta
+     *         The delta of the coverage hits before and after the code changes
+     */
+    public void putIndirectCoverageChange(final int line, final int hitsDelta) {
+        indirectCoverageChanges.put(line, hitsDelta);
+    }
+
+    public SortedMap<Integer, Integer> getIndirectCoverageChanges() {
+        return indirectCoverageChanges;
+    }
+
+    public SortedSet<Integer> getCoveredLines() {
+        return new TreeSet<>(lineNumberToLineCoverage.keySet());
     }
 
     /**
@@ -145,6 +188,21 @@ public final class FileNode extends Node {
     }
 
     @Override
+    public Set<String> getFiles() {
+        return Set.of(getPath());
+    }
+
+    /**
+     * Adds a code line that has been changed.
+     *
+     * @param line
+     *         The changed code line
+     */
+    public void addChangedCodeLine(final int line) {
+        changedCodeLines.add(line);
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -156,14 +214,52 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-        return lineNumberToBranchCoverage.equals(fileNode.lineNumberToBranchCoverage)
-                && lineNumberToInstructionCoverage.equals(fileNode.lineNumberToInstructionCoverage)
-                && lineNumberToLineCoverage.equals(fileNode.lineNumberToLineCoverage);
+        return Objects.equals(lineNumberToBranchCoverage, fileNode.lineNumberToBranchCoverage)
+                && Objects.equals(lineNumberToInstructionCoverage, fileNode.lineNumberToInstructionCoverage)
+                && Objects.equals(lineNumberToLineCoverage, fileNode.lineNumberToLineCoverage)
+                && Objects.equals(changedCodeLines, fileNode.changedCodeLines) && Objects.equals(
+                indirectCoverageChanges, fileNode.indirectCoverageChanges) && Objects.equals(fileCoverageDelta,
+                fileNode.fileCoverageDelta);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), lineNumberToBranchCoverage, lineNumberToInstructionCoverage,
-                lineNumberToLineCoverage);
+                lineNumberToLineCoverage, changedCodeLines, indirectCoverageChanges, fileCoverageDelta);
+    }
+
+    public void computeDelta(final FileNode referenceNode) {
+        NavigableMap<Metric, Value> referenceCoverage = referenceNode.getMetricsDistribution();
+        this.getMetricsDistribution().forEach((metric, value) -> {
+            if (referenceCoverage.containsKey(metric)) {
+                fileCoverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
+            }
+        });
+    }
+
+    public boolean hasIndirectCoverageChanges() {
+        return !indirectCoverageChanges.isEmpty();
+    }
+
+    public boolean hasChangeCoverageFor(final Metric metric) {
+        return fileCoverageDelta.containsKey(metric);
+    }
+
+    public boolean hasChangeCoverage() {
+        return fileCoverageDelta.containsKey(Metric.LINE) || fileCoverageDelta.containsKey(Metric.BRANCH);
+    }
+
+    public Fraction getChangeCoverageFor(final Metric metric) {
+        return fileCoverageDelta.getOrDefault(metric, Fraction.ZERO);
+    }
+
+    public boolean hasCoverageForLine(final int line) {
+        return lineNumberToLineCoverage.containsKey(line);
+    }
+
+    public SortedSet<Integer> getCoveredDelta() {
+        SortedSet<Integer> coveredDelta = getCoveredLines();
+        coveredDelta.retainAll(getChangedLines());
+        return coveredDelta;
     }
 }

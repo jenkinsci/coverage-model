@@ -24,11 +24,6 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-/**
- * Tests the class {@link JacocoParser}.
- *
- * @author Ullrich Hafner
- */
 class JacocoParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 

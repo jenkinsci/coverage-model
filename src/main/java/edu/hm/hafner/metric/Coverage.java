@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
@@ -22,6 +23,45 @@ public final class Coverage extends Value {
 
     @VisibleForTesting
     static final String NO_COVERAGE_AVAILABLE = "-";
+
+    /**
+     * Creates a new {@link Coverage} instance from the provided string representation. The string representation is
+     * expected to contain the number of covered items and the total number of items - separated by a slash, e.g.
+     * "100/345", or "0/0". Whitespace characters will be ignored.
+     *
+     * @param stringRepresentation
+     *         string representation to convert from
+     *
+     * @return the created coverage
+     * @throws IllegalArgumentException
+     *         if the string is not a valid Coverage instance
+     */
+    public static Coverage valueOf(final Metric metric, final String stringRepresentation) {
+        try {
+            String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
+            if (StringUtils.contains(cleanedFormat, "/")) {
+                String extractedCovered = StringUtils.substringBefore(cleanedFormat, "/");
+                String extractedTotal = StringUtils.substringAfter(cleanedFormat, "/");
+
+                int covered = Integer.parseInt(extractedCovered);
+                int total = Integer.parseInt(extractedTotal);
+                if (total >= covered) {
+                    // FIXME: use builder
+//                    return new CoverageBuilder().setCovered(covered).setMissed(total - covered).build();\
+                    return new Coverage(metric, covered, total - covered);
+                }
+            }
+        }
+        catch (NumberFormatException exception) {
+            // ignore and throw a specific exception
+        }
+        throw new IllegalArgumentException(
+                String.format("Cannot convert %s to a valid Coverage instance.", stringRepresentation));
+    }
+
+    public static Coverage nullObject(final Metric metric) {
+        return new Coverage(metric, 0, 0);
+    }
 
     private final int covered;
     private final int missed;
@@ -64,7 +104,7 @@ public final class Coverage extends Value {
         if (getTotal() == 0) {
             return Fraction.ZERO;
         }
-        return Fraction.getFraction(covered, getTotal());
+        return Fraction.getFraction(getCovered(), getTotal());
     }
 
    /**
@@ -95,6 +135,14 @@ public final class Coverage extends Value {
     @Override
     public Coverage add(final Value other) {
         return castAndMap(other, o -> new Coverage(getMetric(), covered + o.getCovered(), missed + o.getMissed()));
+    }
+
+    @Override
+    public Fraction delta(final Value other) {
+        if (hasSameMetric(other) && other instanceof Coverage) {
+            return new SafeFraction(getCoveredPercentage()).subtract(((Coverage) other).getCoveredPercentage());
+        }
+        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
 
     @Override
@@ -150,5 +198,9 @@ public final class Coverage extends Value {
             return String.format("%s (%s)", printPercentage(Locale.getDefault(), getCoveredPercentage()), getCoveredPercentage());
         }
         return NO_COVERAGE_AVAILABLE;
+    }
+
+    public boolean isSet() {
+        return getTotal() > 0;
     }
 }

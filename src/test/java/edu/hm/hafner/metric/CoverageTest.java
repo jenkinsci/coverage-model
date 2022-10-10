@@ -23,6 +23,22 @@ class CoverageTest {
     private static final Coverage NO_COVERAGE = new Coverage(Metric.LINE, 0, 0);
 
     @Test
+    void shouldComputeDelta() {
+        Coverage worse = new Coverage(Metric.LINE, 0, 2);
+        Coverage ok = new Coverage(Metric.LINE, 1, 1);
+        Coverage better = new Coverage(Metric.LINE, 2, 0);
+
+        assertThat(worse.delta(better).doubleValue()).isEqualTo(getDelta("-1/1"));
+        assertThat(better.delta(worse).doubleValue()).isEqualTo(getDelta("1/1"));
+        assertThat(worse.delta(ok).doubleValue()).isEqualTo(getDelta("-1/2"));
+        assertThat(ok.delta(worse).doubleValue()).isEqualTo(getDelta("1/2"));
+    }
+
+    private static double getDelta(final String value) {
+        return Fraction.getFraction(value).doubleValue();
+    }
+
+    @Test
     void shouldComputeMaximum() {
         Coverage worse = new Coverage(Metric.LINE, 0, 2);
         Coverage coverage = new Coverage(Metric.LINE, 1, 1);
@@ -58,6 +74,7 @@ class CoverageTest {
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.add(loc));
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.max(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.delta(loc));
     }
 
     @Test

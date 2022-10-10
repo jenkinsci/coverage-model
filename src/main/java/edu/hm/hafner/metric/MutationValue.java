@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import edu.hm.hafner.util.Ensure;
 
 /**
@@ -73,12 +75,41 @@ public final class MutationValue extends Value {
         return killed + survived;
     }
 
+    /**
+     * Returns the covered percentage as a {@link Fraction} in the range of {@code [0, 1]}.
+     *
+     * @return the covered percentage
+     */
+    public Fraction getCoveredPercentage() {
+        if (getTotal() == 0) {
+            return Fraction.ZERO;
+        }
+        return Fraction.getFraction(getKilled(), getTotal());
+    }
+
     @Override
     public MutationValue add(final Value other) {
-        mutations.addAll(((MutationValue) other).getMutations());
-        return castAndMap(other,
-                o -> new MutationValue(mutations, killed + o.getKilled(), survived + o.getSurvived()));
+        if (hasSameMetric(other) && other instanceof MutationValue) {
+            var compositeMutations = new ArrayList<>(getMutations());
+            var summand = (MutationValue) other;
+            compositeMutations.addAll(summand.getMutations());
+
+            return new MutationValue(compositeMutations,
+                    getKilled() + summand.getKilled(),
+                    getSurvived() + summand.getSurvived());
+        }
+
+        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
+
+    @Override
+    public Fraction delta(final Value other) {
+        if (hasSameMetric(other) && other instanceof MutationValue) {
+            return new SafeFraction(getCoveredPercentage()).subtract(((MutationValue) other).getCoveredPercentage());
+        }
+        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
+    }
+
 
     private MutationValue castAndMap(final Value other, final UnaryOperator<MutationValue> mapper) {
         if (hasSameMetric(other) && other instanceof MutationValue) {
