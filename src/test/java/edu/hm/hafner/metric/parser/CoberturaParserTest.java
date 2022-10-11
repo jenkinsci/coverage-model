@@ -9,6 +9,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.Metric;
@@ -37,15 +38,17 @@ class CoberturaParserTest {
         assertThat(tree.getAll(FILE)).hasSize(2).extracting(Node::getName).containsOnly("Program.cs", "Startup.cs");
         assertThat(tree.getAll(CLASS)).hasSize(2).extracting(Node::getName).containsOnly("Lisec.CoverageTest.Program", "Lisec.CoverageTest.Startup");
 
+        var builder = new CoverageBuilder();
+
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY);
         assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, new Coverage(MODULE, 1, 0)),
-                entry(PACKAGE, new Coverage(PACKAGE, 1, 0)),
-                entry(FILE, new Coverage(FILE, 2, 0)),
-                entry(CLASS, new Coverage(CLASS, 2, 0)),
-                entry(METHOD, new Coverage(METHOD, 4, 1)),
-                entry(LINE, new Coverage(LINE, 42, 9)),
-                entry(BRANCH, new Coverage(BRANCH, 3, 0)),
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
+                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
+                entry(FILE, builder.setMetric(FILE).setCovered(2).setMissed(0).build()),
+                entry(CLASS, builder.setMetric(CLASS).setCovered(2).setMissed(0).build()),
+                entry(METHOD, builder.setMetric(METHOD).setCovered(4).setMissed(1).build()),
+                entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(0).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(8)));
     }
 
@@ -59,15 +62,17 @@ class CoberturaParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(5);
         assertThat(tree.getAll(METHOD)).hasSize(10);
 
+        var builder = new CoverageBuilder();
+
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY);
         assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, new Coverage(MODULE, 1, 0)),
-                entry(PACKAGE, new Coverage(PACKAGE, 4, 1)),
-                entry(FILE, new Coverage(FILE, 4, 0)),
-                entry(CLASS, new Coverage(CLASS, 5, 0)),
-                entry(METHOD, new Coverage(METHOD, 7, 3)),
-                entry(LINE, new Coverage(LINE, 61, 19)),
-                entry(BRANCH, new Coverage(BRANCH, 2, 2)),
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
+                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build()),
+                entry(FILE, builder.setMetric(FILE).setCovered(4).setMissed(0).build()),
+                entry(CLASS, builder.setMetric(CLASS).setCovered(5).setMissed(0).build()),
+                entry(METHOD, builder.setMetric(METHOD).setCovered(7).setMissed(3).build()),
+                entry(LINE, builder.setMetric(LINE).setCovered(61).setMissed(19).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(2).setMissed(2).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(22)));
 
         assertThat(tree.getChildren()).extracting(Node::getName)

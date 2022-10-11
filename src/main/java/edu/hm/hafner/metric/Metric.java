@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+
 /**
  * A coverage metric to identify the coverage result type. Note: this class has a natural ordering that is inconsistent
  * with equals.
@@ -83,11 +85,16 @@ public enum Metric {
         @Override
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
+                var builder = new CoverageBuilder().setMetric(searchMetric);
+                // FIXME: create a checked method that will return the null object
                 Optional<Value> lineCoverage = LINE.getValueFor(node);
                 if (lineCoverage.isPresent() && ((Coverage) lineCoverage.get()).getCovered() > 0) {
-                    return Optional.of(new Coverage(searchMetric, 1, 0));
+                    builder.setCovered(1).setMissed(0);
                 }
-                return Optional.of(new Coverage(searchMetric, 0, 1));
+                else {
+                    builder.setCovered(0).setMissed(1);
+                }
+                return Optional.of(builder.build());
             }
             return Optional.empty();
         }

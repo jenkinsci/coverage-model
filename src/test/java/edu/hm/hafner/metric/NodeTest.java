@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
@@ -101,17 +103,19 @@ class NodeTest {
 
     @Test
     void shouldCalculateDistributedMetrics() {
-        Node node = new ModuleNode("Node");
-        Value valueOne = new Coverage(LINE, 1, 0);
-        Value valueTwo = new Coverage(BRANCH, 0, 1);
+        var builder = new CoverageBuilder();
 
+        Value valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
+        Value valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
+
+        Node node = new ModuleNode("Node");
         node.addValue(valueOne);
         node.addValue(valueTwo);
 
         assertThat(node.getMetricsDistribution()).hasSize(3).contains(
                 entry(LINE, valueOne),
                 entry(BRANCH, valueTwo),
-                entry(MODULE, new Coverage(MODULE, 1, 0)));
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()));
     }
 
     @Test
@@ -120,11 +124,12 @@ class NodeTest {
 
         assertThat(node).hasNoValues();
 
-        Coverage leafOne = new Coverage(LINE, 1, 0);
+        var builder = new CoverageBuilder();
+        Coverage leafOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
         node.addValue(leafOne);
         assertThat(node).hasOnlyValues(leafOne);
 
-        Coverage leafTwo = new Coverage(BRANCH, 0, 1);
+        Coverage leafTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
         node.addValue(leafTwo);
         assertThat(node).hasOnlyValues(leafOne, leafTwo);
 
@@ -161,7 +166,7 @@ class NodeTest {
     @Test
     void shouldCalculateCorrectCoverageForModule() {
         Node node = new ModuleNode("Node");
-        Value valueOne = new Coverage(LINE, 1, 0);
+        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
 
         node.addValue(valueOne);
 
@@ -173,8 +178,8 @@ class NodeTest {
         Node node = new ModuleNode("Node");
         Node missedFile = new FileNode("fileMissed");
         Node coveredFile = new FileNode("fileCovered");
-        Value valueOne = new Coverage(LINE, 1, 0);
-        Value valueTwo = new Coverage(LINE, 0, 1);
+        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
         node.addChild(missedFile);
         node.addChild(coveredFile);
@@ -189,8 +194,8 @@ class NodeTest {
     void shouldDeepCopyNodeTree() {
         Node node = new ModuleNode("Node");
         Node childNode = new FileNode("childNode");
-        Value valueOne = new Coverage(LINE, 1, 0);
-        Value valueTwo = new Coverage(LINE, 0, 1);
+        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
         node.addValue(valueOne);
         node.addChild(childNode);
@@ -205,8 +210,8 @@ class NodeTest {
     void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
         Node node = new ModuleNode("Node");
         Node childNode = new FileNode("childNode");
-        Value valueOne = new Coverage(LINE, 1, 0);
-        Value valueTwo = new Coverage(LINE, 0, 1);
+        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
         Node newParent = new ModuleNode("parent");
 
         node.addValue(valueOne);
@@ -385,12 +390,12 @@ class NodeTest {
         pkg.addChild(file);
         file.addChild(covNodeClass);
         covNodeClass.addChild(combineWithMethod);
-        combineWithMethod.addValue(new Coverage(LINE, 1, 0));
+        combineWithMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build());
 
         Node otherNode = module.copyTree();
         Node addMethod = new MethodNode("add", "(Ljava/util/Map;)V", 1);
         otherNode.getAll(CLASS).get(0).addChild(addMethod); // the same class node in the copied tree
-        addMethod.addValue(new Coverage(LINE, 0, 1));
+        addMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build());
 
         Node combinedReport = module.combineWith(otherNode);
         assertThat(combinedReport.getAll(METHOD)).hasSize(2);
@@ -404,8 +409,8 @@ class NodeTest {
         Node method = module.getAll(METHOD).get(0);
         Node methodOtherCov = sameProject.getAll(METHOD).get(0);
 
-        method.addValue(new Coverage(LINE, 2, 8));
-        methodOtherCov.addValue(new Coverage(LINE, 5, 5));
+        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(8).build());
+        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
 
         Node combinedReport = module.combineWith(sameProject);
         assertThat(combinedReport.getAll(METHOD)).hasSize(1);
@@ -422,8 +427,8 @@ class NodeTest {
 
         assertThat(module.combineWith(sameProject)).isEqualTo(module); // should not throw error if no line coverage exists for method
 
-        method.addValue(new Coverage(LINE, 5, 5));
-        methodOtherCov.addValue(new Coverage(LINE, 2, 7));
+        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
+        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(7).build());
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> module.combineWith(sameProject))
                 .withMessageContaining("Cannot compute maximum of coverages", "(5/10)", "(2/9)");
@@ -436,12 +441,12 @@ class NodeTest {
         Node method = module.getAll(METHOD).get(0);
         Node methodOtherCov = sameProject.getAll(METHOD).get(0);
 
-        method.addValue(new Coverage(LINE, 2, 8));
-        methodOtherCov.addValue(new Coverage(LINE, 5, 5));
-        method.addValue(new Coverage(BRANCH, 10, 5));
-        methodOtherCov.addValue(new Coverage(BRANCH, 12, 3));
-        method.addValue(new Coverage(INSTRUCTION, 7, 8));
-        methodOtherCov.addValue(new Coverage(INSTRUCTION, 5, 10));
+        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(8).build());
+        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
+        method.addValue(new CoverageBuilder().setMetric(BRANCH).setCovered(10).setMissed(5).build());
+        methodOtherCov.addValue(new CoverageBuilder().setMetric(BRANCH).setCovered(12).setMissed(3).build());
+        method.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(7).setMissed(8).build());
+        methodOtherCov.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(5).setMissed(10).build());
 
         Node combinedReport = module.combineWith(sameProject);
         assertThat(getCoverage(combinedReport, LINE)).hasCovered(5).hasMissed(5);
@@ -464,7 +469,7 @@ class NodeTest {
         autograding.addChild(file);
         file.addChild(mainClass);
         mainClass.addChild(mainMethod);
-        mainMethod.addValue(new Coverage(LINE, 8, 2));
+        mainMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(8).setMissed(2).build());
 
         // Difference on File Level
         FileNode covLeavefile = new FileNode("Leaf");
@@ -510,8 +515,10 @@ class NodeTest {
         pkg.addChild(file);
         otherReport = report.copyTree();
 
-        otherReport.find(FILE, file.getName()).get().addValue(new Coverage(LINE, 90, 10));
-        report.find(FILE, file.getName()).get().addValue(new Coverage(LINE, 80, 20));
+        otherReport.find(FILE, file.getName()).get().addValue(
+                new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
+        report.find(FILE, file.getName()).get().addValue(
+                new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.combineWith(otherReport);
         assertThat(getCoverage(combined, LINE)).hasMissed(10).hasCovered(90);
@@ -526,8 +533,10 @@ class NodeTest {
         report.addChild(pkg);
         pkg.addChild(file);
         Node otherReport = report.copyTree();
-        otherReport.find(FILE, file.getName()).get().addValue(new Coverage(LINE, 70, 30));
-        report.find(FILE, file.getName()).get().addValue(new Coverage(LINE, 80, 20));
+        otherReport.find(FILE, file.getName()).get().addValue(
+                new CoverageBuilder().setMetric(LINE).setCovered(70).setMissed(30).build());
+        report.find(FILE, file.getName()).get().addValue(
+                new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.combineWith(otherReport);
         assertThat(getCoverage(combined, LINE)).hasMissed(20).hasCovered(80);
@@ -550,9 +559,10 @@ class NodeTest {
         Node otherReport;
         otherReport = report.copyTree();
         otherReport.find(file.getMetric(), file.getName()).get().addChild(covNodeClass);
-        covNodeClass.addValue(new Coverage(LINE, 90, 10));
+        covNodeClass.addValue(new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
 
-        report.find(FILE, file.getName()).get().addValue(new Coverage(LINE, 80, 20));
+        report.find(FILE, file.getName()).get().addValue(
+                new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         assertThat(getCoverage(report.combineWith(otherReport), LINE)).hasMissed(10).hasCovered(90);
         assertThat(getCoverage(otherReport.combineWith(report), LINE)).hasMissed(10).hasCovered(90);

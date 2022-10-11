@@ -4,6 +4,8 @@ import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.metric.assertions.Assertions.*;
@@ -64,7 +66,9 @@ abstract class AbstractNodeTest {
 
     private TreeMap<Object, Object> createMetricDistributionWithMissed(final int missed) {
         var distribution = new TreeMap<>();
-        distribution.put(getMetric(), new Coverage(getMetric(), 0, missed));
+        var builder = new CoverageBuilder();
+        builder.setMetric(getMetric()).setCovered(0).setMissed(missed);
+        distribution.put(getMetric(), builder.build());
         return distribution;
     }
 
