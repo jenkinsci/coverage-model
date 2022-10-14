@@ -20,7 +20,7 @@ public final class ContainerNode extends Node {
     }
 
     @Override
-    public Node copyEmpty() {
+    public Node copy() {
         return new ContainerNode(getName());
     }
 }

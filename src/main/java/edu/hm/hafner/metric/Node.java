@@ -123,6 +123,7 @@ public abstract class Node implements Serializable {
      */
     public NavigableMap<Metric, Value> getMetricsDistribution() {
         return new TreeMap<>(getMetrics().stream()
+                .filter(m -> getValue(m).isPresent())
                 .collect(Collectors.toMap(Function.identity(), this::getValueOf)));
     }
 
@@ -179,8 +180,13 @@ public abstract class Node implements Serializable {
         return new ArrayList<>(children);
     }
 
+    /**
+     * Clear the children and values of this node.
+     */
+    // TODO: check if this method needs to be exposed as API
     public void clear() {
-        children.forEach(this::removeChild);
+        children.forEach(c -> c.parent = null);
+        children.clear();
         values.clear();
     }
 
@@ -231,6 +237,7 @@ public abstract class Node implements Serializable {
     }
 
     // FIXME: why is this for mutation coverages only?
+
     /**
      * Replaces the specified value to the list of values to guarantee immutability.
      *
@@ -407,25 +414,38 @@ public abstract class Node implements Serializable {
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent) {
-        Node copy = copyEmpty();
+        Node copy = copyNode();
+
         if (copiedParent != null) {
             copy.setParent(copiedParent);
         }
-
         getChildren().stream()
                 .map(node -> node.copyTree(this))
                 .forEach(copy::addChild);
-        getValues().forEach(copy::addValue);
 
         return copy;
     }
 
     /**
-     * Creates a copied instance of this node that has no children, leaves, and parent yet.
+     * Creates a copy of this instance that has no children and no parent yet. This method will copy all stored values
+     * of this node. This method delegates to the instance local {@link #copy()} method to copy all properties
+     * introduced by subclasses.
      *
-     * @return the new and empty node
+     * @return the copied node
      */
-    public abstract Node copyEmpty();
+    public final Node copyNode() {
+        Node copy = copy();
+        getValues().forEach(copy::addValue);
+        return copy;
+    }
+
+    /**
+     * Creates a copy of this instance that has no children and no parent yet. Node properties from the parent class
+     * {@link Node} must not be copied. All other immutable properties need to be copied one by one.
+     *
+     * @return the copied node
+     */
+    public abstract Node copy();
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at
@@ -490,6 +510,10 @@ public abstract class Node implements Serializable {
      *
      * @param searchMetric
      *         the metric to get the value for
+     * @param defaultValue
+     *         the default value to return if no value has been defined for the specified metric
+     * @param <T>
+     *         the concrete type of the value
      *
      * @return coverage ratio
      */
@@ -533,6 +557,6 @@ public abstract class Node implements Serializable {
     }
 
     public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE).stream().map(t -> (FileNode)t).collect(Collectors.toList());
+        return getAll(Metric.FILE).stream().map(t -> (FileNode) t).collect(Collectors.toList());
     }
 }

@@ -207,7 +207,7 @@ public class CoberturaParser extends XmlParser {
             builder.setMetric(Metric.BRANCH);
             setCoveredVsMissed(builder, covered);
 
-            currentFileNode.getLineNumberToBranchCoverage().put(lineNumber, builder.build());
+            currentFileNode.addBranchCoverage(lineNumber, builder.build());
         }
         else {
             builder.setMetric(Metric.LINE);

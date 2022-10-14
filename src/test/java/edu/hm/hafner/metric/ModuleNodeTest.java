@@ -14,7 +14,9 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Override
     Node createNode(final String name) {
-        return new ModuleNode(name);
+        var moduleNode = new ModuleNode(name);
+        moduleNode.addSource("/path/to/sources");
+        return moduleNode;
     }
 
     @Test

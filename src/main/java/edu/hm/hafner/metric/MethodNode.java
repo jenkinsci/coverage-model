@@ -10,9 +10,6 @@ import java.util.Objects;
 public final class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
-    /**
-     * The signature of the method.
-     */
     private final String signature;
     /**
      * The line number where the code of method begins (not including the method head).
@@ -20,7 +17,7 @@ public final class MethodNode extends Node {
     private final int lineNumber;
 
     /**
-     * Creates a new method node with the given name.
+     * Creates a new method node with the given name. The line number will be set to 0.
      *
      * @param name
      *         The human-readable name of the node
@@ -49,7 +46,7 @@ public final class MethodNode extends Node {
     }
 
     @Override
-    public Node copyEmpty() {
+    public Node copy() {
         return new MethodNode(getName(), getSignature(), getLineNumber());
     }
 
@@ -92,9 +89,6 @@ public final class MethodNode extends Node {
 
     @Override
     public String toString() {
-        return "MethodNode: "
-                + "name='" + getName() + '\''
-                + ", lineNumber=" + lineNumber
-                + ", signature=" + signature;
+        return String.format("[%s] %s(%d) <%s>", getMetric(), getName(), getLineNumber(), getSignature());
     }
 }

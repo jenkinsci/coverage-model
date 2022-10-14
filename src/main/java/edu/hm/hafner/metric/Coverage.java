@@ -211,7 +211,7 @@ public final class Coverage extends Value {
     public String toString() {
         int total = getTotal();
         if (total > 0) {
-            return String.format("%s (%s)", printPercentage(Locale.getDefault(), getCoveredPercentage()),
+            return String.format("[%s] %s (%s)", getMetric(), printPercentage(Locale.getDefault(), getCoveredPercentage()),
                     getCoveredPercentage());
         }
         return NO_COVERAGE_AVAILABLE;

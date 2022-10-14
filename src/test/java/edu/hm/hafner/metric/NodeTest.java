@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("PMD.GodClass")
 @DefaultLocale("en")
 class NodeTest {
-
     @Test
     void shouldHandleNonExistingParent() {
         ModuleNode root = new ModuleNode("Root");
@@ -302,7 +301,7 @@ class NodeTest {
 
         module.addChild(pkg);
         sameModule.addChild(pkgTwo);
-        sameModule.addChild(pkg.copyEmpty());
+        sameModule.addChild(pkg.copy());
         Node combinedReport = module.combineWith(sameModule);
 
         assertThat(combinedReport).hasMetric(MODULE);

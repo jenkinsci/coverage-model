@@ -31,12 +31,14 @@ public final class ModuleNode extends Node {
     }
 
     @Override
-    public ModuleNode copyEmpty() {
-        return new ModuleNode(getName());
+    public ModuleNode copy() {
+        var moduleNode = new ModuleNode(getName());
+        getSources().forEach(moduleNode::addSource);
+        return moduleNode;
     }
 
     public List<String> getSources() {
-        return sources;
+        return List.copyOf(sources);
     }
 
     /**
@@ -88,6 +90,26 @@ public final class ModuleNode extends Node {
         }
     }
 
+    private void mergeSinglePackage(final Node packageNode) {
+        for (Node existing : getChildren()) {
+            if (isEqual(packageNode, existing)) {
+                // replace existing with merged two nodes
+                removeChild(existing);
+                Node merged = existing.combineWith(packageNode);
+                addChild(merged);
+
+                return;
+            }
+        }
+
+        addChild(packageNode); // fallback: if the package does not yet exist add it as new package node
+    }
+
+    private static boolean isEqual(final Node packageNode, final Node existing) {
+        return existing.getMetric().equals(packageNode.getMetric())
+                && existing.getName().equals(packageNode.getName());
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -108,23 +130,8 @@ public final class ModuleNode extends Node {
         return Objects.hash(super.hashCode(), sources);
     }
 
-    private void mergeSinglePackage(final Node packageNode) {
-        for (Node existing : getChildren()) {
-            if (isEqual(packageNode, existing)) {
-                // replace existing with merged two nodes
-                removeChild(existing);
-                Node merged = existing.combineWith(packageNode);
-                addChild(merged);
-
-                return;
-            }
-        }
-
-        addChild(packageNode); // fallback: if the package does not yet exist add it as new package node
-    }
-
-    private static boolean isEqual(final Node packageNode, final Node existing) {
-        return existing.getMetric().equals(packageNode.getMetric())
-                && existing.getName().equals(packageNode.getName());
+    @Override
+    public String toString() {
+        return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSources());
     }
 }
