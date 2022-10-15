@@ -102,7 +102,7 @@ class CoverageTest {
                 .hasMissed(0)
                 .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(0)
-                .hasToString(NO_COVERAGE_AVAILABLE);
+                .hasToString("LINE: n/a");
         assertThat(NO_COVERAGE.add(NO_COVERAGE)).isEqualTo(NO_COVERAGE);
     }
 
@@ -117,7 +117,7 @@ class CoverageTest {
                 .hasMissed(4)
                 .hasMissedPercentage(Fraction.getFraction(4, 10))
                 .hasTotal(10)
-                .hasToString("[LINE] 60.00% (6/10)");
+                .hasToString("LINE: 60.00% (6/10)");
 
         assertThat(coverage.add(NO_COVERAGE)).isEqualTo(coverage);
 

@@ -12,7 +12,6 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -121,6 +120,7 @@ public abstract class Node implements Serializable {
      *
      * @return a mapping of metric to coverage.
      */
+    // FIXME: wouldn't it be sufficient to return the values only, since the metric is contained?
     public NavigableMap<Metric, Value> getMetricsDistribution() {
         return new TreeMap<>(getMetrics().stream()
                 .filter(m -> getValue(m).isPresent())
@@ -552,8 +552,8 @@ public abstract class Node implements Serializable {
      *
      * @return the file names
      */
-    public Set<String> getFiles() {
-        return children.stream().map(Node::getFiles).flatMap(Set::stream).collect(Collectors.toSet());
+    public List<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
     }
 
     public List<FileNode> getAllFileNodes() {

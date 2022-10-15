@@ -75,7 +75,7 @@ public abstract class IntegerValue extends Value {
 
     @Override
     public String toString() {
-        return String.format("[%s]: %s", getMetric(), integer);
+        return String.format("%s: %s", getMetric(), integer);
     }
 
     @Override

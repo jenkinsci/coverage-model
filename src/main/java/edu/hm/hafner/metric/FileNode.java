@@ -1,14 +1,15 @@
 package edu.hm.hafner.metric;
 
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.Fraction;
 
@@ -100,17 +101,16 @@ public final class FileNode extends Node {
         }
     }
 
-    // FIXME: do not expose fields
-    Map<Integer, Coverage> getLineNumberToBranchCoverage() {
+    public Map<Integer, Coverage> getLineNumberToBranchCoverage() {
         return Map.copyOf(lineNumberToBranchCoverage);
     }
 
-    Map<Integer, Coverage> getLineNumberToInstructionCoverage() {
+    public Map<Integer, Coverage> getLineNumberToInstructionCoverage() {
         return Map.copyOf(lineNumberToInstructionCoverage);
     }
 
-    Map<Integer, Coverage> getLineNumberToLineCoverage() {
-        return Map.copyOf(lineNumberToLineCoverage);
+    public NavigableMap<Integer, Coverage> getLineNumberToLineCoverage() {
+        return new TreeMap<>(lineNumberToLineCoverage);
     }
 
     public SortedSet<Integer> getChangedLines() {
@@ -241,14 +241,38 @@ public final class FileNode extends Node {
         return lineNumberToLineCoverage.containsKey(line);
     }
 
+    /**
+     * Returns the line coverage result for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return  the line coverage result for the specified line.
+     */
+    public Coverage getLineCoverage(final int line) {
+        return lineNumberToLineCoverage.getOrDefault(line, Coverage.nullObject(Metric.LINE));
+    }
+
+    /**
+     * Returns the line coverage result for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return  the line coverage result for the specified line.
+     */
+    public Coverage getBranchCoverage(final int line) {
+        return lineNumberToBranchCoverage.getOrDefault(line, Coverage.nullObject(Metric.BRANCH));
+    }
+
     @Override
     public String getPath() {
         return mergePath(getName());
     }
 
     @Override
-    public Set<String> getFiles() {
-        return Set.of(getPath());
+    public List<String> getFiles() {
+        return List.of(getPath());
     }
 
     /**
@@ -316,6 +340,17 @@ public final class FileNode extends Node {
         SortedSet<Integer> coveredDelta = getCoveredLines();
         coveredDelta.retainAll(getChangedLines());
         return coveredDelta;
+    }
+
+    /**
+     * Returns the line coverage results for lines that are part of the change set.
+     *
+     * @return the line coverage results for lines that are part of the change set.
+     */
+    public List<Coverage> getCoverageOfChangeSet() {
+        SortedSet<Integer> coveredDelta = getCoveredLines();
+        coveredDelta.retainAll(getChangedLines());
+        return coveredDelta.stream().map(lineNumberToLineCoverage::get).collect(Collectors.toList());
     }
 
     /**

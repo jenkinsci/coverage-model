@@ -134,6 +134,11 @@ public final class MutationValue extends Value {
     }
 
     @Override
+    public String toString() {
+        return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), killed, killed + survived);
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;

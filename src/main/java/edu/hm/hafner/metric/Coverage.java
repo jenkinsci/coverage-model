@@ -1,6 +1,5 @@
 package edu.hm.hafner.metric;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
@@ -19,11 +18,6 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  */
 public final class Coverage extends Value {
     private static final long serialVersionUID = -3802318446471137305L;
-
-    private static final Fraction HUNDRED = Fraction.getFraction(100, 1);
-
-    @VisibleForTesting
-    static final String NO_COVERAGE_AVAILABLE = "-";
 
     /**
      * Creates a new {@link Coverage} instance from the provided string representation. The string representation is
@@ -140,10 +134,6 @@ public final class Coverage extends Value {
         return Fraction.ONE.subtract(getCoveredPercentage());
     }
 
-    private String printPercentage(final Locale locale, final Fraction percentage) {
-        return String.format(locale, "%.2f%%", percentage.multiplyBy(HUNDRED).doubleValue());
-    }
-
     @Override
     public Coverage add(final Value other) {
         return castAndMap(other, o -> new Coverage(getMetric(), covered + o.getCovered(), missed + o.getMissed()));
@@ -211,10 +201,10 @@ public final class Coverage extends Value {
     public String toString() {
         int total = getTotal();
         if (total > 0) {
-            return String.format("[%s] %s (%s)", getMetric(), printPercentage(Locale.getDefault(), getCoveredPercentage()),
+            return String.format("%s: %s (%s)", getMetric(), printPercentage(getCoveredPercentage()),
                     getCoveredPercentage());
         }
-        return NO_COVERAGE_AVAILABLE;
+        return String.format("%s: n/a", getMetric());
     }
 
     /**
