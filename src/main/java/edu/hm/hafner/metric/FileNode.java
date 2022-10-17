@@ -3,7 +3,6 @@ package edu.hm.hafner.metric;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -25,7 +24,7 @@ public final class FileNode extends Node {
     private final NavigableMap<Integer, Coverage> lineNumberToBranchCoverage = new TreeMap<>();
     private final NavigableMap<Integer, Coverage> lineNumberToInstructionCoverage = new TreeMap<>();
     private final NavigableMap<Integer, Coverage> lineNumberToLineCoverage = new TreeMap<>();
-    private final NavigableSet<Integer> changedCodeLines = new TreeSet<>();
+    private final SortedSet<Integer> changedCodeLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> fileCoverageDelta = new TreeMap<>();
 
