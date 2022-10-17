@@ -24,9 +24,9 @@ class CoverageTest {
 
     @Test
     void shouldComputeMaximum() {
-        Coverage worse = new Coverage(Metric.LINE, 0, 2);
-        Coverage coverage = new Coverage(Metric.LINE, 1, 1);
-        Coverage better = new Coverage(Metric.LINE, 2, 0);
+        var worse = new Coverage(Metric.LINE, 0, 2);
+        var coverage = new Coverage(Metric.LINE, 1, 1);
+        var better = new Coverage(Metric.LINE, 2, 0);
 
         assertThat(coverage.max(coverage)).isSameAs(coverage);
         assertThat(coverage.max(better)).isSameAs(better);
@@ -37,7 +37,7 @@ class CoverageTest {
     @ValueSource(ints = {0, 1, 2, 4, 5})
     @DisplayName("Ensure that exception is thrown if totals do not match")
     void shouldThrowExceptionWhenMaximumIsInvalid(final int covered) {
-        Coverage coverage = new Coverage(Metric.LINE, 2, 1);
+        var coverage = new Coverage(Metric.LINE, 2, 1);
 
         assertThatExceptionOfType(AssertionError.class).isThrownBy(
                 () -> coverage.max(new Coverage(Metric.LINE, covered, 0)));

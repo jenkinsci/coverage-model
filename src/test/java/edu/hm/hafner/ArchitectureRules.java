@@ -94,8 +94,8 @@ public final class ArchitectureRules {
     /** Prevents that classes use visible but forbidden API. */
     public static final ArchRule NO_FORBIDDEN_CLASSES_CALLED =
             noClasses().should().callCodeUnitWhere(targetOwner(has(
-                    fullyQualifiedName("org.junit.jupiter.api.Assertions")
-                            .or(fullyQualifiedName("org.junit.Assert")))))
+                            fullyQualifiedName("org.junit.jupiter.api.Assertions")
+                                    .or(fullyQualifiedName("org.junit.Assert")))))
                     .because("only AssertJ should be used for assertions");
 
     /** Ensures that the {@code readResolve} methods are protected so subclasses can call the parent method. */
@@ -130,7 +130,7 @@ public final class ArchitectureRules {
         }
 
         @Override
-        public boolean apply(final JavaCall<?> input) {
+        public boolean test(final JavaCall<?> input) {
             return isVisibleForTesting(input.getTarget())
                     && !input.getOriginOwner().equals(input.getTargetOwner())
                     && !isVisibleForTesting(input.getOrigin());
@@ -161,7 +161,7 @@ public final class ArchitectureRules {
         }
 
         @Override
-        public boolean apply(final JavaConstructorCall javaConstructorCall) {
+        public boolean test(final JavaConstructorCall javaConstructorCall) {
             ConstructorCallTarget target = javaConstructorCall.getTarget();
             if (target.getRawParameterTypes().size() > 0) {
                 return false;

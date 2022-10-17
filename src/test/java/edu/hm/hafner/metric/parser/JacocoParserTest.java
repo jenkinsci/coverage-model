@@ -3,6 +3,7 @@ package edu.hm.hafner.metric.parser;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -164,12 +165,12 @@ class JacocoParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        try (FileInputStream stream = new FileInputStream(
-                "src/test/resources/jacoco-codingstyle.xml"); InputStreamReader reader = new InputStreamReader(stream)) {
+        try (FileInputStream stream = new FileInputStream("src/test/resources/jacoco-codingstyle.xml");
+                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new JacocoParser().parse(reader);
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
     }
 }
