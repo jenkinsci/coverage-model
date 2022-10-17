@@ -36,6 +36,35 @@ public abstract class Node implements Serializable {
 
     static final String ROOT = "^";
 
+    /**
+     * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
+     * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
+     *
+     * @param nodes
+     *         the nodes to merge
+     *
+     * @return a new tree with the merged {@link Node nodes}
+     */
+    public static Node merge(final List<Node> nodes) {
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
+        }
+        if (nodes.size() == 1) {
+            return nodes.get(0); // No merge required
+        }
+
+        if (nodes.stream().map(Node::getName).distinct().count() == 1
+                && nodes.stream().map(Node::getMetric).distinct().count() == 1) {
+            return nodes.stream()
+                    .reduce(Node::combineWith)
+                    .orElseThrow(() -> new NoSuchElementException("No node found"));
+        }
+
+        var container = new ContainerNode("Container");
+        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
+        return container;
+    }
+
     private final Metric metric;
     private final String name;
     private final List<Node> children = new ArrayList<>();
