@@ -176,7 +176,7 @@ class JacocoParserTest {
             return new JacocoParser().parse(reader);
         }
         catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
     }
 }
