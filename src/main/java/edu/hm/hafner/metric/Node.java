@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
@@ -15,9 +16,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -34,6 +35,35 @@ public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
     static final String ROOT = "^";
+
+    /**
+     * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
+     * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
+     *
+     * @param nodes
+     *         the nodes to merge
+     *
+     * @return a new tree with the merged {@link Node nodes}
+     */
+    public static Node merge(final List<Node> nodes) {
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
+        }
+        if (nodes.size() == 1) {
+            return nodes.get(0); // No merge required
+        }
+
+        if (nodes.stream().map(Node::getName).distinct().count() == 1
+                && nodes.stream().map(Node::getMetric).distinct().count() == 1) {
+            return nodes.stream()
+                    .reduce(Node::combineWith)
+                    .orElseThrow(() -> new NoSuchElementException("No node found"));
+        }
+
+        var container = new ContainerNode("Container");
+        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
+        return container;
+    }
 
     private final Metric metric;
     private final String name;
@@ -110,7 +140,9 @@ public abstract class Node implements Serializable {
 
         elements.add(getMetric());
         elements.addAll(values.keySet());
-
+        if (elements.contains(Metric.LINE)) {
+            elements.add(Metric.LOC); // TODO: would it make sense to make that not hard-coded?
+        }
         return elements;
     }
 
@@ -119,14 +151,47 @@ public abstract class Node implements Serializable {
      *
      * @return a mapping of metric to coverage.
      */
+    // FIXME: wouldn't it be sufficient to return the values only, since the metric is contained?
     public NavigableMap<Metric, Value> getMetricsDistribution() {
         return new TreeMap<>(getMetrics().stream()
+                .filter(m -> getValue(m).isPresent())
                 .collect(Collectors.toMap(Function.identity(), this::getValueOf)));
     }
 
     private Value getValueOf(final Metric searchMetric) {
         return getValue(searchMetric).orElseThrow(() ->
                 new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
+    }
+
+    /**
+     * Computes the coverage delta between this node and the specified reference node as fractions between 0 and 1.
+     *
+     * @param reference
+     *         the reference node
+     *
+     * @return the delta coverage for each available metric as fraction
+     */
+    public NavigableMap<Metric, Fraction> computeDelta(final Node reference) {
+        NavigableMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
+        NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
+        NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
+
+        for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
+            Metric key = entry.getKey();
+            if (referencePercentages.containsKey(key)) {
+                deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
+            }
+        }
+        return deltaPercentages;
+    }
+
+    /**
+     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
+     *
+     * @return {@code true} whether code changes have been detected
+     */
+    public boolean hasCodeChanges() {
+        return getChildren().stream().anyMatch(Node::hasCodeChanges);
     }
 
     public String getName() {
@@ -146,8 +211,14 @@ public abstract class Node implements Serializable {
         return new ArrayList<>(children);
     }
 
-    protected void clearChildren() {
-        children.forEach(this::removeChild);
+    /**
+     * Clear the children and values of this node.
+     */
+    // TODO: check if this method needs to be exposed as API
+    public void clear() {
+        children.forEach(c -> c.parent = null);
+        children.clear();
+        values.clear();
     }
 
     /**
@@ -195,6 +266,8 @@ public abstract class Node implements Serializable {
         }
         values.put(value.getMetric(), value);
     }
+
+    // FIXME: why is this for mutation coverages only?
 
     /**
      * Replaces the specified value to the list of values to guarantee immutability.
@@ -299,7 +372,7 @@ public abstract class Node implements Serializable {
         }
         return children.stream()
                 .map(child -> child.find(searchMetric, searchName))
-                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+                .flatMap(Optional::stream)
                 .findAny();
     }
 
@@ -319,7 +392,7 @@ public abstract class Node implements Serializable {
         }
         return children.stream()
                 .map(child -> child.findByHashCode(searchMetric, searchNameHashCode))
-                .flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty))
+                .flatMap(Optional::stream)
                 .findAny();
     }
 
@@ -372,25 +445,38 @@ public abstract class Node implements Serializable {
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent) {
-        Node copy = copyEmpty();
+        Node copy = copyNode();
+
         if (copiedParent != null) {
             copy.setParent(copiedParent);
         }
-
         getChildren().stream()
                 .map(node -> node.copyTree(this))
                 .forEach(copy::addChild);
-        getValues().forEach(copy::addValue);
 
         return copy;
     }
 
     /**
-     * Creates a copied instance of this node that has no children, leaves, and parent yet.
+     * Creates a copy of this instance that has no children and no parent yet. This method will copy all stored values
+     * of this node. This method delegates to the instance local {@link #copy()} method to copy all properties
+     * introduced by subclasses.
      *
-     * @return the new and empty node
+     * @return the copied node
      */
-    public abstract Node copyEmpty();
+    public final Node copyNode() {
+        Node copy = copy();
+        getValues().forEach(copy::addValue);
+        return copy;
+    }
+
+    /**
+     * Creates a copy of this instance that has no children and no parent yet. Node properties from the parent class
+     * {@link Node} must not be copied. All other immutable properties need to be copied one by one.
+     *
+     * @return the copied node
+     */
+    public abstract Node copy();
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at
@@ -449,6 +535,26 @@ public abstract class Node implements Serializable {
         return searchMetric.getValueFor(this);
     }
 
+    /**
+     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
+     * of.
+     *
+     * @param searchMetric
+     *         the metric to get the value for
+     * @param defaultValue
+     *         the default value to return if no value has been defined for the specified metric
+     * @param <T>
+     *         the concrete type of the value
+     *
+     * @return coverage ratio
+     */
+    public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
+        var possiblyValue = searchMetric.getValueFor(this);
+
+        //noinspection unchecked
+        return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -470,5 +576,18 @@ public abstract class Node implements Serializable {
     @Override
     public String toString() {
         return String.format("[%s] %s <%d>", getMetric(), getName(), children.size());
+    }
+
+    /**
+     * Returns the file names that are contained within the subtree of this node.
+     *
+     * @return the file names
+     */
+    public List<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
+    }
+
+    public List<FileNode> getAllFileNodes() {
+        return getAll(Metric.FILE).stream().map(t -> (FileNode) t).collect(Collectors.toList());
     }
 }

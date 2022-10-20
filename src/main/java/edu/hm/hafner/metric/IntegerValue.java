@@ -3,6 +3,8 @@ package edu.hm.hafner.metric;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
+import org.apache.commons.lang3.math.Fraction;
+
 /**
  * Represents the value of an integer based metric.
  *
@@ -48,6 +50,14 @@ public abstract class IntegerValue extends Value {
         return castAndMap(other, this::computeMax);
     }
 
+    @Override
+    public Fraction delta(final Value other) {
+        if (hasSameMetric(other) && other instanceof IntegerValue) {
+            return Fraction.getFraction(getValue() - ((IntegerValue) other).getValue(), 1);
+        }
+        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
+    }
+
     private IntegerValue computeMax(final IntegerValue other) {
         if (integer >= other.integer) {
             return this;
@@ -65,7 +75,7 @@ public abstract class IntegerValue extends Value {
 
     @Override
     public String toString() {
-        return String.format("[%s]: %s", getMetric(), integer);
+        return String.format("%s: %s", getMetric(), integer);
     }
 
     @Override

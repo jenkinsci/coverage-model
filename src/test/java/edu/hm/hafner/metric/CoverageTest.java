@@ -20,13 +20,37 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
  */
 @DefaultLocale("en")
 class CoverageTest {
-    private static final Coverage NO_COVERAGE = new Coverage(Metric.LINE, 0, 0);
+    private static final Coverage NO_COVERAGE = new CoverageBuilder()
+            .setMetric(Metric.LINE)
+            .setCovered(0)
+            .setMissed(0)
+            .build();
+
+    @Test
+    void shouldComputeDelta() {
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage worse = builder.setCovered(0).setMissed(2).build();
+        Coverage ok = builder.setCovered(1).setMissed(1).build();
+        Coverage better = builder.setCovered(2).setMissed(0).build();
+
+        assertThat(worse.delta(better).doubleValue()).isEqualTo(getDelta("-1/1"));
+        assertThat(better.delta(worse).doubleValue()).isEqualTo(getDelta("1/1"));
+        assertThat(worse.delta(ok).doubleValue()).isEqualTo(getDelta("-1/2"));
+        assertThat(ok.delta(worse).doubleValue()).isEqualTo(getDelta("1/2"));
+    }
+
+    private double getDelta(final String value) {
+        return Fraction.getFraction(value).doubleValue();
+    }
 
     @Test
     void shouldComputeMaximum() {
-        var worse = new Coverage(Metric.LINE, 0, 2);
-        var coverage = new Coverage(Metric.LINE, 1, 1);
-        var better = new Coverage(Metric.LINE, 2, 0);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage worse = builder.setCovered(0).setMissed(2).build();
+        Coverage coverage = builder.setCovered(1).setMissed(1).build();
+        Coverage better = builder.setCovered(2).setMissed(0).build();
 
         assertThat(coverage.max(coverage)).isSameAs(coverage);
         assertThat(coverage.max(better)).isSameAs(better);
@@ -37,27 +61,37 @@ class CoverageTest {
     @ValueSource(ints = {0, 1, 2, 4, 5})
     @DisplayName("Ensure that exception is thrown if totals do not match")
     void shouldThrowExceptionWhenMaximumIsInvalid(final int covered) {
-        var coverage = new Coverage(Metric.LINE, 2, 1);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder.setCovered(2).setMissed(1).build();
 
         assertThatExceptionOfType(AssertionError.class).isThrownBy(
-                () -> coverage.max(new Coverage(Metric.LINE, covered, 0)));
+                () -> coverage.max(
+                        builder.setCovered(covered).setMissed(0).build()));
     }
 
     @Test
     @DisplayName("Ensure that exception is thrown if constructor is invoked with invalid values")
     void shouldThrowExceptionWhenInitializationIsInvalid() {
-        assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> new Coverage(Metric.LINE, -1, 0));
-        assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> new Coverage(Metric.LINE, 0, -1));
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> builder.setCovered(-1).setMissed(0).build());
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> builder.setCovered(0).setMissed(-1).build());
     }
 
     @Test
     @DisplayName("Ensure that exception is thrown if Value instances are not compatible")
     void shouldThrowExceptionWithIncompatibleValue() {
-        Coverage coverage = new Coverage(Metric.LINE, 1, 2);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder.setCovered(1).setMissed(2).build();
         LinesOfCode loc = new LinesOfCode(1);
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.add(loc));
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.max(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.delta(loc));
     }
 
     @Test
@@ -68,32 +102,39 @@ class CoverageTest {
                 .hasMissed(0)
                 .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(0)
-                .hasToString(NO_COVERAGE_AVAILABLE);
+                .hasToString("LINE: n/a");
         assertThat(NO_COVERAGE.add(NO_COVERAGE)).isEqualTo(NO_COVERAGE);
     }
 
     @Test
     void shouldCreatePercentages() {
-        Coverage coverage = new Coverage(Metric.LINE, 6, 4);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder.setCovered(6).setMissed(4).build();
         assertThat(coverage)
                 .hasCovered(6)
                 .hasCoveredPercentage(Fraction.getFraction(6, 10))
                 .hasMissed(4)
                 .hasMissedPercentage(Fraction.getFraction(4, 10))
                 .hasTotal(10)
-                .hasToString("60.00% (6/10)");
+                .hasToString("LINE: 60.00% (6/10)");
 
         assertThat(coverage.add(NO_COVERAGE)).isEqualTo(coverage);
 
-        Coverage sum = coverage.add(new Coverage(Metric.LINE, 10, 0));
-        assertThat(sum).isEqualTo(new Coverage(Metric.LINE, 16, 4));
+        Coverage sum = coverage.add(builder.setCovered(10).setMissed(0).build());
+        assertThat(sum).isEqualTo(builder.setCovered(16).setMissed(4).build());
     }
 
     @ParameterizedTest(name = "Test {index}: Covered items ''{0}''")
     @ValueSource(ints = {0, 1, 2, 3, 4, 5})
     @DisplayName("Coverage creation")
     void shouldCreateCoverage(final int covered) {
-        Coverage coverage = new Coverage(Metric.LINE, covered, 5 - covered);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder
+                .setCovered(covered)
+                .setMissed(5 - covered)
+                .build();
 
         assertThat(coverage).hasCovered(covered).hasTotal(5);
         assertThat(coverage.toString()).contains(covered + "/");
@@ -109,7 +150,9 @@ class CoverageTest {
     })
     @DisplayName("Coverage creation")
     void shouldCreateCoverage(final int covered, final int missed, final String toString) {
-        Coverage coverage = new Coverage(Metric.LINE, covered, missed);
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder.setCovered(covered).setMissed(missed).build();
 
         assertThat(coverage).hasCovered(covered).hasMissed(missed);
         assertThat(coverage.toString()).endsWith(String.format("(%s)", toString));

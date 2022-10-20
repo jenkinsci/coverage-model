@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.LinesOfCode;
@@ -25,11 +26,6 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-/**
- * Tests the class {@link JacocoParser}.
- *
- * @author Ullrich Hafner
- */
 class JacocoParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 
@@ -52,12 +48,21 @@ class JacocoParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(18);
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, INSTRUCTION, COMPLEXITY);
-        assertThat(tree.getMetricsDistribution()).containsExactly(entry(MODULE, new Coverage(MODULE, 1, 0)),
-                entry(PACKAGE, new Coverage(PACKAGE, 1, 0)), entry(FILE, new Coverage(FILE, 7, 3)),
-                entry(CLASS, new Coverage(CLASS, 15, 3)), entry(METHOD, new Coverage(METHOD, 97, 5)),
-                entry(INSTRUCTION, new Coverage(INSTRUCTION, 1260, 90)), entry(LINE, new Coverage(LINE, 294, 29)),
-                entry(BRANCH, new Coverage(BRANCH, 109, 7)), entry(COMPLEXITY, new CyclomaticComplexity(160)));
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH, COMPLEXITY, LOC);
+
+        var builder = new CoverageBuilder();
+
+        assertThat(tree.getMetricsDistribution()).containsExactly(
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
+                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
+                entry(FILE, builder.setMetric(FILE).setCovered(7).setMissed(3).build()),
+                entry(CLASS, builder.setMetric(CLASS).setCovered(15).setMissed(3).build()),
+                entry(METHOD, builder.setMetric(METHOD).setCovered(97).setMissed(5).build()),
+                entry(LINE, builder.setMetric(LINE).setCovered(294).setMissed(29).build()),
+                entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(109).setMissed(7).build()),
+                entry(COMPLEXITY, new CyclomaticComplexity(160)),
+                entry(LOC, new LinesOfCode(294 + 29)));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -68,9 +73,9 @@ class JacocoParserTest {
                 .filter(n -> n.getName().equals("Ensure.java"))
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
-        assertThat(any.getValue(LINE)).contains(new Coverage(LINE, 100, 25));
+        assertThat(any.getValue(LINE)).contains(builder.setMetric(LINE).setCovered(100).setMissed(25).build());
         assertThat(any.getValue(LOC)).contains(new LinesOfCode(125));
-        assertThat(any.getValue(BRANCH)).contains(new Coverage(BRANCH, 40, 6));
+        assertThat(any.getValue(BRANCH)).contains(builder.setMetric(BRANCH).setCovered(40).setMissed(6).build());
         assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
 
         verifyCoverageMetrics(tree);
@@ -85,7 +90,8 @@ class JacocoParserTest {
         verifyCoverageMetrics(tree);
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
-        assertThat(tree.getMetricsDistribution()).contains(entry(PACKAGE, new Coverage(PACKAGE, 4, 0)));
+        var coverage = new CoverageBuilder().setMetric(PACKAGE).setCovered(4).setMissed(0).build();
+        assertThat(tree.getMetricsDistribution()).contains(entry(PACKAGE, coverage));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)

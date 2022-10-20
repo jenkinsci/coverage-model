@@ -2,6 +2,8 @@ package edu.hm.hafner.metric;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.metric.assertions.Assertions.*;
@@ -12,6 +14,11 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
  * @author Melissa Bauer
  */
 class CyclomaticComplexityTest {
+    private static final Coverage COVERAGE = new CoverageBuilder().setMetric(Metric.LINE)
+            .setCovered(1)
+            .setMissed(1)
+            .build();
+
     @Test
     void shouldCreateComplexityLeaf() {
         assertThat(new CyclomaticComplexity(125)).hasValue(125);
@@ -30,7 +37,7 @@ class CyclomaticComplexityTest {
         assertThatIllegalArgumentException().isThrownBy(() ->
                 new CyclomaticComplexity(25).add(new LinesOfCode(100)));
         assertThatIllegalArgumentException().isThrownBy(() ->
-                new CyclomaticComplexity(25).add(new Coverage(Metric.LINE, 1, 1)));
+                new CyclomaticComplexity(25).add(COVERAGE));
     }
 
     @Test
@@ -38,7 +45,7 @@ class CyclomaticComplexityTest {
         assertThatIllegalArgumentException().isThrownBy(() ->
                 new CyclomaticComplexity(25).max(new LinesOfCode(100)));
         assertThatIllegalArgumentException().isThrownBy(() ->
-                new CyclomaticComplexity(25).max(new Coverage(Metric.LINE, 1, 1)));
+                new CyclomaticComplexity(25).max(COVERAGE));
     }
 
     @Test

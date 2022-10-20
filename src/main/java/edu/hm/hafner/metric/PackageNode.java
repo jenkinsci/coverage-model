@@ -31,7 +31,7 @@ public final class PackageNode extends Node {
     }
 
     @Override
-    public Node copyEmpty() {
+    public Node copy() {
         return new PackageNode(getName());
     }
 
@@ -58,5 +58,10 @@ public final class PackageNode extends Node {
         else {
             return "-";
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s (%s) <%d>", getMetric(), getName(), getPath(), getChildren().size());
     }
 }

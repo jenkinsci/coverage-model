@@ -13,7 +13,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.metric.ClassNode;
-import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
@@ -30,6 +30,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
  *
  * @author Melissa Bauer
  */
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class CoberturaParser extends XmlParser {
     private static final long serialVersionUID = -3625341318291829577L;
 
@@ -133,7 +134,8 @@ public class CoberturaParser extends XmlParser {
                 handleLineElement(element);
                 break;
 
-            default: break;
+            default:
+                break;
         }
     }
 
@@ -187,7 +189,7 @@ public class CoberturaParser extends XmlParser {
 
         // collect linenumber to coverage information in "lines" part
         if (!currentNode.getMetric().equals(Metric.METHOD)) {
-            getLinenumberToCoverage(element, lineNumber, lineHits, isBranch);
+            getLineNumberToCoverage(element, lineNumber, lineHits, isBranch);
         }
         // only count lines/branches for method coverage
         else {
@@ -195,32 +197,33 @@ public class CoberturaParser extends XmlParser {
         }
     }
 
-    private void getLinenumberToCoverage(final StartElement element, final int lineNumber, final int lineHits,
+    private void getLineNumberToCoverage(final StartElement element, final int lineNumber, final int lineHits,
             final boolean isBranch) {
-        Coverage coverage;
+        var builder = new CoverageBuilder();
 
-        if (!isBranch) {
-            if (lineHits > 0) {
-                coverage = new Coverage(Metric.LINE, 1, 0);
-            }
-            else {
-                coverage = new Coverage(Metric.LINE, 0, 1);
-            }
-
-            currentFileNode.addLineCoverage(lineNumber, coverage);
-        }
-        else {
+        if (isBranch) {
             String[] coveredAllInformation = parseConditionCoverage(element);
             int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
 
-            if (covered > 0) {
-                coverage = new Coverage(Metric.BRANCH, 1, 0);
-            }
-            else {
-                coverage = new Coverage(Metric.BRANCH, 0, 1);
-            }
+            builder.setMetric(Metric.BRANCH);
+            setCoveredVsMissed(builder, covered);
 
-            currentFileNode.getLineNumberToBranchCoverage().put(lineNumber, coverage);
+            currentFileNode.addBranchCoverage(lineNumber, builder.build());
+        }
+        else {
+            builder.setMetric(Metric.LINE);
+            setCoveredVsMissed(builder, lineHits);
+
+            currentFileNode.addLineCoverage(lineNumber, builder.build());
+        }
+    }
+
+    private void setCoveredVsMissed(final CoverageBuilder builder, final int coveredItems) {
+        if (coveredItems > 0) {
+            builder.setCovered(1).setMissed(0);
+        }
+        else {
+            builder.setCovered(0).setMissed(1);
         }
     }
 
@@ -266,12 +269,13 @@ public class CoberturaParser extends XmlParser {
 
             case "method": // currentNode = methodNode, classNode after
                 // create leaves
-                Coverage lines = new Coverage(Metric.LINE, linesCovered, linesMissed);
-                currentNode.addValue(lines);
+                var builder = new CoverageBuilder();
+                builder.setMetric(Metric.LINE).setCovered(linesCovered).setMissed(linesMissed);
+                currentNode.addValue(builder.build());
 
                 if (branchesMissed + branchesCovered > 0) {
-                    Coverage branches = new Coverage(Metric.BRANCH, branchesCovered, branchesMissed);
-                    currentNode.addValue(branches);
+                    builder.setMetric(Metric.BRANCH).setCovered(branchesCovered).setMissed(branchesMissed);
+                    currentNode.addValue(builder.build());
                 }
 
                 // reset values
@@ -282,7 +286,8 @@ public class CoberturaParser extends XmlParser {
 
                 currentNode = currentNode.getParent(); // go to class node
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 

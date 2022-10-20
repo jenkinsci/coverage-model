@@ -52,7 +52,7 @@ class PackageNodeTest extends AbstractNodeTest {
         parent.addChild(child);
 
         // When
-        Node actualEmptyCopy = parent.copyEmpty();
+        Node actualEmptyCopy = parent.copy();
 
         // Then
         assertThat(actualEmptyCopy)

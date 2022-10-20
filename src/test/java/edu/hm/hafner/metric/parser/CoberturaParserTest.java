@@ -10,8 +10,10 @@ import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
+import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
@@ -24,7 +26,7 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
 class CoberturaParserTest {
     @Test
     void shouldReadCoberturaIssue473() {
-        ModuleNode tree = readExampleReport("src/test/resources/cobertura-npe.xml");
+        Node tree = readReport("src/test/resources/cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -33,21 +35,24 @@ class CoberturaParserTest {
                 .extracting(Node::getName)
                 .containsOnly("Lisec.CoverageTest.Program", "Lisec.CoverageTest.Startup");
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY);
+        var builder = new CoverageBuilder();
+
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
         assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, new Coverage(MODULE, 1, 0)),
-                entry(PACKAGE, new Coverage(PACKAGE, 1, 0)),
-                entry(FILE, new Coverage(FILE, 2, 0)),
-                entry(CLASS, new Coverage(CLASS, 2, 0)),
-                entry(METHOD, new Coverage(METHOD, 4, 1)),
-                entry(LINE, new Coverage(LINE, 42, 9)),
-                entry(BRANCH, new Coverage(BRANCH, 3, 0)),
-                entry(COMPLEXITY, new CyclomaticComplexity(8)));
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
+                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
+                entry(FILE, builder.setMetric(FILE).setCovered(2).setMissed(0).build()),
+                entry(CLASS, builder.setMetric(CLASS).setCovered(2).setMissed(0).build()),
+                entry(METHOD, builder.setMetric(METHOD).setCovered(4).setMissed(1).build()),
+                entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(0).build()),
+                entry(COMPLEXITY, new CyclomaticComplexity(8)),
+                entry(LOC, new LinesOfCode(42 + 9)));
     }
 
     @Test
     void shouldConvertCoberturaBigToTree() {
-        Node tree = readExampleReport("src/test/resources/cobertura.xml");
+        Node tree = readExampleReport();
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(5);
@@ -55,16 +60,19 @@ class CoberturaParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(5);
         assertThat(tree.getAll(METHOD)).hasSize(10);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY);
+        var builder = new CoverageBuilder();
+
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
         assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, new Coverage(MODULE, 1, 0)),
-                entry(PACKAGE, new Coverage(PACKAGE, 4, 1)),
-                entry(FILE, new Coverage(FILE, 4, 0)),
-                entry(CLASS, new Coverage(CLASS, 5, 0)),
-                entry(METHOD, new Coverage(METHOD, 7, 3)),
-                entry(LINE, new Coverage(LINE, 61, 19)),
-                entry(BRANCH, new Coverage(BRANCH, 2, 2)),
-                entry(COMPLEXITY, new CyclomaticComplexity(22)));
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
+                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build()),
+                entry(FILE, builder.setMetric(FILE).setCovered(4).setMissed(0).build()),
+                entry(CLASS, builder.setMetric(CLASS).setCovered(5).setMissed(0).build()),
+                entry(METHOD, builder.setMetric(METHOD).setCovered(7).setMissed(3).build()),
+                entry(LINE, builder.setMetric(LINE).setCovered(61).setMissed(19).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(2).setMissed(2).build()),
+                entry(COMPLEXITY, new CyclomaticComplexity(22)),
+                entry(LOC, new LinesOfCode(61 + 19)));
 
         assertThat(tree.getChildren()).extracting(Node::getName)
                 .hasSize(5)
@@ -74,8 +82,8 @@ class CoberturaParserTest {
     }
 
     @Test
-    void testAmountOfLinenumberTolines() {
-        Node tree = readExampleReport("src/test/resources/cobertura.xml");
+    void shouldComputeAmountOfLineNumberToLines() {
+        Node tree = readExampleReport();
         List<Node> nodes = tree.getAll(FILE);
 
         long missedLines = 0;
@@ -91,7 +99,7 @@ class CoberturaParserTest {
 
     @Test
     void shouldHaveOneSource() {
-        ModuleNode tree = readExampleReport("src/test/resources/cobertura.xml");
+        ModuleNode tree = readExampleReport();
 
         assertThat(tree.getSources().size()).isOne();
         assertThat(tree.getSources().get(0)).isEqualTo("/app/app/code/Invocare/InventoryBranch");
@@ -129,13 +137,17 @@ class CoberturaParserTest {
                 .hasMetric(MODULE).hasParentName("^");
     }
 
-    private ModuleNode readExampleReport(final String fileName) {
+    private ModuleNode readExampleReport() {
+        return readReport("src/test/resources/cobertura.xml");
+    }
+
+    private ModuleNode readReport(final String fileName) {
         try (FileInputStream stream = new FileInputStream(fileName);
                 InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new CoberturaParser().parse(reader);
         }
         catch (IOException e) {
-            throw new AssertionError(e);
+            throw new RuntimeException(e);
         }
     }
 }

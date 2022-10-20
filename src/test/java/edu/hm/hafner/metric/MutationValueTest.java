@@ -3,6 +3,7 @@ package edu.hm.hafner.metric;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -18,7 +19,6 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
  */
 @DefaultLocale("en")
 class MutationValueTest {
-
     @Test
     void shouldCreateMutationValueWithMutation() {
         Mutation mutationLeaf = new Mutation(true, MutationStatus.KILLED);
@@ -57,6 +57,8 @@ class MutationValueTest {
                 .hasKilled(3)
                 .hasSurvived(4)
                 .hasMutations(mutations);
+
+        assertThat(mutationValue.getMutations()).hasSize(5).doesNotContain(mutationToAdd);
     }
 
     @Test
@@ -67,6 +69,22 @@ class MutationValueTest {
         MutationValue maxValue = firstMutationValue.max(secondMutationValue);
 
         assertThat(maxValue).isEqualTo(secondMutationValue);
+    }
+
+    @Test
+    void shouldComputeDelta() {
+        MutationValue worse = new MutationValue(createMutations(), 0, 2);
+        MutationValue ok = new MutationValue(createMutations(), 1, 1);
+        MutationValue better = new MutationValue(createMutations(), 2, 0);
+
+        assertThat(worse.delta(better).doubleValue()).isEqualTo(getDelta("-1/1"));
+        assertThat(better.delta(worse).doubleValue()).isEqualTo(getDelta("1/1"));
+        assertThat(worse.delta(ok).doubleValue()).isEqualTo(getDelta("-1/2"));
+        assertThat(ok.delta(worse).doubleValue()).isEqualTo(getDelta("1/2"));
+    }
+
+    private static double getDelta(final String value) {
+        return Fraction.getFraction(value).doubleValue();
     }
 
     private List<Mutation> createMutations() {

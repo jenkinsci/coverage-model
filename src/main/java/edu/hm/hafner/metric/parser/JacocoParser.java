@@ -10,7 +10,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 
 import edu.hm.hafner.metric.ClassNode;
-import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
@@ -164,9 +164,11 @@ public class JacocoParser extends XmlParser {
             case "LINE":
             case "INSTRUCTION":
             case "BRANCH":
-                value = new Coverage(Metric.valueOf(currentType),
-                        Integer.parseInt(getValueOf(element, COVERED)),
-                        Integer.parseInt(getValueOf(element, MISSED)));
+                var builder = new CoverageBuilder();
+                value = builder.setMetric(Metric.valueOf(currentType))
+                        // TODO: create String setters in builder
+                        .setCovered(Integer.parseInt(getValueOf(element, COVERED)))
+                        .setMissed(Integer.parseInt(getValueOf(element, MISSED))).build();
                 break;
             case "COMPLEXITY":
                 int complexity = Integer.parseInt(getValueOf(element, COVERED))
@@ -199,24 +201,25 @@ public class JacocoParser extends XmlParser {
             throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
         }
 
+        var builder = new CoverageBuilder();
         if (isInstructionCovered || missedInstructions > 0) {
-            Coverage instructionLeaf = new Coverage(Metric.INSTRUCTION, coveredInstructions, missedInstructions);
-            ((FileNode) currentNode).addInstructionCoverage(lineNumber, instructionLeaf);
+            builder.setMetric(Metric.INSTRUCTION).setCovered(coveredInstructions).setMissed(missedInstructions);
+            ((FileNode) currentNode).addInstructionCoverage(lineNumber, builder.build());
         }
 
         if (isBranchCovered || missedBranches > 0) {
-            Coverage branchLeaf = new Coverage(Metric.BRANCH, coveredBranches, missedBranches);
-            ((FileNode) currentNode).addBranchCoverage(lineNumber, branchLeaf);
+            builder.setMetric(Metric.BRANCH).setCovered(coveredBranches).setMissed(missedBranches);
+            ((FileNode) currentNode).addBranchCoverage(lineNumber, builder.build());
         }
 
-        Coverage lineLeaf;
+        builder.setMetric(Metric.LINE);
         if (isBranchCovered || isInstructionCovered) {
-            lineLeaf = new Coverage(Metric.LINE, 1, 0);
+            builder.setCovered(1).setMissed(0);
         }
         else {
-            lineLeaf = new Coverage(Metric.LINE, 0, 1);
+            builder.setCovered(0).setMissed(1);
         }
-        ((FileNode) currentNode).addLineCoverage(lineNumber, lineLeaf);
+        ((FileNode) currentNode).addLineCoverage(lineNumber, builder.build());
     }
 
     /**

@@ -36,7 +36,7 @@ public final class ClassNode extends Node {
     }
 
     @Override
-    public ClassNode copyEmpty() {
+    public ClassNode copy() {
         return new ClassNode(getName());
     }
 }
