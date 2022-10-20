@@ -33,6 +33,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  *
  * @author Melissa Bauer
  */
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class PitestParser extends XmlParser {
     private static final long serialVersionUID = 3449160972709724274L;
 

@@ -60,7 +60,7 @@ public final class MutationValue extends Value {
     }
 
     public List<Mutation> getMutations() {
-        return mutations;
+        return List.copyOf(mutations);
     }
 
     public int getKilled() {
@@ -109,7 +109,6 @@ public final class MutationValue extends Value {
         }
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
-
 
     private MutationValue castAndMap(final Value other, final UnaryOperator<MutationValue> mapper) {
         if (hasSameMetric(other) && other instanceof MutationValue) {
