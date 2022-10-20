@@ -26,17 +26,17 @@ public class SafeFraction {
      * arithmetic exception due to an overflow, this method will handle this situation by calculating the multiplication
      * based on the double values of the fractions.
      *
-     * @param multiplicator
+     * @param multiplier
      *         the fraction to multiply by
      *
      * @return a {@code Fraction} instance with the resulting values
      */
-    public Fraction multiplyBy(final Fraction multiplicator) {
+    public Fraction multiplyBy(final Fraction multiplier) {
         try {
-            return fraction.multiplyBy(multiplicator);
+            return fraction.multiplyBy(multiplier);
         }
         catch (ArithmeticException exception) {
-            return Fraction.getFraction(fraction.doubleValue() * multiplicator.doubleValue());
+            return Fraction.getFraction(fraction.doubleValue() * multiplier.doubleValue());
         }
     }
 
