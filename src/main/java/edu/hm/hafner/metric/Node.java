@@ -140,7 +140,9 @@ public abstract class Node implements Serializable {
 
         elements.add(getMetric());
         elements.addAll(values.keySet());
-
+        if (elements.contains(Metric.LINE)) {
+            elements.add(Metric.LOC); // TODO: would it make sense to make that not hard-coded?
+        }
         return elements;
     }
 

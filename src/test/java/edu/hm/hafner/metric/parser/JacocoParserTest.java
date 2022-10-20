@@ -3,6 +3,7 @@ package edu.hm.hafner.metric.parser;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -47,7 +48,7 @@ class JacocoParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(18);
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, INSTRUCTION, COMPLEXITY);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH, COMPLEXITY, LOC);
 
         var builder = new CoverageBuilder();
 
@@ -57,10 +58,11 @@ class JacocoParserTest {
                 entry(FILE, builder.setMetric(FILE).setCovered(7).setMissed(3).build()),
                 entry(CLASS, builder.setMetric(CLASS).setCovered(15).setMissed(3).build()),
                 entry(METHOD, builder.setMetric(METHOD).setCovered(97).setMissed(5).build()),
-                entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
                 entry(LINE, builder.setMetric(LINE).setCovered(294).setMissed(29).build()),
+                entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
                 entry(BRANCH, builder.setMetric(BRANCH).setCovered(109).setMissed(7).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(160)));
+                entry(COMPLEXITY, new CyclomaticComplexity(160)),
+                entry(LOC, new LinesOfCode(294 + 29)));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -169,8 +171,8 @@ class JacocoParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        try (FileInputStream stream = new FileInputStream(
-                "src/test/resources/jacoco-codingstyle.xml"); InputStreamReader reader = new InputStreamReader(stream)) {
+        try (FileInputStream stream = new FileInputStream("src/test/resources/jacoco-codingstyle.xml");
+                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new JacocoParser().parse(reader);
         }
         catch (IOException e) {

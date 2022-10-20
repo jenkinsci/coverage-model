@@ -21,10 +21,10 @@ public enum Metric {
     FILE(new LocOfChildrenEvaluator()),
     CLASS(new LocOfChildrenEvaluator()),
     METHOD(new LocOfChildrenEvaluator()),
-    INSTRUCTION(new ValuesAggregator()),
     LINE(new ValuesAggregator()),
-    MUTATION(new ValuesAggregator()),
+    INSTRUCTION(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),
+    MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
     LOC(new LocEvaluator());
 

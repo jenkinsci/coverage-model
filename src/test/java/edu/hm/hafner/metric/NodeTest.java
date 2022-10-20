@@ -104,17 +104,18 @@ class NodeTest {
     void shouldCalculateDistributedMetrics() {
         var builder = new CoverageBuilder();
 
-        Value valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
-        Value valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
-
         Node node = new ModuleNode("Node");
+
+        Value valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
         node.addValue(valueOne);
+        Value valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
         node.addValue(valueTwo);
 
-        assertThat(node.getMetricsDistribution()).hasSize(3).contains(
+        assertThat(node.getMetricsDistribution()).containsExactly(
+                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
                 entry(LINE, valueOne),
                 entry(BRANCH, valueTwo),
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()));
+                entry(LOC, new LinesOfCode(1)));
     }
 
     @Test
