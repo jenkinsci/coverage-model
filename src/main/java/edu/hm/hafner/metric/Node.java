@@ -407,7 +407,10 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return metric.equals(searchMetric) && name.equals(searchName);
+        if (!metric.equals(searchMetric)) {
+            return false;
+        }
+        return name.equals(searchName) || getPath().equals(searchName);
     }
 
     /**
