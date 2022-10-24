@@ -216,6 +216,12 @@ public abstract class Node implements Serializable {
      */
     // TODO: check if this method needs to be exposed as API
     public void clear() {
+        clearChildren();
+        values.clear();
+    }
+
+    // TODO: check if this method needs to be exposed as API
+    public void clearChildren() {
         children.forEach(c -> c.parent = null);
         children.clear();
         values.clear();
