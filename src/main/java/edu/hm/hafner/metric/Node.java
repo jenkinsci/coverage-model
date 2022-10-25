@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -144,6 +145,28 @@ public abstract class Node implements Serializable {
             elements.add(Metric.LOC); // TODO: would it make sense to make that not hard-coded?
         }
         return elements;
+    }
+
+    /**
+     * Returns the available metrics for the whole tree starting with this node.
+     *
+     * @return the elements in this tree
+     */
+    public NavigableSet<Metric> getValueMetrics() {
+        NavigableSet<Metric> elements = children.stream()
+                .map(Node::getValueMetrics)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        elements.addAll(values.keySet());
+        return elements;
+    }
+
+    public List<Value> condenseValues() {
+        return getValueMetrics().stream()
+                .map(this::getValue)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -443,6 +466,27 @@ public abstract class Node implements Serializable {
      */
     public Node copyTree() {
         return copyTree(null);
+    }
+
+    /**
+     * Creates a deep copy of the tree with this as root node.
+     *
+     * @return the root node of the copied tree
+     */
+    public Optional<Node> prune(final Predicate<Node> predicate) {
+        var prunedChildren = children.stream().map(c -> c.prune(predicate)).flatMap(Optional::stream).collect(Collectors.toList());
+        if (predicate.test(this)) {
+            var copy = copyNode();
+            copy.addAllChildren(prunedChildren);
+            copy.addAllValues(condenseValues());
+            return Optional.of(copy);
+        }
+        else if (!prunedChildren.isEmpty()) {
+            var copy = copyNode();
+            copy.addAllChildren(prunedChildren);
+            return Optional.of(copy);
+        }
+        return Optional.empty();
     }
 
     /**
