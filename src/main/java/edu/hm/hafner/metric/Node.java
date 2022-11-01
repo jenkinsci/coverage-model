@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -473,17 +474,15 @@ public abstract class Node implements Serializable {
      *
      * @return the root node of the copied tree
      */
-    public Optional<Node> prune(final Predicate<Node> predicate) {
-        var prunedChildren = children.stream().map(c -> c.prune(predicate)).flatMap(Optional::stream).collect(Collectors.toList());
+    public Optional<Node> prune(final Predicate<Node> predicate, final Consumer<Node> consumer) {
+        var copy = copy();
+        var prunedChildren = children.stream().map(c -> c.prune(predicate, consumer)).flatMap(Optional::stream).collect(Collectors.toList());
+        copy.addAllChildren(prunedChildren);
         if (predicate.test(this)) {
-            var copy = copyNode();
-            copy.addAllChildren(prunedChildren);
-            copy.addAllValues(condenseValues());
+            consumer.accept(this);
             return Optional.of(copy);
         }
         else if (!prunedChildren.isEmpty()) {
-            var copy = copyNode();
-            copy.addAllChildren(prunedChildren);
             return Optional.of(copy);
         }
         return Optional.empty();

@@ -187,7 +187,7 @@ public class CoberturaParser extends XmlParser {
             isBranch = Boolean.parseBoolean(branchAttribute.getValue());
         }
 
-        // collect linenumber to coverage information in "lines" part
+        // collect line number to coverage information in "lines" part
         if (!currentNode.getMetric().equals(Metric.METHOD)) {
             getLineNumberToCoverage(element, lineNumber, lineHits, isBranch);
         }
@@ -203,18 +203,18 @@ public class CoberturaParser extends XmlParser {
 
         if (isBranch) {
             String[] coveredAllInformation = parseConditionCoverage(element);
-            int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
+            int branchCounter = Integer.parseInt(coveredAllInformation[0].substring(1));
 
             builder.setMetric(Metric.BRANCH);
-            setCoveredVsMissed(builder, covered);
+            setCoveredVsMissed(builder, branchCounter);
 
-            currentFileNode.addBranchCoverage(lineNumber, builder.build());
+            // FIXME: check why branches are not stored as such?
+            int covered = lineHits > 0 ? 1 : 0;
+            currentFileNode.addCounters(lineNumber, covered, 1 - covered);
         }
         else {
-            builder.setMetric(Metric.LINE);
-            setCoveredVsMissed(builder, lineHits);
-
-            currentFileNode.addLineCoverage(lineNumber, builder.build());
+            int covered = lineHits > 0 ? 1 : 0;
+            currentFileNode.addCounters(lineNumber, covered, 1 - covered);
         }
     }
 

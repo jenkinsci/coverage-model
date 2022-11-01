@@ -31,7 +31,7 @@ public final class PackageNode extends Node {
     }
 
     @Override
-    public Node copy() {
+    public PackageNode copy() {
         return new PackageNode(getName());
     }
 

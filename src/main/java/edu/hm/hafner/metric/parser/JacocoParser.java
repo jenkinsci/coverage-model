@@ -43,7 +43,7 @@ public class JacocoParser extends XmlParser {
     private static final QName MB = new QName("mb");
     private static final QName CB = new QName("cb");
 
-    private static final String ERCURRENT_NODE_ERROR_MESSAGE = "Current node is not set";
+    private static final String NO_CURRENT_NODE = "Current node is not set";
 
     @CheckForNull
     private PackageNode currentPackageNode;
@@ -87,7 +87,7 @@ public class JacocoParser extends XmlParser {
                 MethodNode methodNode = new MethodNode(methodName, methodSignature, methodLine);
 
                 if (currentNode == null) {
-                    throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+                    throw new NoSuchElementException(NO_CURRENT_NODE);
                 }
                 currentNode.addChild(methodNode);
                 currentNode = methodNode;
@@ -106,7 +106,7 @@ public class JacocoParser extends XmlParser {
                 classNodeList.forEach(fileNode::addChild);
 
                 if (currentPackageNode == null) {
-                    throw new NoSuchElementException("Package node is not set");
+                    throw new NoSuchElementException("Package node is not set while processing " + fileNode);
                 }
                 currentPackageNode.addChild(fileNode);
                 currentNode = fileNode;
@@ -152,7 +152,7 @@ public class JacocoParser extends XmlParser {
         String currentType = getValueOf(element, TYPE);
 
         if (currentNode == null) {
-            throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+            throw new NoSuchElementException(NO_CURRENT_NODE);
         }
         // We only look for data on method layer
         if (!currentNode.getMetric().equals(Metric.METHOD)) {
@@ -194,32 +194,24 @@ public class JacocoParser extends XmlParser {
         int missedBranches = Integer.parseInt(getValueOf(element, MB));
         int coveredBranches = Integer.parseInt(getValueOf(element, CB));
 
-        boolean isInstructionCovered = coveredInstructions > 0;
-        boolean isBranchCovered = coveredBranches > 0;
-
         if (currentNode == null) {
-            throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+            throw new NoSuchElementException(NO_CURRENT_NODE);
         }
 
-        var builder = new CoverageBuilder();
-        if (isInstructionCovered || missedInstructions > 0) {
-            builder.setMetric(Metric.INSTRUCTION).setCovered(coveredInstructions).setMissed(missedInstructions);
-            ((FileNode) currentNode).addInstructionCoverage(lineNumber, builder.build());
-        }
-
-        if (isBranchCovered || missedBranches > 0) {
-            builder.setMetric(Metric.BRANCH).setCovered(coveredBranches).setMissed(missedBranches);
-            ((FileNode) currentNode).addBranchCoverage(lineNumber, builder.build());
-        }
-
-        builder.setMetric(Metric.LINE);
-        if (isBranchCovered || isInstructionCovered) {
-            builder.setCovered(1).setMissed(0);
+        int missed;
+        int covered;
+        if (missedBranches + coveredBranches == 0) { // only instruction coverage found
+            covered = coveredInstructions > 0 ? 1 : 0;
+            missed = covered > 0 ? 0 : 1;
+            if (covered == 1 && missedInstructions > 0) {
+                throw new IllegalArgumentException(String.format("%s", currentNode));
+            }
         }
         else {
-            builder.setCovered(0).setMissed(1);
+            covered = coveredBranches;
+            missed = missedBranches;
         }
-        ((FileNode) currentNode).addLineCoverage(lineNumber, builder.build());
+        ((FileNode) currentNode).addCounters(lineNumber, covered, missed);
     }
 
     /**
@@ -240,7 +232,7 @@ public class JacocoParser extends XmlParser {
 
             case "method":
                 if (currentNode == null) {
-                    throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+                    throw new NoSuchElementException(NO_CURRENT_NODE);
                 }
 
                 currentNode = currentNode.getParent();

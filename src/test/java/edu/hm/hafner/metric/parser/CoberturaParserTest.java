@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
-import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -89,8 +88,9 @@ class CoberturaParserTest {
         long missedLines = 0;
         long coveredLines = 0;
         for (Node node : nodes) {
-            missedLines = missedLines + ((FileNode) node).getMissedLinesCount();
-            coveredLines = coveredLines + ((FileNode) node).getCoveredLinesCount();
+            var lineCoverage = (Coverage) node.getValue(LINE).get();
+            missedLines = missedLines + lineCoverage.getMissed();
+            coveredLines = coveredLines + lineCoverage.getCovered();
         }
 
         assertThat(missedLines).isEqualTo(19);

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
-import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -128,12 +127,15 @@ class JacocoParserTest {
         long missedLines = 0;
         long coveredLines = 0;
         for (Node node : nodes) {
-            missedInstructions = missedInstructions + ((FileNode) node).getMissedInstructionsCount();
-            coveredInstructions = coveredInstructions + ((FileNode) node).getCoveredInstructionsCount();
-            missedBranches = missedBranches + ((FileNode) node).getMissedBranchesCount();
-            coveredBranches = coveredBranches + ((FileNode) node).getCoveredBranchesCount();
-            missedLines = missedLines + ((FileNode) node).getMissedLinesCount();
-            coveredLines = coveredLines + ((FileNode) node).getCoveredLinesCount();
+            var instructionCoverage = (Coverage) node.getValue(INSTRUCTION).orElse(Coverage.nullObject(INSTRUCTION));
+            missedInstructions = missedInstructions + instructionCoverage.getMissed();
+            coveredInstructions = coveredInstructions + instructionCoverage.getCovered();
+            var branchCoverage = (Coverage) node.getValue(BRANCH).orElse(Coverage.nullObject(BRANCH));
+            missedBranches = missedBranches + branchCoverage.getMissed();
+            coveredBranches = coveredBranches + branchCoverage.getCovered();
+            var lineCoverage = (Coverage) node.getValue(LINE).orElse(Coverage.nullObject(LINE));
+            missedLines = missedLines + lineCoverage.getMissed();
+            coveredLines = coveredLines + lineCoverage.getCovered();
         }
 
         assertThat(missedInstructions).isEqualTo(90);

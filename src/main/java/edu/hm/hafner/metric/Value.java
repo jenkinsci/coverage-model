@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.math.Fraction;
 
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
+
 /**
  * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction or branch coverage or mutation
  * or complexity.
@@ -39,6 +41,7 @@ public abstract class Value implements Serializable {
      *
      * @return the sum of this and the additional coverage
      */
+    @CheckReturnValue
     public abstract Value add(Value other);
 
     /**
@@ -49,6 +52,7 @@ public abstract class Value implements Serializable {
      *
      * @return the delta of this and the additional value
      */
+    @CheckReturnValue
     public abstract Fraction delta(Value other);
 
     /**
@@ -61,6 +65,7 @@ public abstract class Value implements Serializable {
      * @throws IllegalArgumentException
      *         if the totals
      */
+    @CheckReturnValue
     public abstract Value max(Value other);
 
     /**
