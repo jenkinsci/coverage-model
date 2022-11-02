@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -30,6 +31,9 @@ public abstract class XmlParser implements Serializable {
     protected void setRootNode(final ModuleNode newRootNode) {
         rootNode = newRootNode;
     }
+
+    private static final String OPTIONAL_JACOCO_ATTRIBUTE = "line";
+    private static final String OPTIONAL_COBERTURA_ATTRIBUTE = "complexity";
 
     /**
      * Parses xml report at given path.
@@ -81,6 +85,32 @@ public abstract class XmlParser implements Serializable {
     protected abstract void endElement(EndElement element);
 
     protected String getValueOf(final StartElement element, final QName attribute) {
-        return element.getAttributeByName(attribute).getValue();
+        Attribute value = element.getAttributeByName(attribute);
+
+        if (value == null) {
+            if (!isOptional(attribute.toString())) {
+                throw new IllegalArgumentException(
+                        String.format("Could not obtain attribute '%s' from element '%s'", attribute, element));
+            }
+            return null;
+        }
+
+        return value.getValue();
+    }
+
+    /**
+     * Checks if the given attribute is an optional one in the report or not.
+     * @param attribute the attribute of the report
+     * @return if the attribute is optional
+     */
+    private boolean isOptional(final String attribute) {
+        String concreteClass = this.getClass().getSimpleName();
+        switch (concreteClass) {
+            case "JacocoParser":
+                return OPTIONAL_JACOCO_ATTRIBUTE.equals(attribute);
+            case "CoberturaParser":
+                return OPTIONAL_COBERTURA_ATTRIBUTE.equals(attribute);
+            default: return false;
+        }
     }
 }
