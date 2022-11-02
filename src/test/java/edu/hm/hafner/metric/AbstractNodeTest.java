@@ -40,6 +40,7 @@ abstract class AbstractNodeTest {
     void shouldCopyNode() {
         Node parent = createParentWithValues();
         Node child = createNode(CHILD);
+        child.addValue(BRANCH_COVERAGE);
         parent.addChild(child);
 
         assertThat(parent)

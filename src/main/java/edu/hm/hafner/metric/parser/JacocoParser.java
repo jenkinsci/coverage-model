@@ -154,10 +154,6 @@ public class JacocoParser extends XmlParser {
         if (currentNode == null) {
             throw new NoSuchElementException(NO_CURRENT_NODE);
         }
-        // We only look for data on method layer
-        if (!currentNode.getMetric().equals(Metric.METHOD)) {
-            return;
-        }
 
         Value value;
         switch (currentType) {
@@ -227,6 +223,7 @@ public class JacocoParser extends XmlParser {
                 classNodesMap.clear();
                 break;
 
+            case "sourcefile":
             case "method":
                 if (currentNode == null) {
                     throw new NoSuchElementException(NO_CURRENT_NODE);

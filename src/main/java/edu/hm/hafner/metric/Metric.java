@@ -65,24 +65,7 @@ public enum Metric {
         abstract Optional<Value> compute(Node node, Metric searchMetric);
     }
 
-    private abstract static class AggregatingMetricEvaluator extends MetricEvaluator {
-        @Override
-        final Optional<Value> compute(final Node node, final Metric searchMetric) {
-            Optional<Value> aggregatedChildrenValue = node.getChildren().stream()
-                    .map(n -> n.getValue(searchMetric))
-                    .flatMap(Optional::stream)
-                    .reduce(Value::add);
-            Optional<Value> localMetricValue = getMetricOf(node, searchMetric);
-            return Stream.of(localMetricValue, aggregatedChildrenValue)
-                    .flatMap(Optional::stream)
-                    .reduce(Value::add);
-        }
-
-        protected abstract Optional<Value> getMetricOf(Node node, Metric searchMetric);
-    }
-
-    private static class LocOfChildrenEvaluator extends AggregatingMetricEvaluator {
-        @Override
+    private static class LocOfChildrenEvaluator extends MetricEvaluator {
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
                 var builder = new CoverageBuilder().setMetric(searchMetric);
@@ -98,6 +81,18 @@ public enum Metric {
             }
             return Optional.empty();
         }
+
+        @Override
+        final Optional<Value> compute(final Node node, final Metric searchMetric) {
+            Optional<Value> aggregatedChildrenValue = node.getChildren().stream()
+                    .map(n -> n.getValue(searchMetric))
+                    .flatMap(Optional::stream)
+                    .reduce(Value::add);
+            Optional<Value> localMetricValue = getMetricOf(node, searchMetric);
+            return Stream.of(localMetricValue, aggregatedChildrenValue)
+                    .flatMap(Optional::stream)
+                    .reduce(Value::add);
+        }
     }
 
     private static class LocEvaluator extends MetricEvaluator {
@@ -107,10 +102,21 @@ public enum Metric {
         }
     }
 
-    private static class ValuesAggregator extends AggregatingMetricEvaluator {
+    private static class ValuesAggregator extends MetricEvaluator {
         @Override
-        protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
-            return node.getValues().stream().filter(leaf -> leaf.getMetric().equals(searchMetric)).findAny();
+        final Optional<Value> compute(final Node node, final Metric searchMetric) {
+            Optional<Value> localMetricValue = node.getValues()
+                    .stream()
+                    .filter(leaf -> leaf.getMetric().equals(searchMetric))
+                    .findAny();
+            if (localMetricValue.isPresent()) {
+                return localMetricValue;
+            }
+            // aggregate children
+            return node.getChildren().stream()
+                    .map(n -> n.getValue(searchMetric))
+                    .flatMap(Optional::stream)
+                    .reduce(Value::add);
         }
     }
 }
