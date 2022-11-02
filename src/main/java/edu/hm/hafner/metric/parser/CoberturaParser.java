@@ -46,7 +46,6 @@ public class CoberturaParser extends XmlParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-    private PackageNode currentPackageNode;
     private FileNode currentFileNode;
     private Node currentNode;
 
@@ -112,7 +111,6 @@ public class CoberturaParser extends XmlParser {
                 PackageNode packageNode = new PackageNode(packageName);
                 getRootNode().addChild(packageNode);
 
-                currentPackageNode = packageNode; // save for later to be able to add fileNodes
                 currentNode = packageNode;
                 break;
 
@@ -155,7 +153,7 @@ public class CoberturaParser extends XmlParser {
         String[] parts = sourcefilePath.split("/", 0);
         String sourcefileName = parts[parts.length - 1];
 
-        Optional<Node> potentialNode = currentPackageNode.find(Metric.FILE, sourcefileName);
+        Optional<Node> potentialNode = currentNode.find(Metric.FILE, sourcefileName);
         if (potentialNode.isPresent()) {
             currentFileNode = (FileNode) potentialNode.get();
             currentFileNode.addChild(classNode);
@@ -163,7 +161,7 @@ public class CoberturaParser extends XmlParser {
         else {
             FileNode fileNode = new FileNode(sourcefileName);
             fileNode.addChild(classNode);
-            currentPackageNode.addChild(fileNode);
+            currentNode.addChild(fileNode);
             currentFileNode = fileNode;
         }
 
@@ -241,12 +239,8 @@ public class CoberturaParser extends XmlParser {
             int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
             int all = Integer.parseInt(StringUtils.chop(coveredAllInformation[1]));
 
-            if (covered > 0) {
-                branchesCovered = branchesCovered + covered;
-            }
-            else {
-                branchesMissed = branchesMissed + (all - covered);
-            }
+            branchesCovered = branchesCovered + covered;
+            branchesMissed = branchesMissed + (all - covered);
         }
     }
 
@@ -265,6 +259,10 @@ public class CoberturaParser extends XmlParser {
                 break;
             case "package": // reset
                 currentNode = getRootNode();
+                break;
+
+            case "class":
+                currentNode = currentNode.getParent();
                 break;
 
             case "method": // currentNode = methodNode, classNode after
