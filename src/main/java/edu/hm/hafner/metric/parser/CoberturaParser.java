@@ -120,8 +120,10 @@ public class CoberturaParser extends XmlParser {
             case "method": // currentNode = classNode, methodNode after
                 Node methodNode = new MethodNode(getValueOf(element, NAME), getValueOf(element, SIGNATURE));
 
-                int complexity = Integer.parseInt(getValueOf(element, COMPLEXITY));
-                methodNode.addValue(new CyclomaticComplexity(complexity));
+                String complexityValue = getValueOf(element, COMPLEXITY);
+                if (complexityValue != null) {
+                    methodNode.addValue(new CyclomaticComplexity(Integer.parseInt(complexityValue)));
+                }
 
                 currentNode.addChild(methodNode);
                 currentNode = methodNode;

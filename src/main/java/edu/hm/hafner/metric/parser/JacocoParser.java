@@ -29,21 +29,23 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 public class JacocoParser extends XmlParser {
     private static final long serialVersionUID = -6021749565311262221L;
 
-    /** Attributes of the XML elements. */
+    /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
-    private static final QName SOURCEFILENAME = new QName("sourcefilename");
     private static final QName DESC = new QName("desc");
     private static final QName TYPE = new QName("type");
-    private static final QName LINE = new QName("line");
     private static final QName MISSED = new QName("missed");
     private static final QName COVERED = new QName("covered");
     private static final QName NR = new QName("nr");
+
+    /** Implied attributes of the XML elements. */
+    private static final QName SOURCEFILENAME = new QName("sourcefilename");
+    private static final QName LINE = new QName("line");
     private static final QName MI = new QName("mi");
     private static final QName CI = new QName("ci");
     private static final QName MB = new QName("mb");
     private static final QName CB = new QName("cb");
 
-    private static final String ERCURRENT_NODE_ERROR_MESSAGE = "Current node is not set";
+    private static final String CURRENT_NODE_ERROR_MESSAGE = "Current node is not set";
 
     @CheckForNull
     private PackageNode currentPackageNode;
@@ -83,11 +85,18 @@ public class JacocoParser extends XmlParser {
             case "method": // currentNode = classNode, methodNode after
                 String methodName = getValueOf(element, NAME);
                 String methodSignature = getValueOf(element, DESC);
-                int methodLine = Integer.parseInt(getValueOf(element, LINE));
-                MethodNode methodNode = new MethodNode(methodName, methodSignature, methodLine);
+
+                String methodLine = getValueOf(element, LINE);
+                MethodNode methodNode;
+                if (methodLine == null) {
+                    methodNode = new MethodNode(methodName, methodSignature, 0);
+                }
+                else {
+                    methodNode = new MethodNode(methodName, methodSignature, Integer.parseInt(methodLine));
+                }
 
                 if (currentNode == null) {
-                    throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+                    throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
                 }
                 currentNode.addChild(methodNode);
                 currentNode = methodNode;
@@ -152,7 +161,7 @@ public class JacocoParser extends XmlParser {
         String currentType = getValueOf(element, TYPE);
 
         if (currentNode == null) {
-            throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+            throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
         }
         // We only look for data on method layer
         if (!currentNode.getMetric().equals(Metric.METHOD)) {
@@ -196,7 +205,7 @@ public class JacocoParser extends XmlParser {
         boolean isBranchCovered = coveredBranches > 0;
 
         if (currentNode == null) {
-            throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+            throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
         }
 
         if (isInstructionCovered || missedInstructions > 0) {
@@ -237,7 +246,7 @@ public class JacocoParser extends XmlParser {
 
             case "method":
                 if (currentNode == null) {
-                    throw new NoSuchElementException(ERCURRENT_NODE_ERROR_MESSAGE);
+                    throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
                 }
 
                 currentNode = currentNode.getParent();
