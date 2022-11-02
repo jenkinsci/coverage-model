@@ -70,9 +70,11 @@ public final class FileNode extends Node {
                 lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
+            copy.addChangedCodeLine(line);
         }
         copy.addValue(lineCoverage);
         copy.addValue(branchCoverage);
+
         return copy;
     }
 

@@ -203,9 +203,6 @@ public class JacocoParser extends XmlParser {
         if (missedBranches + coveredBranches == 0) { // only instruction coverage found
             covered = coveredInstructions > 0 ? 1 : 0;
             missed = covered > 0 ? 0 : 1;
-            if (covered == 1 && missedInstructions > 0) {
-                throw new IllegalArgumentException(String.format("%s", currentNode));
-            }
         }
         else {
             covered = coveredBranches;
