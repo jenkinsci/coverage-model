@@ -45,7 +45,7 @@ class CoberturaParserTest {
                 entry(CLASS, new Coverage(CLASS, 2, 0)),
                 entry(METHOD, new Coverage(METHOD, 4, 1)),
                 entry(LINE, new Coverage(LINE, 42, 9)),
-                entry(BRANCH, new Coverage(BRANCH, 3, 0)),
+                entry(BRANCH, new Coverage(BRANCH, 3, 1)),
                 entry(COMPLEXITY, new CyclomaticComplexity(8)));
     }
 
