@@ -26,7 +26,6 @@ import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class JacocoParserTest {
     private static final String PROJECT_NAME = "Java coding style";
@@ -231,25 +230,22 @@ class JacocoParserTest {
 
     @Test
     void shouldThrowExceptionWhenAttributesAreMissing() {
-        try (FileInputStream stream = new FileInputStream("src/test/resources/jacoco-missing-attribute.xml");
-                InputStreamReader reader = new InputStreamReader(stream)) {
-
-            assertThatThrownBy(() -> new JacocoParser().parse(reader))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assertThatThrownBy(() -> readReport("src/test/resources/jacoco-missing-attribute.xml"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 
     private ModuleNode readExampleReport() {
-        try (FileInputStream stream = new FileInputStream("src/test/resources/jacoco-codingstyle.xml");
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+        return readReport("src/test/resources/jacoco-codingstyle.xml");
+    }
+
+    private ModuleNode readReport(final String fileName) {
+        try (FileInputStream stream = new FileInputStream(fileName);
+             InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new JacocoParser().parse(reader);
         }
         catch (IOException e) {
-            throw new AssertionError(e);
+            throw new RuntimeException(e);
         }
     }
 }

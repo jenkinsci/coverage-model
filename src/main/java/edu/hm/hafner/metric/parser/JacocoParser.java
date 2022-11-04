@@ -45,6 +45,8 @@ public class JacocoParser extends XmlParser {
     private static final QName MB = new QName("mb");
     private static final QName CB = new QName("cb");
 
+    private static final String OPTIONAL_JACOCO_ATTRIBUTE = "line";
+
     private static final String CURRENT_NODE_ERROR_MESSAGE = "Current node is not set";
 
     @CheckForNull
@@ -258,5 +260,10 @@ public class JacocoParser extends XmlParser {
             default:
                 break;
         }
+    }
+
+    @Override
+    boolean isOptional(final String attribute) {
+        return OPTIONAL_JACOCO_ATTRIBUTE.equals(attribute);
     }
 }

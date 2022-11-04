@@ -32,9 +32,6 @@ public abstract class XmlParser implements Serializable {
         rootNode = newRootNode;
     }
 
-    private static final String OPTIONAL_JACOCO_ATTRIBUTE = "line";
-    private static final String OPTIONAL_COBERTURA_ATTRIBUTE = "complexity";
-
     /**
      * Parses xml report at given path.
      *
@@ -103,14 +100,5 @@ public abstract class XmlParser implements Serializable {
      * @param attribute the attribute of the report
      * @return if the attribute is optional
      */
-    private boolean isOptional(final String attribute) {
-        String concreteClass = this.getClass().getSimpleName();
-        switch (concreteClass) {
-            case "JacocoParser":
-                return OPTIONAL_JACOCO_ATTRIBUTE.equals(attribute);
-            case "CoberturaParser":
-                return OPTIONAL_COBERTURA_ATTRIBUTE.equals(attribute);
-            default: return false;
-        }
-    }
+    abstract boolean isOptional(String attribute);
 }

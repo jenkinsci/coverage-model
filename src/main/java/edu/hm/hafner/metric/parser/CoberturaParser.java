@@ -46,6 +46,8 @@ public class CoberturaParser extends XmlParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
+    private static final String OPTIONAL_COBERTURA_ATTRIBUTE = "complexity";
+
     private FileNode currentFileNode;
     private Node currentNode;
 
@@ -289,6 +291,11 @@ public class CoberturaParser extends XmlParser {
             default:
                 break;
         }
+    }
+
+    @Override
+    boolean isOptional(final String attribute) {
+        return OPTIONAL_COBERTURA_ATTRIBUTE.equals(attribute);
     }
 
     private String[] parseConditionCoverage(final StartElement element) {
