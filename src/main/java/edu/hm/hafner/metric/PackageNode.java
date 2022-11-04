@@ -1,5 +1,7 @@
 package edu.hm.hafner.metric;
 
+import java.util.Collection;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -18,6 +20,23 @@ public final class PackageNode extends Node {
      */
     public PackageNode(final String name) {
         super(Metric.PACKAGE, StringUtils.defaultIfBlank(name, "-"));
+    }
+
+    /**
+     * Creates a new coverage item node with the given name. / and \ in the name are replaced with a .
+     *
+     * @param name
+     *         the human-readable name of the node
+     * @param values
+     *         the values to add
+     *
+     * @see #addValue(Value)
+     * @see #addAllValues(Collection)
+     */
+    public PackageNode(final String name, final Collection<Value> values) {
+        this(name);
+
+        addAllValues(values);
     }
 
     @Override

@@ -73,19 +73,21 @@ public final class ModuleNode extends Node {
         allPackages.forEach(this::removeChild);
         for (Node packageNode : allPackages) {
             String[] packageParts = StringUtils.split(packageNode.getName(), "./\\");
-            ArrayUtils.reverse(packageParts);
-            Optional<PackageNode> splitPackages = Arrays.stream(packageParts)
-                    .map(PackageNode::new)
-                    .reduce(PackageNode::appendPackage);
-            if (splitPackages.isPresent()) {
+            if (packageParts.length > 1) {
+                ArrayUtils.reverse(packageParts);
+                Optional<PackageNode> splitPackages = Arrays.stream(packageParts)
+                        .map(subPackage -> new PackageNode(subPackage, packageNode.getValues()))
+                        .reduce(PackageNode::appendPackage);
                 PackageNode localRoot = splitPackages.get();
                 Node localTail = localRoot;
                 while (localTail.hasChildren()) {
                     localTail = localTail.getChildren().get(0);
                 }
-                localTail.addAllChildren(packageNode.getChildren());
-                localTail.addAllValues(packageNode.getValues());
+                localTail.addAllChildren(packageNode.getChildren()); // move the children to the new tail
                 mergeSinglePackage(localRoot);
+            }
+            else {
+                mergeSinglePackage(packageNode);
             }
         }
     }

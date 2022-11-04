@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -275,7 +276,7 @@ public abstract class Node implements Serializable {
      * @param nodes
      *         nodes to add
      */
-    public void addAllChildren(final List<Node> nodes) {
+    public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
     }
 
@@ -309,7 +310,7 @@ public abstract class Node implements Serializable {
         values.put(value.getMetric(), value);
     }
 
-    protected void addAllValues(final List<Value> additionalValues) {
+    protected void addAllValues(final Collection<? extends Value> additionalValues) {
         additionalValues.forEach(this::addValue);
     }
 
@@ -543,6 +544,10 @@ public abstract class Node implements Serializable {
      *         if this root node is not compatible to the {@code other} root node
      */
     public Node combineWith(final Node other) {
+        if (other == this) {
+            return this; // nothing to do
+        }
+
         if (!other.getMetric().equals(getMetric())) {
             throw new IllegalArgumentException(
                     String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
@@ -560,7 +565,8 @@ public abstract class Node implements Serializable {
     }
 
     private void safelyCombineChildren(final Node other) {
-        other.values.forEach((k, v) -> values.merge(k, v, Value::max));
+        BiFunction<Value, Value, Value> mergeOperation = hasChildren() ? Value::add : Value::max;
+        other.values.forEach((k, v) -> values.merge(k, v, mergeOperation));
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
