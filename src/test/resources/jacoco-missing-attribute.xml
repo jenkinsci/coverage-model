@@ -3,7 +3,7 @@
 <report name="Java coding style">
   <sessioninfo id="Ullis-MBP-4.fritz.box-10de2bc5" start="1625931527713" dump="1625931553652"/>
   <package name="edu/hm/hafner/util">
-    <class name="edu/hm/hafner/util/NoSuchElementException" sourcefilename="NoSuchElementException.java">
+    <class name="edu/hm/hafner/util/NoSuchElementException" >
       <method name="&lt;init&gt;" desc="(Ljava/lang/String;[Ljava/lang/Object;)V" line="36">
         <counter type="INSTRUCTION" missed="6" covered="0"/>
         <counter type="LINE" missed="2" covered="0"/>
