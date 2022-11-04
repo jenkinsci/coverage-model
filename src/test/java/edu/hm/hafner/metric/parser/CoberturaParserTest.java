@@ -45,7 +45,7 @@ class CoberturaParserTest {
                 entry(CLASS, builder.setMetric(CLASS).setCovered(2).setMissed(0).build()),
                 entry(METHOD, builder.setMetric(METHOD).setCovered(4).setMissed(1).build()),
                 entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(0).build()),
+                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(1).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(8)),
                 entry(LOC, new LinesOfCode(42 + 9)));
     }
