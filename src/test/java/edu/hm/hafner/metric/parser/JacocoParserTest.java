@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.metric.Coverage;
@@ -172,13 +173,81 @@ class JacocoParserTest {
         assertThat(tree).hasName(PROJECT_NAME).doesNotHaveParent().isRoot().hasMetric(MODULE).hasParentName("^");
     }
 
+    @Test @Disabled("How should we handle these different results?")
+    void shouldCreateTreeOfAnalysisModel() {
+        Node tree;
+        try (FileInputStream stream = new FileInputStream(
+                "src/test/resources/jacoco-analysis-model.xml"); InputStreamReader reader = new InputStreamReader(stream)) {
+            tree = new JacocoParser().parse(reader);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertThat(tree).hasName("Static Analysis Model and Parsers");
+
+        assertThat(getCoverage(tree, LINE)).hasCovered(5531)
+                .hasCoveredPercentage(Fraction.getFraction(5531, 5531 + 267))
+                .hasMissed(267)
+                .hasMissedPercentage(Fraction.getFraction(267, 5531 + 267))
+                .hasTotal(5531 + 267);
+
+        assertThat(getCoverage(tree, BRANCH)).hasCovered(1544)
+                .hasCoveredPercentage(Fraction.getFraction(1544, 1544 + 205))
+                .hasMissed(205)
+                .hasMissedPercentage(Fraction.getFraction(205, 1544 + 205))
+                .hasTotal(1544 + 205);
+
+        assertThat(getCoverage(tree, INSTRUCTION)).hasCovered(24057)
+                .hasCoveredPercentage(Fraction.getFraction(24057, 24057 + 974))
+                .hasMissed(974)
+                .hasMissedPercentage(Fraction.getFraction(974, 24057 + 974))
+                .hasTotal(24057 + 974);
+
+        assertThat(getCoverage(tree, METHOD)).hasCovered(1615)
+                .hasCoveredPercentage(Fraction.getFraction(1615, 1615 + 45))
+                .hasMissed(45)
+                .hasMissedPercentage(Fraction.getFraction(45, 1615 + 45))
+                .hasTotal(1615 + 45);
+        // 3 empty classes not counted in report but parser
+        assertThat(getCoverage(tree, CLASS)).hasCovered(333)
+                .hasCoveredPercentage(Fraction.getFraction(333, 333 + 1))
+                .hasMissed(1)
+                .hasMissedPercentage(Fraction.getFraction(1, 333 + 1))
+                .hasTotal(333 + 1);
+
+        assertThat(getCoverage(tree, FILE)).hasCovered(6083)
+                .hasCoveredPercentage(Fraction.getFraction(6083, 6083 + 285))
+                .hasMissed(285)
+                .hasMissedPercentage(Fraction.getFraction(285, 6083 + 285))
+                .hasTotal(6083 + 285);
+
+        assertThat(getCoverage(tree, PACKAGE)).hasCovered(6083)
+                .hasCoveredPercentage(Fraction.getFraction(6083, 6083 + 285))
+                .hasMissed(285)
+                .hasMissedPercentage(Fraction.getFraction(285, 6083 + 285))
+                .hasTotal(6083 + 285);
+
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAttributesAreMissing() {
+        assertThatThrownBy(() -> readReport("src/test/resources/jacoco-missing-attribute.xml"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
+    }
+
     private ModuleNode readExampleReport() {
-        try (FileInputStream stream = new FileInputStream("src/test/resources/jacoco-codingstyle.xml");
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+        return readReport("src/test/resources/jacoco-codingstyle.xml");
+    }
+
+    private ModuleNode readReport(final String fileName) {
+        try (FileInputStream stream = new FileInputStream(fileName);
+             InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             return new JacocoParser().parse(reader);
         }
         catch (IOException e) {
-            throw new AssertionError(e);
+            throw new RuntimeException(e);
         }
     }
 }

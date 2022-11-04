@@ -181,6 +181,12 @@ public class PitestParser extends XmlParser {
         }
     }
 
+    // Pitest has no optional attributes
+    @Override
+    boolean isOptional(final String attribute) {
+        return false;
+    }
+
     /**
      * Creates a new packageNode, fileNode and classNode if they do not exist yet.
      */
