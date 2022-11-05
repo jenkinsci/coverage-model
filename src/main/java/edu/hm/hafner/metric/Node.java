@@ -649,4 +649,8 @@ public abstract class Node implements Serializable {
     public List<FileNode> getAllFileNodes() {
         return getAll(Metric.FILE).stream().map(t -> (FileNode) t).collect(Collectors.toList());
     }
+
+    public boolean isEmpty() {
+        return getChildren().isEmpty() && getValues().isEmpty();
+    }
 }
