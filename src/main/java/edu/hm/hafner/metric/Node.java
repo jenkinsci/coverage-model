@@ -48,7 +48,7 @@ public abstract class Node implements Serializable {
      *
      * @return a new tree with the merged {@link Node nodes}
      */
-    public static Node merge(final List<Node> nodes) {
+    public static Node merge(final List<? extends Node> nodes) {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("Cannot merge an empty list of nodes");
         }
@@ -59,6 +59,7 @@ public abstract class Node implements Serializable {
         if (nodes.stream().map(Node::getName).distinct().count() == 1
                 && nodes.stream().map(Node::getMetric).distinct().count() == 1) {
             return nodes.stream()
+                    .map(t -> (Node) t)
                     .reduce(Node::combineWith)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
