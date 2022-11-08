@@ -296,10 +296,8 @@ public abstract class Node implements Serializable {
             throw new IllegalArgumentException(
                     String.format("There is already a leaf %s with the metric %s", value, value.getMetric()));
         }
-        values.put(value.getMetric(), value);
+        replaceValue(value);
     }
-
-    // FIXME: why is this for mutation coverages only?
 
     /**
      * Replaces the specified value to the list of values to guarantee immutability.
@@ -307,7 +305,7 @@ public abstract class Node implements Serializable {
      * @param value
      *         the value to replace
      */
-    public void replaceMutationValue(final Value value) {
+    public void replaceValue(final Value value) {
         values.put(value.getMetric(), value);
     }
 
