@@ -72,8 +72,7 @@ public class JacocoParser extends XmlParser {
                 break;
 
             case "package": // currentNode = rootNode, packageNode after
-                String packageName = PackageNode.normalizePackageName(getValueOf(element, NAME));
-                PackageNode packageNode = new PackageNode(packageName);
+                PackageNode packageNode = new PackageNode(getValueOf(element, NAME));
                 getRootNode().addChild(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes

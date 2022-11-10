@@ -19,19 +19,20 @@ public final class ClassNode extends Node {
     }
 
     /**
-     * Finds the metric with the given name starting from this node.
+     * Searches for a method within this class (or within a nested class) with the given name and signature.
      *
      * @param searchName
-     *         the metric to search for
+     *         the name of the method
      * @param searchSignature
-     *         the name of the node
+     *         the signature of the method
      *
-     * @return the result if found
+     * @return the first matching method or an empty result, if no such method exists
      */
     public Optional<MethodNode> findMethodNode(final String searchName, final String searchSignature) {
-        return getChildren().stream()
+        return getAll(Metric.METHOD).stream()
                 .map(MethodNode.class::cast)
-                .filter(node -> node.getName().equals(searchName) && node.getSignature().equals(searchSignature))
+                .filter(node -> node.getName().equals(searchName)
+                        && node.getSignature().equals(searchSignature))
                 .findAny();
     }
 

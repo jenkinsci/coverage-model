@@ -109,8 +109,7 @@ public class CoberturaParser extends XmlParser {
                 break;
 
             case "package":
-                String packageName = PackageNode.normalizePackageName(getValueOf(element, NAME));
-                PackageNode packageNode = new PackageNode(packageName);
+                PackageNode packageNode = new PackageNode(getValueOf(element, NAME));
                 getRootNode().addChild(packageNode);
 
                 currentNode = packageNode;

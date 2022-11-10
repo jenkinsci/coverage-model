@@ -9,18 +9,19 @@ import java.util.stream.Stream;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
- * A coverage metric to identify the coverage result type. Note: this class has a natural ordering that is inconsistent
- * with equals.
+ * A coverage metric to identify the coverage result type.
  *
  * @author Ullrich Hafner
  */
 public enum Metric {
+    /** Nodes that can have children. */
     CONTAINER(new LocOfChildrenEvaluator()),
     MODULE(new LocOfChildrenEvaluator()),
     PACKAGE(new LocOfChildrenEvaluator()),
     FILE(new LocOfChildrenEvaluator()),
     CLASS(new LocOfChildrenEvaluator()),
     METHOD(new LocOfChildrenEvaluator()),
+
     LINE(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),

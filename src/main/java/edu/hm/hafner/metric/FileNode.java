@@ -55,7 +55,7 @@ public final class FileNode extends Node {
         var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
         var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
-        for (int line : changedCodeLines) {
+        for (int line : getCoveredLinesOfChangeSet()) {
             var covered = coveredPerLine.get(line);
             var missed = missedPerLine.get(line);
             copy.addCounters(line, covered, missed);

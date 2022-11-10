@@ -95,5 +95,4 @@ abstract class AbstractNodeTest {
                 new PackageNode("test")
         ).withIgnoredFields("parent").withRedefinedSuperclass().verify();
     }
-
 }
