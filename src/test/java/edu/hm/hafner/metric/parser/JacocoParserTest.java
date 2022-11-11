@@ -1,16 +1,11 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.math.Fraction;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
@@ -25,13 +20,9 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-class JacocoParserTest {
+@DefaultLocale("en")
+class JacocoParserTest extends ParserTest {
     private static final String PROJECT_NAME = "Java coding style";
-
-    @BeforeAll
-    static void beforeAll() {
-        Locale.setDefault(Locale.ENGLISH);
-    }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
         return (Coverage) node.getValue(metric).get();
@@ -184,12 +175,6 @@ class JacocoParserTest {
     }
 
     private ModuleNode readReport(final String fileName) {
-        try (FileInputStream stream = new FileInputStream(fileName);
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            return new JacocoParser().parse(reader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readReport(fileName, new JacocoParser());
     }
 }

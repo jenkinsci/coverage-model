@@ -1,12 +1,7 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Locale;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.MutationValue;
@@ -16,12 +11,8 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-class PitestParserTest {
-    @BeforeAll
-    static void beforeAll() {
-        Locale.setDefault(Locale.ENGLISH);
-    }
-
+@DefaultLocale("en")
+class PitestParserTest extends ParserTest {
     @Test
     void shouldConvertMutationsToTree() {
         ModuleNode tree = readExampleReport();
@@ -49,12 +40,6 @@ class PitestParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        try (FileInputStream stream = new FileInputStream("src/test/resources/mutations.xml");
-                InputStreamReader reader = new InputStreamReader(stream)) {
-            return new PitestParser().parse(reader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readReport("src/test/resources/mutations.xml", new PitestParser());
     }
 }

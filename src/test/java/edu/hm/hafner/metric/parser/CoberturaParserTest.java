@@ -1,13 +1,10 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
@@ -22,7 +19,8 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-class CoberturaParserTest {
+@DefaultLocale("en")
+class CoberturaParserTest extends ParserTest {
     @Test
     void shouldReadCoberturaIssue473() {
         Node tree = readReport("src/test/resources/cobertura-npe.xml");
@@ -142,12 +140,6 @@ class CoberturaParserTest {
     }
 
     private ModuleNode readReport(final String fileName) {
-        try (FileInputStream stream = new FileInputStream(fileName);
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            return new CoberturaParser().parse(reader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readReport(fileName, new CoberturaParser());
     }
 }
