@@ -48,8 +48,7 @@ public final class FileNode extends Node {
         return file;
     }
 
-
-    public FileNode filter() {
+    public FileNode filterChangedLines() {
         var copy = new FileNode(getName());
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);

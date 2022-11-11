@@ -21,8 +21,13 @@ import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 @DefaultLocale("en")
-class JacocoParserTest extends ParserTest {
+class JacocoParserTest extends AbstractParserTest {
     private static final String PROJECT_NAME = "Java coding style";
+
+    @Override
+    XmlParser createParser() {
+        return new JacocoParser();
+    }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
         return (Coverage) node.getValue(metric).get();
@@ -165,16 +170,12 @@ class JacocoParserTest extends ParserTest {
 
     @Test
     void shouldThrowExceptionWhenAttributesAreMissing() {
-        assertThatThrownBy(() -> readReport("src/test/resources/jacoco-missing-attribute.xml"))
+        assertThatThrownBy(() -> readReport("/jacoco-missing-attribute.xml"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("src/test/resources/jacoco-codingstyle.xml");
-    }
-
-    private ModuleNode readReport(final String fileName) {
-        return readReport(fileName, new JacocoParser());
+        return readReport("/jacoco-codingstyle.xml");
     }
 }

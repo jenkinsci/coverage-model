@@ -2,6 +2,7 @@ package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
 import java.io.Serializable;
+import java.util.NoSuchElementException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -23,9 +24,14 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 public abstract class XmlParser implements Serializable {
     private static final long serialVersionUID = -181158607646148018L;
 
+    @CheckForNull
     private ModuleNode rootNode;
 
-    public ModuleNode getRootNode() {
+    protected final ModuleNode getRootNode() {
+        if (rootNode == null) {
+            throw new NoSuchElementException("No root node found, is this file a valid coverage report?"); // TODO: Parsing exception
+        }
+
         return rootNode;
     }
 
@@ -63,7 +69,7 @@ public abstract class XmlParser implements Serializable {
             throw new ParsingException(ex);
         }
 
-        return rootNode;
+        return getRootNode();
     }
 
     /**

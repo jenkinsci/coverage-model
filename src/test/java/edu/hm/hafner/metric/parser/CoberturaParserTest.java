@@ -20,10 +20,15 @@ import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 @DefaultLocale("en")
-class CoberturaParserTest extends ParserTest {
+class CoberturaParserTest extends AbstractParserTest {
+    @Override
+    XmlParser createParser() {
+        return new CoberturaParser();
+    }
+
     @Test
     void shouldReadCoberturaIssue473() {
-        Node tree = readReport("src/test/resources/cobertura-npe.xml");
+        Node tree = readReport("/cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -136,10 +141,6 @@ class CoberturaParserTest extends ParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("src/test/resources/cobertura.xml");
-    }
-
-    private ModuleNode readReport(final String fileName) {
-        return readReport(fileName, new CoberturaParser());
+        return readReport("/cobertura.xml");
     }
 }

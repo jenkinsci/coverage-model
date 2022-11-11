@@ -12,7 +12,12 @@ import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 @DefaultLocale("en")
-class PitestParserTest extends ParserTest {
+class PitestParserTest extends AbstractParserTest {
+    @Override
+    XmlParser createParser() {
+        return new PitestParser();
+    }
+
     @Test
     void shouldConvertMutationsToTree() {
         ModuleNode tree = readExampleReport();
@@ -40,6 +45,6 @@ class PitestParserTest extends ParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("src/test/resources/mutations.xml", new PitestParser());
+        return readReport("/mutations.xml");
     }
 }
