@@ -1,6 +1,10 @@
 package edu.hm.hafner.metric;
 
+import java.util.Collection;
+
 import org.apache.commons.lang3.StringUtils;
+
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
@@ -11,13 +15,48 @@ public final class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
 
     /**
+     * Replace slashes and backslashes with a dot so that package names use the typical format of packages or
+     * namespaces.
+     *
+     * @param name
+     *         the package name to normalize
+     *
+     * @return the normalized name or "-" if the name is empty or {@code null}
+     */
+    public static String normalizePackageName(final String name) {
+        if (StringUtils.isNotBlank(name)) {
+            return StringUtils.replaceEach(name, new String[] {"/", "\\"}, new String[] {".", "."});
+        }
+        else {
+            return "-";
+        }
+    }
+
+    /**
+     * Creates a new coverage item node with the given name.
+     *
+     * @param name
+     *         the human-readable name of the node, see {@link #normalizePackageName(String)}
+     */
+    public PackageNode(@CheckForNull final String name) {
+        super(Metric.PACKAGE, normalizePackageName(name));
+    }
+
+    /**
      * Creates a new coverage item node with the given name. / and \ in the name are replaced with a .
      *
      * @param name
-     *         the human-readable name of the node
+     *         the human-readable name of the node, see {@link #normalizePackageName(String)}
+     * @param values
+     *         the values to add
+     *
+     * @see #addValue(Value)
+     * @see #addAllValues(Collection)
      */
-    public PackageNode(final String name) {
-        super(Metric.PACKAGE, StringUtils.defaultIfBlank(name, "-"));
+    public PackageNode(@CheckForNull final String name, final Collection<Value> values) {
+        this(name);
+
+        addAllValues(values);
     }
 
     @Override
@@ -31,33 +70,8 @@ public final class PackageNode extends Node {
     }
 
     @Override
-    public Node copy() {
+    public PackageNode copy() {
         return new PackageNode(getName());
-    }
-
-    /**
-     * Replace all / and \ with a .
-     *
-     * @param name
-     *         the package name to normalize
-     *
-     * @return the normalized name
-     */
-    public static String normalizePackageName(final String name) {
-        if (name != null && !name.isBlank()) {
-            if (name.contains("/")) {
-                return StringUtils.replace(name, "/", ".");
-            }
-            else if (name.contains("\\")) {
-                return StringUtils.replace(name, "\\", ".");
-            }
-            else {
-                return name;
-            }
-        }
-        else {
-            return "-";
-        }
     }
 
     @Override

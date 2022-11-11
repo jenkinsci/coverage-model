@@ -1,7 +1,7 @@
 package edu.hm.hafner.metric;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.Fraction;
 
-import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -21,9 +21,8 @@ import edu.hm.hafner.util.Ensure;
  */
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
-    private final NavigableMap<Integer, Coverage> lineNumberToBranchCoverage = new TreeMap<>();
-    private final NavigableMap<Integer, Coverage> lineNumberToInstructionCoverage = new TreeMap<>();
-    private final NavigableMap<Integer, Coverage> lineNumberToLineCoverage = new TreeMap<>();
+    private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
+    private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
     private final SortedSet<Integer> changedCodeLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> fileCoverageDelta = new TreeMap<>();
@@ -41,79 +40,50 @@ public final class FileNode extends Node {
     @Override
     public FileNode copy() {
         var file = new FileNode(getName());
-        file.lineNumberToBranchCoverage.putAll(lineNumberToBranchCoverage);
-        file.lineNumberToInstructionCoverage.putAll(lineNumberToInstructionCoverage);
-        file.lineNumberToLineCoverage.putAll(lineNumberToLineCoverage);
+        file.coveredPerLine.putAll(coveredPerLine);
+        file.missedPerLine.putAll(missedPerLine);
         file.changedCodeLines.addAll(changedCodeLines);
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
         file.fileCoverageDelta.putAll(fileCoverageDelta);
         return file;
     }
 
-    // TODO: check if it makes sense to use a map of maps?
 
-    /**
-     * Sets the branch coverage for a given line number.
-     *
-     * @param lineNumber
-     *         the line number
-     * @param coverage
-     *         the leaf to add
-     */
-    public void addBranchCoverage(final int lineNumber, final Coverage coverage) {
-        addCoverage(lineNumber, coverage, lineNumberToBranchCoverage, Metric.BRANCH);
-    }
-
-    /**
-     * Sets the line coverage for a given line number.
-     *
-     * @param lineNumber
-     *         the line number
-     * @param coverage
-     *         the leaf to add
-     */
-    public void addLineCoverage(final int lineNumber, final Coverage coverage) {
-        addCoverage(lineNumber, coverage, lineNumberToLineCoverage, Metric.LINE);
-    }
-
-    /**
-     * Sets the instruction coverage for a given line number.
-     *
-     * @param lineNumber
-     *         the line number
-     * @param coverage
-     *         the leaf to add
-     */
-    public void addInstructionCoverage(final int lineNumber, final Coverage coverage) {
-        addCoverage(lineNumber, coverage, lineNumberToInstructionCoverage, Metric.INSTRUCTION);
-    }
-
-    private void addCoverage(final int line, final Coverage coverage,
-            final NavigableMap<Integer, Coverage> mapping,
-            final Metric expectedMetric) {
-        Ensure.that(line >= 0).isTrue("Line number must not be negative: %d", line);
-        Ensure.that(coverage.getMetric().equals(expectedMetric))
-                .isTrue("The coverage '%s' is not a coverage of type", coverage, expectedMetric);
-
-        if (coverage.isSet()) {
-            mapping.put(line, coverage);
+    public FileNode filter() {
+        var copy = new FileNode(getName());
+        var lineCoverage = Coverage.nullObject(Metric.LINE);
+        var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
+        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
+        var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
+        for (int line : getCoveredLinesOfChangeSet()) {
+            var covered = coveredPerLine.get(line);
+            var missed = missedPerLine.get(line);
+            copy.addCounters(line, covered, missed);
+            if (covered + missed == 0) {
+                throw new IllegalArgumentException("No coverage for line " + line);
+            }
+            else if (covered + missed == 1) {
+                lineCoverage = lineCoverage.add(lineBuilder.setCovered(covered).setMissed(missed).build());
+            }
+            else {
+                var branchCoveredAsLine = covered > 0 ? 1 : 0;
+                lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
+                branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
+            }
+            copy.addChangedCodeLine(line);
         }
-    }
+        copy.addValue(lineCoverage);
+        copy.addValue(branchCoverage);
 
-    public Map<Integer, Coverage> getLineNumberToBranchCoverage() {
-        return Map.copyOf(lineNumberToBranchCoverage);
-    }
-
-    public Map<Integer, Coverage> getLineNumberToInstructionCoverage() {
-        return Map.copyOf(lineNumberToInstructionCoverage);
-    }
-
-    public NavigableMap<Integer, Coverage> getLineNumberToLineCoverage() {
-        return new TreeMap<>(lineNumberToLineCoverage);
+        return copy;
     }
 
     public SortedSet<Integer> getChangedLines() {
         return changedCodeLines;
+    }
+
+    public boolean hasChangedLine(final int line) {
+        return changedCodeLines.contains(line);
     }
 
     /**
@@ -121,6 +91,7 @@ public final class FileNode extends Node {
      *
      * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
      */
+    @Override
     public boolean hasCodeChanges() {
         return !changedCodeLines.isEmpty();
     }
@@ -155,73 +126,7 @@ public final class FileNode extends Node {
     }
 
     public SortedSet<Integer> getCoveredLines() {
-        return new TreeSet<>(lineNumberToLineCoverage.keySet());
-    }
-
-    /**
-     * Returns the amount of missed instructions.
-     *
-     * @return number of missed instructions
-     */
-    public long getMissedInstructionsCount() {
-        return lineNumberToInstructionCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getMissed())
-                .sum();
-    }
-
-    /**
-     * Returns the amount of covered instructions.
-     *
-     * @return number of covered instructions
-     */
-    public long getCoveredInstructionsCount() {
-        return lineNumberToInstructionCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getCovered())
-                .sum();
-    }
-
-    /**
-     * Returns the amount of missed lines.
-     *
-     * @return number of missed lines
-     */
-    public long getMissedLinesCount() {
-        return lineNumberToLineCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getMissed())
-                .sum();
-    }
-
-    /**
-     * Returns the amount of covered lines.
-     *
-     * @return number of covered lines
-     */
-    public long getCoveredLinesCount() {
-        return lineNumberToLineCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getCovered())
-                .sum();
-    }
-
-    /**
-     * Returns the amount of missed branches.
-     *
-     * @return number of missed branches
-     */
-    public long getMissedBranchesCount() {
-        return lineNumberToBranchCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getMissed())
-                .sum();
-    }
-
-    /**
-     * Returns the amount of covered instructions.
-     *
-     * @return number of covered instructions
-     */
-    public long getCoveredBranchesCount() {
-        return lineNumberToBranchCoverage.values().stream()
-                .mapToInt(leaf -> getCoverage(leaf).getCovered())
-                .sum();
+        return new TreeSet<>(coveredPerLine.keySet());
     }
 
     private Coverage getCoverage(final Value value) {
@@ -237,7 +142,7 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
      */
     public boolean hasCoverageForLine(final int line) {
-        return lineNumberToLineCoverage.containsKey(line);
+        return coveredPerLine.containsKey(line);
     }
 
     /**
@@ -246,22 +151,39 @@ public final class FileNode extends Node {
      * @param line
      *         the line to check
      *
-     * @return  the line coverage result for the specified line.
+     * @return the line coverage result for the specified line.
      */
     public Coverage getLineCoverage(final int line) {
-        return lineNumberToLineCoverage.getOrDefault(line, Coverage.nullObject(Metric.LINE));
+        if (hasCoverageForLine(line)) {
+            var covered = getCoveredOfLine(line) > 0 ? 1 : 0;
+            return new CoverageBuilder().setMetric(Metric.LINE)
+                    .setCovered(covered)
+                    .setMissed(1 - covered)
+                    .build();
+        }
+        return Coverage.nullObject(Metric.LINE);
     }
 
     /**
-     * Returns the line coverage result for the specified line.
+     * Returns the branch coverage result for the specified line.
      *
      * @param line
      *         the line to check
      *
-     * @return  the line coverage result for the specified line.
+     * @return the line coverage result for the specified line.
      */
     public Coverage getBranchCoverage(final int line) {
-        return lineNumberToBranchCoverage.getOrDefault(line, Coverage.nullObject(Metric.BRANCH));
+        if (hasCoverageForLine(line)) {
+            var covered = getCoveredOfLine(line);
+            var missed = getMissedOfLine(line);
+            if (covered + missed > 1) {
+                return new CoverageBuilder().setMetric(Metric.LINE)
+                        .setCovered(covered)
+                        .setMissed(missed)
+                        .build();
+            }
+        }
+        return Coverage.nullObject(Metric.BRANCH);
     }
 
     @Override
@@ -293,7 +215,7 @@ public final class FileNode extends Node {
     // TODO: wouldn't it make more sense to return a independent object?
     public void computeDelta(final FileNode referenceNode) {
         NavigableMap<Metric, Value> referenceCoverage = referenceNode.getMetricsDistribution();
-        this.getMetricsDistribution().forEach((metric, value) -> {
+        getMetricsDistribution().forEach((metric, value) -> {
             if (referenceCoverage.containsKey(metric)) {
                 fileCoverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
             }
@@ -322,7 +244,7 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns whether this file has coverage results for changed code lines.
+     * Returns whether this file has coverage results for ch    anged code lines.
      *
      * @return {@code true} if this file has coverage results for changed code lines, {@code false} otherwise
      */
@@ -349,7 +271,7 @@ public final class FileNode extends Node {
     public List<Coverage> getCoverageOfChangeSet() {
         SortedSet<Integer> coveredDelta = getCoveredLines();
         coveredDelta.retainAll(getChangedLines());
-        return coveredDelta.stream().map(lineNumberToLineCoverage::get).collect(Collectors.toList());
+        return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
     }
 
     /**
@@ -374,6 +296,35 @@ public final class FileNode extends Node {
         return fileCoverageDelta.getOrDefault(metric, Fraction.ZERO);
     }
 
+    public void addCounters(final int lineNumber, final int covered, final int missed) {
+        coveredPerLine.put(lineNumber, covered);
+        missedPerLine.put(lineNumber, missed);
+    }
+
+    public int[] getCoveredCounters() {
+        return entriesToArray(coveredPerLine);
+    }
+
+    public int[] getMissedCounters() {
+        return entriesToArray(missedPerLine);
+    }
+
+    private int[] entriesToArray(final NavigableMap<Integer, Integer> map) {
+        return map.values().stream().mapToInt(i -> i).toArray();
+    }
+
+    public NavigableMap<Integer, Integer> getCounters() {
+        return Collections.unmodifiableNavigableMap(coveredPerLine);
+    }
+
+    public int getCoveredOfLine(final int line) {
+        return coveredPerLine.getOrDefault(line, 0);
+    }
+
+    public int getMissedOfLine(final int line) {
+        return missedPerLine.getOrDefault(line, 0);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -386,17 +337,16 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-        return Objects.equals(lineNumberToBranchCoverage, fileNode.lineNumberToBranchCoverage)
-                && Objects.equals(lineNumberToInstructionCoverage, fileNode.lineNumberToInstructionCoverage)
-                && Objects.equals(lineNumberToLineCoverage, fileNode.lineNumberToLineCoverage)
-                && Objects.equals(changedCodeLines, fileNode.changedCodeLines) && Objects.equals(
-                indirectCoverageChanges, fileNode.indirectCoverageChanges) && Objects.equals(fileCoverageDelta,
-                fileNode.fileCoverageDelta);
+        return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
+                fileNode.missedPerLine) && Objects.equals(changedCodeLines, fileNode.changedCodeLines)
+                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
+                && Objects.equals(fileCoverageDelta, fileNode.fileCoverageDelta);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), lineNumberToBranchCoverage, lineNumberToInstructionCoverage,
-                lineNumberToLineCoverage, changedCodeLines, indirectCoverageChanges, fileCoverageDelta);
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, changedCodeLines, indirectCoverageChanges,
+                fileCoverageDelta);
     }
+
 }

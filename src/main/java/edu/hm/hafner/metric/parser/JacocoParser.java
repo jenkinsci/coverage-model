@@ -72,8 +72,7 @@ public class JacocoParser extends XmlParser {
                 break;
 
             case "package": // currentNode = rootNode, packageNode after
-                String packageName = PackageNode.normalizePackageName(getValueOf(element, NAME));
-                PackageNode packageNode = new PackageNode(packageName);
+                PackageNode packageNode = new PackageNode(getValueOf(element, NAME));
                 getRootNode().addChild(packageNode);
 
                 currentPackageNode = packageNode; // save for later to be able to add fileNodes
@@ -117,7 +116,7 @@ public class JacocoParser extends XmlParser {
                 classNodeList.forEach(fileNode::addChild);
 
                 if (currentPackageNode == null) {
-                    throw new NoSuchElementException("Package node is not set");
+                    throw new NoSuchElementException("Package node is not set while processing " + fileNode);
                 }
                 currentPackageNode.addChild(fileNode);
                 currentNode = fileNode;
@@ -165,10 +164,6 @@ public class JacocoParser extends XmlParser {
         if (currentNode == null) {
             throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
         }
-        // We only look for data on method layer
-        if (!currentNode.getMetric().equals(Metric.METHOD)) {
-            return;
-        }
 
         Value value;
         switch (currentType) {
@@ -205,32 +200,21 @@ public class JacocoParser extends XmlParser {
         int missedBranches = Integer.parseInt(getValueOf(element, MB));
         int coveredBranches = Integer.parseInt(getValueOf(element, CB));
 
-        boolean isInstructionCovered = coveredInstructions > 0;
-        boolean isBranchCovered = coveredBranches > 0;
-
         if (currentNode == null) {
             throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
         }
 
-        var builder = new CoverageBuilder();
-        if (isInstructionCovered || missedInstructions > 0) {
-            builder.setMetric(Metric.INSTRUCTION).setCovered(coveredInstructions).setMissed(missedInstructions);
-            ((FileNode) currentNode).addInstructionCoverage(lineNumber, builder.build());
-        }
-
-        if (isBranchCovered || missedBranches > 0) {
-            builder.setMetric(Metric.BRANCH).setCovered(coveredBranches).setMissed(missedBranches);
-            ((FileNode) currentNode).addBranchCoverage(lineNumber, builder.build());
-        }
-
-        builder.setMetric(Metric.LINE);
-        if (isBranchCovered || isInstructionCovered) {
-            builder.setCovered(1).setMissed(0);
+        int missed;
+        int covered;
+        if (missedBranches + coveredBranches == 0) { // only instruction coverage found
+            covered = coveredInstructions > 0 ? 1 : 0;
+            missed = covered > 0 ? 0 : 1;
         }
         else {
-            builder.setCovered(0).setMissed(1);
+            covered = coveredBranches;
+            missed = missedBranches;
         }
-        ((FileNode) currentNode).addLineCoverage(lineNumber, builder.build());
+        ((FileNode) currentNode).addCounters(lineNumber, covered, missed);
     }
 
     /**
@@ -249,6 +233,7 @@ public class JacocoParser extends XmlParser {
                 classNodesMap.clear();
                 break;
 
+            case "sourcefile":
             case "method":
                 if (currentNode == null) {
                     throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);

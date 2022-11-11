@@ -248,7 +248,7 @@ public class PitestParser extends XmlParser {
             currentMethodNode = potentialMethodNode.get();
             Optional<Value> potentialValue = currentMethodNode.getValue(Metric.MUTATION);
             // value must be present as creating a new method node is accompanied by creating a mutation value
-            potentialValue.ifPresent(value -> currentMethodNode.replaceMutationValue(value.add(newValue)));
+            potentialValue.ifPresent(value -> currentMethodNode.replaceValue(value.add(newValue)));
 
         }
         else {

@@ -14,7 +14,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +48,7 @@ public abstract class Node implements Serializable {
      *
      * @return a new tree with the merged {@link Node nodes}
      */
-    public static Node merge(final List<Node> nodes) {
+    public static Node merge(final List<? extends Node> nodes) {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("Cannot merge an empty list of nodes");
         }
@@ -56,6 +59,7 @@ public abstract class Node implements Serializable {
         if (nodes.stream().map(Node::getName).distinct().count() == 1
                 && nodes.stream().map(Node::getMetric).distinct().count() == 1) {
             return nodes.stream()
+                    .map(t -> (Node) t)
                     .reduce(Node::combineWith)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
@@ -144,6 +148,28 @@ public abstract class Node implements Serializable {
             elements.add(Metric.LOC); // TODO: would it make sense to make that not hard-coded?
         }
         return elements;
+    }
+
+    /**
+     * Returns the available metrics for the whole tree starting with this node.
+     *
+     * @return the elements in this tree
+     */
+    public NavigableSet<Metric> getValueMetrics() {
+        NavigableSet<Metric> elements = children.stream()
+                .map(Node::getValueMetrics)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        elements.addAll(values.keySet());
+        return elements;
+    }
+
+    public List<Value> condenseValues() {
+        return getValueMetrics().stream()
+                .map(this::getValue)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -251,7 +277,7 @@ public abstract class Node implements Serializable {
      * @param nodes
      *         nodes to add
      */
-    public void addAllChildren(final List<Node> nodes) {
+    public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
     }
 
@@ -270,10 +296,8 @@ public abstract class Node implements Serializable {
             throw new IllegalArgumentException(
                     String.format("There is already a leaf %s with the metric %s", value, value.getMetric()));
         }
-        values.put(value.getMetric(), value);
+        replaceValue(value);
     }
-
-    // FIXME: why is this for mutation coverages only?
 
     /**
      * Replaces the specified value to the list of values to guarantee immutability.
@@ -281,11 +305,11 @@ public abstract class Node implements Serializable {
      * @param value
      *         the value to replace
      */
-    public void replaceMutationValue(final Value value) {
+    public void replaceValue(final Value value) {
         values.put(value.getMetric(), value);
     }
 
-    protected void addAllValues(final List<Value> additionalValues) {
+    protected void addAllValues(final Collection<? extends Value> additionalValues) {
         additionalValues.forEach(this::addValue);
     }
 
@@ -446,6 +470,25 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Creates a deep copy of the tree with this as root node.
+     *
+     * @return the root node of the copied tree
+     */
+    public Optional<Node> prune(final Predicate<Node> predicate, final Consumer<Node> consumer) {
+        var copy = copy();
+        var prunedChildren = children.stream().map(c -> c.prune(predicate, consumer)).flatMap(Optional::stream).collect(Collectors.toList());
+        copy.addAllChildren(prunedChildren);
+        if (predicate.test(this)) {
+            consumer.accept(this);
+            return Optional.of(copy);
+        }
+        else if (!prunedChildren.isEmpty()) {
+            return Optional.of(copy);
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Recursively copies the tree with the passed {@link Node} as root.
      *
      * @param copiedParent
@@ -500,6 +543,10 @@ public abstract class Node implements Serializable {
      *         if this root node is not compatible to the {@code other} root node
      */
     public Node combineWith(final Node other) {
+        if (other == this) {
+            return this; // nothing to do
+        }
+
         if (!other.getMetric().equals(getMetric())) {
             throw new IllegalArgumentException(
                     String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
@@ -517,7 +564,8 @@ public abstract class Node implements Serializable {
     }
 
     private void safelyCombineChildren(final Node other) {
-        other.values.forEach((k, v) -> values.merge(k, v, Value::max));
+        BiFunction<Value, Value, Value> mergeOperation = hasChildren() ? Value::add : Value::max;
+        other.values.forEach((k, v) -> values.merge(k, v, mergeOperation));
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
@@ -598,5 +646,9 @@ public abstract class Node implements Serializable {
 
     public List<FileNode> getAllFileNodes() {
         return getAll(Metric.FILE).stream().map(t -> (FileNode) t).collect(Collectors.toList());
+    }
+
+    public boolean isEmpty() {
+        return getChildren().isEmpty() && getValues().isEmpty();
     }
 }

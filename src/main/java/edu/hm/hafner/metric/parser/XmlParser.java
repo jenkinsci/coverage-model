@@ -13,6 +13,7 @@ import javax.xml.stream.events.XMLEvent;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Base class for xml parser.
@@ -81,6 +82,7 @@ public abstract class XmlParser implements Serializable {
      */
     protected abstract void endElement(EndElement element);
 
+    @CheckForNull
     protected String getValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
 
