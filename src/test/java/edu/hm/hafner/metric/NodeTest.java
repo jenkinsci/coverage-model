@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("PMD.GodClass")
 @DefaultLocale("en")
 class NodeTest {
-
     private static final String COVERED_FILE = "Covered.java";
 
     @Test
@@ -596,10 +595,46 @@ class NodeTest {
         var node = tree.find(FILE, COVERED_FILE);
         assertThat(node).isPresent().containsInstanceOf(FileNode.class);
 
-        var fileNode = node.get();
-        registerCodeChangesAndCoverage((FileNode) fileNode);
+        registerCodeChangesAndCoverage((FileNode) node.get());
 
         assertThat(tree.filterChanges())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasFiles("coverage/" + COVERED_FILE)
+                .satisfies(root -> {
+                    assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
+                    var builder = new CoverageBuilder();
+                    assertThat(root.getValue(LINE)).isNotEmpty().contains(
+                            builder.setMetric(Metric.LINE).setCovered(2).setMissed(2).build());
+                    assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
+                            builder.setMetric(Metric.BRANCH).setCovered(4).setMissed(4).build());
+                });
+    }
+
+    @Test
+    void shouldCreateEmptyIndirectCoverageChangesTreeWithoutChanges() {
+        Node tree = createTreeWithoutCoverage();
+        assertThat(tree.filterByIndirectlyChangedCoverage())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasNoChildren()
+                .hasNoValues();
+    }
+
+    @Test
+    void shouldCreateIndirectCoverageChangesTree() {
+        Node tree = createTreeWithoutCoverage();
+
+        var node = tree.find(FILE, COVERED_FILE);
+        assertThat(node).isPresent().containsInstanceOf(FileNode.class);
+
+        registerIndirectCoverageChanges((FileNode) node.get());
+
+        assertThat(tree.filterByIndirectlyChangedCoverage())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -635,6 +670,15 @@ class NodeTest {
         method.addValue(builder.setCovered(4).setMissed(4).build());
 
         file.addChild(method);
+    }
+
+    private void registerIndirectCoverageChanges(final FileNode file) {
+        registerCodeChangesAndCoverage(file);
+
+        file.addIndirectCoverageChange(10, 1);
+        file.addIndirectCoverageChange(11, -4);
+        file.addIndirectCoverageChange(12, 4);
+        file.addIndirectCoverageChange(13, -1);
     }
 
     private Node createTreeWithoutCoverage() {

@@ -2,6 +2,7 @@ package edu.hm.hafner.metric;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,35 +50,6 @@ public final class FileNode extends Node {
         return file;
     }
 
-    private FileNode filterChangedLines() {
-        var copy = new FileNode(getName());
-        var lineCoverage = Coverage.nullObject(Metric.LINE);
-        var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
-        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
-        var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
-        for (int line : getCoveredLinesOfChangeSet()) {
-            var covered = coveredPerLine.get(line);
-            var missed = missedPerLine.get(line);
-            copy.addCounters(line, covered, missed);
-            if (covered + missed == 0) {
-                throw new IllegalArgumentException("No coverage for line " + line);
-            }
-            else if (covered + missed == 1) {
-                lineCoverage = lineCoverage.add(lineBuilder.setCovered(covered).setMissed(missed).build());
-            }
-            else {
-                var branchCoveredAsLine = covered > 0 ? 1 : 0;
-                lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
-                branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
-            }
-            copy.addChangedCodeLine(line);
-        }
-        copy.addValue(lineCoverage);
-        copy.addValue(branchCoverage);
-
-        return copy;
-    }
-
     public SortedSet<Integer> getChangedLines() {
         return changedCodeLines;
     }
@@ -119,11 +91,88 @@ public final class FileNode extends Node {
     }
 
     @Override
-    protected Optional<Node> prune() {
-        if (hasCoveredLinesInChangeSet()) {
-            return Optional.of(filterChangedLines());
+    protected Optional<Node> filterByChanges() {
+        if (!hasCoveredLinesInChangeSet()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        var copy = new FileNode(getName());
+        var lineCoverage = Coverage.nullObject(Metric.LINE);
+        var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
+        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
+        var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
+        for (int line : getCoveredLinesOfChangeSet()) {
+            var covered = coveredPerLine.get(line);
+            var missed = missedPerLine.get(line);
+            copy.addCounters(line, covered, missed);
+            if (covered + missed == 0) {
+                throw new IllegalArgumentException("No coverage for line " + line);
+            }
+            else if (covered + missed == 1) {
+                lineCoverage = lineCoverage.add(lineBuilder.setCovered(covered).setMissed(missed).build());
+            }
+            else {
+                var branchCoveredAsLine = covered > 0 ? 1 : 0;
+                lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
+                branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
+            }
+            copy.addChangedCodeLine(line);
+        }
+        copy.addValue(lineCoverage);
+        copy.addValue(branchCoverage);
+
+        return Optional.of(copy);
+    }
+
+
+    @Override
+    protected Optional<Node> filterByIndirectChanges() {
+        if (!hasIndirectCoverageChanges()) {
+            return Optional.empty();
+        }
+
+        var copy = new FileNode(getName());
+        Coverage lineCoverage = Coverage.nullObject(Metric.LINE);
+        Coverage branchCoverage = Coverage.nullObject(Metric.BRANCH);
+        for (Map.Entry<Integer, Integer> change : getIndirectCoverageChanges().entrySet()) {
+            int delta = change.getValue();
+            Coverage currentCoverage = getBranchCoverage(change.getKey());
+            if (!currentCoverage.isSet()) {
+                currentCoverage = getLineCoverage(change.getKey());
+            }
+            CoverageBuilder builder = new CoverageBuilder();
+            if (delta > 0) {
+                // the line is fully covered - even in case of branch coverage
+                if (delta == currentCoverage.getCovered()) {
+                    builder.setMetric(Metric.LINE).setCovered(1).setMissed(0);
+                    lineCoverage = lineCoverage.add(builder.build());
+                }
+                // the branch coverage increased for 'delta' hits
+                if (currentCoverage.getTotal() > 1) {
+                    builder.setMetric(Metric.BRANCH).setCovered(delta).setMissed(0);
+                    branchCoverage = branchCoverage.add(builder.build());
+                }
+            }
+            else if (delta < 0) {
+                // the line is not covered anymore
+                if (currentCoverage.getCovered() == 0) {
+                    builder.setMetric(Metric.LINE).setCovered(0).setMissed(1);
+                    lineCoverage = lineCoverage.add(builder.build());
+                }
+                // the branch coverage is decreased by 'delta' hits
+                if (currentCoverage.getTotal() > 1) {
+                    builder.setMetric(Metric.BRANCH).setCovered(0).setMissed(Math.abs(delta));
+                    branchCoverage = branchCoverage.add(builder.build());
+                }
+            }
+        }
+        if (lineCoverage.isSet()) {
+            copy.addValue(lineCoverage);
+        }
+        if (branchCoverage.isSet()) {
+            copy.addValue(branchCoverage);
+        }
+        return Optional.of(copy);
     }
 
     /**

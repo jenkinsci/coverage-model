@@ -465,10 +465,10 @@ public abstract class Node implements Serializable {
      *
      * @return the root node of the copied tree
      */
-    public Optional<Node> prune(final Predicate<Node> predicate, final Consumer<Node> consumer) {
+    public Optional<Node> filterByChanges(final Predicate<Node> predicate, final Consumer<Node> consumer) {
         var copy = copy();
         var prunedChildren = children.stream()
-                .map(c -> c.prune(predicate, consumer))
+                .map(c -> c.filterByChanges(predicate, consumer))
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
         copy.addAllChildren(prunedChildren);
@@ -643,6 +643,7 @@ public abstract class Node implements Serializable {
      *
      * @return the file names
      */
+    // TODO: set?
     public List<String> getFiles() {
         return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
     }
@@ -662,14 +663,38 @@ public abstract class Node implements Serializable {
      * @return the filtered tree
      */
     public Node filterChanges() {
-        return prune().orElse(copy());
+        return filterByChanges().orElse(copy());
     }
 
-    protected Optional<Node> prune() {
+    protected Optional<Node> filterByChanges() {
         var copy = copy();
         var prunedChildren = getChildren()
                 .stream()
-                .map(Node::prune)
+                .map(Node::filterByChanges)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        if (prunedChildren.isEmpty()) {
+            return Optional.empty();
+        }
+        copy.addAllChildren(prunedChildren);
+        return Optional.of(copy);
+    }
+
+    /**
+     * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
+     * that have elements with a changed coverage but with no changed code line.
+     *
+     * @return the filtered tree
+     */
+    public Node filterByIndirectlyChangedCoverage() {
+        return filterByIndirectChanges().orElse(copy());
+    }
+
+    protected Optional<Node> filterByIndirectChanges() {
+        var copy = copy();
+        var prunedChildren = getChildren()
+                .stream()
+                .map(Node::filterByIndirectChanges)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
         if (prunedChildren.isEmpty()) {
