@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -48,7 +49,7 @@ public final class FileNode extends Node {
         return file;
     }
 
-    public FileNode filterChangedLines() {
+    private FileNode filterChangedLines() {
         var copy = new FileNode(getName());
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
@@ -108,6 +109,24 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Adds a code line that has been changed.
+     *
+     * @param line
+     *         The changed code line
+     */
+    public void addChangedCodeLine(final int line) {
+        changedCodeLines.add(line);
+    }
+
+    @Override
+    protected Optional<Node> prune() {
+        if (hasCoveredLinesInChangeSet()) {
+            return Optional.of(filterChangedLines());
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Adds an indirect coverage change for a specific line.
      *
      * @param line
@@ -119,17 +138,12 @@ public final class FileNode extends Node {
         indirectCoverageChanges.put(line, hitsDelta);
     }
 
-    // TODO: do not expose map
     public SortedMap<Integer, Integer> getIndirectCoverageChanges() {
-        return indirectCoverageChanges;
+        return new TreeMap<>(indirectCoverageChanges);
     }
 
     public SortedSet<Integer> getCoveredLines() {
         return new TreeSet<>(coveredPerLine.keySet());
-    }
-
-    private Coverage getCoverage(final Value value) {
-        return (Coverage) value;
     }
 
     /**
@@ -193,16 +207,6 @@ public final class FileNode extends Node {
     @Override
     public List<String> getFiles() {
         return List.of(getPath());
-    }
-
-    /**
-     * Adds a code line that has been changed.
-     *
-     * @param line
-     *         The changed code line
-     */
-    public void addChangedCodeLine(final int line) {
-        changedCodeLines.add(line);
     }
 
     /**

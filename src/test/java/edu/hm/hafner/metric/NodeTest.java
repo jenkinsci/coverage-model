@@ -25,6 +25,9 @@ import static org.assertj.core.api.Assertions.*;
 @SuppressWarnings("PMD.GodClass")
 @DefaultLocale("en")
 class NodeTest {
+
+    private static final String COVERED_FILE = "Covered.java";
+
     @Test
     void shouldHandleNonExistingParent() {
         ModuleNode root = new ModuleNode("Root");
@@ -50,7 +53,8 @@ class NodeTest {
 
         //boundary-interior demonstration (Path "Don't enter loop" is impossible in this case)
         assertThat(child.getParentName()).isEqualTo("Parent"); // boundary -> Enter only once and cover all branches
-        assertThat(subSubPackage.getParentName()).isEqualTo("Child.SubPackage"); // interior -> Enter twice and cover all branches
+        assertThat(subSubPackage.getParentName()).isEqualTo(
+                "Child.SubPackage"); // interior -> Enter twice and cover all branches
 
     }
 
@@ -160,7 +164,7 @@ class NodeTest {
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
-        return (Coverage)node.getValue(metric).get();
+        return (Coverage) node.getValue(metric).get();
     }
 
     @Test
@@ -425,7 +429,8 @@ class NodeTest {
         Node sameProject = setUpNodeTree();
         Node methodOtherCov = sameProject.getAll(METHOD).get(0);
 
-        assertThat(module.combineWith(sameProject)).isEqualTo(module); // should not throw error if no line coverage exists for method
+        assertThat(module.combineWith(sameProject)).isEqualTo(
+                module); // should not throw error if no line coverage exists for method
 
         method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
         methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(7).build());
@@ -543,10 +548,11 @@ class NodeTest {
     }
 
     /**
-     * If one report stops e.g. at file level and other report goes down to class level,
-     * results of the report with higher depth should be used.
+     * If one report stops e.g. at file level and other report goes down to class level, results of the report with
+     * higher depth should be used.
      */
-    @Test @Disabled("Does it make sense to provide that functionality?")
+    @Test
+    @Disabled("Does it make sense to provide that functionality?")
     void shouldHandleReportsOfDifferentDepth() {
         Node report = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
@@ -568,5 +574,83 @@ class NodeTest {
         assertThat(getCoverage(otherReport.combineWith(report), LINE)).hasMissed(10).hasCovered(90);
         assertThat(report.combineWith(otherReport).find(covNodeClass.getMetric(), covNodeClass.getName()).get())
                 .isNotSameAs(covNodeClass);
+    }
+
+    @Test
+    void shouldCreateEmptyChangeCoverageTreeWithoutChanges() {
+        Node tree = createTreeWithoutCoverage();
+
+        assertThat(tree.filterChanges())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasNoChildren()
+                .hasNoValues();
+    }
+
+    @Test
+    void shouldCreateChangeCoverageTree() {
+        Node tree = createTreeWithoutCoverage();
+
+        var node = tree.find(FILE, COVERED_FILE);
+        assertThat(node).isPresent().containsInstanceOf(FileNode.class);
+
+        var fileNode = node.get();
+        registerCodeChangesAndCoverage((FileNode) fileNode);
+
+        assertThat(tree.filterChanges())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasFiles("coverage/" + COVERED_FILE)
+                .satisfies(root -> {
+                    assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
+                    var builder = new CoverageBuilder();
+                    assertThat(root.getValue(LINE)).isNotEmpty().contains(
+                            builder.setMetric(Metric.LINE).setCovered(2).setMissed(2).build());
+                    assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
+                            builder.setMetric(Metric.BRANCH).setCovered(4).setMissed(4).build());
+                });
+    }
+
+    private void registerCodeChangesAndCoverage(final FileNode file) {
+        file.addChangedCodeLine(10);
+        file.addChangedCodeLine(11);
+        file.addChangedCodeLine(12);
+        file.addChangedCodeLine(13);
+
+        var method = new MethodNode("aMethod", "{}");
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+        file.addCounters(10, 1, 0);
+        file.addCounters(11, 0, 1);
+        file.addCounters(12, 1, 0);
+        file.addCounters(13, 0, 1);
+        method.addValue(builder.setCovered(2).setMissed(2).build());
+
+        builder.setMetric(Metric.BRANCH);
+        file.addCounters(11, 0, 4);
+        file.addCounters(12, 4, 0);
+        method.addValue(builder.setCovered(4).setMissed(4).build());
+
+        file.addChild(method);
+    }
+
+    private Node createTreeWithoutCoverage() {
+        Node moduleNode = new ModuleNode("edu.hm.hafner.module1");
+        Node packageNode = new PackageNode("coverage");
+        Node coveredFileNode = new FileNode(COVERED_FILE);
+        Node missedFileNode = new FileNode("Missed.java");
+
+        moduleNode.addChild(packageNode);
+
+        packageNode.addChild(missedFileNode);
+        packageNode.addChild(coveredFileNode);
+
+        coveredFileNode.addChild(new ClassNode("CoveredClass.class"));
+        missedFileNode.addChild(new ClassNode("MissedClass.class"));
+
+        return moduleNode;
     }
 }

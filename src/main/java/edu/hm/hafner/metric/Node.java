@@ -465,18 +465,12 @@ public abstract class Node implements Serializable {
      *
      * @return the root node of the copied tree
      */
-    public Node copyTree() {
-        return copyTree(null);
-    }
-
-    /**
-     * Creates a deep copy of the tree with this as root node.
-     *
-     * @return the root node of the copied tree
-     */
     public Optional<Node> prune(final Predicate<Node> predicate, final Consumer<Node> consumer) {
         var copy = copy();
-        var prunedChildren = children.stream().map(c -> c.prune(predicate, consumer)).flatMap(Optional::stream).collect(Collectors.toList());
+        var prunedChildren = children.stream()
+                .map(c -> c.prune(predicate, consumer))
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
         copy.addAllChildren(prunedChildren);
         if (predicate.test(this)) {
             consumer.accept(this);
@@ -486,6 +480,15 @@ public abstract class Node implements Serializable {
             return Optional.of(copy);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Creates a deep copy of the tree with this as root node.
+     *
+     * @return the root node of the copied tree
+     */
+    public Node copyTree() {
+        return copyTree(null);
     }
 
     /**
@@ -650,5 +653,29 @@ public abstract class Node implements Serializable {
 
     public boolean isEmpty() {
         return getChildren().isEmpty() && getValues().isEmpty();
+    }
+
+    /**
+     * Creates a new coverage tree that represents the change coverage. This new tree will contain only those elements
+     * that have changed elements.
+     *
+     * @return the filtered tree
+     */
+    public Node filterChanges() {
+        return prune().orElse(copy());
+    }
+
+    protected Optional<Node> prune() {
+        var copy = copy();
+        var prunedChildren = getChildren()
+                .stream()
+                .map(Node::prune)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        if (prunedChildren.isEmpty()) {
+            return Optional.empty();
+        }
+        copy.addAllChildren(prunedChildren);
+        return Optional.of(copy);
     }
 }
