@@ -21,7 +21,7 @@
   <description>Provides a Java API and model to parse and collect code coverage results</description>
 
   <scm>
-    <connection>scm:git:git://github.com/uhafner/coverage-model.git</connection>
+    <connection>scm:git:https://github.com/uhafner/coverage-model.git</connection>
     <developerConnection>scm:git:git@github.com:uhafner/coverage-model.git</developerConnection>
     <url>https://github.com/uhafner/coverage-model</url>
     <tag>HEAD</tag>
