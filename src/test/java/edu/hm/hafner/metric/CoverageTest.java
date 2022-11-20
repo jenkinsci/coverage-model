@@ -40,6 +40,22 @@ class CoverageTest {
         assertThat(ok.delta(worse).doubleValue()).isEqualTo(getDelta("1/2"));
     }
 
+    @Test
+    void shouldCompareWithThreshold() {
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage zero = builder.setCovered(0).setMissed(2).build();
+        Coverage fifty = builder.setCovered(2).setMissed(2).build();
+        Coverage hundred = builder.setCovered(2).setMissed(0).build();
+
+        assertThat(zero.isBelowThreshold(0)).isFalse();
+        assertThat(zero.isBelowThreshold(0.1)).isTrue();
+        assertThat(fifty.isBelowThreshold(50)).isFalse();
+        assertThat(fifty.isBelowThreshold(50.1)).isTrue();
+        assertThat(hundred.isBelowThreshold(100)).isFalse();
+        assertThat(hundred.isBelowThreshold(100.1)).isTrue();
+    }
+
     private double getDelta(final String value) {
         return Fraction.getFraction(value).doubleValue();
     }

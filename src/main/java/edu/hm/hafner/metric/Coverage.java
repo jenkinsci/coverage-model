@@ -152,6 +152,20 @@ public final class Coverage extends Value {
         return castAndMap(other, this::computeMax);
     }
 
+    /**
+     * Returns whether this coverage is below the given threshold. The threshold is a percentage in the range of [0,
+     * 100].
+     *
+     * @param threshold
+     *         the threshold in the range of [0, 100]
+     *
+     * @return {@code true}, if this value is below the specified threshold
+     */
+    @Override
+    public boolean isBelowThreshold(final double threshold) {
+        return getCoveredPercentage().doubleValue() * 100 < threshold;
+    }
+
     private Coverage computeMax(final Coverage otherCoverage) {
         Ensure.that(getTotal() == otherCoverage.getTotal())
                 .isTrue("Cannot compute maximum of coverages %s and %s since total differs", this, otherCoverage);

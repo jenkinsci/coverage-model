@@ -40,12 +40,13 @@ public abstract class XmlParser implements Serializable {
     }
 
     /**
-     * Parses xml report at given path.
+     * Parses the provided XML report.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader with the XML content
      *
-     * @return the created data model
+     * @return the root of the created tree
+     * @throws ParsingException if the XML content cannot be read
      */
     public ModuleNode parse(final Reader reader) {
         SecureXmlParserFactory factory = new SecureXmlParserFactory();

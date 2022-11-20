@@ -68,6 +68,8 @@ public abstract class Value implements Serializable {
     @CheckReturnValue
     public abstract Value max(Value other);
 
+    public abstract boolean isBelowThreshold(double threshold);
+
     /**
      * Returns whether this value has the same metric as the specified value.
      *
@@ -105,6 +107,7 @@ public abstract class Value implements Serializable {
      *
      * @return the percentage formatted as a String
      */
+    // FIXME: Move to percentage?
     protected String printPercentage(final Fraction percentage) {
         return String.format("%.2f%%", percentage.multiplyBy(HUNDRED).doubleValue());
     }

@@ -27,6 +27,13 @@ class LinesOfCodeTest {
     }
 
     @Test
+    void shouldCompareWithThreshold() {
+        assertThat(new LinesOfCode(125).isBelowThreshold(0)).isFalse();
+        assertThat(new LinesOfCode(125).isBelowThreshold(125)).isFalse();
+        assertThat(new LinesOfCode(125).isBelowThreshold(125.1)).isTrue();
+    }
+
+    @Test
     void shouldOperateWithLoc() {
         assertThat(new LinesOfCode(25).add(new LinesOfCode(100))).hasValue(125);
         assertThat(new LinesOfCode(25).max(new LinesOfCode(100))).hasValue(100);

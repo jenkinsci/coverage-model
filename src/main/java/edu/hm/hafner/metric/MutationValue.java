@@ -132,6 +132,20 @@ public final class MutationValue extends Value {
         return otherMutationValue;
     }
 
+    /**
+     * Returns whether this mutation value is below the given threshold. The threshold is a percentage in the range of [0,
+     * 100].
+     *
+     * @param threshold
+     *         the threshold in the range of [0, 100]
+     *
+     * @return {@code true}, if this value is below the specified threshold
+     */
+    @Override
+    public boolean isBelowThreshold(final double threshold) {
+        return getCoveredPercentage().doubleValue() * 100 < threshold;
+    }
+
     @Override
     public String toString() {
         return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), killed, killed + survived);
