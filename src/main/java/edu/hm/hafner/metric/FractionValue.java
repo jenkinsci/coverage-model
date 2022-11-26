@@ -5,12 +5,12 @@ import java.util.Objects;
 import org.apache.commons.lang3.math.Fraction;
 
 /**
- * A delta represents the difference between two different value instances (a {@link Fraction} is used to represent that
- * difference).
+ * Represents the value of a rational number based metric. Internally the rational number is stored using a
+ * {@link Fraction} instance.
  *
  * @author Ullrich Hafner
  */
-public class Delta extends Value {
+public class FractionValue extends Value {
     private static final long serialVersionUID = -7019903979028578410L;
 
     private final Fraction fraction;
@@ -23,32 +23,46 @@ public class Delta extends Value {
      * @param fraction
      *         the value to store
      */
-    public Delta(final Metric metric, final Fraction fraction) {
+    public FractionValue(final Metric metric, final Fraction fraction) {
         super(metric);
 
         this.fraction = fraction;
     }
 
+    /**
+     * Creates a new leaf with the delta value for the specified metric.
+     *
+     * @param metric
+     *         the coverage metric
+     * @param numerator
+     *         the numerator of the rational number
+     * @param denominator
+     *         the denominator of the rational number
+     */
+    public FractionValue(final Metric metric, final int numerator, final int denominator) {
+        this(metric, Fraction.getFraction(numerator, denominator));
+    }
+
     @Override
     public Value add(final Value other) {
-        if (hasSameMetric(other) && other instanceof Delta) {
-            return new Delta(getMetric(), new SafeFraction(fraction).add(((Delta) other).fraction));
+        if (hasSameMetric(other) && other instanceof FractionValue) {
+            return new FractionValue(getMetric(), asSafeFraction().add(((FractionValue) other).fraction));
         }
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
 
     @Override
     public Fraction delta(final Value other) {
-        if (hasSameMetric(other) && other instanceof Delta) {
-            return new SafeFraction(fraction).subtract(((Delta) other).fraction);
+        if (hasSameMetric(other) && other instanceof FractionValue) {
+            return asSafeFraction().subtract(((FractionValue) other).fraction);
         }
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
 
     @Override
     public Value max(final Value other) {
-        if (hasSameMetric(other) && other instanceof Delta) {
-            if (fraction.doubleValue() < ((Delta) other).fraction.doubleValue()) {
+        if (hasSameMetric(other) && other instanceof FractionValue) {
+            if (fraction.doubleValue() < ((FractionValue) other).fraction.doubleValue()) {
                 return other;
             }
             return this;
@@ -59,6 +73,10 @@ public class Delta extends Value {
     @Override
     public boolean isBelowThreshold(final double threshold) {
         return fraction.doubleValue() < threshold;
+    }
+
+    private SafeFraction asSafeFraction() {
+        return new SafeFraction(fraction);
     }
 
     @Override
@@ -77,8 +95,8 @@ public class Delta extends Value {
         if (!super.equals(o)) {
             return false;
         }
-        Delta delta = (Delta) o;
-        return Objects.equals(fraction, delta.fraction);
+        FractionValue fractionValue = (FractionValue) o;
+        return Objects.equals(fraction, fractionValue.fraction);
     }
 
     @Override

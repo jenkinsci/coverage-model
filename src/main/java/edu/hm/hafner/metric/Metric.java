@@ -27,8 +27,10 @@ public enum Metric {
     BRANCH(new ValuesAggregator()),
     MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
+    COMPLEXITY_DENSITY(new DensityEvaluator()),
     LOC(new LocEvaluator());
 
+    // FIXME: CYCLOMATIC_DENSITY
     private final MetricEvaluator evaluator;
 
     Metric(final MetricEvaluator evaluator) {
@@ -100,6 +102,22 @@ public enum Metric {
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             return LINE.getValueFor(node).map(leaf -> new LinesOfCode(((Coverage) leaf).getTotal()));
+        }
+    }
+
+    private static class DensityEvaluator extends MetricEvaluator {
+        @Override
+        Optional<Value> compute(final Node node, final Metric searchMetric) {
+            var locValue = LOC.getValueFor(node);
+            var complexityValue = COMPLEXITY.getValueFor(node);
+            if (locValue.isPresent() && complexityValue.isPresent()) {
+                LinesOfCode loc = (LinesOfCode)locValue.get();
+                if (loc.getValue() > 0) {
+                    var complexity = (CyclomaticComplexity) complexityValue.get();
+                    return Optional.of(new FractionValue(COMPLEXITY_DENSITY, complexity.getValue(), loc.getValue()));
+                }
+            }
+            return Optional.empty();
         }
     }
 

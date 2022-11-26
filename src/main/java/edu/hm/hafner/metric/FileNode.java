@@ -118,12 +118,18 @@ public final class FileNode extends Node {
             }
             copy.addChangedCodeLine(line);
         }
-        copy.addValue(lineCoverage);
-        copy.addValue(branchCoverage);
-
+        addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
         return Optional.of(copy);
     }
 
+    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage, final Coverage branchCoverage) {
+        if (lineCoverage.isSet()) {
+            copy.addValue(lineCoverage);
+        }
+        if (branchCoverage.isSet()) {
+            copy.addValue(branchCoverage);
+        }
+    }
 
     @Override
     protected Optional<Node> filterByIndirectChanges() {
@@ -166,12 +172,8 @@ public final class FileNode extends Node {
                 }
             }
         }
-        if (lineCoverage.isSet()) {
-            copy.addValue(lineCoverage);
-        }
-        if (branchCoverage.isSet()) {
-            copy.addValue(branchCoverage);
-        }
+        addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
+
         return Optional.of(copy);
     }
 
