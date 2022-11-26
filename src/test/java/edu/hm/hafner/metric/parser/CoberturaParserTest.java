@@ -9,6 +9,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
+import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -39,7 +40,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
         assertThat(tree.getMetricsDistribution()).containsExactly(
                 entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
                 entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
@@ -49,6 +50,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
                 entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(1).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(8)),
+                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(8, 42 + 9))),
                 entry(LOC, new LinesOfCode(42 + 9)));
     }
 
@@ -64,7 +67,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
         assertThat(tree.getMetricsDistribution()).containsExactly(
                 entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
                 entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build()),
@@ -74,6 +77,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 entry(LINE, builder.setMetric(LINE).setCovered(61).setMissed(19).build()),
                 entry(BRANCH, builder.setMetric(BRANCH).setCovered(2).setMissed(2).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(22)),
+                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(22, 61 + 19))),
                 entry(LOC, new LinesOfCode(61 + 19)));
 
         assertThat(tree.getChildren()).extracting(Node::getName)

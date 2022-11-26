@@ -10,6 +10,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
+import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -43,7 +44,8 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(18);
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH, COMPLEXITY, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
+                COMPLEXITY, COMPLEXITY_DENSITY, LOC);
 
         var builder = new CoverageBuilder();
 
@@ -57,6 +59,8 @@ class JacocoParserTest extends AbstractParserTest {
                 entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
                 entry(BRANCH, builder.setMetric(BRANCH).setCovered(109).setMissed(7).build()),
                 entry(COMPLEXITY, new CyclomaticComplexity(160)),
+                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(160, 294 + 29))),
                 entry(LOC, new LinesOfCode(294 + 29)));
 
         assertThat(tree.getChildren()).hasSize(1)

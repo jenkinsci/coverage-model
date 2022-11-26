@@ -43,6 +43,10 @@ public class FractionValue extends Value {
         this(metric, Fraction.getFraction(numerator, denominator));
     }
 
+    public Fraction getFraction() {
+        return fraction;
+    }
+
     @Override
     public Value add(final Value other) {
         if (hasSameMetric(other) && other instanceof FractionValue) {
