@@ -49,19 +49,19 @@ class JacocoParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(7).setMissed(3).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(15).setMissed(3).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(97).setMissed(5).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(294).setMissed(29).build()),
-                entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(109).setMissed(7).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(160)),
-                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(160, 294 + 29))),
-                entry(LOC, new LinesOfCode(294 + 29)));
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(7).setMissed(3).build(),
+                builder.setMetric(CLASS).setCovered(15).setMissed(3).build(),
+                builder.setMetric(METHOD).setCovered(97).setMissed(5).build(),
+                builder.setMetric(LINE).setCovered(294).setMissed(29).build(),
+                builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
+                builder.setMetric(BRANCH).setCovered(109).setMissed(7).build(),
+                new CyclomaticComplexity(160),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(160, 294 + 29)),
+                new LinesOfCode(294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -90,7 +90,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
         var coverage = new CoverageBuilder().setMetric(PACKAGE).setCovered(4).setMissed(0).build();
-        assertThat(tree.getMetricsDistribution()).contains(entry(PACKAGE, coverage));
+        assertThat(tree.aggregateValues()).contains(coverage);
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)

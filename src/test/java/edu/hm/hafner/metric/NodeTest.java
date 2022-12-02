@@ -14,7 +14,6 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.assertThat;
 import static edu.hm.hafner.metric.assertions.Assertions.assertThatExceptionOfType;
-import static edu.hm.hafner.metric.assertions.Assertions.entry;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -114,11 +113,11 @@ class NodeTest {
         Value valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
         node.addValue(valueTwo);
 
-        assertThat(node.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(LINE, valueOne),
-                entry(BRANCH, valueTwo),
-                entry(LOC, new LinesOfCode(1)));
+        assertThat(node.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                valueOne,
+                valueTwo,
+                new LinesOfCode(1));
     }
 
     @Test

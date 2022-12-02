@@ -176,21 +176,24 @@ public abstract class Node implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Returns a mapping of metric to coverage. The root of the tree will be skipped.
-     *
-     * @return a mapping of metric to coverage.
-     */
-    // FIXME: wouldn't it be sufficient to return the values only, since the metric is contained?
-    public NavigableMap<Metric, Value> getMetricsDistribution() {
-        return new TreeMap<>(getMetrics().stream()
-                .filter(m -> getValue(m).isPresent())
-                .collect(Collectors.toMap(Function.identity(), this::getValueOf)));
+    NavigableMap<Metric, Value> getMetricsDistribution() {
+        return new TreeMap<>(aggregateValues().stream()
+                .collect(Collectors.toMap(Value::getMetric, Function.identity())));
     }
 
     private Value getValueOf(final Metric searchMetric) {
         return getValue(searchMetric).orElseThrow(() ->
                 new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
+    }
+
+    /**
+     * Aggregates all values that are part of the subtree that is spanned by this node.
+     *
+     * @return aggregation of values below this tree
+     */
+    public List<Value> aggregateValues() {
+        return getMetrics().stream().map(this::getValue).flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     /**

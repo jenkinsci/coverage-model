@@ -41,18 +41,18 @@ class CoberturaParserTest extends AbstractParserTest {
         var builder = new CoverageBuilder();
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(2).setMissed(0).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(2).setMissed(0).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(4).setMissed(1).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(1).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(8)),
-                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(8, 42 + 9))),
-                entry(LOC, new LinesOfCode(42 + 9)));
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(2).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(2).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(4).setMissed(1).build(),
+                builder.setMetric(LINE).setCovered(42).setMissed(9).build(),
+                builder.setMetric(BRANCH).setCovered(3).setMissed(1).build(),
+                new CyclomaticComplexity(8),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(8, 42 + 9)),
+                new LinesOfCode(42 + 9));
     }
 
     @Test
@@ -68,18 +68,18 @@ class CoberturaParserTest extends AbstractParserTest {
         var builder = new CoverageBuilder();
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(4).setMissed(0).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(5).setMissed(0).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(7).setMissed(3).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(61).setMissed(19).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(2).setMissed(2).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(22)),
-                entry(COMPLEXITY_DENSITY, new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(22, 61 + 19))),
-                entry(LOC, new LinesOfCode(61 + 19)));
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build(),
+                builder.setMetric(FILE).setCovered(4).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(5).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(7).setMissed(3).build(),
+                builder.setMetric(LINE).setCovered(61).setMissed(19).build(),
+                builder.setMetric(BRANCH).setCovered(2).setMissed(2).build(),
+                new CyclomaticComplexity(22),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(22, 61 + 19)),
+                new LinesOfCode(61 + 19));
 
         assertThat(tree.getChildren()).extracting(Node::getName)
                 .hasSize(5)

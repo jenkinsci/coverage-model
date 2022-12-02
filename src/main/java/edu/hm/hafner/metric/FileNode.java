@@ -266,7 +266,7 @@ public final class FileNode extends Node {
      * @param referenceNode
      *         the node to compare with this node
      */
-    // TODO: wouldn't it make more sense to return a independent object?
+    // TODO: wouldn't it make more sense to return an independent object?
     public void computeDelta(final FileNode referenceNode) {
         NavigableMap<Metric, Value> referenceCoverage = referenceNode.getMetricsDistribution();
         getMetricsDistribution().forEach((metric, value) -> {
