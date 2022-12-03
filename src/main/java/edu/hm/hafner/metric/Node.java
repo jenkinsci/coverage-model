@@ -3,9 +3,7 @@ package edu.hm.hafner.metric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -14,11 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
@@ -72,7 +70,7 @@ public abstract class Node implements Serializable {
     private final Metric metric;
     private final String name;
     private final List<Node> children = new ArrayList<>();
-    private final Map<Metric, Value> values = new EnumMap<>(Metric.class);
+    private final List<Value> values = new ArrayList<>();
 
     @CheckForNull
     private Node parent;
@@ -143,7 +141,7 @@ public abstract class Node implements Serializable {
                 .collect(Collectors.toCollection(TreeSet::new));
 
         elements.add(getMetric());
-        elements.addAll(values.keySet());
+        getMetricsOfValues().forEach(elements::add);
         if (elements.contains(Metric.LINE)) {
             // TODO: would it make sense to make that not hard-coded?
             elements.add(Metric.LOC);
@@ -152,6 +150,10 @@ public abstract class Node implements Serializable {
             }
         }
         return elements;
+    }
+
+    private Stream<Metric> getMetricsOfValues() {
+        return values.stream().map(Value::getMetric);
     }
 
     /**
@@ -165,7 +167,7 @@ public abstract class Node implements Serializable {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toCollection(TreeSet::new));
 
-        elements.addAll(values.keySet());
+        getMetricsOfValues().forEach(elements::add);
         return elements;
     }
 
@@ -289,7 +291,7 @@ public abstract class Node implements Serializable {
     }
 
     public List<Value> getValues() {
-        return new ArrayList<>(values.values());
+        return List.copyOf(values);
     }
 
     /**
@@ -299,7 +301,7 @@ public abstract class Node implements Serializable {
      *         the value to add
      */
     public void addValue(final Value value) {
-        if (values.containsKey(value.getMetric())) {
+        if (getMetricsOfValues().anyMatch(value.getMetric()::equals)) {
             throw new IllegalArgumentException(
                     String.format("There is already a leaf %s with the metric %s", value, value.getMetric()));
         }
@@ -313,7 +315,12 @@ public abstract class Node implements Serializable {
      *         the value to replace
      */
     public void replaceValue(final Value value) {
-        values.put(value.getMetric(), value);
+        // FIXME: Can we avoid that?
+        values.stream()
+                .filter(v -> v.getMetric().equals(value.getMetric()))
+                .findAny()
+                .ifPresent(values::remove);
+        values.add(value);
     }
 
     protected void addAllValues(final Collection<? extends Value> additionalValues) {
@@ -574,8 +581,17 @@ public abstract class Node implements Serializable {
     }
 
     private void safelyCombineChildren(final Node other) {
-        BiFunction<Value, Value, Value> mergeOperation = hasChildren() ? Value::add : Value::max;
-        other.values.forEach((k, v) -> values.merge(k, v, mergeOperation));
+        other.values.forEach((ov) -> {
+                    if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
+                        var old = getValueOf(ov.getMetric());
+                        if (hasChildren()) {
+                            replaceValue(old.add(ov));
+                        }
+                        else {
+                            replaceValue(old.max(ov));
+                        }
+                    }
+                });
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
