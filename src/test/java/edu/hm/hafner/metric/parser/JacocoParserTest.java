@@ -175,7 +175,7 @@ class JacocoParserTest extends AbstractParserTest {
     @Test
     void shouldThrowExceptionWhenAttributesAreMissing() {
         assertThatThrownBy(() -> readReport("/jacoco-missing-attribute.xml"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(NoSuchElementException.class)
                 .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 

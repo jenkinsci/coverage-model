@@ -87,8 +87,13 @@ public abstract class IntegerValue extends Value {
     }
 
     @Override
-    public String toString() {
+    public String serialize() {
         return String.format("%s: %s", getMetric(), integer);
+    }
+
+    @Override
+    public String toString() {
+        return serialize();
     }
 
     @Override

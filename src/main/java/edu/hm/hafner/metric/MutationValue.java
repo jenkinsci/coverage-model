@@ -14,6 +14,7 @@ import edu.hm.hafner.util.Ensure;
  *
  * @author Melissa Bauer
  */
+// FIXME: Wouldn't it make sense to separate the value from the details? Same is true for coverage
 public final class MutationValue extends Value {
     private static final long serialVersionUID = -7725185756332899065L;
 
@@ -147,8 +148,13 @@ public final class MutationValue extends Value {
     }
 
     @Override
+    public String serialize() {
+        return String.format("%s: %d/%d", getMetric(), getKilled(), getTotal());
+    }
+
+    @Override
     public String toString() {
-        return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), killed, killed + survived);
+        return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), getKilled(), getTotal());
     }
 
     @Override

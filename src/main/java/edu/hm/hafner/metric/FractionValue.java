@@ -85,6 +85,11 @@ public class FractionValue extends Value {
 
     @Override
     public String toString() {
+        return serialize();
+    }
+
+    @Override
+    public String serialize() {
         return String.format("%s: %s", getMetric(), fraction);
     }
 
