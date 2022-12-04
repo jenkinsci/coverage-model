@@ -650,10 +650,10 @@ class NodeTest {
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {
-        file.addChangedCodeLine(10);
-        file.addChangedCodeLine(11);
-        file.addChangedCodeLine(12);
-        file.addChangedCodeLine(13);
+        file.addChangedLine(10);
+        file.addChangedLine(11);
+        file.addChangedLine(12);
+        file.addChangedLine(13);
 
         var method = new MethodNode("aMethod", "{}");
         var builder = new CoverageBuilder().setMetric(Metric.LINE);

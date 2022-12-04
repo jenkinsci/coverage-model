@@ -225,8 +225,8 @@ public abstract class Node implements Serializable {
      *
      * @return {@code true} whether code changes have been detected
      */
-    public boolean hasCodeChanges() {
-        return getChildren().stream().anyMatch(Node::hasCodeChanges);
+    public boolean hasChangedLines() {
+        return getChildren().stream().anyMatch(Node::hasChangedLines);
     }
 
     public String getName() {

@@ -25,9 +25,9 @@ public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
-    private final SortedSet<Integer> changedCodeLines = new TreeSet<>();
+    private final SortedSet<Integer> changedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
-    private final NavigableMap<Metric, Fraction> fileCoverageDelta = new TreeMap<>();
+    private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -44,18 +44,14 @@ public final class FileNode extends Node {
         var file = new FileNode(getName());
         file.coveredPerLine.putAll(coveredPerLine);
         file.missedPerLine.putAll(missedPerLine);
-        file.changedCodeLines.addAll(changedCodeLines);
+        file.changedLines.addAll(changedLines);
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
-        file.fileCoverageDelta.putAll(fileCoverageDelta);
+        file.coverageDelta.putAll(coverageDelta);
         return file;
     }
 
     public SortedSet<Integer> getChangedLines() {
-        return changedCodeLines;
-    }
-
-    public boolean hasChangedLine(final int line) {
-        return changedCodeLines.contains(line);
+        return changedLines;
     }
 
     /**
@@ -64,8 +60,8 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
      */
     @Override
-    public boolean hasCodeChanges() {
-        return !changedCodeLines.isEmpty();
+    public boolean hasChangedLines() {
+        return !changedLines.isEmpty();
     }
 
     /**
@@ -76,18 +72,18 @@ public final class FileNode extends Node {
      *
      * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
      */
-    public boolean hasChangedCodeLine(final int line) {
-        return changedCodeLines.contains(line);
+    public boolean hasChangedLine(final int line) {
+        return changedLines.contains(line);
     }
 
     /**
-     * Adds a code line that has been changed.
+     * Mark a specific line as being changed.
      *
      * @param line
-     *         The changed code line
+     *         the changed code line
      */
-    public void addChangedCodeLine(final int line) {
-        changedCodeLines.add(line);
+    public void addChangedLine(final int line) {
+        changedLines.add(line);
     }
 
     @Override
@@ -116,7 +112,7 @@ public final class FileNode extends Node {
                 lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
-            copy.addChangedCodeLine(line);
+            copy.addChangedLine(line);
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
         return Optional.of(copy);
@@ -271,7 +267,7 @@ public final class FileNode extends Node {
         NavigableMap<Metric, Value> referenceCoverage = referenceNode.getMetricsDistribution();
         getMetricsDistribution().forEach((metric, value) -> {
             if (referenceCoverage.containsKey(metric)) {
-                fileCoverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
+                coverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
             }
         });
     }
@@ -286,6 +282,18 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Returns the coverage percentage for changed code lines (for the specified metric).
+     *
+     * @param metric
+     *         the metric to check
+     *
+     * @return the coverage percentage for changed code lines
+     */
+    public Fraction getChangeCoverage(final Metric metric) {
+        return coverageDelta.getOrDefault(metric, Fraction.ZERO);
+    }
+
+    /**
      * Returns whether this file has coverage results for changed code lines (for the specified metric).
      *
      * @param metric
@@ -294,7 +302,7 @@ public final class FileNode extends Node {
      * @return {@code true} has coverage results for changed code lines, {@code false} otherwise
      */
     public boolean hasChangeCoverage(final Metric metric) {
-        return fileCoverageDelta.containsKey(metric);
+        return coverageDelta.containsKey(metric);
     }
 
     /**
@@ -336,18 +344,6 @@ public final class FileNode extends Node {
      */
     public boolean hasCoveredLinesInChangeSet() {
         return !getCoveredLinesOfChangeSet().isEmpty();
-    }
-
-    /**
-     * Returns the coverage percentage for changed code lines (for the specified metric).
-     *
-     * @param metric
-     *         the metric to check
-     *
-     * @return the coverage percentage for changed code lines
-     */
-    public Fraction getChangeCoverage(final Metric metric) {
-        return fileCoverageDelta.getOrDefault(metric, Fraction.ZERO);
     }
 
     public void addCounters(final int lineNumber, final int covered, final int missed) {
@@ -392,15 +388,15 @@ public final class FileNode extends Node {
         }
         FileNode fileNode = (FileNode) o;
         return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
-                fileNode.missedPerLine) && Objects.equals(changedCodeLines, fileNode.changedCodeLines)
+                fileNode.missedPerLine) && Objects.equals(changedLines, fileNode.changedLines)
                 && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
-                && Objects.equals(fileCoverageDelta, fileNode.fileCoverageDelta);
+                && Objects.equals(coverageDelta, fileNode.coverageDelta);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, changedCodeLines, indirectCoverageChanges,
-                fileCoverageDelta);
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, changedLines, indirectCoverageChanges,
+                coverageDelta);
     }
 
 }
