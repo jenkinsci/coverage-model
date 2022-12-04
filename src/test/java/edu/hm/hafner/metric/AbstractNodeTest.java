@@ -1,6 +1,6 @@
 package edu.hm.hafner.metric;
 
-import java.util.TreeMap;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -44,8 +44,9 @@ abstract class AbstractNodeTest {
         parent.addChild(child);
 
         assertThat(parent)
-                .hasChildren(child)
-                .hasMetricsDistribution(createMetricDistributionWithMissed(2));
+                .hasChildren(child);
+        assertThat(parent.aggregateValues()).containsExactlyElementsOf(
+                createMetricDistributionWithMissed(2));
         assertThat(parent.getAll(getMetric())).containsOnly(parent, child);
 
         assertThat(parent.find(getMetric(), NAME)).contains(parent);
@@ -62,12 +63,13 @@ abstract class AbstractNodeTest {
         assertThat(node)
                 .hasName(NAME)
                 .hasMetrics(getMetric())
-                .hasMetricsDistribution(createMetricDistributionWithMissed(1))
                 .hasNoChildren()
                 .doesNotHaveChildren()
                 .isRoot()
                 .doesNotHaveParent()
                 .hasParentName(Node.ROOT);
+        assertThat(node.aggregateValues()).containsExactlyElementsOf(
+                createMetricDistributionWithMissed(1));
 
         assertThat(node.getAll(getMetric())).containsOnly(node);
         assertThat(node.find(getMetric(), NAME)).contains(node);
@@ -78,13 +80,10 @@ abstract class AbstractNodeTest {
         assertThat(node.copy()).hasNoValues();
     }
 
-    private TreeMap<Object, Object> createMetricDistributionWithMissed(final int missed) {
-        var distribution = new TreeMap<>();
+    private List<? extends Value> createMetricDistributionWithMissed(final int missed) {
         var builder = new CoverageBuilder();
         builder.setMetric(getMetric()).setCovered(0).setMissed(missed);
-        distribution.put(getMetric(), builder.build());
-        distribution.put(Metric.BRANCH, BRANCH_COVERAGE);
-        return distribution;
+        return List.of(builder.build(), BRANCH_COVERAGE);
     }
 
     @Test

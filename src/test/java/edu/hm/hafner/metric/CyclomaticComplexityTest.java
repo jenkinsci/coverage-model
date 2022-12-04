@@ -26,6 +26,13 @@ class CyclomaticComplexityTest {
     }
 
     @Test
+    void shouldCompareWithThreshold() {
+        assertThat(new CyclomaticComplexity(125).isBelowThreshold(0)).isFalse();
+        assertThat(new CyclomaticComplexity(125).isBelowThreshold(125)).isFalse();
+        assertThat(new CyclomaticComplexity(125).isBelowThreshold(125.1)).isTrue();
+    }
+
+    @Test
     void shouldOperateWithComplexities() {
         assertThat(new CyclomaticComplexity(25).add(new CyclomaticComplexity(100))).hasValue(125);
         assertThat(new CyclomaticComplexity(25).max(new CyclomaticComplexity(100))).hasValue(100);

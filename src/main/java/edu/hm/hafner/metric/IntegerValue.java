@@ -73,9 +73,27 @@ public abstract class IntegerValue extends Value {
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
 
+    /**
+     * Returns whether this integer value is below the given threshold.
+     *
+     * @param threshold
+     *         the threshold
+     *
+     * @return {@code true}, if this value is below the specified threshold
+     */
+    @Override
+    public boolean isBelowThreshold(final double threshold) {
+        return getValue() < threshold;
+    }
+
+    @Override
+    public String serialize() {
+        return String.format("%s: %s", getMetric(), integer);
+    }
+
     @Override
     public String toString() {
-        return String.format("%s: %s", getMetric(), integer);
+        return serialize();
     }
 
     @Override

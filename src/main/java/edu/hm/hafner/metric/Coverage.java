@@ -18,6 +18,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  */
 public final class Coverage extends Value {
     private static final long serialVersionUID = -3802318446471137305L;
+    private static final String FRACTION_SEPARATOR = "/";
 
     /**
      * Creates a new {@link Coverage} instance from the provided string representation. The string representation is
@@ -36,9 +37,9 @@ public final class Coverage extends Value {
     public static Coverage valueOf(final Metric metric, final String stringRepresentation) {
         try {
             String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
-            if (StringUtils.contains(cleanedFormat, "/")) {
-                String extractedCovered = StringUtils.substringBefore(cleanedFormat, "/");
-                String extractedTotal = StringUtils.substringAfter(cleanedFormat, "/");
+            if (StringUtils.contains(cleanedFormat, FRACTION_SEPARATOR)) {
+                String extractedCovered = StringUtils.substringBefore(cleanedFormat, FRACTION_SEPARATOR);
+                String extractedTotal = StringUtils.substringAfter(cleanedFormat, FRACTION_SEPARATOR);
 
                 int covered = Integer.parseInt(extractedCovered);
                 int total = Integer.parseInt(extractedTotal);
@@ -152,6 +153,20 @@ public final class Coverage extends Value {
         return castAndMap(other, this::computeMax);
     }
 
+    /**
+     * Returns whether this coverage is below the given threshold. The threshold is a percentage in the range of [0,
+     * 100].
+     *
+     * @param threshold
+     *         the threshold in the range of [0, 100]
+     *
+     * @return {@code true}, if this value is below the specified threshold
+     */
+    @Override
+    public boolean isBelowThreshold(final double threshold) {
+        return getCoveredPercentage().doubleValue() * 100 < threshold;
+    }
+
     private Coverage computeMax(final Coverage otherCoverage) {
         Ensure.that(getTotal() == otherCoverage.getTotal())
                 .isTrue("Cannot compute maximum of coverages %s and %s since total differs", this, otherCoverage);
@@ -201,10 +216,15 @@ public final class Coverage extends Value {
     public String toString() {
         int total = getTotal();
         if (total > 0) {
-            return String.format("%s: %s (%s)", getMetric(), printPercentage(getCoveredPercentage()),
+            return String.format("%s: %s (%s)", getMetric(), Percentage.valueOf(getCoveredPercentage()),
                     getCoveredPercentage());
         }
         return String.format("%s: n/a", getMetric());
+    }
+
+    @Override
+    public String serialize() {
+        return String.format("%s: %d/%d", getMetric(), getCovered(), getTotal());
     }
 
     /**

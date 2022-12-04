@@ -26,7 +26,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
- * A parser which parses reports made by Cobertura into a Java Object Model.
+ * Parses Cobertura report formats into a hierarchical Java Object Model.
  *
  * @author Melissa Bauer
  */
@@ -36,7 +36,7 @@ public class CoberturaParser extends XmlParser {
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
-    private static final QName SOURCEFILENAME = new QName("filename");
+    private static final QName SOURCE_FILE_NAME = new QName("filename");
     private static final QName SIGNATURE = new QName("signature");
     private static final QName HITS = new QName("hits");
     private static final QName COMPLEXITY = new QName("complexity");
@@ -122,10 +122,8 @@ public class CoberturaParser extends XmlParser {
             case "method": // currentNode = classNode, methodNode after
                 Node methodNode = new MethodNode(getValueOf(element, NAME), getValueOf(element, SIGNATURE));
 
-                String complexityValue = getValueOf(element, COMPLEXITY);
-                if (complexityValue != null) {
-                    methodNode.addValue(new CyclomaticComplexity(Integer.parseInt(complexityValue)));
-                }
+                getOptionalValueOf(element, COMPLEXITY).ifPresent(
+                        c -> methodNode.addValue(new CyclomaticComplexity(Integer.parseInt(c))));
 
                 currentNode.addChild(methodNode);
                 currentNode = methodNode;
@@ -152,7 +150,7 @@ public class CoberturaParser extends XmlParser {
         ClassNode classNode = new ClassNode(new PathUtil().getRelativePath(classPath));
 
         // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
-        String sourcefilePath = getValueOf(element, SOURCEFILENAME);
+        String sourcefilePath = getValueOf(element, SOURCE_FILE_NAME);
         String[] parts = sourcefilePath.split("/", 0);
         String sourcefileName = parts[parts.length - 1];
 

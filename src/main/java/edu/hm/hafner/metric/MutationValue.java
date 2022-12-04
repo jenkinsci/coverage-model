@@ -14,6 +14,7 @@ import edu.hm.hafner.util.Ensure;
  *
  * @author Melissa Bauer
  */
+// FIXME: Wouldn't it make sense to separate the value from the details? Same is true for coverage
 public final class MutationValue extends Value {
     private static final long serialVersionUID = -7725185756332899065L;
 
@@ -132,9 +133,28 @@ public final class MutationValue extends Value {
         return otherMutationValue;
     }
 
+    /**
+     * Returns whether this mutation value is below the given threshold. The threshold is a percentage in the range of [0,
+     * 100].
+     *
+     * @param threshold
+     *         the threshold in the range of [0, 100]
+     *
+     * @return {@code true}, if this value is below the specified threshold
+     */
+    @Override
+    public boolean isBelowThreshold(final double threshold) {
+        return getCoveredPercentage().doubleValue() * 100 < threshold;
+    }
+
+    @Override
+    public String serialize() {
+        return String.format("%s: %d/%d", getMetric(), getKilled(), getTotal());
+    }
+
     @Override
     public String toString() {
-        return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), killed, killed + survived);
+        return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), getKilled(), getTotal());
     }
 
     @Override

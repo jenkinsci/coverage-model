@@ -1,20 +1,16 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.math.Fraction;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
+import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -25,12 +21,13 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-class JacocoParserTest {
+@DefaultLocale("en")
+class JacocoParserTest extends AbstractParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 
-    @BeforeAll
-    static void beforeAll() {
-        Locale.setDefault(Locale.ENGLISH);
+    @Override
+    XmlParser createParser() {
+        return new JacocoParser();
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
@@ -47,21 +44,24 @@ class JacocoParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(18);
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH, COMPLEXITY, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
+                COMPLEXITY, COMPLEXITY_DENSITY, LOC);
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(7).setMissed(3).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(15).setMissed(3).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(97).setMissed(5).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(294).setMissed(29).build()),
-                entry(INSTRUCTION, builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(109).setMissed(7).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(160)),
-                entry(LOC, new LinesOfCode(294 + 29)));
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(7).setMissed(3).build(),
+                builder.setMetric(CLASS).setCovered(15).setMissed(3).build(),
+                builder.setMetric(METHOD).setCovered(97).setMissed(5).build(),
+                builder.setMetric(LINE).setCovered(294).setMissed(29).build(),
+                builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
+                builder.setMetric(BRANCH).setCovered(109).setMissed(7).build(),
+                new CyclomaticComplexity(160),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(160, 294 + 29)),
+                new LinesOfCode(294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -90,7 +90,7 @@ class JacocoParserTest {
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
         var coverage = new CoverageBuilder().setMetric(PACKAGE).setCovered(4).setMissed(0).build();
-        assertThat(tree.getMetricsDistribution()).contains(entry(PACKAGE, coverage));
+        assertThat(tree.aggregateValues()).contains(coverage);
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -174,22 +174,12 @@ class JacocoParserTest {
 
     @Test
     void shouldThrowExceptionWhenAttributesAreMissing() {
-        assertThatThrownBy(() -> readReport("src/test/resources/jacoco-missing-attribute.xml"))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> readReport("/jacoco-missing-attribute.xml"))
+                .isInstanceOf(NoSuchElementException.class)
                 .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("src/test/resources/jacoco-codingstyle.xml");
-    }
-
-    private ModuleNode readReport(final String fileName) {
-        try (FileInputStream stream = new FileInputStream(fileName);
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            return new JacocoParser().parse(reader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readReport("/jacoco-codingstyle.xml");
     }
 }

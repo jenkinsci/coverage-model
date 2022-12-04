@@ -3,9 +3,7 @@ package edu.hm.hafner.metric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -14,11 +12,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
@@ -72,7 +70,7 @@ public abstract class Node implements Serializable {
     private final Metric metric;
     private final String name;
     private final List<Node> children = new ArrayList<>();
-    private final Map<Metric, Value> values = new EnumMap<>(Metric.class);
+    private final List<Value> values = new ArrayList<>();
 
     @CheckForNull
     private Node parent;
@@ -143,11 +141,19 @@ public abstract class Node implements Serializable {
                 .collect(Collectors.toCollection(TreeSet::new));
 
         elements.add(getMetric());
-        elements.addAll(values.keySet());
+        getMetricsOfValues().forEach(elements::add);
         if (elements.contains(Metric.LINE)) {
-            elements.add(Metric.LOC); // TODO: would it make sense to make that not hard-coded?
+            // TODO: would it make sense to make that not hard-coded?
+            elements.add(Metric.LOC);
+            if (elements.contains(Metric.COMPLEXITY)) {
+                elements.add(Metric.COMPLEXITY_DENSITY);
+            }
         }
         return elements;
+    }
+
+    private Stream<Metric> getMetricsOfValues() {
+        return values.stream().map(Value::getMetric);
     }
 
     /**
@@ -161,7 +167,7 @@ public abstract class Node implements Serializable {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toCollection(TreeSet::new));
 
-        elements.addAll(values.keySet());
+        getMetricsOfValues().forEach(elements::add);
         return elements;
     }
 
@@ -172,21 +178,24 @@ public abstract class Node implements Serializable {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Returns a mapping of metric to coverage. The root of the tree will be skipped.
-     *
-     * @return a mapping of metric to coverage.
-     */
-    // FIXME: wouldn't it be sufficient to return the values only, since the metric is contained?
-    public NavigableMap<Metric, Value> getMetricsDistribution() {
-        return new TreeMap<>(getMetrics().stream()
-                .filter(m -> getValue(m).isPresent())
-                .collect(Collectors.toMap(Function.identity(), this::getValueOf)));
+    NavigableMap<Metric, Value> getMetricsDistribution() {
+        return new TreeMap<>(aggregateValues().stream()
+                .collect(Collectors.toMap(Value::getMetric, Function.identity())));
     }
 
     private Value getValueOf(final Metric searchMetric) {
         return getValue(searchMetric).orElseThrow(() ->
                 new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
+    }
+
+    /**
+     * Aggregates all values that are part of the subtree that is spanned by this node.
+     *
+     * @return aggregation of values below this tree
+     */
+    public List<Value> aggregateValues() {
+        return getMetrics().stream().map(this::getValue).flatMap(Optional::stream)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -216,8 +225,8 @@ public abstract class Node implements Serializable {
      *
      * @return {@code true} whether code changes have been detected
      */
-    public boolean hasCodeChanges() {
-        return getChildren().stream().anyMatch(Node::hasCodeChanges);
+    public boolean hasChangedLines() {
+        return getChildren().stream().anyMatch(Node::hasChangedLines);
     }
 
     public String getName() {
@@ -282,7 +291,7 @@ public abstract class Node implements Serializable {
     }
 
     public List<Value> getValues() {
-        return new ArrayList<>(values.values());
+        return List.copyOf(values);
     }
 
     /**
@@ -292,7 +301,7 @@ public abstract class Node implements Serializable {
      *         the value to add
      */
     public void addValue(final Value value) {
-        if (values.containsKey(value.getMetric())) {
+        if (getMetricsOfValues().anyMatch(value.getMetric()::equals)) {
             throw new IllegalArgumentException(
                     String.format("There is already a leaf %s with the metric %s", value, value.getMetric()));
         }
@@ -306,7 +315,12 @@ public abstract class Node implements Serializable {
      *         the value to replace
      */
     public void replaceValue(final Value value) {
-        values.put(value.getMetric(), value);
+        // FIXME: Can we avoid that?
+        values.stream()
+                .filter(v -> v.getMetric().equals(value.getMetric()))
+                .findAny()
+                .ifPresent(values::remove);
+        values.add(value);
     }
 
     protected void addAllValues(final Collection<? extends Value> additionalValues) {
@@ -465,18 +479,12 @@ public abstract class Node implements Serializable {
      *
      * @return the root node of the copied tree
      */
-    public Node copyTree() {
-        return copyTree(null);
-    }
-
-    /**
-     * Creates a deep copy of the tree with this as root node.
-     *
-     * @return the root node of the copied tree
-     */
-    public Optional<Node> prune(final Predicate<Node> predicate, final Consumer<Node> consumer) {
+    public Optional<Node> filterByChanges(final Predicate<Node> predicate, final Consumer<Node> consumer) {
         var copy = copy();
-        var prunedChildren = children.stream().map(c -> c.prune(predicate, consumer)).flatMap(Optional::stream).collect(Collectors.toList());
+        var prunedChildren = children.stream()
+                .map(c -> c.filterByChanges(predicate, consumer))
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
         copy.addAllChildren(prunedChildren);
         if (predicate.test(this)) {
             consumer.accept(this);
@@ -486,6 +494,15 @@ public abstract class Node implements Serializable {
             return Optional.of(copy);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Creates a deep copy of the tree with this as root node.
+     *
+     * @return the root node of the copied tree
+     */
+    public Node copyTree() {
+        return copyTree(null);
     }
 
     /**
@@ -564,8 +581,17 @@ public abstract class Node implements Serializable {
     }
 
     private void safelyCombineChildren(final Node other) {
-        BiFunction<Value, Value, Value> mergeOperation = hasChildren() ? Value::add : Value::max;
-        other.values.forEach((k, v) -> values.merge(k, v, mergeOperation));
+        other.values.forEach((ov) -> {
+                    if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
+                        var old = getValueOf(ov.getMetric());
+                        if (hasChildren()) {
+                            replaceValue(old.add(ov));
+                        }
+                        else {
+                            replaceValue(old.max(ov));
+                        }
+                    }
+                });
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
@@ -640,6 +666,7 @@ public abstract class Node implements Serializable {
      *
      * @return the file names
      */
+    // TODO: set?
     public List<String> getFiles() {
         return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
     }
@@ -650,5 +677,53 @@ public abstract class Node implements Serializable {
 
     public boolean isEmpty() {
         return getChildren().isEmpty() && getValues().isEmpty();
+    }
+
+    /**
+     * Creates a new coverage tree that represents the change coverage. This new tree will contain only those elements
+     * that have changed elements.
+     *
+     * @return the filtered tree
+     */
+    public Node filterChanges() {
+        return filterByChanges().orElse(copy());
+    }
+
+    protected Optional<Node> filterByChanges() {
+        var copy = copy();
+        var prunedChildren = getChildren()
+                .stream()
+                .map(Node::filterByChanges)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        if (prunedChildren.isEmpty()) {
+            return Optional.empty();
+        }
+        copy.addAllChildren(prunedChildren);
+        return Optional.of(copy);
+    }
+
+    /**
+     * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
+     * that have elements with a changed coverage but with no changed code line.
+     *
+     * @return the filtered tree
+     */
+    public Node filterByIndirectlyChangedCoverage() {
+        return filterByIndirectChanges().orElse(copy());
+    }
+
+    protected Optional<Node> filterByIndirectChanges() {
+        var copy = copy();
+        var prunedChildren = getChildren()
+                .stream()
+                .map(Node::filterByIndirectChanges)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        if (prunedChildren.isEmpty()) {
+            return Optional.empty();
+        }
+        copy.addAllChildren(prunedChildren);
+        return Optional.of(copy);
     }
 }

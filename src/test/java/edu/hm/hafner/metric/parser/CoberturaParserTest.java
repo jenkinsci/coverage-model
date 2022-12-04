@@ -1,17 +1,15 @@
 package edu.hm.hafner.metric.parser;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
+import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
@@ -22,10 +20,16 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-class CoberturaParserTest {
+@DefaultLocale("en")
+class CoberturaParserTest extends AbstractParserTest {
+    @Override
+    XmlParser createParser() {
+        return new CoberturaParser();
+    }
+
     @Test
     void shouldReadCoberturaIssue473() {
-        Node tree = readReport("src/test/resources/cobertura-npe.xml");
+        Node tree = readReport("/cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -36,17 +40,19 @@ class CoberturaParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(2).setMissed(0).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(2).setMissed(0).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(4).setMissed(1).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(42).setMissed(9).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(3).setMissed(1).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(8)),
-                entry(LOC, new LinesOfCode(42 + 9)));
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(2).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(2).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(4).setMissed(1).build(),
+                builder.setMetric(LINE).setCovered(42).setMissed(9).build(),
+                builder.setMetric(BRANCH).setCovered(3).setMissed(1).build(),
+                new CyclomaticComplexity(8),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(8, 42 + 9)),
+                new LinesOfCode(42 + 9));
     }
 
     @Test
@@ -61,17 +67,19 @@ class CoberturaParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, LOC);
-        assertThat(tree.getMetricsDistribution()).containsExactly(
-                entry(MODULE, builder.setMetric(MODULE).setCovered(1).setMissed(0).build()),
-                entry(PACKAGE, builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build()),
-                entry(FILE, builder.setMetric(FILE).setCovered(4).setMissed(0).build()),
-                entry(CLASS, builder.setMetric(CLASS).setCovered(5).setMissed(0).build()),
-                entry(METHOD, builder.setMetric(METHOD).setCovered(7).setMissed(3).build()),
-                entry(LINE, builder.setMetric(LINE).setCovered(61).setMissed(19).build()),
-                entry(BRANCH, builder.setMetric(BRANCH).setCovered(2).setMissed(2).build()),
-                entry(COMPLEXITY, new CyclomaticComplexity(22)),
-                entry(LOC, new LinesOfCode(61 + 19)));
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build(),
+                builder.setMetric(FILE).setCovered(4).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(5).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(7).setMissed(3).build(),
+                builder.setMetric(LINE).setCovered(61).setMissed(19).build(),
+                builder.setMetric(BRANCH).setCovered(2).setMissed(2).build(),
+                new CyclomaticComplexity(22),
+                new FractionValue(COMPLEXITY_DENSITY,
+                        Fraction.getFraction(22, 61 + 19)),
+                new LinesOfCode(61 + 19));
 
         assertThat(tree.getChildren()).extracting(Node::getName)
                 .hasSize(5)
@@ -138,16 +146,6 @@ class CoberturaParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("src/test/resources/cobertura.xml");
-    }
-
-    private ModuleNode readReport(final String fileName) {
-        try (FileInputStream stream = new FileInputStream(fileName);
-                InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            return new CoberturaParser().parse(reader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return readReport("/cobertura.xml");
     }
 }

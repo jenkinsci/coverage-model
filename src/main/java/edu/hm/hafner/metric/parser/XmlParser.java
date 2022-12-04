@@ -2,6 +2,8 @@ package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
 import java.io.Serializable;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -23,9 +25,15 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 public abstract class XmlParser implements Serializable {
     private static final long serialVersionUID = -181158607646148018L;
 
+    @CheckForNull
     private ModuleNode rootNode;
 
-    public ModuleNode getRootNode() {
+    protected final ModuleNode getRootNode() {
+        if (rootNode == null) {
+            throw new NoSuchElementException(
+                    "No root node found, is this file a valid coverage report?"); // TODO: Parsing exception
+        }
+
         return rootNode;
     }
 
@@ -34,28 +42,28 @@ public abstract class XmlParser implements Serializable {
     }
 
     /**
-     * Parses xml report at given path.
+     * Template method that parses the XML report provided by the given reader. Delegates processing of start and end
+     * element events to abstract methods that need to be overwritten by concrete subclasses.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader with the XML content
      *
-     * @return the created data model
+     * @return the root of the created tree
+     * @throws ParsingException
+     *         if the XML content cannot be read
      */
     public ModuleNode parse(final Reader reader) {
-        SecureXmlParserFactory factory = new SecureXmlParserFactory();
-
-        XMLEventReader r;
         try {
-            r = factory.createXmlEventReader(reader);
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
+            SecureXmlParserFactory factory = new SecureXmlParserFactory();
+            XMLEventReader xmlEventReader = factory.createXmlEventReader(reader);
+            while (xmlEventReader.hasNext()) {
+                XMLEvent event = xmlEventReader.nextEvent();
 
-                if (e.isStartElement()) {
-                    startElement(e.asStartElement());
+                if (event.isStartElement()) {
+                    startElement(event.asStartElement());
                 }
-
-                if (e.isEndElement()) {
-                    endElement(e.asEndElement());
+                else if (event.isEndElement()) {
+                    endElement(event.asEndElement());
                 }
             }
         }
@@ -63,7 +71,7 @@ public abstract class XmlParser implements Serializable {
             throw new ParsingException(ex);
         }
 
-        return rootNode;
+        return getRootNode();
     }
 
     /**
@@ -82,24 +90,30 @@ public abstract class XmlParser implements Serializable {
      */
     protected abstract void endElement(EndElement element);
 
-    @CheckForNull
     protected String getValueOf(final StartElement element, final QName attribute) {
+        var value = getOptionalValueOf(element, attribute);
+
+        return value.orElseThrow(() ->
+            new NoSuchElementException(
+                    String.format("Could not obtain attribute '%s' from element '%s'", attribute, element)));
+    }
+
+    protected Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
 
         if (value == null) {
-            if (!isOptional(attribute.toString())) {
-                throw new IllegalArgumentException(
-                        String.format("Could not obtain attribute '%s' from element '%s'", attribute, element));
-            }
-            return null;
+            return Optional.empty();
         }
 
-        return value.getValue();
+        return Optional.of(value.getValue());
     }
 
     /**
      * Checks if the given attribute is an optional one in the report or not.
-     * @param attribute the attribute of the report
+     *
+     * @param attribute
+     *         the attribute of the report
+     *
      * @return if the attribute is optional
      */
     abstract boolean isOptional(String attribute);

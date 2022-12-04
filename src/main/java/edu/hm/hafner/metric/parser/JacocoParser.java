@@ -38,7 +38,7 @@ public class JacocoParser extends XmlParser {
     private static final QName NR = new QName("nr");
 
     /** Implied attributes of the XML elements. */
-    private static final QName SOURCEFILENAME = new QName("sourcefilename");
+    private static final QName SOURCE_FILE_NAME = new QName("sourcefilename");
     private static final QName LINE = new QName("line");
     private static final QName MI = new QName("mi");
     private static final QName CI = new QName("ci");
@@ -48,6 +48,7 @@ public class JacocoParser extends XmlParser {
     private static final String OPTIONAL_JACOCO_ATTRIBUTE = "line";
 
     private static final String CURRENT_NODE_ERROR_MESSAGE = "Current node is not set";
+    private static final String LINE_0 = "0";
 
     @CheckForNull
     private PackageNode currentPackageNode;
@@ -87,14 +88,8 @@ public class JacocoParser extends XmlParser {
                 String methodName = getValueOf(element, NAME);
                 String methodSignature = getValueOf(element, DESC);
 
-                String methodLine = getValueOf(element, LINE);
-                MethodNode methodNode;
-                if (methodLine == null) {
-                    methodNode = new MethodNode(methodName, methodSignature, 0);
-                }
-                else {
-                    methodNode = new MethodNode(methodName, methodSignature, Integer.parseInt(methodLine));
-                }
+                MethodNode methodNode = new MethodNode(methodName, methodSignature,
+                            Integer.parseInt(getOptionalValueOf(element, LINE).orElse(LINE_0)));
 
                 if (currentNode == null) {
                     throw new NoSuchElementException(CURRENT_NODE_ERROR_MESSAGE);
@@ -141,7 +136,7 @@ public class JacocoParser extends XmlParser {
     private void handleClassElement(final StartElement element) {
         ClassNode classNode = new ClassNode(getValueOf(element, NAME));
 
-        String sourcefileName = getValueOf(element, SOURCEFILENAME);
+        String sourcefileName = getValueOf(element, SOURCE_FILE_NAME);
 
         // Adds current class node as part of a list to the map
         List<ClassNode> classNodesList = classNodesMap.getOrDefault(sourcefileName, new ArrayList<>());

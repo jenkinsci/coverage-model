@@ -1,11 +1,14 @@
 package edu.hm.hafner.metric;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
+
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
@@ -29,6 +32,22 @@ class MutationValueTest {
                 .hasKilled(1)
                 .hasSurvived(0)
                 .hasMutations(mutationLeaf);
+    }
+
+    @Test
+    void shouldCompareWithThreshold() {
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        MutationValue zero = new MutationValue(Collections.emptyList(), 0, 2);
+        MutationValue fifty = new MutationValue(Collections.emptyList(), 2, 2);
+        MutationValue hundred = new MutationValue(Collections.emptyList(), 2, 0);
+
+        assertThat(zero.isBelowThreshold(0)).isFalse();
+        assertThat(zero.isBelowThreshold(0.1)).isTrue();
+        assertThat(fifty.isBelowThreshold(50)).isFalse();
+        assertThat(fifty.isBelowThreshold(50.1)).isTrue();
+        assertThat(hundred.isBelowThreshold(100)).isFalse();
+        assertThat(hundred.isBelowThreshold(100.1)).isTrue();
     }
 
     @Test
