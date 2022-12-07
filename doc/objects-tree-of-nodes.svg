@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" contentStyleType="text/css" height="1100px" preserveAspectRatio="none"
+     style="width:1459px;height:1100px;background:#FFFFFF;" version="1.1" viewBox="0 0 1459 1100" width="1459px"
+     zoomAndPan="magnify"><defs/><g><g id="elem_ModuleNode"><rect fill="#FFFF00" height="119.1875" style="stroke:#000000;stroke-width:0.5;" width="287" x="541" y="7.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="273" x="548" y="31.2969">coverage-model : ModuleNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="542" x2="827" y1="38.7168" y2="38.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="231" x="547" y="64.0938">name = "coverage-model"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="225" x="547" y="90.8906">metric = Metric.MODULE</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="111" x="547" y="117.6875">parent = null</text></g><g id="elem_PackageNode"><rect fill="#FFFF00" height="92.3906" style="stroke:#000000;stroke-width:0.5;" width="301" x="534" y="211.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="207" x="581" y="235.2969">metrics : PackageNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="535" x2="834" y1="242.7168" y2="242.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="289" x="540" y="268.0938">name = "edu.hm.hafner.metrics"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="235" x="540" y="294.8906">metric = Metric.PACKAGE</text></g><g id="elem_FileNode"><rect fill="#FFFF00" height="92.3906" style="stroke:#000000;stroke-width:0.5;" width="238" x="565.5" y="388.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="224" x="572.5" y="412.2969">Coverage.java : FileNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="566.5" x2="802.5" y1="419.7168" y2="419.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="216" x="571.5" y="445.0938">name = "Coverage.java"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="182" x="571.5" y="471.8906">metric = Metric.FILE</text></g><g id="elem_ClassNode"><rect fill="#FFFF00" height="92.3906" style="stroke:#000000;stroke-width:0.5;" width="216" x="576.5" y="565.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="200" x="584.5" y="589.2969">Coverage : ClassNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="577.5" x2="791.5" y1="596.7168" y2="596.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="174" x="582.5" y="622.0938">name = "Coverage"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="204" x="582.5" y="648.8906">metric = Metric.CLASS</text></g><g id="elem_EqualsMethodNode"><rect fill="#FFFF00" height="145.9844" style="stroke:#000000;stroke-width:0.5;" width="318" x="342.5" y="742.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="190" x="406.5" y="766.2969">equals : MethodNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="343.5" x2="659.5" y1="773.7168" y2="773.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="160" x="348.5" y="799.0938">name = "equals()"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="306" x="348.5" y="825.8906">signature = "(Ljava/lang/Object;)Z"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="158" x="348.5" y="852.6875">lineNumber = 171</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="226" x="348.5" y="879.4844">metric = Metric.METHOD</text></g><g id="elem_HashCodeMethodNode"><rect fill="#FFFF00" height="145.9844" style="stroke:#000000;stroke-width:0.5;" width="238" x="764.5" y="742.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="222" x="772.5" y="766.2969">hashCode : MethodNode</text><line style="stroke:#000000;stroke-width:0.5;" x1="765.5" x2="1001.5" y1="773.7168" y2="773.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="188" x="770.5" y="799.0938">name = "hashcode()"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="147" x="770.5" y="825.8906">signature = "()V"</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="158" x="770.5" y="852.6875">lineNumber = 182</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="226" x="770.5" y="879.4844">metric = Metric.METHOD</text></g><g id="elem_EqualsLineCoverage"><rect fill="#FFFF00" height="119.1875" style="stroke:#000000;stroke-width:0.5;" width="301" x="7" y="973.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="287" x="14" y="997.2969">EqualsLineCoverage : Coverage</text><line style="stroke:#000000;stroke-width:0.5;" x1="8" x2="307" y1="1004.7168" y2="1004.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="184" x="13" y="1030.0938">metric = Metric.LINE</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="106" x="13" y="1056.8906">covered = 8</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="98" x="13" y="1083.6875">missed = 0</text></g><g id="elem_EqualsBranchCoverage"><rect fill="#FFFF00" height="119.1875" style="stroke:#000000;stroke-width:0.5;" width="327" x="343" y="973.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="313" x="350" y="997.2969">EqualsBranchCoverage : Coverage</text><line style="stroke:#000000;stroke-width:0.5;" x1="344" x2="669" y1="1004.7168" y2="1004.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="222" x="349" y="1030.0938">metric = Metric.BRANCH</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="106" x="349" y="1056.8906">covered = 3</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="98" x="349" y="1083.6875">missed = 0</text></g><g id="elem_HashCodeLineCoverage"><rect fill="#FFFF00" height="119.1875" style="stroke:#000000;stroke-width:0.5;" width="334" x="714.5" y="973.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="320" x="721.5" y="997.2969">HashCodeLineCoverage : Coverage</text><line style="stroke:#000000;stroke-width:0.5;" x1="715.5" x2="1047.5" y1="1004.7168" y2="1004.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="184" x="720.5" y="1030.0938">metric = Metric.LINE</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="106" x="720.5" y="1056.8906">covered = 1</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="98" x="720.5" y="1083.6875">missed = 0</text></g><g id="elem_HashCodeBranchCoverage"><rect fill="#FFFF00" height="119.1875" style="stroke:#000000;stroke-width:0.5;" width="370" x="1083.5" y="973.9199"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="356" x="1090.5" y="997.2969">HashCodesBranchCoverage : Coverage</text><line style="stroke:#000000;stroke-width:0.5;" x1="1084.5" x2="1452.5" y1="1004.7168" y2="1004.7168"/><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="222" x="1089.5" y="1030.0938">metric = Metric.BRANCH</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="106" x="1089.5" y="1056.8906">covered = 1</text><text fill="#000000" font-family="Arial Unicode MS" font-size="20" lengthAdjust="spacing" textLength="98" x="1089.5" y="1083.6875">missed = 0</text></g><!--MD5=[7bfc90eda20c303279fb555882a54bfe]
+reverse link ModuleNode to PackageNode--><g id="link_ModuleNode_PackageNode"><path codeLine="79" d="M634.1,132.9599 C627.25,148.6499 624.16,165.6099 629.5,181.9199 C632.87,192.1999 638.24,202.2399 644.33,211.4499 " fill="none" id="ModuleNode-backto-PackageNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="636.14,128.6199,628.6915,135.0635,634.0131,133.145,635.9316,138.4666,636.14,128.6199" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="62" x="630.5" y="177.2559">parent</text></g><!--MD5=[32ce3b0b34062e86f00a58c43f9ff00e]
+link ModuleNode to PackageNode--><g id="link_ModuleNode_PackageNode"><path codeLine="80" d="M695.74,127.2699 C697.88,144.8299 699.03,164.1399 697.5,181.9199 C696.84,189.5799 695.81,197.6299 694.61,205.4999 " fill="none" id="ModuleNode-to-PackageNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="693.9,209.9799,699.267,201.7219,694.6872,205.0423,691.3668,200.4624,693.9,209.9799" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="78" x="699.5" y="177.2559">children</text></g><!--MD5=[15260d1c70cd7803e8cafb1eb5000ad2]
+reverse link PackageNode to FileNode--><g id="link_PackageNode_FileNode"><path codeLine="82" d="M640.99,309.6499 C636.29,317.3699 632.23,325.5699 629.5,333.9199 C623.37,352.6599 630.31,371.9299 641.09,388.4999 " fill="none" id="PackageNode-backto-FileNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="643.52,305.6599,635.3314,311.1323,640.8495,309.887,642.0948,315.4051,643.52,305.6599" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="62" x="630.5" y="354.2559">parent</text></g><!--MD5=[bcc82e727f3e0d5424452ac940b44d42]
+link PackageNode to FileNode--><g id="link_PackageNode_FileNode"><path codeLine="83" d="M693.66,304.3699 C695.26,314.0799 696.67,324.3099 697.5,333.9199 C698.86,349.7799 697.62,366.9899 695.45,382.5899 " fill="none" id="PackageNode-to-FileNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="694.76,387.2099,700.0262,378.8872,695.4871,382.2631,692.1112,377.7239,694.76,387.2099" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="78" x="699.5" y="354.2559">children</text></g><!--MD5=[14b5346bc30c4a94a2ad4c4438b4a3d2]
+reverse link FileNode to ClassNode--><g id="link_FileNode_ClassNode"><path codeLine="85" d="M637.7,486.8699 C628.95,502.1199 624.04,519.2299 629.5,535.9199 C632.87,546.1999 638.24,556.2399 644.33,565.4499 " fill="none" id="FileNode-backto-ClassNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="640.3,482.6299,632.1817,488.2061,637.6835,486.8907,638.9989,492.3925,640.3,482.6299" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="62" x="630.5" y="531.2559">parent</text></g><!--MD5=[1745afda8cac86a99e336619a9baf252]
+link FileNode to ClassNode--><g id="link_FileNode_ClassNode"><path codeLine="86" d="M693.66,481.3699 C695.26,491.0799 696.67,501.3099 697.5,510.9199 C698.86,526.7799 697.62,543.9899 695.45,559.5899 " fill="none" id="FileNode-to-ClassNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="694.76,564.2099,700.0262,555.8872,695.4871,559.2631,692.1112,554.7239,694.76,564.2099" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="78" x="699.5" y="531.2559">children</text></g><!--MD5=[0617fb825bf7f0bce995107253ac42af]
+reverse link ClassNode to HashCodeMethodNode--><g id="link_ClassNode_HashCodeMethodNode"><path codeLine="88" d="M731.22,662.7899 C746.49,678.8999 763.61,696.7699 779.5,712.9199 C788.99,722.5599 799.06,732.6299 809.04,742.5199 " fill="none" id="ClassNode-backto-HashCodeMethodNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="728,659.3899,731.293,668.672,731.4415,663.0171,737.0964,663.1656,728,659.3899" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="62" x="780.5" y="708.2559">parent</text></g><!--MD5=[34870f44ac251eff0bce003aa2fffd8f]
+link ClassNode to HashCodeMethodNode--><g id="link_ClassNode_HashCodeMethodNode"><path codeLine="90" d="M792.63,646.6199 C813.11,657.1199 832.71,670.6399 847.5,687.9199 C859.35,701.7599 867.31,719.2599 872.66,736.7999 " fill="none" id="ClassNode-to-HashCodeMethodNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="873.95,741.2999,875.3045,731.5447,872.567,736.495,867.6166,733.7575,873.95,741.2999" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="191" x="864.5" y="708.2559">hashCode : children</text></g><!--MD5=[2197c13606c7d48554652421f2ca763b]
+reverse link ClassNode to EqualsMethodNode--><g id="link_ClassNode_EqualsMethodNode"><path codeLine="89" d="M570.04,629.1499 C535.56,639.9899 501.37,658.0099 480.5,687.9199 C469.44,703.7699 468.25,723.4099 471.52,742.4699 " fill="none" id="ClassNode-backto-EqualsMethodNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="574.58,627.7799,564.8085,626.5481,569.7928,629.2232,567.1177,634.2076,574.58,627.7799" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="62" x="481.5" y="708.2559">parent</text></g><!--MD5=[d819ea3dc70e34b00daa4cadce92ac49]
+link ClassNode to EqualsMethodNode--><g id="link_ClassNode_EqualsMethodNode"><path codeLine="91" d="M617.2,658.2699 C605.69,667.4199 594.3,677.4699 584.5,687.9199 C570.62,702.7199 557.58,720.1199 546.13,737.1999 " fill="none" id="ClassNode-to-EqualsMethodNode" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="543.47,741.2299,551.7822,735.9471,546.2369,737.0653,545.1187,731.52,543.47,741.2299" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="153" x="585.5" y="708.2559">equals: children</text></g><!--MD5=[903eb1a07e8b5b85228779007019e5d5]
+link HashCodeMethodNode to HashCodeLineCoverage--><g id="link_HashCodeMethodNode_HashCodeLineCoverage"><path codeLine="93" d="M882.83,889.2799 C882.6,914.4199 882.33,942.4599 882.11,966.9999 " fill="none" id="HashCodeMethodNode-to-HashCodeLineCoverage" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="882.06,971.9799,886.137,963.0145,882.1029,966.9801,878.1373,962.946,882.06,971.9799" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="202" x="883.5" y="939.2559">lineCoverage : values</text></g><!--MD5=[88b41bee63b272ca8ef9ad3d0ea73a63]
+link HashCodeMethodNode to HashCodeBranchCoverage--><g id="link_HashCodeMethodNode_HashCodeBranchCoverage"><path codeLine="94" d="M1002.88,871.3499 C1033.17,886.0499 1065.36,902.4599 1094.5,918.9199 C1122.17,934.5499 1151.42,952.8699 1177.86,970.1699 " fill="none" id="HashCodeMethodNode-to-HashCodeBranchCoverage" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="1181.85,972.7899,1176.5146,964.5114,1177.6679,970.0494,1172.1299,971.2027,1181.85,972.7899" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="233" x="1134.5" y="939.2559">branchCoverage : values</text></g><!--MD5=[e86f5720d2ecedc492ddbe1092967d2c]
+link EqualsMethodNode to EqualsLineCoverage--><g id="link_EqualsMethodNode_EqualsLineCoverage"><path codeLine="96" d="M342.58,889.3299 C325.34,898.6999 308.32,908.6299 292.5,918.9199 C269.69,933.7599 246.44,951.9699 225.81,969.4299 " fill="none" id="EqualsMethodNode-to-EqualsLineCoverage" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="222.06,972.6299,231.5077,969.8478,225.8693,969.3913,226.3259,963.7529,222.06,972.6299" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="202" x="293.5" y="939.2559">lineCoverage : values</text></g><!--MD5=[889365e2b8f74d937bedfaac47c62904]
+link EqualsMethodNode to EqualsBranchCoverage--><g id="link_EqualsMethodNode_EqualsBranchCoverage"><path codeLine="97" d="M503.18,889.2799 C503.76,914.4199 504.41,942.4599 504.98,966.9999 " fill="none" id="EqualsMethodNode-to-EqualsBranchCoverage" style="stroke:#000000;stroke-width:2.0;"/><polygon fill="#000000" points="505.1,971.9799,508.8933,962.8909,504.9857,966.9812,500.8954,963.0737,505.1,971.9799" style="stroke:#000000;stroke-width:2.0;"/><text fill="#000000" font-family="sans-serif" font-size="20" lengthAdjust="spacing" textLength="233" x="505.5" y="939.2559">branchCoverage : values</text></g><!--MD5=[2808d9d25b7c2f9dd2eded078997f846]
+@startuml
+
+skinparam object {
+  BackgroundColor #yellow
+  BorderColor #a0a0a0
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+hide circle
+
+object "coverage-model : ModuleNode" as ModuleNode {
+  name = "coverage-model"
+  metric = Metric.MODULE
+  parent = null
+}
+
+object "metrics : PackageNode" as PackageNode {
+  name = "edu.hm.hafner.metrics"
+  metric = Metric.PACKAGE
+}
+
+object "Coverage.java : FileNode" as FileNode {
+  name = "Coverage.java"
+  metric = Metric.FILE
+}
+
+object "Coverage : ClassNode" as ClassNode {
+  name = "Coverage"
+  metric = Metric.CLASS
+}
+
+object "equals : MethodNode" as EqualsMethodNode {
+  name = "equals()"
+  signature = "(Ljava/lang/Object;)Z"
+  lineNumber = 171
+  metric = Metric.METHOD
+}
+
+object "hashCode : MethodNode" as HashCodeMethodNode {
+  name = "hashcode()"
+  signature = "()V"
+  lineNumber = 182
+  metric = Metric.METHOD
+}
+
+object "EqualsLineCoverage : Coverage" as EqualsLineCoverage {
+  metric = Metric.LINE
+  covered = 8
+  missed = 0
+}
+
+object "EqualsBranchCoverage : Coverage" as EqualsBranchCoverage {
+  metric = Metric.BRANCH
+  covered = 3
+  missed = 0
+}
+
+object "HashCodeLineCoverage : Coverage" as HashCodeLineCoverage {
+  metric = Metric.LINE
+  covered = 1
+  missed = 0
+}
+
+object "HashCodesBranchCoverage : Coverage" as HashCodeBranchCoverage {
+  metric = Metric.BRANCH
+  covered = 1
+  missed = 0
+}
+
+PackageNode -u-> ModuleNode : parent
+ModuleNode -d-> PackageNode : children
+
+FileNode -u-> PackageNode : parent
+PackageNode -d-> FileNode : children
+
+ClassNode -u-> FileNode : parent
+FileNode -d-> ClassNode : children
+
+HashCodeMethodNode -u-> ClassNode : parent
+EqualsMethodNode -u-> ClassNode : parent
+ClassNode -d-> HashCodeMethodNode : hashCode : children
+ClassNode -d-> EqualsMethodNode : equals: children
+
+HashCodeMethodNode - -> HashCodeLineCoverage : lineCoverage : values
+HashCodeMethodNode - -> HashCodeBranchCoverage : branchCoverage : values
+
+EqualsMethodNode - -> EqualsLineCoverage : lineCoverage : values
+EqualsMethodNode - -> EqualsBranchCoverage : branchCoverage : values
+
+@enduml
+
+PlantUML version 1.2022.13(Sat Nov 19 14:22:17 CET 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: de
+Country: DE
+--></g></svg>

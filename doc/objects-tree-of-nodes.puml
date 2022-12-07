@@ -1,0 +1,100 @@
+@startuml
+
+skinparam object {
+  BackgroundColor #yellow
+  BorderColor #a0a0a0
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+hide circle
+
+object "coverage-model : ModuleNode" as ModuleNode {
+  name = "coverage-model"
+  metric = Metric.MODULE
+  parent = null
+}
+
+object "metrics : PackageNode" as PackageNode {
+  name = "edu.hm.hafner.metrics"
+  metric = Metric.PACKAGE
+}
+
+object "Coverage.java : FileNode" as FileNode {
+  name = "Coverage.java"
+  metric = Metric.FILE
+}
+
+object "Coverage : ClassNode" as ClassNode {
+  name = "Coverage"
+  metric = Metric.CLASS
+}
+
+object "equals : MethodNode" as EqualsMethodNode {
+  name = "equals()"
+  signature = "(Ljava/lang/Object;)Z"
+  lineNumber = 171
+  metric = Metric.METHOD
+}
+
+object "hashCode : MethodNode" as HashCodeMethodNode {
+  name = "hashcode()"
+  signature = "()V"
+  lineNumber = 182
+  metric = Metric.METHOD
+}
+
+object "EqualsLineCoverage : Coverage" as EqualsLineCoverage {
+  metric = Metric.LINE
+  covered = 8
+  missed = 0
+}
+
+object "EqualsBranchCoverage : Coverage" as EqualsBranchCoverage {
+  metric = Metric.BRANCH
+  covered = 3
+  missed = 0
+}
+
+object "HashCodeLineCoverage : Coverage" as HashCodeLineCoverage {
+  metric = Metric.LINE
+  covered = 1
+  missed = 0
+}
+
+object "HashCodesBranchCoverage : Coverage" as HashCodeBranchCoverage {
+  metric = Metric.BRANCH
+  covered = 1
+  missed = 0
+}
+
+PackageNode -u-> ModuleNode : parent
+ModuleNode -d-> PackageNode : children
+
+FileNode -u-> PackageNode : parent
+PackageNode -d-> FileNode : children
+
+ClassNode -u-> FileNode : parent
+FileNode -d-> ClassNode : children
+
+HashCodeMethodNode -u-> ClassNode : parent
+EqualsMethodNode -u-> ClassNode : parent
+ClassNode -d-> HashCodeMethodNode : hashCode : children
+ClassNode -d-> EqualsMethodNode : equals: children
+
+HashCodeMethodNode --> HashCodeLineCoverage : lineCoverage : values
+HashCodeMethodNode --> HashCodeBranchCoverage : branchCoverage : values
+
+EqualsMethodNode --> EqualsLineCoverage : lineCoverage : values
+EqualsMethodNode --> EqualsBranchCoverage : branchCoverage : values
+
+@enduml

@@ -128,6 +128,7 @@ public final class Coverage extends Value {
      *
      * @return the missed percentage
      */
+    // FIXME: Who is using this code, do we need a percentage value?
     public Fraction getMissedPercentage() {
         if (getTotal() == 0) {
             return Fraction.ZERO;

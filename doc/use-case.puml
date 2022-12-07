@@ -1,0 +1,46 @@
+@startuml
+skinparam activity {
+BackgroundColor #4AD386
+BorderColor #a0a0a0
+BorderColor black
+ArrowColor black
+ArrowThickness 2
+FontName Arial Unicode MS
+FontSize 20
+}
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+skinparam activityDiamondBackgroundColor #4AD386
+skinparam activityDiamondBorderColor black
+skinparam activityDiamondFont Arial Unicode MS
+skinparam activityArrowFontSize 20
+skinparam activityArrowFont Arial Unicode MS
+
+|GitHub Action|
+start
+:run Maven build;
+|Maven|
+:compile sources;
+:prepare classfiles\n    for coverage;
+:run tests;
+:calculate code coverage;
+:jacoco.xml]
+|GitHub Action|
+:run autograding;
+|Autograding (using Coverage Model)|
+:jacoco.xml]
+:read and parse coverage file;
+repeat
+:create Node instance;
+:Node]
+repeat while (coverage results available?) is (   [yes])
+->  [no, last line reached];
+:connect Nodes to tree;
+:run autograding;
+|GitHub Action|
+:show results in pull request;
+stop
+|GitHub Action|
+@enduml

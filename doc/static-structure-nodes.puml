@@ -1,0 +1,93 @@
+@startuml
+
+skinparam class {
+  BackgroundColor #4AD386
+  BorderColor #a0a0a0
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+hide circle
+
+enum edu.hm.hafner.metric.Metric {
++  CONTAINER
++  MODULE
++  PACKAGE
++  FILE
++  CLASS
++  METHOD
++  LINE
++  INSTRUCTION
++  BRANCH
++  MUTATION
++  COMPLEXITY
++  COMPLEXITY_DENSITY
++  LOC
++ {static} boolean isNodeMetric(Metric)
+}
+
+abstract class edu.hm.hafner.metric.Node {
++ Metric getMetric()
++ String getName()
++ boolean isEmpty()
++ boolean hasChildren()
++ List<Node> getChildren()
++ void addChild(Node)
++ List<Node> getAll(Metric)
++ List<Value> getValues()
++ Optional<Value> getValue(Metric)
++ void addValue(Value)
++ Node getParent()
++ boolean isRoot()
++ Optional<Node> find(Metric,String)
+}
+
+class edu.hm.hafner.metric.ContainerNode {
++ {static} Node EMPTY_TREE
+}
+
+class edu.hm.hafner.metric.ModuleNode {
++ List<String> getSources()
++ void addSource(String)
++ void splitPackages()
+}
+
+class edu.hm.hafner.metric.PackageNode {
++ {static} String normalizePackageName(String)
++ String getPath()
+}
+
+class edu.hm.hafner.metric.ClassNode {
++ Optional<MethodNode> findMethodNode(String,String)
+}
+
+class edu.hm.hafner.metric.MethodNode {
++ boolean hasValidLineNumber()
++ int getLineNumber()
++ String getSignature()
+}
+
+class edu.hm.hafner.metric.FileNode {
++ SortedSet<Integer> getCoveredLines()
++ boolean hasCoverageForLine(int)
++ String getPath()
+}
+
+edu.hm.hafner.metric.Value - edu.hm.hafner.metric.Node
+edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.MethodNode
+edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.ClassNode
+edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.PackageNode
+edu.hm.hafner.metric.Node <|- edu.hm.hafner.metric.ModuleNode
+edu.hm.hafner.metric.ContainerNode -[hidden]- edu.hm.hafner.metric.ModuleNode
+edu.hm.hafner.metric.Node <|- edu.hm.hafner.metric.ContainerNode
+edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.FileNode
+@enduml

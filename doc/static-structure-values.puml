@@ -1,0 +1,132 @@
+@startuml
+
+skinparam class {
+  BackgroundColor #4AD386
+  BorderColor #a0a0a0
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+hide circle
+
+enum edu.hm.hafner.metric.Metric {
++  CONTAINER
++  MODULE
++  PACKAGE
++  FILE
++  CLASS
++  METHOD
++  LINE
++  INSTRUCTION
++  BRANCH
++  MUTATION
++  COMPLEXITY
++  COMPLEXITY_DENSITY
++  LOC
++ {static} boolean isNodeMetric(Metric)
+}
+
+abstract class edu.hm.hafner.metric.Value {
++ {static} Value getValue(Metric,List<? extends Value>)
++ {static} Optional<? extends Value> findValue(Metric,List<? extends Value>)
++ {static} Value valueOf(String)
++ Metric getMetric()
++ {abstract}Value add(Value)
++ {abstract}Fraction delta(Value)
++ {abstract}Value max(Value)
++ {abstract}boolean isBelowThreshold(double)
++ {abstract}String serialize()
+}
+
+class edu.hm.hafner.metric.CyclomaticComplexity {
+# IntegerValue create(int)
+}
+
+class edu.hm.hafner.metric.LinesOfCode {
+# IntegerValue create(int)
+}
+
+class edu.hm.hafner.metric.Coverage {
++ int getCovered()
++ int getMissed()
++ int getTotal()
++ boolean isSet()
+}
+
+edu.hm.hafner.metric.Coverage -[hidden]- edu.hm.hafner.metric.CyclomaticComplexity
+edu.hm.hafner.metric.Coverage -[hidden]- edu.hm.hafner.metric.FractionValue
+
+class edu.hm.hafner.metric.FractionValue {
++ Fraction getFraction()
+}
+
+
+class edu.hm.hafner.metric.MutationValue {
++ List<Mutation> getMutations()
++ int getKilled()
++ int getSurvived()
++ int getTotal()
+}
+
+
+abstract class edu.hm.hafner.metric.IntegerValue {
++ int getValue()
+# {abstract}IntegerValue create(int)
+}
+
+class edu.hm.hafner.metric.Mutation {
++ boolean isDetected()
++ MutationStatus getStatus()
++ int getLineNumber()
++ Mutator getMutator()
++ String getKillingTest()
++ boolean isKilled()
+}
+
+enum edu.hm.hafner.metric.Mutator {
++  CONDITIONALS_BOUNDARY
++  CONSTRUCTOR_CALLS
++  INCREMENTS
++  INVERT_NEGS
++  MATH
++  NEGATE_CONDITIONALS
++  NON_VOID_METHOD_CALLS
++  RETURN_VALS
++  VOID_METHOD_CALLS
++  FALSE_RETURNS
++  TRUE_RETURNS
++  EMPTY_RETURNS
++  NULL_RETURNS
++  PRIMITIVE_RETURNS
++  NOT_SPECIFIED
++ {static} Mutator fromPath(String)
+}
+
+enum edu.hm.hafner.metric.MutationStatus {
++  KILLED
++  SURVIVED
++  NO_COVERAGE
++  NON_VIABLE
++  TIMED_OUT
++  MEMORY_ERROR
++  RUN_ERROR
+}
+
+edu.hm.hafner.metric.IntegerValue <|-- edu.hm.hafner.metric.LinesOfCode
+edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.Coverage
+edu.hm.hafner.metric.IntegerValue <|-- edu.hm.hafner.metric.CyclomaticComplexity
+edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.FractionValue
+edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.MutationValue
+edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.IntegerValue
+
+edu.hm.hafner.metric.Mutation - edu.hm.hafner.metric.MutationValue
+@enduml
