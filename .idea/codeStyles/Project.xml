@@ -28,6 +28,14 @@
           <emptyLine />
           <package name="" withSubpackages="true" static="false" />
           <emptyLine />
+          <package name="org.kohsuke" withSubpackages="true" static="false" />
+          <package name="org.jenkinsci" withSubpackages="true" static="false" />
+          <package name="org.jvnet.localizer" withSubpackages="true" static="false" />
+          <package name="hudson" withSubpackages="true" static="false" />
+          <package name="jenkins" withSubpackages="true" static="false" />
+          <emptyLine />
+          <package name="io" withSubpackages="true" static="false" />
+          <emptyLine />
           <package name="" withSubpackages="true" static="true" />
         </value>
       </option>
@@ -48,6 +56,8 @@
       <option name="CATCH_ON_NEW_LINE" value="true" />
       <option name="FINALLY_ON_NEW_LINE" value="true" />
       <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
+      <option name="ALIGN_MULTILINE_RESOURCES" value="false" />
+      <option name="ALIGN_MULTILINE_FOR" value="false" />
       <option name="SPACE_BEFORE_ARRAY_INITIALIZER_LBRACE" value="true" />
       <option name="CALL_PARAMETERS_WRAP" value="1" />
       <option name="METHOD_PARAMETERS_WRAP" value="1" />
@@ -64,6 +74,9 @@
       <option name="FOR_BRACE_FORCE" value="3" />
     </codeStyleSettings>
     <codeStyleSettings language="JavaScript">
+      <option name="ELSE_ON_NEW_LINE" value="true" />
+      <option name="CATCH_ON_NEW_LINE" value="true" />
+      <option name="FINALLY_ON_NEW_LINE" value="true" />
       <option name="WRAP_COMMENTS" value="true" />
     </codeStyleSettings>
     <codeStyleSettings language="TypeScript">
