@@ -113,4 +113,18 @@ class ModuleNodeTest extends AbstractNodeTest {
         assertThat(root.getAll(PACKAGE)).hasSize(3);
         assertThat(root.getAll(FILE)).hasSize(1);
     }
+
+    @Test
+    void shouldNotMergeWhenDifferentMetric() {
+        ModuleNode root = new ModuleNode("Root");
+        Node pkg = new PackageNode("edu.hm.hafner");
+        Node file = new FileNode("Helicopter.java");
+
+        root.addChild(pkg);
+        root.addChild(file);
+        root.splitPackages();
+
+        assertThat(root.getAll(PACKAGE)).hasSize(3);
+        assertThat(root.getAll(FILE)).hasSize(1);
+    }
 }
