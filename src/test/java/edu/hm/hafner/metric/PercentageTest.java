@@ -53,6 +53,14 @@ class PercentageTest {
     }
 
     @Test
+    void shouldNotCreatePercentageOfInvalidStringRepresentation() {
+        assertThatThrownBy(() -> edu.hm.hafner.metric.Percentage.valueOf("99%"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> edu.hm.hafner.metric.Percentage.valueOf("0.99/1"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void shouldHaveWorkingGetters() {
         Percentage Percentage = edu.hm.hafner.metric.Percentage.valueOf(COVERAGE_PERCENTAGE);
         assertThat(Percentage.getNumerator()).isEqualTo(50);
