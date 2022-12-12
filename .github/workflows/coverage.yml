@@ -3,6 +3,7 @@ name: 'Generate coverage report'
 on:
   push:
     branches:
+      - master
       - main
   pull_request:
 
