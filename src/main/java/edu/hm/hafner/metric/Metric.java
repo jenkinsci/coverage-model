@@ -22,6 +22,7 @@ public enum Metric {
     CLASS(new LocOfChildrenEvaluator()),
     METHOD(new LocOfChildrenEvaluator()),
 
+    /** Values without children. */
     LINE(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),
@@ -30,7 +31,6 @@ public enum Metric {
     COMPLEXITY_DENSITY(new DensityEvaluator()),
     LOC(new LocEvaluator());
 
-    // FIXME: CYCLOMATIC_DENSITY
     private final MetricEvaluator evaluator;
 
     Metric(final MetricEvaluator evaluator) {
