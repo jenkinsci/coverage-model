@@ -16,6 +16,7 @@ class FractionValueTest {
     @Test
     void shouldCreateDelta() {
         var fifty = new FractionValue(Metric.LINE, Fraction.getFraction(50, 1));
+        var fiftyAgain = new FractionValue(Metric.LINE, Fraction.getFraction(50, 1));
         var hundred = new FractionValue(Metric.LINE, Fraction.getFraction(100, 1));
 
         assertThat(fifty.isBelowThreshold(50.1)).isTrue();
@@ -23,6 +24,7 @@ class FractionValueTest {
 
         assertThat(fifty.add(fifty)).isEqualTo(hundred);
         assertThat(fifty.max(hundred)).isEqualTo(hundred);
+        assertThat(fifty.max(fiftyAgain) == fifty).isTrue();
         assertThat(hundred.max(fifty)).isEqualTo(hundred);
     }
 
