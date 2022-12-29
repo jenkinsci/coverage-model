@@ -12,9 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -472,28 +470,6 @@ public abstract class Node implements Serializable {
             return false;
         }
         return name.hashCode() == searchNameHashCode || getPath().hashCode() == searchNameHashCode;
-    }
-
-    /**
-     * Creates a deep copy of the tree with this as root node.
-     *
-     * @return the root node of the copied tree
-     */
-    public Optional<Node> filterByChanges(final Predicate<Node> predicate, final Consumer<Node> consumer) {
-        var copy = copy();
-        var prunedChildren = children.stream()
-                .map(c -> c.filterByChanges(predicate, consumer))
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
-        copy.addAllChildren(prunedChildren);
-        if (predicate.test(this)) {
-            consumer.accept(this);
-            return Optional.of(copy);
-        }
-        else if (!prunedChildren.isEmpty()) {
-            return Optional.of(copy);
-        }
-        return Optional.empty();
     }
 
     /**
