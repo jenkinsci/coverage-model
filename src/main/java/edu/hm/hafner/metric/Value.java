@@ -26,10 +26,14 @@ public abstract class Value implements Serializable {
                 .orElseThrow(() -> new NoSuchElementException("No value for metric " + metric + " in " + values));
     }
 
-    public static Optional<? extends Value> findValue(final Metric metric, final List<? extends Value> values) {
-        return values.stream()
+    public static Optional<Value> findValue(final Metric metric, final List<? extends Value> values) {
+        Optional<? extends Value> any = values.stream()
                 .filter(v -> metric.equals(v.getMetric()))
                 .findAny();
+        if (any.isPresent()) {
+            return Optional.of(any.get());
+        }
+        return Optional.empty();
     }
 
     /**
