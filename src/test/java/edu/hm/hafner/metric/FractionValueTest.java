@@ -24,7 +24,7 @@ class FractionValueTest {
 
         assertThat(fifty.add(fifty)).isEqualTo(hundred);
         assertThat(fifty.max(hundred)).isEqualTo(hundred);
-        assertThat(fifty.max(fiftyAgain) == fifty).isTrue();
+        assertThat(fifty.max(fiftyAgain)).isEqualTo(fifty);
         assertThat(hundred.max(fifty)).isEqualTo(hundred);
     }
 
