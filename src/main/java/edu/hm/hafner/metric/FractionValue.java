@@ -10,7 +10,7 @@ import org.apache.commons.lang3.math.Fraction;
  *
  * @author Ullrich Hafner
  */
-public class FractionValue extends Value {
+public final class FractionValue extends Value {
     private static final long serialVersionUID = -7019903979028578410L;
 
     private final Fraction fraction;
