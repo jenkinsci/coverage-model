@@ -2,6 +2,7 @@ package edu.hm.hafner.metric;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -35,6 +36,15 @@ public enum Metric {
 
     Metric(final MetricEvaluator evaluator) {
         this.evaluator = evaluator;
+    }
+
+    /**
+     * Returns the name of the metric as a tag, containing only lowercase characters and dashes.
+     *
+     * @return the metric tag name
+     */
+    public String toTagName() {
+        return name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-");
     }
 
     /**
