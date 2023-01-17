@@ -22,10 +22,10 @@ class ClassNodeTest extends AbstractNodeTest {
         root.addChild(main);
         root.addChild(new ClassNode("NestedClass"));
 
-        assertThat(root.findMethodNode("main", "String..."))
+        assertThat(root.findMethod("main", "String..."))
                 .isPresent()
                 .containsSame(main);
-        assertThat(root.findMethodNode("main", "Nothing"))
+        assertThat(root.findMethod("main", "Nothing"))
                 .isNotPresent();
     }
 }

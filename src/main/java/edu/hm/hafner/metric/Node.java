@@ -307,13 +307,13 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Replaces the specified value to the list of values to guarantee immutability.
+     * Replaces an existing value of the specified metric with the specified value. If no value with the specified
+     * metric exists, then the value is added.
      *
      * @param value
      *         the value to replace
      */
     public void replaceValue(final Value value) {
-        // FIXME: Can we avoid that?
         values.stream()
                 .filter(v -> v.getMetric().equals(value.getMetric()))
                 .findAny()
@@ -415,6 +415,60 @@ public abstract class Node implements Serializable {
         return children.stream()
                 .map(child -> child.find(searchMetric, searchName))
                 .flatMap(Optional::stream)
+                .findAny();
+    }
+
+    /**
+     * Searches for a package within this node that has the given name.
+     *
+     * @param searchName
+     *         the name of the package
+     *
+     * @return the first matching package or an empty result, if no such package exists
+     */
+    public Optional<PackageNode> findPackage(final String searchName) {
+        return find(Metric.PACKAGE, searchName).map(PackageNode.class::cast);
+    }
+
+    /**
+     * Searches for a file within this node that has the given name.
+     *
+     * @param searchName
+     *         the name of the file
+     *
+     * @return the first matching file or an empty result, if no such file exists
+     */
+    public Optional<FileNode> findFile(final String searchName) {
+        return find(Metric.FILE, searchName).map(FileNode.class::cast);
+    }
+
+    /**
+     * Searches for a class within this node that has the given name.
+     *
+     * @param searchName
+     *         the name of the class
+     *
+     * @return the first matching class or an empty result, if no such class exists
+     */
+    public Optional<ClassNode> findClass(final String searchName) {
+        return find(Metric.CLASS, searchName).map(ClassNode.class::cast);
+    }
+
+    /**
+     * Searches for a method within this node that has the given name and signature.
+     *
+     * @param searchName
+     *         the name of the method
+     * @param searchSignature
+     *         the signature of the method
+     *
+     * @return the first matching method or an empty result, if no such method exists
+     */
+    public Optional<MethodNode> findMethod(final String searchName, final String searchSignature) {
+        return getAll(Metric.METHOD).stream()
+                .map(MethodNode.class::cast)
+                .filter(node -> node.getName().equals(searchName)
+                        && node.getSignature().equals(searchSignature))
                 .findAny();
     }
 
@@ -558,16 +612,16 @@ public abstract class Node implements Serializable {
 
     private void safelyCombineChildren(final Node other) {
         other.values.forEach((ov) -> {
-                    if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
-                        var old = getValueOf(ov.getMetric());
-                        if (hasChildren()) {
-                            replaceValue(old.add(ov));
-                        }
-                        else {
-                            replaceValue(old.max(ov));
-                        }
-                    }
-                });
+            if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
+                var old = getValueOf(ov.getMetric());
+                if (hasChildren()) {
+                    replaceValue(old.add(ov));
+                }
+                else {
+                    replaceValue(old.max(ov));
+                }
+            }
+        });
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()

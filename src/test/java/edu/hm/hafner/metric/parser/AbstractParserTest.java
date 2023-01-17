@@ -31,7 +31,7 @@ abstract class AbstractParserTest {
         }
     }
 
-    abstract XmlParser createParser();
+    abstract CoverageParser createParser();
 
     @Test
     void shouldFailWhenParsingInvalidFiles() {

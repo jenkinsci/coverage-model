@@ -1,10 +1,10 @@
 package edu.hm.hafner.metric;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -28,6 +28,7 @@ public final class FileNode extends Node {
     private final SortedSet<Integer> changedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
+    private final List<Mutation> mutations = new ArrayList<>();
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -375,6 +376,14 @@ public final class FileNode extends Node {
         return missedPerLine.getOrDefault(line, 0);
     }
 
+    public void addMutation(final Mutation mutation) {
+        mutations.add(mutation);
+    }
+
+    public List<Mutation> getMutations() {
+        return Collections.unmodifiableList(mutations);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -386,17 +395,38 @@ public final class FileNode extends Node {
         if (!super.equals(o)) {
             return false;
         }
+
         FileNode fileNode = (FileNode) o;
-        return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
-                fileNode.missedPerLine) && Objects.equals(changedLines, fileNode.changedLines)
-                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
-                && Objects.equals(coverageDelta, fileNode.coverageDelta);
+
+        if (coveredPerLine != null ? !coveredPerLine.equals(fileNode.coveredPerLine)
+                : fileNode.coveredPerLine != null) {
+            return false;
+        }
+        if (missedPerLine != null ? !missedPerLine.equals(fileNode.missedPerLine) : fileNode.missedPerLine != null) {
+            return false;
+        }
+        if (changedLines != null ? !changedLines.equals(fileNode.changedLines) : fileNode.changedLines != null) {
+            return false;
+        }
+        if (indirectCoverageChanges != null ? !indirectCoverageChanges.equals(fileNode.indirectCoverageChanges)
+                : fileNode.indirectCoverageChanges != null) {
+            return false;
+        }
+        if (coverageDelta != null ? !coverageDelta.equals(fileNode.coverageDelta) : fileNode.coverageDelta != null) {
+            return false;
+        }
+        return mutations != null ? mutations.equals(fileNode.mutations) : fileNode.mutations == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, changedLines, indirectCoverageChanges,
-                coverageDelta);
+        int result = super.hashCode();
+        result = 31 * result + (coveredPerLine != null ? coveredPerLine.hashCode() : 0);
+        result = 31 * result + (missedPerLine != null ? missedPerLine.hashCode() : 0);
+        result = 31 * result + (changedLines != null ? changedLines.hashCode() : 0);
+        result = 31 * result + (indirectCoverageChanges != null ? indirectCoverageChanges.hashCode() : 0);
+        result = 31 * result + (coverageDelta != null ? coverageDelta.hashCode() : 0);
+        result = 31 * result + (mutations != null ? mutations.hashCode() : 0);
+        return result;
     }
-
 }
