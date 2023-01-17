@@ -12,7 +12,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
  * Value of a code coverage metric. The code coverage is measured using the number of covered and missed items. The type
- * of items (line, instruction, branch, file, etc.) is provided by the companion class {@link Metric}.
+ * of items (line, instruction, branch, mutation, file, etc.) is provided by the companion class {@link Metric}.
  *
  * @author Ullrich Hafner
  */
@@ -35,6 +35,7 @@ public final class Coverage extends Value {
      *         if the string is not a valid Coverage instance
      */
     public static Coverage valueOf(final Metric metric, final String stringRepresentation) {
+        var errorMessage = String.format("Cannot convert %s to a valid Coverage instance.", stringRepresentation);
         try {
             String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, FRACTION_SEPARATOR)) {
@@ -52,10 +53,9 @@ public final class Coverage extends Value {
             }
         }
         catch (NumberFormatException exception) {
-            // ignore and throw a specific exception
+            throw new IllegalArgumentException(errorMessage, exception);
         }
-        throw new IllegalArgumentException(
-                String.format("Cannot convert %s to a valid Coverage instance.", stringRepresentation));
+        throw new IllegalArgumentException(errorMessage);
     }
 
     /**
@@ -262,6 +262,19 @@ public final class Coverage extends Value {
         private int total;
         private boolean isTotalSet;
 
+        public CoverageBuilder() {
+        }
+
+        public CoverageBuilder(@CheckForNull final Metric metric) {
+            this.metric = metric;
+        }
+
+        public CoverageBuilder(final Coverage copy) {
+            setMetric(copy.getMetric());
+            setCovered(copy.getCovered());
+            setMissed(copy.getMissed());
+        }
+
         /**
          * Sets the metric of the coverage.
          *
@@ -366,6 +379,15 @@ public final class Coverage extends Value {
                 }
             }
             return new Coverage(metric, covered, missed);
+        }
+
+        public void incrementMissed() {
+            setMissed(missed + 1);
+
+        }
+
+        public void incrementCovered() {
+            setCovered(covered + 1);
         }
     }
 }

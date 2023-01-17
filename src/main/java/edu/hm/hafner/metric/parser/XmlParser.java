@@ -1,13 +1,9 @@
 package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
-import java.io.Serializable;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -22,7 +18,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  *
  * @author Melissa Bauer
  */
-public abstract class XmlParser implements Serializable {
+public abstract class XmlParser extends CoverageParser {
     private static final long serialVersionUID = -181158607646148018L;
 
     @CheckForNull
@@ -52,6 +48,7 @@ public abstract class XmlParser implements Serializable {
      * @throws ParsingException
      *         if the XML content cannot be read
      */
+    @Override
     public ModuleNode parse(final Reader reader) {
         try {
             SecureXmlParserFactory factory = new SecureXmlParserFactory();
@@ -89,24 +86,6 @@ public abstract class XmlParser implements Serializable {
      *         the current report element
      */
     protected abstract void endElement(EndElement element);
-
-    protected String getValueOf(final StartElement element, final QName attribute) {
-        var value = getOptionalValueOf(element, attribute);
-
-        return value.orElseThrow(() ->
-            new NoSuchElementException(
-                    String.format("Could not obtain attribute '%s' from element '%s'", attribute, element)));
-    }
-
-    protected Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
-        Attribute value = element.getAttributeByName(attribute);
-
-        if (value == null) {
-            return Optional.empty();
-        }
-
-        return Optional.of(value.getValue());
-    }
 
     /**
      * Checks if the given attribute is an optional one in the report or not.

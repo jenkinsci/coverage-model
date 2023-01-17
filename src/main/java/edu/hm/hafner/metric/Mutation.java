@@ -16,36 +16,39 @@ public final class Mutation implements Serializable {
     private int lineNumber;
     private Mutator mutator;
     private String killingTest;
+    private final String mutatedClass;
+    private final String method;
+    private final String signature;
+    private final String description;
 
-    /**
-     * Creates a new {@link Mutation}.
-     *
-     * @param isDetected
-     *         if the mutation was detected
-     * @param status
-     *         of the mutation
-     */
-    public Mutation(final boolean isDetected, final MutationStatus status) {
-        this.isDetected = isDetected;
-        this.status = status;
-    }
-
-    /**
-     * Creates a new {@link Mutation} with all fields set at the beginning.
-     *
-     * @param isDetected if the mutation was detected
-     * @param status of the mutation
-     * @param lineNumber of the mutation
-     * @param mutator which mutator was used
-     * @param killingTest test which killed the mutation or null
-     */
     public Mutation(final boolean isDetected, final MutationStatus status, final int lineNumber, final Mutator mutator,
-            final String killingTest) {
+            final String killingTest, final String mutatedClass,
+            final String method, final String signature, final String description) {
         this.isDetected = isDetected;
         this.status = status;
         this.lineNumber = lineNumber;
         this.mutator = mutator;
         this.killingTest = killingTest;
+        this.mutatedClass = mutatedClass;
+        this.method = method;
+        this.signature = signature;
+        this.description = description;
+    }
+
+    public String getMutatedClass() {
+        return mutatedClass;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public boolean isDetected() {

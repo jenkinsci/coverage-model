@@ -21,19 +21,39 @@ public abstract class Value implements Serializable {
     private static final long serialVersionUID = -1062406664372222691L;
     private static final String METRIC_SEPARATOR = ":";
 
-    public static Value getValue(final Metric metric, final List<? extends Value> values) {
+    /**
+     * Searches for a value with the specified metric in the specified list of values.
+     *
+     * @param metric
+     *         the metric to search for
+     * @param values
+     *         the values to search in
+     *
+     * @return the value with the specified metric
+     * @throws NoSuchElementException
+     *         if the value is not found
+     * @see #findValue(Metric, List)
+     */
+    public static Value getValue(final Metric metric, final List<Value> values) {
         return findValue(metric, values)
                 .orElseThrow(() -> new NoSuchElementException("No value for metric " + metric + " in " + values));
     }
 
-    public static Optional<Value> findValue(final Metric metric, final List<? extends Value> values) {
-        Optional<? extends Value> any = values.stream()
+    /**
+     * Searches for a value with the specified metric in the specified list of values.
+     *
+     * @param metric
+     *         the metric to search for
+     * @param values
+     *         the values to search in
+     *
+     * @return the value with the specified metric, or an empty optional if the value is not found
+     * @see #getValue(Metric, List)
+     */
+    public static Optional<Value> findValue(final Metric metric, final List<Value> values) {
+        return values.stream()
                 .filter(v -> metric.equals(v.getMetric()))
                 .findAny();
-        if (any.isPresent()) {
-            return Optional.of(any.get());
-        }
-        return Optional.empty();
     }
 
     /**
@@ -51,6 +71,7 @@ public abstract class Value implements Serializable {
      *         if the string is not a valid cov instance
      */
     public static Value valueOf(final String stringRepresentation) {
+        var errorMessage = String.format("Cannot convert '%s' to a valid Value instance.", stringRepresentation);
         try {
             String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, METRIC_SEPARATOR)) {
@@ -66,24 +87,23 @@ public abstract class Value implements Serializable {
                     case LINE:
                     case INSTRUCTION:
                     case BRANCH:
-                       return Coverage.valueOf(metric, value);
+                    case MUTATION:
+                        return Coverage.valueOf(metric, value);
                     case COMPLEXITY_DENSITY:
-                       return new FractionValue(metric, Fraction.getFraction(value));
+                        return new FractionValue(metric, Fraction.getFraction(value));
                     case COMPLEXITY:
                         return new CyclomaticComplexity(Integer.parseInt(value));
                     case LOC:
                         return new LinesOfCode(Integer.parseInt(value));
-                    case MUTATION:
                     default:
                         throw new IllegalStateException(String.format("Metric %s is not supported yet", metric));
                 }
             }
         }
         catch (NumberFormatException exception) {
-            // ignore and throw a specific exception
+            throw new IllegalArgumentException(errorMessage, exception);
         }
-        throw new IllegalArgumentException(
-                String.format("Cannot convert '%s' to a valid Value instance.", stringRepresentation));
+        throw new IllegalArgumentException(errorMessage);
     }
 
     private final Metric metric;
@@ -137,7 +157,12 @@ public abstract class Value implements Serializable {
     @CheckReturnValue
     public abstract Value max(Value other);
 
-    // FIXME Comment
+    /**
+     * Returns whether this value if below the specified threshold (given as double value).
+     *
+     * @param threshold
+     *         the threshold to check against
+     */
     public abstract boolean isBelowThreshold(double threshold);
 
     /**

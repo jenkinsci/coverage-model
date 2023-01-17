@@ -26,7 +26,7 @@ public enum Mutator {
     NULL_RETURNS("org.pitest.mutationtest.engine.gregor.mutators.returns.NullReturnValsMutator"),
     PRIMITIVE_RETURNS("org.pitest.mutationtest.engine.gregor.mutators.returns.PrimitiveReturnsMutator"),
 
-    NOT_SPECIFIED("");
+    NOT_SPECIFIED("undefined");
 
     private final String path;
 
@@ -49,7 +49,6 @@ public enum Mutator {
      * @return the mutator
      */
     public static Mutator fromPath(final String mutatorPath) {
-
         for (Mutator mutator : values()) {
             if ((mutator.path).equals(mutatorPath)) {
                 return mutator;
