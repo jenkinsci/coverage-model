@@ -1,7 +1,6 @@
 package edu.hm.hafner.metric.parser;
 
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Metric;
@@ -13,7 +12,6 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-@DefaultLocale("en")
 class PitestParserTest extends AbstractParserTest {
     @Override
     CoverageParser createParser() {

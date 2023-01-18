@@ -31,6 +31,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
  * A parser which parses reports created by PITest into a Java object model.
  *
  * @author Melissa Bauer
+ * @author Ullrich Hafner
  */
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class PitestParser extends CoverageParser {
@@ -53,7 +54,7 @@ public class PitestParser extends CoverageParser {
     private static final QName BLOCK = new QName("block"); // TODO: not used yet
 
     /**
-     * Parses the PIT report. The report is expected to be in XML format.
+     * Parses a PIT XML report.
      *
      * @param reader
      *         the reader to wrap
@@ -85,25 +86,25 @@ public class PitestParser extends CoverageParser {
     }
 
     private void aggregateLineCoverage(final ModuleNode root) {
-        root.getAllFileNodes().forEach(this::collectLineCoverage);
+        root.getAll(Metric.METHOD).stream().map(MethodNode.class::cast).forEach(this::collectLineCoverage);
     }
 
-    private void collectLineCoverage(final FileNode fileNode) {
-        var coveredLines = fileNode.getMutations()
+    private void collectLineCoverage(final MethodNode methodNode) {
+        var coveredLines = methodNode.getMutations()
                 .stream()
                 .filter(mutation -> mutation.getStatus().isCovered())
                 .map(Mutation::getLineNumber)
                 .collect(Collectors.toSet());
-        var missedLines = fileNode.getMutations()
+        var missedLines = methodNode.getMutations()
                 .stream()
                 .filter(mutation -> mutation.getStatus().isMissed())
                 .map(Mutation::getLineNumber)
                 .collect(Collectors.toSet());
         if (new HashSet<>(coveredLines).removeAll(missedLines)) {
-            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines);
+            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check?
         }
         var builder = new CoverageBuilder(Metric.LINE);
-        fileNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
+        methodNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
     }
 
     private void readMutations(final XMLEventReader reader, final ModuleNode root)
@@ -190,47 +191,47 @@ public class PitestParser extends CoverageParser {
         private String mutatedMethod;
         private String mutatedMethodSignature;
 
-        public void setIsDetected(final boolean isDetected) {
+        private void setIsDetected(final boolean isDetected) {
             this.isDetected = isDetected;
         }
 
-        public void setStatus(final MutationStatus status) {
+        private void setStatus(final MutationStatus status) {
             this.status = status;
         }
 
-        public void setLineNumber(final String lineNumber) {
+        private void setLineNumber(final String lineNumber) {
             this.lineNumber = Integer.parseInt(lineNumber);
         }
 
-        public void setMutator(final Mutator mutator) {
+        private void setMutator(final Mutator mutator) {
             this.mutator = mutator;
         }
 
-        public void setKillingTest(final String killingTest) {
+        private void setKillingTest(final String killingTest) {
             this.killingTest = killingTest;
         }
 
-        public void setDescription(final String description) {
+        private void setDescription(final String description) {
             this.description = description;
         }
 
-        public void setSourceFile(final String sourceFile) {
+        private void setSourceFile(final String sourceFile) {
             this.sourceFile = sourceFile;
         }
 
-        public void setMutatedClass(final String mutatedClass) {
+        private void setMutatedClass(final String mutatedClass) {
             this.mutatedClass = mutatedClass;
         }
 
-        public void setMutatedMethod(final String mutatedMethod) {
+        private void setMutatedMethod(final String mutatedMethod) {
             this.mutatedMethod = mutatedMethod;
         }
 
-        public void setMutatedMethodSignature(final String mutatedMethodSignature) {
+        private void setMutatedMethodSignature(final String mutatedMethodSignature) {
             this.mutatedMethodSignature = mutatedMethodSignature;
         }
 
-        public void build(final Node root) {
+        private void build(final Node root) {
             String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
             String className = StringUtils.substringAfterLast(mutatedClass, ".");
             var packageNode = root.findPackage(packageName).orElseGet(() -> createPackageNode(root, packageName));
@@ -250,8 +251,7 @@ public class PitestParser extends CoverageParser {
                 builder.incrementMissed();
             }
             methodNode.replaceValue(builder.build());
-
-            fileNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
+            methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
                     mutatedClass, mutatedMethod, mutatedMethodSignature, description));
         }
 
