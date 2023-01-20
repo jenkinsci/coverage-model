@@ -150,6 +150,18 @@ public abstract class Node implements Serializable {
         return elements;
     }
 
+    /**
+     * Returns whether results for the specified metric are available within the tree spanned by this node.
+     *
+     * @param searchMetric
+     *         the metric to look for
+     *
+     * @return {@code true} if results for the specified metric are available, {@code false} otherwise
+     */
+    public boolean containsMetric(final Metric searchMetric) {
+        return getMetrics().contains(searchMetric);
+    }
+
     private Stream<Metric> getMetricsOfValues() {
         return values.stream().map(Value::getMetric);
     }
