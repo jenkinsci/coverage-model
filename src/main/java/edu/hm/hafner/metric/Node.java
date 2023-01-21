@@ -734,6 +734,32 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Creates a new coverage tree that represents the Changed Files Coverage. This new tree will contain only those
+     * elements that have changed files. The difference against the Change Coverage is that the Changed Files Coverage
+     * tree represents the total coverage of all files with coverage relevant changes, not only the coverage of the
+     * changed lines of code.
+     *
+     * @return the filtered tree
+     */
+    public Node filterByChangedFilesCoverage() {
+        return filterByChangedFiles().orElse(copy());
+    }
+
+    protected Optional<Node> filterByChangedFiles() {
+        var copy = copy();
+        var prunedChildren = getChildren()
+                .stream()
+                .map(Node::filterByChangedFiles)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+        if (prunedChildren.isEmpty()) {
+            return Optional.empty();
+        }
+        copy.addAllChildren(prunedChildren);
+        return Optional.of(copy);
+    }
+
+    /**
      * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
      * that have elements with a changed coverage but with no changed code line.
      *

@@ -110,7 +110,8 @@ public final class FileNode extends Node {
             }
             else {
                 var branchCoveredAsLine = covered > 0 ? 1 : 0;
-                lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
+                lineCoverage = lineCoverage.add(
+                        lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
             copy.addChangedLine(line);
@@ -119,7 +120,24 @@ public final class FileNode extends Node {
         return Optional.of(copy);
     }
 
-    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage, final Coverage branchCoverage) {
+    @Override
+    protected Optional<Node> filterByChangedFiles() {
+        if (hasCoveredLinesInChangeSet()) {
+            var copy = copy();
+            var lineCoverage = Coverage.nullObject(Metric.LINE);
+            var branchCoverage = Coverage.nullObject(Metric.BRANCH);
+            for (int line : getCoveredLines()) {
+                lineCoverage = lineCoverage.add(getLineCoverage(line));
+                branchCoverage = branchCoverage.add(getBranchCoverage(line));
+            }
+            addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
+            return Optional.of(copy);
+        }
+        return Optional.empty();
+    }
+
+    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage,
+            final Coverage branchCoverage) {
         if (lineCoverage.isSet()) {
             copy.addValue(lineCoverage);
         }
@@ -238,7 +256,7 @@ public final class FileNode extends Node {
             var covered = getCoveredOfLine(line);
             var missed = getMissedOfLine(line);
             if (covered + missed > 1) {
-                return new CoverageBuilder().setMetric(Metric.LINE)
+                return new CoverageBuilder().setMetric(Metric.BRANCH)
                         .setCovered(covered)
                         .setMissed(missed)
                         .build();

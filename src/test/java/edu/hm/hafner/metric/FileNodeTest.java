@@ -2,8 +2,6 @@ package edu.hm.hafner.metric;
 
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.metric.Coverage.CoverageBuilder;
-
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 class FileNodeTest extends AbstractNodeTest {
@@ -13,9 +11,8 @@ class FileNodeTest extends AbstractNodeTest {
     }
 
     @Override
-    Node createNode(final String name) {
+    FileNode createNode(final String name) {
         var fileNode = new FileNode(name);
-        var builder = new CoverageBuilder();
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
         fileNode.addChangedLine(10);

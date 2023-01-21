@@ -5,12 +5,15 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
- * A coverage metric to identify the coverage result type.
+ * A coverage metric to identify the coverage result type. Note the enum order since the ordinal is used to sort the
+ * values for display purposes.
  *
  * @author Ullrich Hafner
  */
@@ -23,10 +26,12 @@ public enum Metric {
     CLASS(new LocOfChildrenEvaluator()),
     METHOD(new LocOfChildrenEvaluator()),
 
-    /** Values without children. */
+    /** Coverage values without children. */
     LINE(new ValuesAggregator()),
-    INSTRUCTION(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),
+    INSTRUCTION(new ValuesAggregator()),
+
+    /** Additional metrics without children */
     MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
     COMPLEXITY_DENSITY(new DensityEvaluator()),
@@ -72,6 +77,20 @@ public enum Metric {
                 CONTAINER, MODULE, PACKAGE, FILE, CLASS, METHOD));
 
         return nodeMetrics.contains(metric);
+    }
+
+    public static SortedSet<Metric> getCoverageMetrics() {
+        return new TreeSet<>(Set.of(
+                Metric.CONTAINER,
+                Metric.MODULE,
+                Metric.PACKAGE,
+                Metric.FILE,
+                Metric.CLASS,
+                Metric.METHOD,
+                Metric.LINE,
+                Metric.BRANCH,
+                Metric.INSTRUCTION
+        ));
     }
 
     private abstract static class MetricEvaluator {
@@ -121,7 +140,7 @@ public enum Metric {
             var locValue = LOC.getValueFor(node);
             var complexityValue = COMPLEXITY.getValueFor(node);
             if (locValue.isPresent() && complexityValue.isPresent()) {
-                LinesOfCode loc = (LinesOfCode)locValue.get();
+                LinesOfCode loc = (LinesOfCode) locValue.get();
                 if (loc.getValue() > 0) {
                     var complexity = (CyclomaticComplexity) complexityValue.get();
                     return Optional.of(new FractionValue(COMPLEXITY_DENSITY, complexity.getValue(), loc.getValue()));
