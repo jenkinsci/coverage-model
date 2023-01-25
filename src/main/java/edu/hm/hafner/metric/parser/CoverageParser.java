@@ -9,8 +9,14 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import edu.hm.hafner.metric.ModuleNode;
+import edu.hm.hafner.metric.Node;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
+/**
+ * Parses a file and returns the code coverage information in a tree of {@link Node} instances.
+ *
+ * @author Ullrich Hafner
+ */
 public abstract class CoverageParser implements Serializable {
     private static final long serialVersionUID = 3941742254762282096L;
 

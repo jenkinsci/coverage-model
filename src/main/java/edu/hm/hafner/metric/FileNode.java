@@ -190,7 +190,7 @@ public final class FileNode extends Node {
         return new TreeMap<>(indirectCoverageChanges);
     }
 
-    public SortedSet<Integer> getCoveredLines() {
+    public SortedSet<Integer> getLinesWithCoverage() {
         return new TreeSet<>(coveredPerLine.keySet());
     }
 
@@ -321,7 +321,7 @@ public final class FileNode extends Node {
      * @return the lines with code coverage that are part of the change set
      */
     public SortedSet<Integer> getCoveredLinesOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getCoveredLines();
+        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getChangedLines());
         return coveredDelta;
     }
@@ -332,7 +332,7 @@ public final class FileNode extends Node {
      * @return the line coverage results for lines that are part of the change set.
      */
     public List<Coverage> getCoverageOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getCoveredLines();
+        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getChangedLines());
         return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
     }

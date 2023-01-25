@@ -22,6 +22,14 @@ public enum MutationStatus {
         this.lineCoverage = lineCoverage;
     }
 
+    public boolean isDetected() {
+        return this == KILLED;
+    }
+
+    public boolean isNotDetected() {
+        return this == SURVIVED || this == NO_COVERAGE;
+    }
+
     public boolean isCovered() {
         return lineCoverage == COVERED;
     }

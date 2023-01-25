@@ -59,6 +59,18 @@ public final class Mutation implements Serializable {
         return status;
     }
 
+    public boolean isValid() {
+        return isCovered() || isMissed();
+    }
+
+    public boolean isCovered() {
+        return status.isCovered();
+    }
+
+    public boolean isMissed() {
+        return status.isMissed();
+    }
+
     public int getLineNumber() {
         return lineNumber;
     }
@@ -90,6 +102,15 @@ public final class Mutation implements Serializable {
      */
     public boolean isKilled() {
         return status.equals(MutationStatus.KILLED);
+    }
+
+    /**
+     * Returns if the mutation has survived.
+     *
+     * @return if the mutation has survived
+     */
+    public boolean hasSurvived() {
+        return status.equals(MutationStatus.SURVIVED);
     }
 
     @Override

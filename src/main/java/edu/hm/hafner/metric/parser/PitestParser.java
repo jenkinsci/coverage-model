@@ -1,8 +1,11 @@
 package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -86,20 +89,37 @@ public class PitestParser extends CoverageParser {
     }
 
     private void aggregateLineCoverage(final ModuleNode root) {
-        root.getAll(Metric.METHOD).stream().map(MethodNode.class::cast).forEach(this::collectLineCoverage);
+        root.getAllMethodNodes().forEach(this::collectLineCoverage);
+        root.getAllFileNodes().forEach(this::collectLineCoverageForFiles);
+    }
+
+    private void collectLineCoverageForFiles(final FileNode fileNode) {
+        var methodNodes = fileNode.getAllMethodNodes();
+        var builder = new CoverageBuilder(Metric.LINE);
+        var killed = builder.setCovered(1).setMissed(0).build();
+        var survived = builder.setCovered(0).setMissed(1).build();
+
+        var lineMapping = collectLines(methodNodes, Mutation::isDetected).stream()
+                .collect(Collectors.toMap(k -> k, v -> killed, Coverage::add));
+        collectLines(methodNodes, Predicate.not(Mutation::isDetected))
+                .forEach(line -> lineMapping.merge(line, survived, Coverage::add));
+
+        lineMapping.forEach((line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
+    }
+
+    private static List<Integer> collectLines(final List<MethodNode> methodNodes,
+            final Predicate<Mutation> filterPredicate) {
+        return methodNodes.stream()
+                .map(MethodNode::getMutations)
+                .flatMap(Collection::stream)
+                .filter(filterPredicate)
+                .map(Mutation::getLineNumber)
+                .collect(Collectors.toList());
     }
 
     private void collectLineCoverage(final MethodNode methodNode) {
-        var coveredLines = methodNode.getMutations()
-                .stream()
-                .filter(mutation -> mutation.getStatus().isCovered())
-                .map(Mutation::getLineNumber)
-                .collect(Collectors.toSet());
-        var missedLines = methodNode.getMutations()
-                .stream()
-                .filter(mutation -> mutation.getStatus().isMissed())
-                .map(Mutation::getLineNumber)
-                .collect(Collectors.toSet());
+        var coveredLines = collectLines(List.of(methodNode), Mutation::isCovered);
+        var missedLines = collectLines(List.of(methodNode), Mutation::isMissed);
         if (new HashSet<>(coveredLines).removeAll(missedLines)) {
             throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check?
         }
@@ -107,8 +127,7 @@ public class PitestParser extends CoverageParser {
         methodNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
     }
 
-    private void readMutations(final XMLEventReader reader, final ModuleNode root)
-            throws XMLStreamException {
+    private void readMutations(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
