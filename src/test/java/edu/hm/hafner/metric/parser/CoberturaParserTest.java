@@ -187,7 +187,7 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, COMPLEXITY, COMPLEXITY_DENSITY);
 
         var fileNode = result.getAllFileNodes().get(0);
-        assertThat(fileNode.getCoveredLines())
+        assertThat(fileNode.getLinesWithCoverage())
                 .containsExactly(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
         assertThat(fileNode.getMissedCounters())
                 .containsExactly(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
