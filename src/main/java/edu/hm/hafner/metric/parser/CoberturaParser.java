@@ -150,7 +150,7 @@ public class CoberturaParser extends CoverageParser {
             node = new MethodNode(getValueOf(parentElement, NAME), getValueOf(parentElement, SIGNATURE));
         }
         getOptionalValueOf(parentElement, COMPLEXITY).ifPresent(
-                c -> node.addValue(new CyclomaticComplexity(Math.round(Float.parseFloat(c)))));
+                c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -158,7 +158,7 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    int lineNumber = Integer.parseInt(getValueOf(nextElement, NUMBER));
+                    int lineNumber = getIntegerOf(nextElement, NUMBER);
 
                     Coverage coverage;
                     if (isBranchCoverage(nextElement)) {
@@ -166,7 +166,7 @@ public class CoberturaParser extends CoverageParser {
                         branchCoverage = branchCoverage.add(coverage);
                     }
                     else {
-                        int lineHits = Integer.parseInt(getValueOf(nextElement, HITS));
+                        int lineHits = getIntegerOf(nextElement, HITS);
                         coverage = lineHits > 0 ? lineCovered : lineMissed;
                         lineCoverage = lineCoverage.add(coverage);
                     }
@@ -192,6 +192,24 @@ public class CoberturaParser extends CoverageParser {
             }
         }
         throw new ParsingException("Unexpected end of file");
+    }
+
+    private int getIntegerOf(final StartElement nextElement, final QName attributeName) {
+        try {
+            return parseInteger(getValueOf(nextElement, attributeName));
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
+    }
+
+    private int readComplexity(final String c) {
+        try {
+            return Math.round(Float.parseFloat(c)); // some reports use float values
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
     }
 
     private boolean isBranchCoverage(final StartElement line) {
@@ -224,11 +242,20 @@ public class CoberturaParser extends CoverageParser {
         if (matcher.matches()) {
             var builder = new CoverageBuilder();
             return builder.setMetric(Metric.BRANCH)
-                    .setCovered(Integer.parseInt(matcher.group(1)))
-                    .setTotal(Integer.parseInt(matcher.group(2)))
+                    .setCovered(parseInteger(matcher.group(1)))
+                    .setTotal(parseInteger(matcher.group(2)))
                     .build();
         }
         return Coverage.nullObject(Metric.BRANCH);
 
+    }
+
+    private int parseInteger(final String value) {
+        try {
+            return Integer.parseInt(value);
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
     }
 }
