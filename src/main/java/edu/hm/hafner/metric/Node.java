@@ -33,6 +33,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
+    private static final String EMPTY_NAME = "-";
+    private static final String SLASH = "/";
     static final String ROOT = "^";
 
     /**
@@ -98,22 +100,20 @@ public abstract class Node implements Serializable {
     }
 
     protected String mergePath(final String localPath) {
-        // default packages are named '-' at the moment
-        if ("-".equals(localPath)) {
+        if (EMPTY_NAME.equals(localPath)) {
             return StringUtils.EMPTY;
         }
 
         if (hasParent()) {
             String parentPath = getParent().getPath();
 
-            String slash = "/";
-            if (StringUtils.isBlank(parentPath) || parentPath.equals(slash) || localPath.startsWith(parentPath + slash)) {
+            if (StringUtils.isBlank(parentPath) || parentPath.equals(SLASH) || localPath.startsWith(parentPath + SLASH)) {
                 return localPath;
             }
             if (StringUtils.isBlank(localPath)) {
                 return parentPath;
             }
-            return parentPath + slash + localPath;
+            return parentPath + SLASH + localPath;
         }
 
         return localPath;
