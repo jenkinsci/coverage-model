@@ -9,6 +9,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
+import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
@@ -23,7 +24,7 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
 @DefaultLocale("en")
 class CoberturaParserTest extends AbstractParserTest {
     @Override
-    XmlParser createParser() {
+    CoberturaParser createParser() {
         return new CoberturaParser();
     }
 
@@ -31,7 +32,7 @@ class CoberturaParserTest extends AbstractParserTest {
     void shouldReadCoberturaIssue473() {
         Node tree = readReport("/cobertura-npe.xml");
 
-        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("");
+        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
         assertThat(tree.getAll(FILE)).hasSize(2).extracting(Node::getName).containsOnly("Program.cs", "Startup.cs");
         assertThat(tree.getAll(CLASS)).hasSize(2)
@@ -57,20 +58,20 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertCoberturaBigToTree() {
-        Node tree = readExampleReport();
+        Node root = readExampleReport();
 
-        assertThat(tree.getAll(MODULE)).hasSize(1);
-        assertThat(tree.getAll(PACKAGE)).hasSize(5);
-        assertThat(tree.getAll(FILE)).hasSize(4);
-        assertThat(tree.getAll(CLASS)).hasSize(5);
-        assertThat(tree.getAll(METHOD)).hasSize(10);
+        assertThat(root.getAll(MODULE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
+        assertThat(root.getAll(FILE)).hasSize(4);
+        assertThat(root.getAll(CLASS)).hasSize(5);
+        assertThat(root.getAll(METHOD)).hasSize(10);
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
-        assertThat(tree.aggregateValues()).containsExactly(
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
+        assertThat(root.aggregateValues()).containsExactly(
                 builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
                 builder.setMetric(FILE).setCovered(4).setMissed(0).build(),
                 builder.setMetric(CLASS).setCovered(5).setMissed(0).build(),
                 builder.setMetric(METHOD).setCovered(7).setMissed(3).build(),
@@ -81,11 +82,10 @@ class CoberturaParserTest extends AbstractParserTest {
                         Fraction.getFraction(22, 61 + 19)),
                 new LinesOfCode(61 + 19));
 
-        assertThat(tree.getChildren()).extracting(Node::getName)
-                .hasSize(5)
-                .containsOnly("-");
+        assertThat(root.getChildren()).extracting(Node::getName)
+                .containsExactly("-");
 
-        verifyCoverageMetrics(tree);
+        verifyCoverageMetrics(root);
     }
 
     @Test
@@ -139,10 +139,60 @@ class CoberturaParserTest extends AbstractParserTest {
                 .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(1);
 
-        assertThat(tree).hasName("")
+        assertThat(tree).hasName("-")
                 .doesNotHaveParent()
                 .isRoot()
                 .hasMetric(MODULE).hasParentName("^");
+    }
+
+    @Test
+    void shouldReturnCorrectPathsInFileCoverageNodesFromCoberturaReport() {
+        Node result = readReport("/cobertura-lots-of-data.xml");
+        assertThat(result.getAllFileNodes())
+                .hasSize(19)
+                .extracting(FileNode::getPath)
+                .containsOnly("org/apache/commons/cli/AlreadySelectedException.java",
+                        "org/apache/commons/cli/BasicParser.java",
+                        "org/apache/commons/cli/CommandLine.java",
+                        "org/apache/commons/cli/CommandLineParser.java",
+                        "org/apache/commons/cli/GnuParser.java",
+                        "org/apache/commons/cli/HelpFormatter.java",
+                        "org/apache/commons/cli/MissingArgumentException.java",
+                        "org/apache/commons/cli/MissingOptionException.java",
+                        "org/apache/commons/cli/NumberUtils.java",
+                        "org/apache/commons/cli/Option.java",
+                        "org/apache/commons/cli/OptionBuilder.java",
+                        "org/apache/commons/cli/OptionGroup.java",
+                        "org/apache/commons/cli/Options.java",
+                        "org/apache/commons/cli/ParseException.java",
+                        "org/apache/commons/cli/Parser.java",
+                        "org/apache/commons/cli/PatternOptionBuilder.java",
+                        "org/apache/commons/cli/PosixParser.java",
+                        "org/apache/commons/cli/TypeHandler.java",
+                        "org/apache/commons/cli/UnrecognizedOptionException.java");
+    }
+
+    @Test
+    void shouldReturnCorrectPathsInFileCoverageNodesFromPythonCoberturaReport() {
+        Node result = readReport("/cobertura-python.xml");
+        assertThat(result.getAllFileNodes())
+                .hasSize(1)
+                .extracting(FileNode::getPath)
+                .containsOnly("__init__.py");
+
+        assertThat(result.getValue(LINE)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                coverage -> assertThat(coverage).hasCovered(17).hasMissed(0));
+        assertThat(result.getValue(BRANCH)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                coverage -> assertThat(coverage).hasCovered(4).hasMissed(0));
+        assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, COMPLEXITY, COMPLEXITY_DENSITY);
+
+        var fileNode = result.getAllFileNodes().get(0);
+        assertThat(fileNode.getCoveredLines())
+                .containsExactly(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
+        assertThat(fileNode.getMissedCounters())
+                .containsExactly(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        assertThat(fileNode.getCoveredCounters())
+                .containsExactly(1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1);
     }
 
     private ModuleNode readExampleReport() {
