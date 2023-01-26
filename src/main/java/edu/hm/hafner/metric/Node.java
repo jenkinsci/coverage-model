@@ -106,13 +106,14 @@ public abstract class Node implements Serializable {
         if (hasParent()) {
             String parentPath = getParent().getPath();
 
-            if (StringUtils.isBlank(parentPath)) {
+            String slash = "/";
+            if (StringUtils.isBlank(parentPath) || parentPath.equals(slash) || localPath.startsWith(parentPath + slash)) {
                 return localPath;
             }
             if (StringUtils.isBlank(localPath)) {
                 return parentPath;
             }
-            return parentPath + "/" + localPath;
+            return parentPath + slash + localPath;
         }
 
         return localPath;
