@@ -1,18 +1,17 @@
 package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
-import java.util.Optional;
+import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.metric.ClassNode;
+import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
@@ -29,14 +28,23 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
  * Parses Cobertura report formats into a hierarchical Java Object Model.
  *
  * @author Melissa Bauer
+ * @author Ullrich Hafner
  */
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
-public class CoberturaParser extends XmlParser {
+public class CoberturaParser extends CoverageParser {
     private static final long serialVersionUID = -3625341318291829577L;
+
+    private static final QName SOURCE = new QName("source");
+    private static final QName PACKAGE = new QName("package");
+    private static final QName CLASS = new QName("class");
+    private static final QName METHOD = new QName("method");
+    private static final QName LINE = new QName("line");
+
+    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*(\\d+)/(\\d+)\\)");
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
-    private static final QName SOURCE_FILE_NAME = new QName("filename");
+    private static final QName FILE_NAME = new QName("filename");
     private static final QName SIGNATURE = new QName("signature");
     private static final QName HITS = new QName("hits");
     private static final QName COMPLEXITY = new QName("complexity");
@@ -46,258 +54,208 @@ public class CoberturaParser extends XmlParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-    private static final String OPTIONAL_COBERTURA_ATTRIBUTE = "complexity";
 
-    private FileNode currentFileNode;
-    private Node currentNode;
-
-    private int linesCovered = 0;
-    private int linesMissed = 0;
-    private int branchesCovered = 0;
-    private int branchesMissed = 0;
-    private boolean isSource;
-
+    /**
+     * Parses the Cobertura report. The report is expected to be in XML format.
+     *
+     * @param reader
+     *         the reader to wrap
+     */
     @Override
     public ModuleNode parse(final Reader reader) {
-        SecureXmlParserFactory factory = new SecureXmlParserFactory();
-
-        XMLEventReader r;
         try {
-            r = factory.createXmlEventReader(reader);
-            while (r.hasNext()) {
-                XMLEvent e = r.nextEvent();
+            SecureXmlParserFactory factory = new SecureXmlParserFactory();
+            XMLEventReader eventReader = factory.createXmlEventReader(reader);
+            var root = new ModuleNode("-");
+            boolean isEmpty = true;
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
 
-                if (e.isStartElement()) {
-                    startElement(e.asStartElement());
+                if (event.isStartElement()) {
+                    var startElement = event.asStartElement();
+                    var tagName = startElement.getName();
+                    if (SOURCE.equals(tagName)) {
+                        readSource(eventReader, root);
+                    }
+                    else if (PACKAGE.equals(startElement.getName())) {
+                        readPackage(eventReader, root, startElement);
+                        isEmpty = false;
+                    }
                 }
+            }
+            if (isEmpty) {
+                throw new NoSuchElementException("No coverage information found in the specified file.");
+            }
+            return root;
+        }
+        catch (XMLStreamException exception) {
+            throw new ParsingException(exception);
+        }
+    }
 
-                if (isSource && e.isCharacters()) {
-                    String source = new PathUtil().getRelativePath(e.asCharacters().getData());
-                    getRootNode().addSource(source);
-                }
+    private void readPackage(final XMLEventReader reader, final ModuleNode root,
+            final StartElement startElement) throws XMLStreamException {
+        var packageName = getValueOf(startElement, NAME);
+        var packageNode = root.findPackage(packageName).orElseGet(() -> createPackage(root, packageName));
 
-                if (e.isEndElement()) {
-                    endElement(e.asEndElement());
+        while (reader.hasNext()) {
+            XMLEvent event = reader.nextEvent();
+
+            if (event.isStartElement()) {
+                var element = event.asStartElement();
+                if (CLASS.equals(element.getName())) {
+                    var fileName = getValueOf(event.asStartElement(), FILE_NAME);
+                    var file = packageNode.findFile(fileName).orElseGet(() -> createFile(packageNode, fileName));
+
+                    readClassOrMethod(reader, file, event.asStartElement());
                 }
             }
         }
-        catch (XMLStreamException ex) {
-            throw new ParsingException(ex);
-        }
-
-        return getRootNode();
     }
 
-    /**
-     * Creates a node or a leaf depending on the given element type. Ignore coverage, source and condition
-     *
-     * @param element
-     *         the complete tag element including attributes
-     */
-    @Override
-    protected void startElement(final StartElement element) {
-        String name = element.getName().toString();
-
-        switch (name) {
-            case "coverage":
-                setRootNode(new ModuleNode(""));
-                currentNode = getRootNode();
-                break;
-
-            case "source":
-                isSource = true;
-                break;
-
-            case "package":
-                PackageNode packageNode = new PackageNode(getValueOf(element, NAME));
-                getRootNode().addChild(packageNode);
-
-                currentNode = packageNode;
-                break;
-
-            case "class": // currentNode = packageNode, classNode after
-                handleClassElement(element);
-                break;
-
-            case "method": // currentNode = classNode, methodNode after
-                Node methodNode = new MethodNode(getValueOf(element, NAME), getValueOf(element, SIGNATURE));
-
-                getOptionalValueOf(element, COMPLEXITY).ifPresent(
-                        c -> methodNode.addValue(new CyclomaticComplexity(Integer.parseInt(c))));
-
-                currentNode.addChild(methodNode);
-                currentNode = methodNode;
-                break;
-
-            case "line": // currentNode = methodNode or classNode
-                handleLineElement(element);
-                break;
-
-            default:
-                break;
-        }
+    private ClassNode createClass(final FileNode fileNode, final String className) {
+        // TODO: move to file node
+        var classNode = new ClassNode(className);
+        fileNode.addChild(classNode);
+        return classNode;
     }
 
-    /**
-     * Creates a class node and saves it to a map. This is necessary because classes occur before sourcefiles in the
-     * report. But in the java model, classes are children of files.
-     *
-     * @param element
-     *         the current report element
-     */
-    private void handleClassElement(final StartElement element) {
-        final String classPath = getValueOf(element, NAME);
-        ClassNode classNode = new ClassNode(new PathUtil().getRelativePath(classPath));
+    private FileNode createFile(final PackageNode packageNode, final String fileName) {
+        // TODO: move to package node
+        var fileNode = new FileNode(fileName);
+        packageNode.addChild(fileNode);
+        return fileNode;
+    }
 
-        // Gets sourcefilename and adds class to filenode if existing. Creates filenode if not existing
-        String sourcefilePath = getValueOf(element, SOURCE_FILE_NAME);
-        String[] parts = sourcefilePath.split("/", 0);
-        String sourcefileName = parts[parts.length - 1];
+    private PackageNode createPackage(final ModuleNode moduleNode, final String fileName) {
+        // TODO: move to module node
+        var packageNode = new PackageNode(fileName);
+        moduleNode.addChild(packageNode);
+        return packageNode;
+    }
 
-        Optional<Node> potentialNode = currentNode.find(Metric.FILE, sourcefileName);
-        if (potentialNode.isPresent()) {
-            currentFileNode = (FileNode) potentialNode.get();
-            currentFileNode.addChild(classNode);
+    private Node readClassOrMethod(final XMLEventReader reader, final FileNode file,
+            final StartElement parentElement) throws XMLStreamException {
+        var lineCovered = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
+        var lineMissed = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
+
+        var lineCoverage = Coverage.nullObject(Metric.LINE);
+        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
+
+        Node node;
+        if (CLASS.equals(parentElement.getName())) {
+            node = createClass(file, getValueOf(parentElement, NAME)); // connect the class with the file
         }
         else {
-            FileNode fileNode = new FileNode(sourcefileName);
-            fileNode.addChild(classNode);
-            currentNode.addChild(fileNode);
-            currentFileNode = fileNode;
+            node = new MethodNode(getValueOf(parentElement, NAME), getValueOf(parentElement, SIGNATURE));
         }
+        getOptionalValueOf(parentElement, COMPLEXITY).ifPresent(
+                c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
-        currentNode = classNode;
+        while (reader.hasNext()) {
+            XMLEvent event = reader.nextEvent();
+
+            if (event.isStartElement()) {
+                var nextElement = event.asStartElement();
+                if (LINE.equals(nextElement.getName())) {
+                    int lineNumber = getIntegerOf(nextElement, NUMBER);
+
+                    Coverage coverage;
+                    if (isBranchCoverage(nextElement)) {
+                        coverage = readBranchCoverage(nextElement);
+                        branchCoverage = branchCoverage.add(coverage);
+                    }
+                    else {
+                        int lineHits = getIntegerOf(nextElement, HITS);
+                        coverage = lineHits > 0 ? lineCovered : lineMissed;
+                        lineCoverage = lineCoverage.add(coverage);
+                    }
+
+                    if (CLASS.equals(parentElement.getName())) { // Counters are stored at file level
+                        file.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
+                    }
+                }
+                else if (METHOD.equals(nextElement.getName())) {
+                    Node methodNode = readClassOrMethod(reader, file, nextElement);
+                    node.addChild(methodNode);
+                }
+            }
+            else if (event.isEndElement()) {
+                var endElement = event.asEndElement();
+                if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
+                    node.addValue(lineCoverage);
+                    if (branchCoverage.isSet()) {
+                        node.addValue(branchCoverage);
+                    }
+                    return node;
+                }
+            }
+        }
+        throw new ParsingException("Unexpected end of file");
     }
 
-    /**
-     * Adds +1 to lines covered/missed and creates a new line or branch leaf for the file node.
-     *
-     * @param element
-     *         the current report element
-     */
-    private void handleLineElement(final StartElement element) {
+    private int getIntegerOf(final StartElement nextElement, final QName attributeName) {
+        try {
+            return parseInteger(getValueOf(nextElement, attributeName));
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
+    }
 
-        int lineNumber = Integer.parseInt(getValueOf(element, NUMBER));
-        int lineHits = Integer.parseInt(getValueOf(element, HITS));
+    private int readComplexity(final String c) {
+        try {
+            return Math.round(Float.parseFloat(c)); // some reports use float values
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
+    }
 
-        boolean isBranch = false;
-        Attribute branchAttribute = element.getAttributeByName(BRANCH);
+    private boolean isBranchCoverage(final StartElement line) {
+        Attribute branchAttribute = line.getAttributeByName(BRANCH);
         if (branchAttribute != null) {
-            isBranch = Boolean.parseBoolean(branchAttribute.getValue());
+            return Boolean.parseBoolean(branchAttribute.getValue());
         }
-
-        // collect line number to coverage information in "lines" part
-        if (!currentNode.getMetric().equals(Metric.METHOD)) {
-            getLineNumberToCoverage(element, lineNumber, lineHits, isBranch);
-        }
-        // only count lines/branches for method coverage
-        else {
-            computeMethodCoverage(element, lineHits, isBranch);
-        }
+        return false;
     }
 
-    private void getLineNumberToCoverage(final StartElement element, final int lineNumber, final int lineHits,
-            final boolean isBranch) {
-        var builder = new CoverageBuilder();
+    private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
+        var aggregatedContent = new StringBuilder();
 
-        if (isBranch) {
-            String[] coveredAllInformation = parseConditionCoverage(element);
-            int branchCounter = Integer.parseInt(coveredAllInformation[0].substring(1));
-
-            builder.setMetric(Metric.BRANCH);
-            setCoveredVsMissed(builder, branchCounter);
-
-            // FIXME: check why branches are not stored as such?
-            int covered = lineHits > 0 ? 1 : 0;
-            currentFileNode.addCounters(lineNumber, covered, 1 - covered);
-        }
-        else {
-            int covered = lineHits > 0 ? 1 : 0;
-            currentFileNode.addCounters(lineNumber, covered, 1 - covered);
-        }
-    }
-
-    private void setCoveredVsMissed(final CoverageBuilder builder, final int coveredItems) {
-        if (coveredItems > 0) {
-            builder.setCovered(1).setMissed(0);
-        }
-        else {
-            builder.setCovered(0).setMissed(1);
-        }
-    }
-
-    private void computeMethodCoverage(final StartElement element, final int lineHits, final boolean isBranch) {
-        if (!isBranch) {
-            if (lineHits > 0) {
-                linesCovered++;
+        while (true) {
+            XMLEvent event = reader.nextEvent();
+            if (event.isCharacters()) {
+                aggregatedContent.append(event.asCharacters().getData());
             }
-            else {
-                linesMissed++;
+            else if (event.isEndElement()) {
+                root.addSource(new PathUtil().getRelativePath(aggregatedContent.toString()));
+
+                return;
             }
         }
-        else {
-            String[] coveredAllInformation = parseConditionCoverage(element);
-            int covered = Integer.parseInt(coveredAllInformation[0].substring(1));
-            int all = Integer.parseInt(StringUtils.chop(coveredAllInformation[1]));
+    }
 
-            branchesCovered = branchesCovered + covered;
-            branchesMissed = branchesMissed + (all - covered);
+    private Coverage readBranchCoverage(final StartElement line) {
+        String conditionCoverageAttribute = getValueOf(line, CONDITION_COVERAGE);
+        var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
+        if (matcher.matches()) {
+            var builder = new CoverageBuilder();
+            return builder.setMetric(Metric.BRANCH)
+                    .setCovered(parseInteger(matcher.group(1)))
+                    .setTotal(parseInteger(matcher.group(2)))
+                    .build();
         }
+        return Coverage.nullObject(Metric.BRANCH);
+
     }
 
-    /**
-     * Depending on the tag, either resets the map containing the class objects or sets the current node back to the
-     * class node.
-     *
-     * @param element
-     *         current xml element
-     */
-    @Override
-    protected void endElement(final EndElement element) {
-        switch (element.getName().toString()) {
-            case "source":
-                isSource = false;
-                break;
-            case "package": // reset
-                currentNode = getRootNode();
-                break;
-
-            case "class":
-                currentNode = currentNode.getParent();
-                break;
-
-            case "method": // currentNode = methodNode, classNode after
-                // create leaves
-                var builder = new CoverageBuilder();
-                builder.setMetric(Metric.LINE).setCovered(linesCovered).setMissed(linesMissed);
-                currentNode.addValue(builder.build());
-
-                if (branchesMissed + branchesCovered > 0) {
-                    builder.setMetric(Metric.BRANCH).setCovered(branchesCovered).setMissed(branchesMissed);
-                    currentNode.addValue(builder.build());
-                }
-
-                // reset values
-                linesCovered = 0;
-                linesMissed = 0;
-                branchesCovered = 0;
-                branchesMissed = 0;
-
-                currentNode = currentNode.getParent(); // go to class node
-                break;
-            default:
-                break;
+    private int parseInteger(final String value) {
+        try {
+            return Integer.parseInt(value);
         }
-    }
-
-    @Override
-    boolean isOptional(final String attribute) {
-        return OPTIONAL_COBERTURA_ATTRIBUTE.equals(attribute);
-    }
-
-    private String[] parseConditionCoverage(final StartElement element) {
-        String conditionCoverageAttribute = getValueOf(element, CONDITION_COVERAGE);
-        String[] conditionCoverage = conditionCoverageAttribute.split(" ", 0);
-        return conditionCoverage[1].split("/", 0);
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
     }
 }
