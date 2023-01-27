@@ -38,7 +38,7 @@ node('java-agent') {
         withMaven(mavenLocalRepo: '/var/data/m2repository', mavenOpts: '-Xmx768m -Xms512m') {
             sh "mvn org.pitest:pitest-maven:mutationCoverage"
         }
-        recordCoverage(tools: [[parser: 'PIT']],
+        recordCoverage(tools: [[parser: 'PIT', pattern: 'target/pit-reports/mutations.xml]],
                 id: 'pit', name: 'Mutation Coverage',
                 sourceCodeRetention: 'EVERY_BUILD',
                 qualityGates: [
