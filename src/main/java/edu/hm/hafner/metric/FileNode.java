@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -253,8 +254,8 @@ public final class FileNode extends Node {
     }
 
     @Override
-    public List<String> getFiles() {
-        return List.of(getPath());
+    public Set<String> getFiles() {
+        return Set.of(getPath());
     }
 
     /**

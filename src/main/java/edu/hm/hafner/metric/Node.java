@@ -10,6 +10,7 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -600,7 +601,7 @@ public abstract class Node implements Serializable {
             return this; // nothing to do
         }
 
-        if (!other.getMetric().equals(getMetric())) {
+        if (getMetric() != other.getMetric()) {
             throw new IllegalArgumentException(
                     String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
         }
@@ -702,9 +703,8 @@ public abstract class Node implements Serializable {
      *
      * @return the file names
      */
-    // TODO: set?
-    public List<String> getFiles() {
-        return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
+    public Set<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public List<FileNode> getAllFileNodes() {
