@@ -30,7 +30,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadCoberturaIssue473() {
-        Node tree = readReport("/cobertura-npe.xml");
+        Node tree = readReport("cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -142,7 +142,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromCoberturaReport() {
-        Node result = readReport("/cobertura-lots-of-data.xml");
+        Node result = readReport("cobertura-lots-of-data.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(19)
                 .extracting(FileNode::getPath)
@@ -169,7 +169,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromPythonCoberturaReport() {
-        Node result = readReport("/cobertura-python.xml");
+        Node result = readReport("cobertura-python.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(1)
                 .extracting(FileNode::getPath)
@@ -191,6 +191,6 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("/cobertura.xml");
+        return readReport("cobertura.xml");
     }
 }

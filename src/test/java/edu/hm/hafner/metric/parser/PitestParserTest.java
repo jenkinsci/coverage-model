@@ -14,7 +14,6 @@ import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 class PitestParserTest extends AbstractParserTest {
-
     private static final String LOOKAHEAD_STREAM = "LookaheadStream.java";
     private static final String FILTERED_LOG = "FilteredLog.java";
 
@@ -25,7 +24,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldMapLineCoveragesForPainting() {
-        ModuleNode tree = readReport("/mutations-codingstyle.xml");
+        ModuleNode tree = readReport("mutations-codingstyle.xml");
 
         assertThat(tree.getAllFileNodes()).extracting(FileNode::getName).containsExactly("PathUtil.java",
                 "SecureXmlParserFactory.java",
@@ -64,7 +63,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertMutationsToTree() {
-        ModuleNode tree = readReport("/mutations.xml");
+        ModuleNode tree = readReport("mutations.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(3).extracting(Node::getName)
