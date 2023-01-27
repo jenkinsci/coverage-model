@@ -33,7 +33,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
-    private static final String EMPTY_NAME = "-";
+    static final String EMPTY_NAME = "-";
     private static final String SLASH = "/";
     static final String ROOT = "^";
 
@@ -84,8 +84,8 @@ public abstract class Node implements Serializable {
      *         the human-readable name of the node
      */
     protected Node(final Metric metric, final String name) {
-        Ensure.that(Metric.isNodeMetric(metric))
-                .isTrue("Cannot create a node with a value metric");
+        Ensure.that(metric.isContainer()).isTrue("Cannot create a container node with a value metric");
+
         this.metric = metric;
         this.name = name;
     }
@@ -180,13 +180,6 @@ public abstract class Node implements Serializable {
 
         getMetricsOfValues().forEach(elements::add);
         return elements;
-    }
-
-    public List<Value> condenseValues() {
-        return getValueMetrics().stream()
-                .map(this::getValue)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
     }
 
     NavigableMap<Metric, Value> getMetricsDistribution() {
