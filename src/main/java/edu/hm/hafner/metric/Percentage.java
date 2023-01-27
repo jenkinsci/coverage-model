@@ -47,7 +47,7 @@ public final class Percentage implements Serializable {
      *
      * @return the created instance
      * @throws IllegalArgumentException
-     *         if the denominator is zero or items > total
+     *         if the denominator is zero or items are greater than total
      */
     public static Percentage valueOf(final int items, final int total) {
         return new Percentage(items, total);
