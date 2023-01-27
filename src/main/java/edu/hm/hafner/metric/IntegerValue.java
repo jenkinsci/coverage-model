@@ -16,7 +16,7 @@ public abstract class IntegerValue extends Value {
     private final int integer;
 
     /**
-     * Creates a new leaf with the specified value.
+     * Creates a new {@link IntegerValue} with the specified value.
      *
      * @param metric
      *         the metric for this value

@@ -19,6 +19,7 @@ public class CoverageTreeCreator {
      *
      * @return the filtered tree
      */
+    // FIXME: delete this code
     public Node createIndirectCoverageChangesTree(final Node coverageNode) {
         Node copy = coverageNode.copyTree();
 

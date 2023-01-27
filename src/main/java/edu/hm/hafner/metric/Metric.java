@@ -67,7 +67,7 @@ public enum Metric {
      *
      * @return if the metric is a node metric
      */
-    // TODO: member
+    // FIXME: member
     public static boolean isNodeMetric(final Metric metric) {
         Set<Metric> nodeMetrics = new HashSet<>(Arrays.asList(
                 CONTAINER, MODULE, PACKAGE, FILE, CLASS, METHOD));
