@@ -575,7 +575,7 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateEmptyChangeCoverageTreeWithoutChanges() {
+    void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
         assertThat(tree.filterChanges())
@@ -588,7 +588,7 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateChangeCoverageTree() {
+    void shouldCreateModifiedLinesCoverageTree() {
         Node tree = createTreeWithoutCoverage();
 
         var node = tree.find(FILE, COVERED_FILE);
@@ -613,10 +613,10 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateEmptyChangedFilesCoverageTreeWithoutChanges() {
+    void shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
-        assertThat(tree.filterByChangedFilesCoverage())
+        assertThat(tree.filterByModifiedFilesCoverage())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -626,7 +626,7 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateChangedFilesCoverageTree() {
+    void shouldCreateModifiedFilesCoverageTree() {
         Node tree = createTreeWithoutCoverage();
 
         var node = tree.find(FILE, COVERED_FILE);
@@ -636,7 +636,7 @@ class NodeTest {
         registerCoverageWithoutChange(fileNode);
         registerCodeChangesAndCoverage(fileNode);
 
-        assertThat(tree.filterByChangedFilesCoverage())
+        assertThat(tree.filterByModifiedFilesCoverage())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -690,10 +690,10 @@ class NodeTest {
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {
-        file.addChangedLine(10);
-        file.addChangedLine(11);
-        file.addChangedLine(12);
-        file.addChangedLine(13);
+        file.addModifiedLine(10);
+        file.addModifiedLine(11);
+        file.addModifiedLine(12);
+        file.addModifiedLine(13);
 
         var method = new MethodNode("aMethod", "{}");
         var builder = new CoverageBuilder().setMetric(Metric.LINE);

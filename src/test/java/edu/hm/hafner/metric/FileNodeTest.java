@@ -15,7 +15,7 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode(name);
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
-        fileNode.addChangedLine(10);
+        fileNode.addModifiedLine(10);
         fileNode.addIndirectCoverageChange(15, 123);
         var empty = new FileNode("empty");
         fileNode.computeDelta(empty);
