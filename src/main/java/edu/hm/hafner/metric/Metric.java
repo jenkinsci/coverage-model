@@ -29,6 +29,19 @@ public enum Metric {
     COMPLEXITY_DENSITY(new DensityEvaluator()),
     LOC(new LocEvaluator());
 
+    /**
+     * Returns the metric that belongs to the specified tag.
+     *
+     * @param tag
+     *         the tag
+     *
+     * @return the metric
+     * @see #toTagName()
+     */
+    public static Metric fromTag(final String tag) {
+        return valueOf(tag.toUpperCase(Locale.ENGLISH).replaceAll("-", "_"));
+    }
+
     private final MetricEvaluator evaluator;
 
     Metric(final MetricEvaluator evaluator) {
@@ -129,7 +142,7 @@ public enum Metric {
             var locValue = LOC.getValueFor(node);
             var complexityValue = COMPLEXITY.getValueFor(node);
             if (locValue.isPresent() && complexityValue.isPresent()) {
-                var loc = (LinesOfCode)locValue.get();
+                var loc = (LinesOfCode) locValue.get();
                 if (loc.getValue() > 0) {
                     var complexity = (CyclomaticComplexity) complexityValue.get();
                     return Optional.of(new FractionValue(COMPLEXITY_DENSITY, complexity.getValue(), loc.getValue()));
