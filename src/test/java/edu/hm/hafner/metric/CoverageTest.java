@@ -114,10 +114,9 @@ class CoverageTest {
     void shouldProvideNullObject() {
         assertThat(NO_COVERAGE)
                 .hasCovered(0)
-                .hasCoveredPercentage(Fraction.ZERO)
                 .hasMissed(0)
-                .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(0)
+                .hasCoveredPercentage(Percentage.ZERO)
                 .hasToString("LINE: n/a");
         assertThat(NO_COVERAGE.add(NO_COVERAGE)).isEqualTo(NO_COVERAGE);
     }
@@ -129,10 +128,9 @@ class CoverageTest {
         Coverage coverage = builder.setCovered(6).setMissed(4).build();
         assertThat(coverage)
                 .hasCovered(6)
-                .hasCoveredPercentage(Fraction.getFraction(6, 10))
                 .hasMissed(4)
-                .hasMissedPercentage(Fraction.getFraction(4, 10))
                 .hasTotal(10)
+                .hasCoveredPercentage(Percentage.valueOf(6, 10))
                 .hasToString("LINE: 60.00% (6/10)");
 
         assertThat(coverage.add(NO_COVERAGE)).isEqualTo(coverage);

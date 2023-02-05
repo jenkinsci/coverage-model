@@ -103,15 +103,16 @@ public final class Coverage extends Value {
     }
 
     /**
-     * Returns the covered percentage as a {@link Fraction} in the range of {@code [0, 1]}.
+     * Returns the percentage of covered items. If this coverage is undefined (i.e., {@code total} is zero) then zero
+     * will be returned.
      *
      * @return the covered percentage
      */
-    public Fraction getCoveredPercentage() {
+    public Percentage getCoveredPercentage() {
         if (getTotal() == 0) {
-            return Fraction.ZERO;
+            return Percentage.ZERO;
         }
-        return Fraction.getFraction(getCovered(), getTotal());
+        return Percentage.valueOf(getCovered(), getTotal());
     }
 
     /**
@@ -123,19 +124,6 @@ public final class Coverage extends Value {
         return missed;
     }
 
-    /**
-     * Returns the missed percentage as a {@link Fraction} in the range of {@code [0, 1]}.
-     *
-     * @return the missed percentage
-     */
-    // FIXME: Who is using this code, do we need a percentage value?
-    public Fraction getMissedPercentage() {
-        if (getTotal() == 0) {
-            return Fraction.ZERO;
-        }
-        return Fraction.ONE.subtract(getCoveredPercentage());
-    }
-
     @Override
     public Coverage add(final Value other) {
         return castAndMap(other, o -> new Coverage(getMetric(), covered + o.getCovered(), missed + o.getMissed()));
@@ -144,7 +132,7 @@ public final class Coverage extends Value {
     @Override
     public Fraction delta(final Value other) {
         if (hasSameMetric(other) && other instanceof Coverage) {
-            return new SafeFraction(getCoveredPercentage()).subtract(((Coverage) other).getCoveredPercentage());
+            return getCoveredPercentage().subtract(((Coverage) other).getCoveredPercentage());
         }
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
@@ -155,8 +143,8 @@ public final class Coverage extends Value {
     }
 
     /**
-     * Returns whether this coverage is below the given threshold. The threshold is a percentage in the range of [0,
-     * 100].
+     * Returns whether this coverage is below the given threshold. The threshold must be a percentage in the range of
+     * [0, 100].
      *
      * @param threshold
      *         the threshold in the range of [0, 100]
@@ -165,7 +153,7 @@ public final class Coverage extends Value {
      */
     @Override
     public boolean isBelowThreshold(final double threshold) {
-        return getCoveredPercentage().doubleValue() * 100 < threshold;
+        return getCoveredPercentage().toDouble() < threshold;
     }
 
     private Coverage computeMax(final Coverage otherCoverage) {
@@ -217,8 +205,7 @@ public final class Coverage extends Value {
     public String toString() {
         int total = getTotal();
         if (total > 0) {
-            return String.format("%s: %s (%s)", getMetric(), Percentage.valueOf(getCoveredPercentage()),
-                    getCoveredPercentage());
+            return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), covered, total);
         }
         return String.format("%s: n/a", getMetric());
     }
@@ -237,6 +224,7 @@ public final class Coverage extends Value {
         private static final Coverage[] LINE_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] BRANCH_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] INSTRUCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+        private static final Coverage[] MUTATION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
 
         static {
             for (int covered = 0; covered < CACHE_SIZE; covered++) {
@@ -245,6 +233,7 @@ public final class Coverage extends Value {
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
                     INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
                             missed);
+                    MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
                 }
             }
         }
@@ -262,17 +251,33 @@ public final class Coverage extends Value {
         private int total;
         private boolean isTotalSet;
 
+        /**
+         * Creates a new {@link CoverageBuilder} with all properties unset.
+         */
         public CoverageBuilder() {
         }
 
+        /**
+         * Creates a new {@link CoverageBuilder} with the specified metric. All other properties are unset.
+         *
+         * @param metric
+         *         the metric to set
+         */
         public CoverageBuilder(@CheckForNull final Metric metric) {
             this.metric = metric;
         }
 
-        public CoverageBuilder(final Coverage copy) {
-            setMetric(copy.getMetric());
-            setCovered(copy.getCovered());
-            setMissed(copy.getMissed());
+        /**
+         * Creates a new {@link CoverageBuilder} with all properties set to the value of the provided existing
+         * instance.
+         *
+         * @param existing
+         *         the existing coverage to copy all properties from
+         */
+        public CoverageBuilder(final Coverage existing) {
+            setMetric(existing.getMetric());
+            setCovered(existing.getCovered());
+            setMissed(existing.getMissed());
         }
 
         /**
@@ -381,13 +386,19 @@ public final class Coverage extends Value {
             return new Coverage(metric, covered, missed);
         }
 
+        /**
+         * Increments the number of covered items by 1.
+         */
+        public void incrementCovered() {
+            setCovered(covered + 1);
+        }
+
+        /**
+         * Increments the number of missed items by 1.
+         */
         public void incrementMissed() {
             setMissed(missed + 1);
 
-        }
-
-        public void incrementCovered() {
-            setCovered(covered + 1);
         }
     }
 }

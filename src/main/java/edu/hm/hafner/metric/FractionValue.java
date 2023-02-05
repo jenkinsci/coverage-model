@@ -16,7 +16,7 @@ public final class FractionValue extends Value {
     private final Fraction fraction;
 
     /**
-     * Creates a new leaf with the delta value for the specified metric.
+     * Creates a new {@link FractionValue} with the specified value for the given metric.
      *
      * @param metric
      *         the coverage metric
@@ -30,7 +30,7 @@ public final class FractionValue extends Value {
     }
 
     /**
-     * Creates a new leaf with the delta value for the specified metric.
+     * Creates a new {@link FractionValue} from the specified counters for the given metric.
      *
      * @param metric
      *         the coverage metric

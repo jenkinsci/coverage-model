@@ -8,6 +8,7 @@ package edu.hm.hafner.metric;
  *
  * @author Melissa Buer
  */
+// FIXME: Shouldn't be simpler using a string
 public enum Mutator {
 
     CONDITIONALS_BOUNDARY("org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator"),

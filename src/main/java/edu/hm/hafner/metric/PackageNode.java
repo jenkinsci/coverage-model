@@ -23,12 +23,12 @@ public final class PackageNode extends Node {
      *
      * @return the normalized name or "-" if the name is empty or {@code null}
      */
-    public static String normalizePackageName(final String name) {
+    public static String normalizePackageName(@CheckForNull final String name) {
         if (StringUtils.isNotBlank(name)) {
             return StringUtils.replaceEach(name, new String[] {"/", "\\"}, new String[] {".", "."});
         }
         else {
-            return "-";
+            return Node.EMPTY_NAME;
         }
     }
 

@@ -1,11 +1,9 @@
 package edu.hm.hafner.metric;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Locale;
+import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
@@ -31,16 +29,38 @@ public enum Metric {
     BRANCH(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
 
-    /** Additional metrics without children */
+    /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
     COMPLEXITY_DENSITY(new DensityEvaluator()),
     LOC(new LocEvaluator());
 
+    /**
+     * Returns the metric that belongs to the specified tag.
+     *
+     * @param tag
+     *         the tag
+     *
+     * @return the metric
+     * @see #toTagName()
+     */
+    public static Metric fromTag(final String tag) {
+        return valueOf(tag.toUpperCase(Locale.ENGLISH).replaceAll("-", "_"));
+    }
+
     private final MetricEvaluator evaluator;
 
     Metric(final MetricEvaluator evaluator) {
         this.evaluator = evaluator;
+    }
+
+    /**
+     * Returns if a given metric is a node metric.
+     *
+     * @return if the metric is a node metric
+     */
+    public boolean isContainer() {
+        return evaluator.isAggregatingChildren();
     }
 
     /**
@@ -64,22 +84,7 @@ public enum Metric {
         return evaluator.compute(node, this);
     }
 
-    /**
-     * Returns if a given metric is a node metric.
-     *
-     * @param metric
-     *         the metric to check
-     *
-     * @return if the metric is a node metric
-     */
-    public static boolean isNodeMetric(final Metric metric) {
-        Set<Metric> nodeMetrics = new HashSet<>(Arrays.asList(
-                CONTAINER, MODULE, PACKAGE, FILE, CLASS, METHOD));
-
-        return nodeMetrics.contains(metric);
-    }
-
-    public static SortedSet<Metric> getCoverageMetrics() {
+    public static NavigableSet<Metric> getCoverageMetrics() {
         return new TreeSet<>(Set.of(
                 Metric.CONTAINER,
                 Metric.MODULE,
@@ -95,9 +100,16 @@ public enum Metric {
 
     private abstract static class MetricEvaluator {
         abstract Optional<Value> compute(Node node, Metric searchMetric);
+
+        abstract boolean isAggregatingChildren();
     }
 
     private static class LocOfChildrenEvaluator extends MetricEvaluator {
+        @Override
+        public boolean isAggregatingChildren() {
+            return true;
+        }
+
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
                 var builder = new CoverageBuilder().setMetric(searchMetric);
@@ -129,6 +141,11 @@ public enum Metric {
 
     private static class LocEvaluator extends MetricEvaluator {
         @Override
+        public boolean isAggregatingChildren() {
+            return false;
+        }
+
+        @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             return LINE.getValueFor(node).map(leaf -> new LinesOfCode(((Coverage) leaf).getTotal()));
         }
@@ -136,11 +153,16 @@ public enum Metric {
 
     private static class DensityEvaluator extends MetricEvaluator {
         @Override
+        public boolean isAggregatingChildren() {
+            return false;
+        }
+
+        @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             var locValue = LOC.getValueFor(node);
             var complexityValue = COMPLEXITY.getValueFor(node);
             if (locValue.isPresent() && complexityValue.isPresent()) {
-                LinesOfCode loc = (LinesOfCode) locValue.get();
+                var loc = (LinesOfCode) locValue.get();
                 if (loc.getValue() > 0) {
                     var complexity = (CyclomaticComplexity) complexityValue.get();
                     return Optional.of(new FractionValue(COMPLEXITY_DENSITY, complexity.getValue(), loc.getValue()));
@@ -151,6 +173,11 @@ public enum Metric {
     }
 
     private static class ValuesAggregator extends MetricEvaluator {
+        @Override
+        public boolean isAggregatingChildren() {
+            return false;
+        }
+
         @Override
         final Optional<Value> compute(final Node node, final Metric searchMetric) {
             Optional<Value> localMetricValue = node.getValues()

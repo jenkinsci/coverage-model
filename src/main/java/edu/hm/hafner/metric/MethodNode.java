@@ -1,5 +1,8 @@
 package edu.hm.hafner.metric;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -11,10 +14,10 @@ public final class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
     private final String signature;
-    /**
-     * The line number where the code of method begins (not including the method head).
-     */
+    /** The line number where the code of method begins (not including the method head). */
     private final int lineNumber;
+    // FIXME: check where these elements are best placed
+    private final List<Mutation> mutations = new ArrayList<>();
 
     /**
      * Creates a new method node with the given name. The line number will be set to 0.
@@ -43,6 +46,19 @@ public final class MethodNode extends Node {
 
         this.signature = signature;
         this.lineNumber = lineNumber;
+    }
+
+    /**
+     * Adds a mutation to the method.
+     *
+     * @param mutation the mutation to add
+     */
+    public void addMutation(final Mutation mutation) {
+        mutations.add(mutation);
+    }
+
+    public List<Mutation> getMutations() {
+        return Collections.unmodifiableList(mutations);
     }
 
     @Override
@@ -79,12 +95,14 @@ public final class MethodNode extends Node {
             return false;
         }
         MethodNode that = (MethodNode) o;
-        return lineNumber == that.lineNumber && signature.equals(that.signature);
+        return lineNumber == that.lineNumber
+                && Objects.equals(signature, that.signature)
+                && Objects.equals(mutations, that.mutations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), signature, lineNumber);
+        return Objects.hash(super.hashCode(), signature, lineNumber, mutations);
     }
 
     @Override

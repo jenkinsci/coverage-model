@@ -17,56 +17,46 @@ import org.apache.commons.lang3.math.Fraction;
 public final class Percentage implements Serializable {
     private static final long serialVersionUID = 3324942976687883481L;
 
-    static final String DENOMINATOR_ZERO_MESSAGE = "The denominator must not be zero";
+    /** null value. */
+    public static final Percentage ZERO = new Percentage(0, 1);
+
+    static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
     private static final Fraction HUNDRED = Fraction.getFraction("100.0");
 
     /**
-     * Creates an instance of {@link Percentage} from a {@link Fraction fraction} within the range [0,1].
+     * Creates an instance of {@link Percentage} in the range [0,100] from a {@link Fraction fraction} within the range
+     * [0,1]. I.e., a percentage is a fraction value multiplied by one hundert.
      *
      * @param fraction
-     *         The coverage as fraction
+     *         the value as a fraction within the range [0,1]
      *
      * @return the created instance
      */
     public static Percentage valueOf(final Fraction fraction) {
-        Fraction percentage = new SafeFraction(fraction).multiplyBy(HUNDRED);
-        return new Percentage(percentage.getNumerator(), percentage.getDenominator());
+        return new Percentage(fraction.getNumerator(), fraction.getDenominator());
     }
 
     /**
-     * Creates an instance of {@link Percentage} from a coverage percentage value.
+     * Creates an instance of {@link Percentage} from the two number items and total.
+     * The percentage is calculated as value (items / total) * 100.
      *
-     * @param percentage
-     *         The value which represents a coverage percentage
-     *
-     * @return the created instance
-     */
-    public static Percentage valueOf(final double percentage) {
-        Fraction percentageFraction = Fraction.getFraction(percentage);
-        return new Percentage(percentageFraction.getNumerator(), percentageFraction.getDenominator());
-    }
-
-    /**
-     * Creates an instance of {@link Percentage} from a numerator and a denominator.
-     *
-     * @param numerator
-     *         The numerator of the fraction which represents the percentage within the range [0,100]
-     * @param denominator
-     *         The denominator of the fraction which represents the percentage within the range [0,100] (must not be
-     *         zero)
+     * @param items
+     *         the number of items in the range [0,total]
+     * @param total
+     *         the total number of items available
      *
      * @return the created instance
      * @throws IllegalArgumentException
-     *         if the denominator is zero
+     *         if the denominator is zero or items are greater than total
      */
-    public static Percentage valueOf(final int numerator, final int denominator) {
-        return new Percentage(numerator, denominator);
+    public static Percentage valueOf(final int items, final int total) {
+        return new Percentage(items, total);
     }
 
     /**
-     * Creates a new {@link Percentage} instance from the provided string representation. The string
-     * representation is expected to contain the numerator and the denominator - separated by a slash, e.g. "500/345",
-     * or "100/1". Whitespace characters will be ignored.
+     * Creates a new {@link Percentage} instance from the provided string representation. The string representation is
+     * expected to contain the numerator and the denominator - separated by a slash, e.g. "300/345", or "1/100".
+     * Whitespace characters will be ignored.
      *
      * @param stringRepresentation
      *         string representation to convert from
@@ -84,6 +74,7 @@ public final class Percentage implements Serializable {
 
                 int numerator = Integer.parseInt(extractedNumerator);
                 int denominator = Integer.parseInt(extractedDenominator);
+
                 return new Percentage(numerator, denominator);
             }
         }
@@ -94,44 +85,61 @@ public final class Percentage implements Serializable {
                 String.format("Cannot convert %s to a valid Percentage instance.", stringRepresentation));
     }
 
-    private final int numerator;
-    private final int denominator;
+    private final int items;
+    private final int total;
 
     /**
      * Creates an instance of {@link Percentage}.
      *
-     * @param numerator
-     *         The numerator of the fraction which represents the percentage
-     * @param denominator
-     *         The denominator of the fraction which represents the percentage
+     * @param items
+     *         the number of items in the range [0,total]
+     * @param total
+     *         the total number of items available
      */
-    private Percentage(final int numerator, final int denominator) {
-        if (denominator == 0) {
-            throw new IllegalArgumentException(DENOMINATOR_ZERO_MESSAGE);
+    private Percentage(final int items, final int total) {
+        if (total <= 0) {
+            throw new IllegalArgumentException(TOTALS_ZERO_MESSAGE);
         }
-        this.numerator = numerator;
-        this.denominator = denominator;
+        if (items > total) {
+            throw new IllegalArgumentException(
+                    String.format("The number of items %d must be less or equal the total number %d.",
+                            items, total));
+        }
+        this.items = items;
+        this.total = total;
     }
 
     /**
-     * Calculates the coverage percentage.
+     * Returns this percentage as a double value in the interval [0, 100].
      *
      * @return the coverage percentage
      */
-    public double getDoubleValue() {
-        return (double) numerator / denominator;
+    public double toDouble() {
+        return (double) items * 100.0 / total;
     }
 
     /**
      * Formats a percentage to plain text and rounds the value to two decimals.
      *
      * @param locale
-     *         The used locale
+     *         the used locale
      *
      * @return the formatted percentage as plain text
      */
     public String formatPercentage(final Locale locale) {
-        return String.format(locale, "%.2f%%", getDoubleValue());
+        return String.format(locale, "%.2f%%", toDouble());
+    }
+
+    /**
+     * Subtracts the other percentage from this percentage, returning the result as a {@link Fraction}.
+     *
+     * @param subtrahend
+     *         the percentage to subtract
+     *
+     * @return a {@code Fraction} instance with the resulting values
+     */
+    public Fraction subtract(final Percentage subtrahend) {
+        return new SafeFraction(items, total).subtract(subtrahend.getItems(), subtrahend.getTotal());
     }
 
     /**
@@ -139,20 +147,20 @@ public final class Percentage implements Serializable {
      * decimals.
      *
      * @param locale
-     *         The used locale
+     *         the used locale
      *
      * @return the formatted delta percentage as plain text with a leading sign
      */
     public String formatDeltaPercentage(final Locale locale) {
-        return String.format(locale, "%+.2f%%", getDoubleValue());
+        return String.format(locale, "%+.2f%%", toDouble());
     }
 
-    public int getNumerator() {
-        return numerator;
+    public int getItems() {
+        return items;
     }
 
-    public int getDenominator() {
-        return denominator;
+    public int getTotal() {
+        return total;
     }
 
     @Override
@@ -164,23 +172,23 @@ public final class Percentage implements Serializable {
             return false;
         }
         Percentage that = (Percentage) o;
-        return numerator == that.numerator && denominator == that.denominator;
+        return items == that.items && total == that.total;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(numerator, denominator);
+        return Objects.hash(items, total);
     }
 
     /**
-     * Returns a string representation for this {@link Percentage} that can be used to serialize this instance
-     * in a simple but still readable way. The serialization contains the numerator and the denominator - separated by a
+     * Returns a string representation for this {@link Percentage} that can be used to serialize this instance in a
+     * simple but still readable way. The serialization contains the numerator and the denominator - separated by a
      * slash, e.g. "100/345", or "0/1".
      *
      * @return a string representation for this {@link Percentage}
      */
     public String serializeToString() {
-        return String.format("%d/%d", getNumerator(), getDenominator());
+        return String.format("%d/%d", getItems(), getTotal());
     }
 
     @Override

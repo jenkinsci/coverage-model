@@ -2,7 +2,6 @@ package edu.hm.hafner.metric;
 
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -25,6 +24,7 @@ import static org.assertj.core.api.Assertions.*;
 @DefaultLocale("en")
 class NodeTest {
     private static final String COVERED_FILE = "Covered.java";
+    private static final Percentage HUNDERT_PERCENT = Percentage.valueOf(1, 1);
 
     @Test
     void shouldHandleNonExistingParent() {
@@ -135,8 +135,8 @@ class NodeTest {
         node.addValue(leafTwo);
         assertThat(node).hasOnlyValues(leafOne, leafTwo);
 
-        assertThat(getCoverage(node, LINE)).hasCoveredPercentage(Fraction.ONE);
-        assertThat(getCoverage(node, BRANCH)).hasCoveredPercentage(Fraction.ZERO);
+        assertThat(getCoverage(node, LINE)).hasCoveredPercentage(HUNDERT_PERCENT);
+        assertThat(getCoverage(node, BRANCH)).hasCoveredPercentage(Percentage.ZERO);
 
         assertThatIllegalArgumentException().isThrownBy(() -> node.addValue(leafOne));
         assertThatIllegalArgumentException().isThrownBy(() -> node.addValue(leafTwo));
@@ -172,7 +172,7 @@ class NodeTest {
 
         node.addValue(valueOne);
 
-        assertThat(getCoverage(node, MODULE)).hasCoveredPercentage(Fraction.ONE);
+        assertThat(getCoverage(node, MODULE)).hasCoveredPercentage(HUNDERT_PERCENT);
     }
 
     @Test
@@ -188,8 +188,9 @@ class NodeTest {
         coveredFile.addValue(valueOne);
         missedFile.addValue(valueTwo);
 
-        assertThat(getCoverage(node, LINE)).hasCoveredPercentage(Fraction.ONE_HALF);
-        assertThat(getCoverage(node, FILE)).hasCoveredPercentage(Fraction.ONE_HALF);
+        var oneHalf = Percentage.valueOf(1, 2);
+        assertThat(getCoverage(node, LINE)).hasCoveredPercentage(oneHalf);
+        assertThat(getCoverage(node, FILE)).hasCoveredPercentage(oneHalf);
     }
 
     @Test

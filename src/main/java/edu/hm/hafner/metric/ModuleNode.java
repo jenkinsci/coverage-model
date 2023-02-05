@@ -76,7 +76,7 @@ public final class ModuleNode extends Node {
             if (packageParts.length > 1) {
                 ArrayUtils.reverse(packageParts);
                 Optional<PackageNode> splitPackages = Arrays.stream(packageParts)
-                        .map(subPackage -> new PackageNode(subPackage, packageNode.getValues()))
+                        .map(subPackage -> createPackageNode(subPackage, packageNode.getValues()))
                         .reduce(PackageNode::appendPackage);
                 PackageNode localRoot = splitPackages.get();
                 Node localTail = localRoot;
@@ -90,6 +90,12 @@ public final class ModuleNode extends Node {
                 mergeSinglePackage(packageNode);
             }
         }
+    }
+
+    private PackageNode createPackageNode(final String subPackage, final List<Value> existingValues) {
+        var packageNode = new PackageNode(subPackage);
+        packageNode.addAllValues(existingValues);
+        return packageNode;
     }
 
     private void mergeSinglePackage(final Node packageNode) {

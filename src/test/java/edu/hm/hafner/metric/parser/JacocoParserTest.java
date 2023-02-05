@@ -3,7 +3,6 @@ package edu.hm.hafner.metric.parser;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -15,6 +14,7 @@ import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
+import edu.hm.hafner.metric.Percentage;
 
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
@@ -59,8 +59,7 @@ class JacocoParserTest extends AbstractParserTest {
                 builder.setMetric(BRANCH).setCovered(109).setMissed(7).build(),
                 builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
                 new CyclomaticComplexity(160),
-                new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(160, 294 + 29)),
+                new FractionValue(COMPLEXITY_DENSITY, 160, 294 + 29),
                 new LinesOfCode(294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
@@ -146,27 +145,23 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(coveredLines).isEqualTo(294);
 
         assertThat(getCoverage(tree, LINE)).hasCovered(294)
-                .hasCoveredPercentage(Fraction.getFraction(294, 294 + 29))
+                .hasCoveredPercentage(Percentage.valueOf(294, 294 + 29))
                 .hasMissed(29)
-                .hasMissedPercentage(Fraction.getFraction(29, 294 + 29))
                 .hasTotal(294 + 29);
 
         assertThat(getCoverage(tree, BRANCH)).hasCovered(109)
-                .hasCoveredPercentage(Fraction.getFraction(109, 109 + 7))
+                .hasCoveredPercentage(Percentage.valueOf(109, 109 + 7))
                 .hasMissed(7)
-                .hasMissedPercentage(Fraction.getFraction(7, 109 + 7))
                 .hasTotal(109 + 7);
 
         assertThat(getCoverage(tree, INSTRUCTION)).hasCovered(1260)
-                .hasCoveredPercentage(Fraction.getFraction(1260, 1260 + 90))
+                .hasCoveredPercentage(Percentage.valueOf(1260, 1260 + 90))
                 .hasMissed(90)
-                .hasMissedPercentage(Fraction.getFraction(90, 1260 + 90))
                 .hasTotal(1260 + 90);
 
         assertThat(getCoverage(tree, MODULE)).hasCovered(1)
-                .hasCoveredPercentage(Fraction.ONE)
+                .hasCoveredPercentage(Percentage.valueOf(1, 1))
                 .hasMissed(0)
-                .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(1);
 
         assertThat(tree).hasName(PROJECT_NAME).doesNotHaveParent().isRoot().hasMetric(MODULE).hasParentName("^");
@@ -174,12 +169,12 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldThrowExceptionWhenAttributesAreMissing() {
-        assertThatThrownBy(() -> readReport("/jacoco-missing-attribute.xml"))
+        assertThatThrownBy(() -> readReport("jacoco-missing-attribute.xml"))
                 .isInstanceOf(NoSuchElementException.class)
                 .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("/jacoco-codingstyle.xml");
+        return readReport("jacoco-codingstyle.xml");
     }
 }

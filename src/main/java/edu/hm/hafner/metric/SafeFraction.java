@@ -2,6 +2,8 @@ package edu.hm.hafner.metric;
 
 import org.apache.commons.lang3.math.Fraction;
 
+import static edu.hm.hafner.metric.Percentage.*;
+
 /**
  * A small wrapper for {@link Fraction} instances that avoids an arithmetic overflow by using double based operations in
  * case of an exception.
@@ -19,6 +21,21 @@ public class SafeFraction {
      */
     public SafeFraction(final Fraction fraction) {
         this.fraction = fraction;
+    }
+
+    /**
+     * Creates a new fraction instance that wraps the specified fraction with safe operations.
+     *
+     * @param numerator
+     *         the numerator of the fraction
+     * @param denominator
+     *         the denominator of the fraction
+     */
+    public SafeFraction(final int numerator, final int denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException(TOTALS_ZERO_MESSAGE);
+        }
+        this.fraction = Fraction.getFraction(numerator, denominator);
     }
 
     /**
@@ -57,6 +74,26 @@ public class SafeFraction {
         catch (ArithmeticException exception) {
             return Fraction.getFraction(fraction.doubleValue() - subtrahend.doubleValue());
         }
+    }
+
+    /**
+     * Subtracts the value of another fraction from the value of this one, returning the result in reduced form.  Since
+     * there might be an arithmetic exception due to an overflow, this method will handle this situation by calculating
+     * the subtraction based on the double values of the fractions.
+     *
+     * @param numerator
+     *         the numerator of the fraction
+     * @param denominator
+     *         the denominator of the fraction
+     *
+     * @return a {@code Fraction} instance with the resulting values
+     */
+    public Fraction subtract(final int numerator, final int denominator) {
+        if (denominator == 0) {
+            throw new IllegalArgumentException(TOTALS_ZERO_MESSAGE);
+        }
+
+        return subtract(Fraction.getFraction(numerator, denominator));
     }
 
     /**

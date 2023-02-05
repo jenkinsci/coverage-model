@@ -10,6 +10,7 @@ import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -33,7 +34,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
-    private static final String EMPTY_NAME = "-";
+    static final String EMPTY_NAME = "-";
     private static final String SLASH = "/";
     static final String ROOT = "^";
 
@@ -84,8 +85,8 @@ public abstract class Node implements Serializable {
      *         the human-readable name of the node
      */
     protected Node(final Metric metric, final String name) {
-        Ensure.that(Metric.isNodeMetric(metric))
-                .isTrue("Cannot create a node with a value metric");
+        Ensure.that(metric.isContainer()).isTrue("Cannot create a container node with a value metric");
+
         this.metric = metric;
         this.name = name;
     }
@@ -151,6 +152,18 @@ public abstract class Node implements Serializable {
         return elements;
     }
 
+    /**
+     * Returns whether results for the specified metric are available within the tree spanned by this node.
+     *
+     * @param searchMetric
+     *         the metric to look for
+     *
+     * @return {@code true} if results for the specified metric are available, {@code false} otherwise
+     */
+    public boolean containsMetric(final Metric searchMetric) {
+        return getMetrics().contains(searchMetric);
+    }
+
     private Stream<Metric> getMetricsOfValues() {
         return values.stream().map(Value::getMetric);
     }
@@ -168,13 +181,6 @@ public abstract class Node implements Serializable {
 
         getMetricsOfValues().forEach(elements::add);
         return elements;
-    }
-
-    public List<Value> condenseValues() {
-        return getValueMetrics().stream()
-                .map(this::getValue)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
     }
 
     NavigableMap<Metric, Value> getMetricsDistribution() {
@@ -595,7 +601,7 @@ public abstract class Node implements Serializable {
             return this; // nothing to do
         }
 
-        if (!other.getMetric().equals(getMetric())) {
+        if (getMetric() != other.getMetric()) {
             throw new IllegalArgumentException(
                     String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
         }
@@ -697,13 +703,16 @@ public abstract class Node implements Serializable {
      *
      * @return the file names
      */
-    // TODO: set?
-    public List<String> getFiles() {
-        return children.stream().map(Node::getFiles).flatMap(List::stream).collect(Collectors.toList());
+    public Set<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE).stream().map(t -> (FileNode) t).collect(Collectors.toList());
+        return getAll(Metric.FILE).stream().map(FileNode.class::cast).collect(Collectors.toList());
+    }
+
+    public List<MethodNode> getAllMethodNodes() {
+        return getAll(Metric.METHOD).stream().map(MethodNode.class::cast).collect(Collectors.toList());
     }
 
     public boolean isEmpty() {

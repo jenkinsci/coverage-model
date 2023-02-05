@@ -1,11 +1,12 @@
 package edu.hm.hafner.metric;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -28,7 +29,6 @@ public final class FileNode extends Node {
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
-    private final List<Mutation> mutations = new ArrayList<>();
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -60,6 +60,7 @@ public final class FileNode extends Node {
      *
      * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
      */
+    // FIXME: Modified Lines
     @Override
     public boolean hasChangedLines() {
         return !modifiedLines.isEmpty();
@@ -197,7 +198,7 @@ public final class FileNode extends Node {
         return new TreeMap<>(indirectCoverageChanges);
     }
 
-    public SortedSet<Integer> getCoveredLines() {
+    public SortedSet<Integer> getLinesWithCoverage() {
         return new TreeSet<>(coveredPerLine.keySet());
     }
 
@@ -260,8 +261,8 @@ public final class FileNode extends Node {
     }
 
     @Override
-    public List<String> getFiles() {
-        return List.of(getPath());
+    public Set<String> getFiles() {
+        return Set.of(getPath());
     }
 
     /**
@@ -328,7 +329,7 @@ public final class FileNode extends Node {
      * @return the lines with code coverage that are part of the change set
      */
     public SortedSet<Integer> getCoveredLinesOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getCoveredLines();
+        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getChangedLines());
         return coveredDelta;
     }
@@ -339,7 +340,7 @@ public final class FileNode extends Node {
      * @return the line coverage results for lines that are part of the change set.
      */
     public List<Coverage> getCoverageOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getCoveredLines();
+        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getChangedLines());
         return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
     }
@@ -383,14 +384,6 @@ public final class FileNode extends Node {
         return missedPerLine.getOrDefault(line, 0);
     }
 
-    public void addMutation(final Mutation mutation) {
-        mutations.add(mutation);
-    }
-
-    public List<Mutation> getMutations() {
-        return Collections.unmodifiableList(mutations);
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -402,38 +395,17 @@ public final class FileNode extends Node {
         if (!super.equals(o)) {
             return false;
         }
-
         FileNode fileNode = (FileNode) o;
-
-        if (coveredPerLine != null ? !coveredPerLine.equals(fileNode.coveredPerLine)
-                : fileNode.coveredPerLine != null) {
-            return false;
-        }
-        if (missedPerLine != null ? !missedPerLine.equals(fileNode.missedPerLine) : fileNode.missedPerLine != null) {
-            return false;
-        }
-        if (modifiedLines != null ? !modifiedLines.equals(fileNode.modifiedLines) : fileNode.modifiedLines != null) {
-            return false;
-        }
-        if (indirectCoverageChanges != null ? !indirectCoverageChanges.equals(fileNode.indirectCoverageChanges)
-                : fileNode.indirectCoverageChanges != null) {
-            return false;
-        }
-        if (coverageDelta != null ? !coverageDelta.equals(fileNode.coverageDelta) : fileNode.coverageDelta != null) {
-            return false;
-        }
-        return mutations != null ? mutations.equals(fileNode.mutations) : fileNode.mutations == null;
+        return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
+                && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(modifiedLines, fileNode.modifiedLines)
+                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
+                && Objects.equals(coverageDelta, fileNode.coverageDelta);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (coveredPerLine != null ? coveredPerLine.hashCode() : 0);
-        result = 31 * result + (missedPerLine != null ? missedPerLine.hashCode() : 0);
-        result = 31 * result + (modifiedLines != null ? modifiedLines.hashCode() : 0);
-        result = 31 * result + (indirectCoverageChanges != null ? indirectCoverageChanges.hashCode() : 0);
-        result = 31 * result + (coverageDelta != null ? coverageDelta.hashCode() : 0);
-        result = 31 * result + (mutations != null ? mutations.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
+                coverageDelta);
     }
 }

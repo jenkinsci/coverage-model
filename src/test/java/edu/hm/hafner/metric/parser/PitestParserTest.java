@@ -1,9 +1,9 @@
 package edu.hm.hafner.metric.parser;
 
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
@@ -13,16 +13,57 @@ import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.*;
 
-@DefaultLocale("en")
 class PitestParserTest extends AbstractParserTest {
+    private static final String LOOKAHEAD_STREAM = "LookaheadStream.java";
+    private static final String FILTERED_LOG = "FilteredLog.java";
+
     @Override
     CoverageParser createParser() {
         return new PitestParser();
     }
 
     @Test
+    void shouldMapLineCoveragesForPainting() {
+        ModuleNode tree = readReport("mutations-codingstyle.xml");
+
+        assertThat(tree.getAllFileNodes()).extracting(FileNode::getName).containsExactly("PathUtil.java",
+                "SecureXmlParserFactory.java",
+                "TreeStringBuilder.java",
+                LOOKAHEAD_STREAM,
+                "FilteredLog.java",
+                "Ensure.java",
+                "TreeString.java",
+                "ResourceExtractor.java",
+                "PrefixLogger.java");
+        assertThat(tree.findFile(LOOKAHEAD_STREAM)).isPresent().get().satisfies(
+                file -> {
+                    assertThat(file.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                            c -> assertThat(c).hasCovered(18).hasMissed(1));
+                    assertThat(file.getLinesWithCoverage()).containsExactly(
+                            50, 55, 65, 77, 78, 79, 81, 84, 96, 97, 99, 115, 117, 119, 121, 130);
+                    assertThat(file.getCoveredCounters()).containsExactly(
+                             0, 1, 3, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1);
+                    assertThat(file.getMissedCounters()).containsExactly(
+                            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                }
+        );
+        assertThat(tree.findFile(FILTERED_LOG)).isPresent().get().satisfies(
+                file -> {
+                    assertThat(file.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                            c -> assertThat(c).hasCovered(15).hasMissed(2));
+                    assertThat(file.getLinesWithCoverage()).containsExactly(
+                            94, 96, 99, 103, 122, 124, 128, 137, 145, 146, 156, 165, 174);
+                    assertThat(file.getCoveredCounters()).containsExactly(
+                            1, 2, 1, 1, 1, 1, 0, 1, 2, 1, 1, 1, 2);
+                    assertThat(file.getMissedCounters()).containsExactly(
+                            0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0);
+                }
+        );
+    }
+
+    @Test
     void shouldConvertMutationsToTree() {
-        ModuleNode tree = readReport("/mutations.xml");
+        ModuleNode tree = readReport("mutations.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(3).extracting(Node::getName)
@@ -59,8 +100,8 @@ class PitestParserTest extends AbstractParserTest {
                 coverage -> assertThat(coverage).hasCovered(222).hasTotal(246));
 
         assertThat(tree.find(Metric.METHOD, "endElement")).isPresent().hasValueSatisfying(
-                        node -> assertThat(node.getValue(MUTATION))
-                                .isNotEmpty().get()
-                                .isInstanceOfSatisfying(Coverage.class, m -> assertThat(m).hasCovered(3).hasMissed(2)));
+                node -> assertThat(node.getValue(MUTATION))
+                        .isNotEmpty().get()
+                        .isInstanceOfSatisfying(Coverage.class, m -> assertThat(m).hasCovered(3).hasMissed(2)));
     }
 }

@@ -20,7 +20,7 @@ class MethodNodeTest extends AbstractNodeTest {
         assertThat(new MethodNode("shouldCreateMethodCoverageNode()", "(Ljava/util/Map;)V", 16))
                 .hasMetric(Metric.METHOD)
                 .hasName("shouldCreateMethodCoverageNode()")
-                //TODO .hasSignature("(Ljava/util/Map;)V")
+                .hasSignature("(Ljava/util/Map;)V")
                 .hasLineNumber(16)
                 .hasValidLineNumber();
     }

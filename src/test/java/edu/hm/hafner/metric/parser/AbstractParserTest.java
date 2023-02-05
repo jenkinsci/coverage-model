@@ -36,6 +36,6 @@ abstract class AbstractParserTest {
     @Test
     void shouldFailWhenParsingInvalidFiles() {
         assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("/empty.xml"));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
     }
 }

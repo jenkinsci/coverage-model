@@ -2,7 +2,6 @@ package edu.hm.hafner.metric.parser;
 
 import java.util.List;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -15,6 +14,7 @@ import edu.hm.hafner.metric.LinesOfCode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
+import edu.hm.hafner.metric.Percentage;
 
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
@@ -30,7 +30,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadCoberturaIssue473() {
-        Node tree = readReport("/cobertura-npe.xml");
+        Node tree = readReport("cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -51,8 +51,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.setMetric(LINE).setCovered(42).setMissed(9).build(),
                 builder.setMetric(BRANCH).setCovered(3).setMissed(1).build(),
                 new CyclomaticComplexity(8),
-                new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(8, 42 + 9)),
+                new FractionValue(COMPLEXITY_DENSITY, 8, 42 + 9),
                 new LinesOfCode(42 + 9));
     }
 
@@ -78,8 +77,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.setMetric(LINE).setCovered(61).setMissed(19).build(),
                 builder.setMetric(BRANCH).setCovered(2).setMissed(2).build(),
                 new CyclomaticComplexity(22),
-                new FractionValue(COMPLEXITY_DENSITY,
-                        Fraction.getFraction(22, 61 + 19)),
+                new FractionValue(COMPLEXITY_DENSITY, 22, 61 + 19),
                 new LinesOfCode(61 + 19));
 
         assertThat(root.getChildren()).extracting(Node::getName)
@@ -120,23 +118,20 @@ class CoberturaParserTest extends AbstractParserTest {
     private void verifyCoverageMetrics(final Node tree) {
         assertThat(getCoverage(tree, LINE))
                 .hasCovered(61)
-                .hasCoveredPercentage(Fraction.getFraction(61, 61 + 19))
+                .hasCoveredPercentage(Percentage.valueOf(61, 61 + 19))
                 .hasMissed(19)
-                .hasMissedPercentage(Fraction.getFraction(19, 61 + 19))
                 .hasTotal(61 + 19);
 
         assertThat(getCoverage(tree, BRANCH))
                 .hasCovered(2)
-                .hasCoveredPercentage(Fraction.getFraction(2, 2 + 2))
+                .hasCoveredPercentage(Percentage.valueOf(2, 2 + 2))
                 .hasMissed(2)
-                .hasMissedPercentage(Fraction.getFraction(2, 2 + 2))
                 .hasTotal(2 + 2);
 
         assertThat(getCoverage(tree, MODULE))
                 .hasCovered(1)
-                .hasCoveredPercentage(Fraction.ONE)
+                .hasCoveredPercentage(Percentage.valueOf(1, 1))
                 .hasMissed(0)
-                .hasMissedPercentage(Fraction.ZERO)
                 .hasTotal(1);
 
         assertThat(tree).hasName("-")
@@ -147,7 +142,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromCoberturaReport() {
-        Node result = readReport("/cobertura-lots-of-data.xml");
+        Node result = readReport("cobertura-lots-of-data.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(19)
                 .extracting(FileNode::getPath)
@@ -174,7 +169,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromPythonCoberturaReport() {
-        Node result = readReport("/cobertura-python.xml");
+        Node result = readReport("cobertura-python.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(1)
                 .extracting(FileNode::getPath)
@@ -187,7 +182,7 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, COMPLEXITY, COMPLEXITY_DENSITY);
 
         var fileNode = result.getAllFileNodes().get(0);
-        assertThat(fileNode.getCoveredLines())
+        assertThat(fileNode.getLinesWithCoverage())
                 .containsExactly(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
         assertThat(fileNode.getMissedCounters())
                 .containsExactly(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -196,6 +191,6 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private ModuleNode readExampleReport() {
-        return readReport("/cobertura.xml");
+        return readReport("cobertura.xml");
     }
 }
