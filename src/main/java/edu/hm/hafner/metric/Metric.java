@@ -1,13 +1,17 @@
 package edu.hm.hafner.metric;
 
 import java.util.Locale;
+import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
- * A coverage metric to identify the coverage result type.
+ * A coverage metric to identify the coverage result type. Note the enum order since the ordinal is used to sort the
+ * values for display purposes.
  *
  * @author Ullrich Hafner
  */
@@ -20,10 +24,12 @@ public enum Metric {
     CLASS(new LocOfChildrenEvaluator()),
     METHOD(new LocOfChildrenEvaluator()),
 
-    /** Values without children. */
+    /** Coverage values without children. */
     LINE(new ValuesAggregator()),
-    INSTRUCTION(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),
+    INSTRUCTION(new ValuesAggregator()),
+
+    /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
     COMPLEXITY_DENSITY(new DensityEvaluator()),
@@ -76,6 +82,20 @@ public enum Metric {
      */
     public Optional<Value> getValueFor(final Node node) {
         return evaluator.compute(node, this);
+    }
+
+    public static NavigableSet<Metric> getCoverageMetrics() {
+        return new TreeSet<>(Set.of(
+                Metric.CONTAINER,
+                Metric.MODULE,
+                Metric.PACKAGE,
+                Metric.FILE,
+                Metric.CLASS,
+                Metric.METHOD,
+                Metric.LINE,
+                Metric.BRANCH,
+                Metric.INSTRUCTION
+        ));
     }
 
     private abstract static class MetricEvaluator {

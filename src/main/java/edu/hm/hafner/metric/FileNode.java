@@ -26,7 +26,7 @@ public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
-    private final SortedSet<Integer> changedLines = new TreeSet<>();
+    private final SortedSet<Integer> modifiedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
@@ -45,14 +45,14 @@ public final class FileNode extends Node {
         var file = new FileNode(getName());
         file.coveredPerLine.putAll(coveredPerLine);
         file.missedPerLine.putAll(missedPerLine);
-        file.changedLines.addAll(changedLines);
+        file.modifiedLines.addAll(modifiedLines);
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
         file.coverageDelta.putAll(coverageDelta);
         return file;
     }
 
     public SortedSet<Integer> getChangedLines() {
-        return changedLines;
+        return modifiedLines;
     }
 
     /**
@@ -63,7 +63,7 @@ public final class FileNode extends Node {
     // FIXME: Modified Lines
     @Override
     public boolean hasChangedLines() {
-        return !changedLines.isEmpty();
+        return !modifiedLines.isEmpty();
     }
 
     /**
@@ -75,21 +75,21 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
      */
     public boolean hasChangedLine(final int line) {
-        return changedLines.contains(line);
+        return modifiedLines.contains(line);
     }
 
     /**
-     * Mark a specific line as being changed.
+     * Mark a specific line as being modified.
      *
      * @param line
-     *         the changed code line
+     *         the modified code line
      */
-    public void addChangedLine(final int line) {
-        changedLines.add(line);
+    public void addModifiedLine(final int line) {
+        modifiedLines.add(line);
     }
 
     @Override
-    protected Optional<Node> filterByChanges() {
+    protected Optional<Node> filterByModifiedLines() {
         if (!hasCoveredLinesInChangeSet()) {
             return Optional.empty();
         }
@@ -111,16 +111,23 @@ public final class FileNode extends Node {
             }
             else {
                 var branchCoveredAsLine = covered > 0 ? 1 : 0;
-                lineCoverage = lineCoverage.add(lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
+                lineCoverage = lineCoverage.add(
+                        lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
-            copy.addChangedLine(line);
+            copy.addModifiedLine(line);
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
         return Optional.of(copy);
     }
 
-    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage, final Coverage branchCoverage) {
+    @Override
+    protected Optional<Node> filterByModifiedFiles() {
+        return hasCoveredLinesInChangeSet() ? Optional.of(copyTree()) : Optional.empty();
+    }
+
+    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage,
+            final Coverage branchCoverage) {
         if (lineCoverage.isSet()) {
             copy.addValue(lineCoverage);
         }
@@ -239,7 +246,7 @@ public final class FileNode extends Node {
             var covered = getCoveredOfLine(line);
             var missed = getMissedOfLine(line);
             if (covered + missed > 1) {
-                return new CoverageBuilder().setMetric(Metric.LINE)
+                return new CoverageBuilder().setMetric(Metric.BRANCH)
                         .setCovered(covered)
                         .setMissed(missed)
                         .build();
@@ -284,36 +291,36 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the coverage percentage for changed code lines (for the specified metric).
+     * Returns the coverage percentage for modified code lines (for the specified metric).
      *
      * @param metric
      *         the metric to check
      *
-     * @return the coverage percentage for changed code lines
+     * @return the coverage percentage for modified code lines
      */
-    public Fraction getChangeCoverage(final Metric metric) {
+    public Fraction getModifiedLinesCoverage(final Metric metric) {
         return coverageDelta.getOrDefault(metric, Fraction.ZERO);
     }
 
     /**
-     * Returns whether this file has coverage results for changed code lines (for the specified metric).
+     * Returns whether this file has coverage results for modified code lines (for the specified metric).
      *
      * @param metric
      *         the metric to check
      *
-     * @return {@code true} has coverage results for changed code lines, {@code false} otherwise
+     * @return {@code true} has coverage results for modified code lines, {@code false} otherwise
      */
-    public boolean hasChangeCoverage(final Metric metric) {
+    public boolean hasModifiedLinesCoverage(final Metric metric) {
         return coverageDelta.containsKey(metric);
     }
 
     /**
      * Returns whether this file has coverage results for ch    anged code lines.
      *
-     * @return {@code true} if this file has coverage results for changed code lines, {@code false} otherwise
+     * @return {@code true} if this file has coverage results for modified code lines, {@code false} otherwise
      */
-    public boolean hasChangeCoverage() {
-        return hasChangeCoverage(Metric.LINE) || hasChangeCoverage(Metric.BRANCH);
+    public boolean hasModifiedLinesCoverage() {
+        return hasModifiedLinesCoverage(Metric.LINE) || hasModifiedLinesCoverage(Metric.BRANCH);
     }
 
     /**
@@ -389,15 +396,16 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-        return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
-                fileNode.missedPerLine) && Objects.equals(changedLines, fileNode.changedLines)
+        return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
+                && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(modifiedLines, fileNode.modifiedLines)
                 && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
                 && Objects.equals(coverageDelta, fileNode.coverageDelta);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, changedLines, indirectCoverageChanges,
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
                 coverageDelta);
     }
 }

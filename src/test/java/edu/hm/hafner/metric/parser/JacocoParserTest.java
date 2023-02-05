@@ -56,8 +56,8 @@ class JacocoParserTest extends AbstractParserTest {
                 builder.setMetric(CLASS).setCovered(15).setMissed(3).build(),
                 builder.setMetric(METHOD).setCovered(97).setMissed(5).build(),
                 builder.setMetric(LINE).setCovered(294).setMissed(29).build(),
-                builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
                 builder.setMetric(BRANCH).setCovered(109).setMissed(7).build(),
+                builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
                 new CyclomaticComplexity(160),
                 new FractionValue(COMPLEXITY_DENSITY, 160, 294 + 29),
                 new LinesOfCode(294 + 29));

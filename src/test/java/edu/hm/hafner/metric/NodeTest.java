@@ -576,7 +576,7 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateEmptyChangeCoverageTreeWithoutChanges() {
+    void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
         assertThat(tree.filterChanges())
@@ -589,7 +589,7 @@ class NodeTest {
     }
 
     @Test
-    void shouldCreateChangeCoverageTree() {
+    void shouldCreateModifiedLinesCoverageTree() {
         Node tree = createTreeWithoutCoverage();
 
         var node = tree.find(FILE, COVERED_FILE);
@@ -610,6 +610,46 @@ class NodeTest {
                             builder.setMetric(Metric.LINE).setCovered(2).setMissed(2).build());
                     assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
                             builder.setMetric(Metric.BRANCH).setCovered(4).setMissed(4).build());
+                });
+    }
+
+    @Test
+    void shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges() {
+        Node tree = createTreeWithoutCoverage();
+
+        assertThat(tree.filterByModifiedFilesCoverage())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasNoChildren()
+                .hasNoValues();
+    }
+
+    @Test
+    void shouldCreateModifiedFilesCoverageTree() {
+        Node tree = createTreeWithoutCoverage();
+
+        var node = tree.find(FILE, COVERED_FILE);
+        assertThat(node).isPresent().containsInstanceOf(FileNode.class);
+
+        var fileNode = (FileNode) node.get();
+        registerCoverageWithoutChange(fileNode);
+        registerCodeChangesAndCoverage(fileNode);
+
+        assertThat(tree.filterByModifiedFilesCoverage())
+                .isNotSameAs(tree)
+                .hasName(tree.getName())
+                .hasPath(tree.getPath())
+                .hasMetric(tree.getMetric())
+                .hasFiles("coverage/" + COVERED_FILE)
+                .satisfies(root -> {
+                    assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
+                    var builder = new CoverageBuilder();
+                    assertThat(root.getValue(LINE)).isNotEmpty().contains(
+                            builder.setMetric(Metric.LINE).setCovered(4).setMissed(4).build());
+                    assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
+                            builder.setMetric(Metric.BRANCH).setCovered(8).setMissed(8).build());
                 });
     }
 
@@ -651,10 +691,10 @@ class NodeTest {
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {
-        file.addChangedLine(10);
-        file.addChangedLine(11);
-        file.addChangedLine(12);
-        file.addChangedLine(13);
+        file.addModifiedLine(10);
+        file.addModifiedLine(11);
+        file.addModifiedLine(12);
+        file.addModifiedLine(13);
 
         var method = new MethodNode("aMethod", "{}");
         var builder = new CoverageBuilder().setMetric(Metric.LINE);
@@ -667,6 +707,23 @@ class NodeTest {
         builder.setMetric(Metric.BRANCH);
         file.addCounters(11, 0, 4);
         file.addCounters(12, 4, 0);
+        method.addValue(builder.setCovered(4).setMissed(4).build());
+
+        file.addChild(method);
+    }
+
+    private void registerCoverageWithoutChange(final FileNode file) {
+        var method = new MethodNode("bMethod", "{}");
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+        file.addCounters(15, 1, 0);
+        file.addCounters(16, 0, 1);
+        file.addCounters(17, 1, 0);
+        file.addCounters(18, 0, 1);
+        method.addValue(builder.setCovered(2).setMissed(2).build());
+
+        builder.setMetric(Metric.BRANCH);
+        file.addCounters(16, 0, 4);
+        file.addCounters(17, 4, 0);
         method.addValue(builder.setCovered(4).setMissed(4).build());
 
         file.addChild(method);
