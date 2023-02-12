@@ -408,4 +408,15 @@ public final class FileNode extends Node {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
                 coverageDelta);
     }
+
+    public ClassNode createClassNode(final String className) {
+        var classNode = new ClassNode(className);
+        addChild(classNode);
+        return classNode;
+    }
+
+    public ClassNode findOrCreateClassNode(final String className) {
+        return findClass(className).orElseGet(() -> createClassNode(className));
+    }
+
 }

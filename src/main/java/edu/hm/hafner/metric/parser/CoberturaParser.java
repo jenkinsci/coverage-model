@@ -10,7 +10,6 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.hm.hafner.metric.ClassNode;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CyclomaticComplexity;
@@ -19,7 +18,6 @@ import edu.hm.hafner.metric.MethodNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
-import edu.hm.hafner.metric.PackageNode;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
@@ -54,13 +52,13 @@ public class CoberturaParser extends CoverageParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-
     /**
      * Parses the Cobertura report. The report is expected to be in XML format.
      *
      * @param reader
      *         the reader to wrap
      */
+    // FIXME: Do we need a logger?
     @Override
     public ModuleNode parse(final Reader reader) {
         try {
@@ -96,7 +94,7 @@ public class CoberturaParser extends CoverageParser {
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
             final StartElement startElement) throws XMLStreamException {
         var packageName = getValueOf(startElement, NAME);
-        var packageNode = root.findPackage(packageName).orElseGet(() -> createPackage(root, packageName));
+        var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -105,33 +103,12 @@ public class CoberturaParser extends CoverageParser {
                 var element = event.asStartElement();
                 if (CLASS.equals(element.getName())) {
                     var fileName = getValueOf(event.asStartElement(), FILE_NAME);
-                    var file = packageNode.findFile(fileName).orElseGet(() -> createFile(packageNode, fileName));
+                    var file = packageNode.findOrCreateFileNode(fileName);
 
                     readClassOrMethod(reader, file, event.asStartElement());
                 }
             }
         }
-    }
-
-    private ClassNode createClass(final FileNode fileNode, final String className) {
-        // TODO: move to file node
-        var classNode = new ClassNode(className);
-        fileNode.addChild(classNode);
-        return classNode;
-    }
-
-    private FileNode createFile(final PackageNode packageNode, final String fileName) {
-        // TODO: move to package node
-        var fileNode = new FileNode(fileName);
-        packageNode.addChild(fileNode);
-        return fileNode;
-    }
-
-    private PackageNode createPackage(final ModuleNode moduleNode, final String fileName) {
-        // TODO: move to module node
-        var packageNode = new PackageNode(fileName);
-        moduleNode.addChild(packageNode);
-        return packageNode;
     }
 
     private Node readClassOrMethod(final XMLEventReader reader, final FileNode file,
@@ -142,13 +119,7 @@ public class CoberturaParser extends CoverageParser {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
-        Node node;
-        if (CLASS.equals(parentElement.getName())) {
-            node = createClass(file, getValueOf(parentElement, NAME)); // connect the class with the file
-        }
-        else {
-            node = new MethodNode(getValueOf(parentElement, NAME), getValueOf(parentElement, SIGNATURE));
-        }
+        Node node = createNode(file, parentElement);
         getOptionalValueOf(parentElement, COMPLEXITY).ifPresent(
                 c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
@@ -192,6 +163,16 @@ public class CoberturaParser extends CoverageParser {
             }
         }
         throw new ParsingException("Unexpected end of file");
+    }
+
+    private Node createNode(final FileNode file, final StartElement parentElement) {
+        var name = getValueOf(parentElement, NAME);
+        if (CLASS.equals(parentElement.getName())) {
+            return file.createClassNode(name); // connect the class with the file
+        }
+        else {
+            return new MethodNode(name, getValueOf(parentElement, SIGNATURE));
+        }
     }
 
     private int getIntegerOf(final StartElement nextElement, final QName attributeName) {

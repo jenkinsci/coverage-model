@@ -26,7 +26,7 @@ class JacocoParserTest extends AbstractParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 
     @Override
-    XmlParser createParser() {
+    CoverageParser createParser() {
         return new JacocoParser();
     }
 

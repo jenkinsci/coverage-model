@@ -142,4 +142,14 @@ public final class ModuleNode extends Node {
     public String toString() {
         return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSources());
     }
+
+    public PackageNode createPackageNode(final String packageName) {
+        var fileNode = new PackageNode(packageName);
+        addChild(fileNode);
+        return fileNode;
+    }
+
+    public PackageNode findOrCreatePackageNode(final String packageName) {
+        return findPackage(packageName).orElseGet(() -> createPackageNode(packageName));
+    }
 }

@@ -15,7 +15,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.metric.ClassNode;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.FileNode;
@@ -25,8 +24,6 @@ import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Mutation;
 import edu.hm.hafner.metric.MutationStatus;
 import edu.hm.hafner.metric.Mutator;
-import edu.hm.hafner.metric.Node;
-import edu.hm.hafner.metric.PackageNode;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
@@ -121,7 +118,7 @@ public class PitestParser extends CoverageParser {
         var coveredLines = collectLines(List.of(methodNode), Mutation::isCovered);
         var missedLines = collectLines(List.of(methodNode), Mutation::isMissed);
         if (new HashSet<>(coveredLines).removeAll(missedLines)) {
-            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check?
+            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check before going live?
         }
         var builder = new CoverageBuilder(Metric.LINE);
         methodNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
@@ -250,14 +247,14 @@ public class PitestParser extends CoverageParser {
             this.mutatedMethodSignature = mutatedMethodSignature;
         }
 
-        private void build(final Node root) {
+        private void build(final ModuleNode root) {
             String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
             String className = StringUtils.substringAfterLast(mutatedClass, ".");
-            var packageNode = root.findPackage(packageName).orElseGet(() -> createPackageNode(root, packageName));
-            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> createFileNode(packageNode, sourceFile));
-            var classNode = fileNode.findClass(className).orElseGet(() -> createClassNode(fileNode, className));
+            var packageNode = root.findPackage(packageName).orElseGet(() -> root.createPackageNode(packageName));
+            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> packageNode.createFileNode(sourceFile));
+            var classNode = fileNode.findClass(className).orElseGet(() -> fileNode.createClassNode(className));
             var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
-                    .orElseGet(() -> createMethodNode(classNode, mutatedMethod, mutatedMethodSignature));
+                    .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 
             var coverage = methodNode.getValue(Metric.MUTATION)
                     .map(Coverage.class::cast)
@@ -272,30 +269,6 @@ public class PitestParser extends CoverageParser {
             methodNode.replaceValue(builder.build());
             methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
                     mutatedClass, mutatedMethod, mutatedMethodSignature, description));
-        }
-
-        private PackageNode createPackageNode(final Node root, final String packageName) {
-            var fileNode = new PackageNode(packageName);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private FileNode createFileNode(final Node root, final String fileName) {
-            var fileNode = new FileNode(fileName);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private ClassNode createClassNode(final Node root, final String className) {
-            var fileNode = new ClassNode(className);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private MethodNode createMethodNode(final Node root, final String methodName, final String signature) {
-            var fileNode = new MethodNode(methodName, signature);
-            root.addChild(fileNode);
-            return fileNode;
         }
     }
 }

@@ -78,4 +78,14 @@ public final class PackageNode extends Node {
     public String toString() {
         return String.format("[%s] %s (%s) <%d>", getMetric(), getName(), getPath(), getChildren().size());
     }
+
+    public FileNode createFileNode(final String fileName) {
+        var fileNode = new FileNode(fileName);
+        addChild(fileNode);
+        return fileNode;
+    }
+
+    public FileNode findOrCreateFileNode(final String fileName) {
+        return findFile(fileName).orElseGet(() -> createFileNode(fileName));
+    }
 }

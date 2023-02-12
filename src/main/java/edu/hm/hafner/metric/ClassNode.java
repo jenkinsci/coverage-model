@@ -20,4 +20,10 @@ public final class ClassNode extends Node {
     public ClassNode copy() {
         return new ClassNode(getName());
     }
+
+    public MethodNode createMethodNode(final String methodName, final String signature) {
+        var fileNode = new MethodNode(methodName, signature);
+        addChild(fileNode);
+        return fileNode;
+    }
 }
