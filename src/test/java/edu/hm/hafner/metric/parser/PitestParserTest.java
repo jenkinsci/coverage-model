@@ -3,6 +3,7 @@ package edu.hm.hafner.metric.parser;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.metric.Coverage;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;

@@ -51,7 +51,7 @@ public enum Mutator {
      */
     public static Mutator fromPath(final String mutatorPath) {
         for (Mutator mutator : values()) {
-            if ((mutator.path).equals(mutatorPath)) {
+            if (mutator.path.equals(mutatorPath)) {
                 return mutator;
             }
         }

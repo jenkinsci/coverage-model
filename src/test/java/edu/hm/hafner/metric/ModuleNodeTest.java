@@ -23,7 +23,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldSplitPackagesWithoutPackageNodes() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
@@ -35,7 +35,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldSplitPackagesWithoutName() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
@@ -51,7 +51,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldSplitPackagesIntoHierarchy() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         assertThat(root.getAll(PACKAGE)).isEmpty();
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
@@ -68,7 +68,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldDetectExistingPackagesOnSplit() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         Node eduPackage = new PackageNode("edu");
         Node differentPackage = new PackageNode("org");
 
@@ -97,12 +97,11 @@ class ModuleNodeTest extends AbstractNodeTest {
                 edu -> assertThat(edu.getName()).isEqualTo("edu"));
 
         assertThat(root.getValue(LINE)).contains(builder.setCovered(20).setMissed(10).build());
-
     }
 
     @Test
     void shouldKeepNodesAfterSplitting() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         Node pkg = new PackageNode("edu.hm.hafner");
         Node file = new FileNode("HelloWorld.java");
 
@@ -116,7 +115,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldNotMergeWhenDifferentMetric() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
         Node pkg = new PackageNode("edu.hm.hafner");
         Node file = new FileNode("Helicopter.java");
 

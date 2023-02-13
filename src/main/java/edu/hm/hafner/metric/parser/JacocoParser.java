@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.metric.ClassNode;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
@@ -20,6 +21,7 @@ import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
 import edu.hm.hafner.metric.PackageNode;
 import edu.hm.hafner.metric.Value;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
@@ -49,22 +51,21 @@ public class JacocoParser extends CoverageParser {
     /** Implied attributes of the XML elements. */
     private static final QName SOURCE_FILE_NAME = new QName("sourcefilename");
     private static final QName LINE = new QName("line");
-    private static final QName MISSED_INSTRUCTIONS = new QName("mi");
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
     private static final QName MISSED_BRANCHES = new QName("mb");
     private static final QName COVERED_BRANCHED = new QName("cb");
 
     /**
-     * Parses the PIT report. The report is expected to be in XML format.
+     * Parses the JaCoCo report. The report is expected to be in XML format.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader) {
+    public ModuleNode parse(final Reader reader, final FilteredLog log) {
         try {
-            SecureXmlParserFactory factory = new SecureXmlParserFactory();
-            XMLEventReader eventReader = factory.createXmlEventReader(reader);
+            var factory = new SecureXmlParserFactory();
+            var eventReader = factory.createXmlEventReader(reader);
 
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
@@ -110,10 +111,9 @@ public class JacocoParser extends CoverageParser {
         throw new ParsingException("Unexpected end of file");
     }
 
-    private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root,
-            final StartElement startElement) throws XMLStreamException {
-        var packageName = getValueOf(startElement, NAME);
-        var packageNode = root.findOrCreatePackageNode(packageName);
+    private PackageNode readPackage(final XMLEventReader reader,
+            final ModuleNode root, final StartElement startElement) throws XMLStreamException {
+        var packageNode = root.findOrCreatePackageNode(getValueOf(startElement, NAME));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -121,10 +121,10 @@ public class JacocoParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    readClass(reader, packageNode, event.asStartElement());
+                    readClass(reader, packageNode, nextElement);
                 }
                 else if (SOURCE_FILE.equals(nextElement.getName())) {
-                    readSourceFile(reader, packageNode, event.asStartElement());
+                    readSourceFile(reader, packageNode, nextElement);
                 }
                 else if (COUNTER.equals(startElement.getName())) {
                     readValueCounter(packageNode, startElement);
@@ -198,7 +198,6 @@ public class JacocoParser extends CoverageParser {
     private void readLine(final FileNode fileNode, final StartElement startElement)  {
         int lineNumber = Integer.parseInt(getValueOf(startElement, LINE_NUMBER));
         int coveredInstructions = Integer.parseInt(getValueOf(startElement, COVERED_INSTRUCTIONS));
-        int missedInstructions = Integer.parseInt(getValueOf(startElement, MISSED_INSTRUCTIONS));
         int coveredBranches = Integer.parseInt(getValueOf(startElement, COVERED_BRANCHED));
         int missedBranches = Integer.parseInt(getValueOf(startElement, MISSED_BRANCHES));
 

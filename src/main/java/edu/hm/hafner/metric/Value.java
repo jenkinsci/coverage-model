@@ -95,8 +95,6 @@ public abstract class Value implements Serializable {
                         return new CyclomaticComplexity(Integer.parseInt(value));
                     case LOC:
                         return new LinesOfCode(Integer.parseInt(value));
-                    default:
-                        throw new IllegalStateException(String.format("Metric %s is not supported yet", metric));
                 }
             }
         }

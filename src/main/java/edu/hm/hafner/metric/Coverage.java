@@ -6,6 +6,8 @@ import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -288,6 +290,7 @@ public final class Coverage extends Value {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageBuilder setMetric(final Metric metric) {
             this.metric = metric;
             return this;
@@ -301,6 +304,7 @@ public final class Coverage extends Value {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageBuilder setTotal(final int total) {
             this.total = total;
             isTotalSet = true;
@@ -315,6 +319,7 @@ public final class Coverage extends Value {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageBuilder setCovered(final int covered) {
             Ensure.that(covered >= 0).isTrue("No negative values allowed for covered items: %s", covered);
 
@@ -331,6 +336,7 @@ public final class Coverage extends Value {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageBuilder setMissed(final int missed) {
             Ensure.that(missed >= 0).isTrue("No negative values allowed for missed items: %s", missed);
 

@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import com.google.errorprone.annotations.Immutable;
+
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
@@ -98,6 +100,7 @@ public enum Metric {
         ));
     }
 
+    @Immutable
     private abstract static class MetricEvaluator {
         abstract Optional<Value> compute(Node node, Metric searchMetric);
 

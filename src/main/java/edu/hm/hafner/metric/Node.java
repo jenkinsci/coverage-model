@@ -596,6 +596,7 @@ public abstract class Node implements Serializable {
      * @throws IllegalArgumentException
      *         if this root node is not compatible to the {@code other} root node
      */
+    @SuppressWarnings("ReferenceEquality")
     public Node combineWith(final Node other) {
         if (other == this) {
             return this; // nothing to do

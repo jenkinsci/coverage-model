@@ -6,18 +6,19 @@ import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
@@ -56,14 +57,14 @@ public class CoberturaParser extends CoverageParser {
      * Parses the Cobertura report. The report is expected to be in XML format.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader to read the report from
      */
-    // FIXME: Do we need a logger?
     @Override
-    public ModuleNode parse(final Reader reader) {
+    public ModuleNode parse(final Reader reader, final FilteredLog log) {
         try {
-            SecureXmlParserFactory factory = new SecureXmlParserFactory();
-            XMLEventReader eventReader = factory.createXmlEventReader(reader);
+            var factory = new SecureXmlParserFactory();
+            var eventReader = factory.createXmlEventReader(reader);
+
             var root = new ModuleNode("-");
             boolean isEmpty = true;
             while (eventReader.hasNext()) {
@@ -75,7 +76,7 @@ public class CoberturaParser extends CoverageParser {
                     if (SOURCE.equals(tagName)) {
                         readSource(eventReader, root);
                     }
-                    else if (PACKAGE.equals(startElement.getName())) {
+                    else if (PACKAGE.equals(tagName)) {
                         readPackage(eventReader, root, startElement);
                         isEmpty = false;
                     }
@@ -92,26 +93,24 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
-            final StartElement startElement) throws XMLStreamException {
-        var packageName = getValueOf(startElement, NAME);
-        var packageNode = root.findOrCreatePackageNode(packageName);
+            final StartElement currentStartElement) throws XMLStreamException {
+        var packageNode = root.findOrCreatePackageNode(getValueOf(currentStartElement, NAME));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                var element = event.asStartElement();
-                if (CLASS.equals(element.getName())) {
-                    var fileName = getValueOf(event.asStartElement(), FILE_NAME);
-                    var file = packageNode.findOrCreateFileNode(fileName);
+                var nextElement = event.asStartElement();
+                if (CLASS.equals(nextElement.getName())) {
+                    var fileNode = packageNode.findOrCreateFileNode(getValueOf(nextElement, FILE_NAME));
 
-                    readClassOrMethod(reader, file, event.asStartElement());
+                    readClassOrMethod(reader, fileNode, nextElement);
                 }
             }
         }
     }
 
-    private Node readClassOrMethod(final XMLEventReader reader, final FileNode file,
+    private Node readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final StartElement parentElement) throws XMLStreamException {
         var lineCovered = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
         var lineMissed = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
@@ -119,9 +118,9 @@ public class CoberturaParser extends CoverageParser {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
-        Node node = createNode(file, parentElement);
-        getOptionalValueOf(parentElement, COMPLEXITY).ifPresent(
-                c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
+        Node node = createNode(fileNode, parentElement);
+        getOptionalValueOf(parentElement, COMPLEXITY)
+                .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -129,7 +128,7 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    int lineNumber = getIntegerOf(nextElement, NUMBER);
+                    int lineNumber = getIntegerValueOf(nextElement, NUMBER);
 
                     Coverage coverage;
                     if (isBranchCoverage(nextElement)) {
@@ -137,17 +136,17 @@ public class CoberturaParser extends CoverageParser {
                         branchCoverage = branchCoverage.add(coverage);
                     }
                     else {
-                        int lineHits = getIntegerOf(nextElement, HITS);
+                        int lineHits = getIntegerValueOf(nextElement, HITS);
                         coverage = lineHits > 0 ? lineCovered : lineMissed;
                         lineCoverage = lineCoverage.add(coverage);
                     }
 
                     if (CLASS.equals(parentElement.getName())) { // Counters are stored at file level
-                        file.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
+                        fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
-                    Node methodNode = readClassOrMethod(reader, file, nextElement);
+                    Node methodNode = readClassOrMethod(reader, fileNode, nextElement);
                     node.addChild(methodNode);
                 }
             }
@@ -175,15 +174,6 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private int getIntegerOf(final StartElement nextElement, final QName attributeName) {
-        try {
-            return parseInteger(getValueOf(nextElement, attributeName));
-        }
-        catch (NumberFormatException ignore) {
-            return 0;
-        }
-    }
-
     private int readComplexity(final String c) {
         try {
             return Math.round(Float.parseFloat(c)); // some reports use float values
@@ -194,11 +184,9 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private boolean isBranchCoverage(final StartElement line) {
-        Attribute branchAttribute = line.getAttributeByName(BRANCH);
-        if (branchAttribute != null) {
-            return Boolean.parseBoolean(branchAttribute.getValue());
-        }
-        return false;
+        return getOptionalValueOf(line, BRANCH)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
     }
 
     private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
@@ -228,15 +216,5 @@ public class CoberturaParser extends CoverageParser {
                     .build();
         }
         return Coverage.nullObject(Metric.BRANCH);
-
-    }
-
-    private int parseInteger(final String value) {
-        try {
-            return Integer.parseInt(value);
-        }
-        catch (NumberFormatException ignore) {
-            return 0;
-        }
     }
 }

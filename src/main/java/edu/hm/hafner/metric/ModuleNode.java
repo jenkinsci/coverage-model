@@ -67,8 +67,8 @@ public final class ModuleNode extends Node {
      * </ul>
      */
     public void splitPackages() {
-        List<Node> allPackages = getChildren().stream()
-                .filter(child -> Metric.PACKAGE.equals(child.getMetric()))
+        var allPackages = getChildren().stream()
+                .filter(child -> child.getMetric().equals(Metric.PACKAGE))
                 .collect(Collectors.toList());
         allPackages.forEach(this::removeChild);
         for (Node packageNode : allPackages) {
@@ -92,12 +92,6 @@ public final class ModuleNode extends Node {
         }
     }
 
-    private PackageNode createPackageNode(final String subPackage, final List<Value> existingValues) {
-        var packageNode = new PackageNode(subPackage);
-        packageNode.addAllValues(existingValues);
-        return packageNode;
-    }
-
     private void mergeSinglePackage(final Node packageNode) {
         for (Node existing : getChildren()) {
             if (isEqual(packageNode, existing)) {
@@ -116,6 +110,40 @@ public final class ModuleNode extends Node {
     private static boolean isEqual(final Node packageNode, final Node existing) {
         return existing.getMetric().equals(packageNode.getMetric())
                 && existing.getName().equals(packageNode.getName());
+    }
+
+    private PackageNode createPackageNode(final String subPackage, final List<Value> existingValues) {
+        var packageNode = new PackageNode(subPackage);
+        packageNode.addAllValues(existingValues);
+        return packageNode;
+    }
+
+    /**
+     * Create a new package node with the given name and add it to the list of children.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the created and linked package node
+     */
+    public PackageNode createPackageNode(final String packageName) {
+        var packageNode = new PackageNode(packageName);
+        addChild(packageNode);
+        return packageNode;
+    }
+
+    /**
+     * Searches for the specified package. If the package is not found then a new package will be created and linked to
+     * this module.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the created and linked package node
+     * @see #createPackageNode(String)
+     */
+    public PackageNode findOrCreatePackageNode(final String packageName) {
+        return findPackage(packageName).orElseGet(() -> createPackageNode(packageName));
     }
 
     @Override
@@ -141,15 +169,5 @@ public final class ModuleNode extends Node {
     @Override
     public String toString() {
         return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSources());
-    }
-
-    public PackageNode createPackageNode(final String packageName) {
-        var fileNode = new PackageNode(packageName);
-        addChild(fileNode);
-        return fileNode;
-    }
-
-    public PackageNode findOrCreatePackageNode(final String packageName) {
-        return findPackage(packageName).orElseGet(() -> createPackageNode(packageName));
     }
 }

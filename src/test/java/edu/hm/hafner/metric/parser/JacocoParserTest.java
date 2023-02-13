@@ -8,6 +8,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;

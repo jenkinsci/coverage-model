@@ -12,7 +12,6 @@ import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
 import static edu.hm.hafner.metric.assertions.Assertions.assertThat;
-import static edu.hm.hafner.metric.assertions.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -28,7 +27,7 @@ class NodeTest {
 
     @Test
     void shouldHandleNonExistingParent() {
-        ModuleNode root = new ModuleNode("Root");
+        var root = new ModuleNode("Root");
 
         assertThat(root).doesNotHaveParent();
         assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(root::getParent)
@@ -38,10 +37,10 @@ class NodeTest {
 
     @Test
     void shouldReturnParentOfNodeAndItsName() {
-        ModuleNode parent = new ModuleNode("Parent");
-        Node child = new PackageNode("Child");
-        Node subPackage = new PackageNode("SubPackage");
-        Node subSubPackage = new PackageNode("SubSubPackage");
+        var parent = new ModuleNode("Parent");
+        var child = new PackageNode("Child");
+        var subPackage = new PackageNode("SubPackage");
+        var subSubPackage = new PackageNode("SubSubPackage");
 
         parent.addChild(child);
         child.addChild(subPackage);
@@ -58,9 +57,9 @@ class NodeTest {
 
     @Test
     void shouldReturnCorrectChildNodes() {
-        ModuleNode parent = new ModuleNode("Parent");
-        Node child1 = new PackageNode("ChildOne");
-        Node child2 = new PackageNode("ChildTwo");
+        var parent = new ModuleNode("Parent");
+        var child1 = new PackageNode("ChildOne");
+        var child2 = new PackageNode("ChildTwo");
 
         assertThat(parent).hasNoChildren();
 
@@ -74,9 +73,9 @@ class NodeTest {
 
     @Test
     void shouldReturnCorrectPathInBaseClass() {
-        ModuleNode root = new ModuleNode("Root");
-        FileNode child = new FileNode("Child");
-        ClassNode childOfChild = new ClassNode("ChildOfChild");
+        var root = new ModuleNode("Root");
+        var child = new FileNode("Child");
+        var childOfChild = new ClassNode("ChildOfChild");
 
         root.addChild(child);
         child.addChild(childOfChild);
@@ -89,10 +88,10 @@ class NodeTest {
 
     @Test
     void shouldPrintAllMetricsForNodeAndChildNodes() {
-        Node parent = new ModuleNode("Parent");
-        Node child1 = new PackageNode("ChildOne");
-        Node child2 = new PackageNode("ChildTwo");
-        Node childOfChildOne = new FileNode("ChildOfChildOne");
+        var parent = new ModuleNode("Parent");
+        var child1 = new PackageNode("ChildOne");
+        var child2 = new PackageNode("ChildTwo");
+        var childOfChildOne = new FileNode("ChildOfChildOne");
 
         parent.addChild(child1);
         parent.addChild(child2);
@@ -106,11 +105,11 @@ class NodeTest {
     void shouldCalculateDistributedMetrics() {
         var builder = new CoverageBuilder();
 
-        Node node = new ModuleNode("Node");
+        var node = new ModuleNode("Node");
 
-        Value valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
+        var valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
         node.addValue(valueOne);
-        Value valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
+        var valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
         node.addValue(valueTwo);
 
         assertThat(node.aggregateValues()).containsExactly(
@@ -127,11 +126,11 @@ class NodeTest {
         assertThat(node).hasNoValues();
 
         var builder = new CoverageBuilder();
-        Coverage leafOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
+        var leafOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
         node.addValue(leafOne);
         assertThat(node).hasOnlyValues(leafOne);
 
-        Coverage leafTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
+        var leafTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
         node.addValue(leafTwo);
         assertThat(node).hasOnlyValues(leafOne, leafTwo);
 
@@ -177,11 +176,11 @@ class NodeTest {
 
     @Test
     void shouldCalculateCorrectCoverageWithNestedStructure() {
-        Node node = new ModuleNode("Node");
-        Node missedFile = new FileNode("fileMissed");
-        Node coveredFile = new FileNode("fileCovered");
-        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var node = new ModuleNode("Node");
+        var missedFile = new FileNode("fileMissed");
+        var coveredFile = new FileNode("fileCovered");
+        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
         node.addChild(missedFile);
         node.addChild(coveredFile);
@@ -195,10 +194,10 @@ class NodeTest {
 
     @Test
     void shouldDeepCopyNodeTree() {
-        Node node = new ModuleNode("Node");
-        Node childNode = new FileNode("childNode");
-        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var node = new ModuleNode("Node");
+        var childNode = new FileNode("childNode");
+        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
         node.addValue(valueOne);
         node.addChild(childNode);
@@ -211,11 +210,11 @@ class NodeTest {
 
     @Test
     void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
-        Node node = new ModuleNode("Node");
-        Node childNode = new FileNode("childNode");
-        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        Value valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
-        Node newParent = new ModuleNode("parent");
+        var node = new ModuleNode("Node");
+        var childNode = new FileNode("childNode");
+        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var newParent = new ModuleNode("parent");
 
         node.addValue(valueOne);
         node.addChild(childNode);
@@ -227,7 +226,7 @@ class NodeTest {
 
     @Test
     void shouldDetectMatchingOfMetricTypeAndNameOrHashCode() {
-        Node node = new ModuleNode("Node");
+        var node = new ModuleNode("Node");
 
         assertThat(node.matches(MODULE, "WrongName")).isFalse();
         assertThat(node.matches(PACKAGE, "Node")).isFalse();
@@ -240,8 +239,8 @@ class NodeTest {
 
     @Test
     void shouldFindNodeByNameOrHashCode() {
-        Node node = new ModuleNode("Node");
-        Node childNode = new FileNode("childNode");
+        var node = new ModuleNode("Node");
+        var childNode = new FileNode("childNode");
         node.addChild(childNode);
 
         assertThat(node.find(BRANCH, "NotExisting")).isNotPresent();
@@ -253,9 +252,9 @@ class NodeTest {
 
     @Test
     void shouldNotAcceptIncompatibleNodes() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("edu.hm.hafner.pkg");
-        Node moduleTwo = new ModuleNode("edu.hm.hafner.module2");
+        var module = new ModuleNode("edu.hm.hafner.module1");
+        var pkg = new PackageNode("edu.hm.hafner.pkg");
+        var moduleTwo = new ModuleNode("edu.hm.hafner.module2");
 
         assertThatIllegalArgumentException()
                 .as("Should not accept incompatible nodes (different metric)")
@@ -267,14 +266,14 @@ class NodeTest {
 
     @Test
     void shouldCombineReportsOfSameModuleContainingDifferentPackages() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node sameModule = new ModuleNode("edu.hm.hafner.module1");
-        Node pkgOne = new PackageNode("coverage");
-        Node pkgTwo = new PackageNode("autograding");
+        var module = new ModuleNode("edu.hm.hafner.module1");
+        var sameModule = new ModuleNode("edu.hm.hafner.module1");
+        var pkgOne = new PackageNode("coverage");
+        var pkgTwo = new PackageNode("autograding");
 
         module.addChild(pkgOne);
         sameModule.addChild(pkgTwo);
-        Node combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.combineWith(sameModule);
 
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
@@ -283,14 +282,14 @@ class NodeTest {
 
     @Test
     void shouldCombineReportsOfSameModuleContainingSamePackage() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node sameModule = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node samePackage = new PackageNode("coverage");
+        var module = new ModuleNode("edu.hm.hafner.module1");
+        var sameModule = new ModuleNode("edu.hm.hafner.module1");
+        var pkg = new PackageNode("coverage");
+        var samePackage = new PackageNode("coverage");
 
         module.addChild(pkg);
         sameModule.addChild(samePackage);
-        Node combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.combineWith(sameModule);
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(1);
@@ -298,15 +297,15 @@ class NodeTest {
 
     @Test
     void shouldCombineReportsOfSameModuleContainingSameAndDifferentPackages() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node sameModule = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node pkgTwo = new PackageNode("autograding");
+        var module = new ModuleNode("edu.hm.hafner.module1");
+        var sameModule = new ModuleNode("edu.hm.hafner.module1");
+        var pkg = new PackageNode("coverage");
+        var pkgTwo = new PackageNode("autograding");
 
         module.addChild(pkg);
         sameModule.addChild(pkgTwo);
         sameModule.addChild(pkg.copy());
-        Node combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.combineWith(sameModule);
 
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
@@ -460,14 +459,14 @@ class NodeTest {
 
     @Test
     void shouldCorrectlyCombineTwoComplexReports() {
-        Node report = setUpNodeTree();
-        Node otherReport = setUpNodeTree();
+        var report = setUpNodeTree();
+        var otherReport = setUpNodeTree();
 
         // Difference on Package Level
-        PackageNode autograding = new PackageNode("autograding");
-        FileNode file = new FileNode("Main.java");
-        Node mainClass = new ClassNode("Main.class");
-        MethodNode mainMethod = new MethodNode("main", "(Ljava/util/Map;)V", 10);
+        var autograding = new PackageNode("autograding");
+        var file = new FileNode("Main.java");
+        var mainClass = new ClassNode("Main.class");
+        var mainMethod = new MethodNode("main", "(Ljava/util/Map;)V", 10);
 
         otherReport.addChild(autograding);
         autograding.addChild(file);
@@ -476,14 +475,14 @@ class NodeTest {
         mainMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(8).setMissed(2).build());
 
         // Difference on File Level
-        FileNode covLeavefile = new FileNode("Leaf");
-        FileNode pkgCovFile = new FileNode("HelloWorld");
+        var covLeavefile = new FileNode("Leaf");
+        var pkgCovFile = new FileNode("HelloWorld");
         covLeavefile.addChild(mainClass.copyTree());
 
         report.getAll(PACKAGE).get(0).addChild(pkgCovFile);
         otherReport.getAll(PACKAGE).get(0).addChild(covLeavefile);
 
-        Node combinedReport = report.combineWith(otherReport);
+        var combinedReport = report.combineWith(otherReport);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
         assertThat(combinedReport.getAll(FILE)).hasSize(4);
         assertThat(combinedReport.getAll(CLASS)).hasSize(3);
@@ -493,10 +492,10 @@ class NodeTest {
 
     @Test
     void shouldUseDeepCopiedNodesInCombineWithInRelatedProjects() {
-        Node project = new ModuleNode("edu.hm.hafner.module1");
-        Node sameProject = project.copyTree();
-        PackageNode coveragePkg = new PackageNode("coverage");
-        PackageNode autogradingPkg = new PackageNode("autograding");
+        var project = new ModuleNode("edu.hm.hafner.module1");
+        var sameProject = project.copyTree();
+        var coveragePkg = new PackageNode("coverage");
+        var autogradingPkg = new PackageNode("autograding");
 
         project.addChild(coveragePkg);
         sameProject.addChild(autogradingPkg);
@@ -513,11 +512,10 @@ class NodeTest {
         Node report = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
         Node file = new FileNode("Node.java");
-        Node otherReport;
 
         report.addChild(pkg);
         pkg.addChild(file);
-        otherReport = report.copyTree();
+        Node otherReport = report.copyTree();
 
         otherReport.find(FILE, file.getName()).get().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
@@ -561,8 +559,7 @@ class NodeTest {
         report.addChild(pkg);
         pkg.addChild(file);
 
-        Node otherReport;
-        otherReport = report.copyTree();
+        Node otherReport = report.copyTree();
         otherReport.find(file.getMetric(), file.getName()).get().addChild(covNodeClass);
         covNodeClass.addValue(new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
 

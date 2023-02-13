@@ -100,8 +100,8 @@ public final class FileNode extends Node {
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
         var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
         for (int line : getCoveredLinesOfChangeSet()) {
-            var covered = coveredPerLine.get(line);
-            var missed = missedPerLine.get(line);
+            var covered = coveredPerLine.getOrDefault(line, 0);
+            var missed = missedPerLine.getOrDefault(line, 0);
             copy.addCounters(line, covered, missed);
             if (covered + missed == 0) {
                 throw new IllegalArgumentException("No coverage for line " + line);
@@ -151,7 +151,7 @@ public final class FileNode extends Node {
             if (!currentCoverage.isSet()) {
                 currentCoverage = getLineCoverage(change.getKey());
             }
-            CoverageBuilder builder = new CoverageBuilder();
+            var builder = new CoverageBuilder();
             if (delta > 0) {
                 // the line is fully covered - even in case of branch coverage
                 if (delta == currentCoverage.getCovered()) {

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
 import edu.hm.hafner.metric.Metric;
@@ -24,6 +25,7 @@ import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Mutation;
 import edu.hm.hafner.metric.MutationStatus;
 import edu.hm.hafner.metric.Mutator;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
@@ -50,20 +52,18 @@ public class PitestParser extends CoverageParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
-    private static final QName INDEX = new QName("index"); // TODO: not used yet
-    private static final QName BLOCK = new QName("block"); // TODO: not used yet
-
     /**
-     * Parses a PIT XML report.
+     * Parses the PIT report. The report is expected to be in XML format.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader) {
+    public ModuleNode parse(final Reader reader, final FilteredLog log) {
         try {
-            SecureXmlParserFactory factory = new SecureXmlParserFactory();
-            XMLEventReader eventReader = factory.createXmlEventReader(reader);
+            var factory = new SecureXmlParserFactory();
+            var eventReader = factory.createXmlEventReader(reader);
+
             var root = new ModuleNode("-");
             boolean isEmpty = true;
             while (eventReader.hasNext()) {
@@ -145,7 +145,7 @@ public class PitestParser extends CoverageParser {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                readProperty(reader, builder, event.asStartElement());
+                readProperty(reader, builder);
             }
             else if (event.isEndElement()) {
                 builder.build(root);
@@ -154,7 +154,7 @@ public class PitestParser extends CoverageParser {
         }
     }
 
-    private void readProperty(final XMLEventReader reader, final MutationBuilder builder, final StartElement property)
+    private void readProperty(final XMLEventReader reader, final MutationBuilder builder)
             throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
@@ -164,7 +164,7 @@ public class PitestParser extends CoverageParser {
                 aggregatedContent.append(event.asCharacters().getData());
             }
             else if (event.isEndElement()) {
-                var content = StringUtils.strip(aggregatedContent.toString());
+                var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
                 var name = event.asEndElement().getName();
                 if (name.equals(MUTATOR)) {
                     builder.setMutator(Mutator.fromPath(content));
@@ -197,15 +197,15 @@ public class PitestParser extends CoverageParser {
 
     private static class MutationBuilder {
         private boolean isDetected;
-        private MutationStatus status;
+        private MutationStatus status = MutationStatus.NO_COVERAGE;
         private int lineNumber;
-        private Mutator mutator;
-        private String killingTest;
-        private String description;
-        private String sourceFile;
-        private String mutatedClass;
-        private String mutatedMethod;
-        private String mutatedMethodSignature;
+        private Mutator mutator = Mutator.NOT_SPECIFIED;
+        private String killingTest = StringUtils.EMPTY;
+        private String description = StringUtils.EMPTY;
+        private String sourceFile = StringUtils.EMPTY;
+        private String mutatedClass = StringUtils.EMPTY;
+        private String mutatedMethod = StringUtils.EMPTY;
+        private String mutatedMethodSignature = StringUtils.EMPTY;
 
         private void setIsDetected(final boolean isDetected) {
             this.isDetected = isDetected;

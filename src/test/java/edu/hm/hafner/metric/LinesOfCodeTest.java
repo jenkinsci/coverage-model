@@ -42,9 +42,9 @@ class LinesOfCodeTest {
 
     @Test
     void shouldComputeDelta() {
-        LinesOfCode large = new LinesOfCode(1000);
-        LinesOfCode medium = new LinesOfCode(100);
-        LinesOfCode small = new LinesOfCode(10);
+        var large = new LinesOfCode(1000);
+        var medium = new LinesOfCode(100);
+        var small = new LinesOfCode(10);
 
         assertThat(large.delta(medium)).isEqualTo(getDelta(900));
         assertThat(large.delta(small)).isEqualTo(getDelta(990));
