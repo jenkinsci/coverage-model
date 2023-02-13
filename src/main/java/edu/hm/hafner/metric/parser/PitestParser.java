@@ -154,6 +154,7 @@ public class PitestParser extends CoverageParser {
         }
     }
 
+    @SuppressWarnings("PMD.CyclomaticComplexity") // There are a lot of properties to read
     private void readProperty(final XMLEventReader reader, final MutationBuilder builder)
             throws XMLStreamException {
         var aggregatedContent = new StringBuilder();

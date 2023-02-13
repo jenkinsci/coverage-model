@@ -112,6 +112,7 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private Node readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final StartElement parentElement) throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);

@@ -266,6 +266,7 @@ public abstract class Node implements Serializable {
         child.setParent(this);
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // remove link to parent
     protected void removeChild(final Node child) {
         Ensure.that(children.contains(child)).isTrue("The node %s is not a child of this node %s", child, this);
 
