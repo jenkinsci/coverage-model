@@ -233,8 +233,7 @@ public final class Coverage extends Value {
                 for (int missed = 0; missed < CACHE_SIZE; missed++) {
                     LINE_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.LINE, covered, missed);
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
-                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
-                            missed);
+                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered, missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
                 }
             }
@@ -297,6 +296,19 @@ public final class Coverage extends Value {
         }
 
         /**
+         * Sets the metric of the coverage.
+         *
+         * @param metric
+         *         the metric of the coverage
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setMetric(final String metric) {
+            return setMetric(Metric.valueOf(metric));
+        }
+
+        /**
          * Sets the number of total items.
          *
          * @param total
@@ -309,6 +321,19 @@ public final class Coverage extends Value {
             this.total = total;
             isTotalSet = true;
             return this;
+        }
+
+        /**
+         * Sets the number of total items.
+         *
+         * @param total
+         *         the number of total items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setTotal(final String total) {
+            return setTotal(CoverageParser.parseInteger(total));
         }
 
         /**
@@ -329,6 +354,19 @@ public final class Coverage extends Value {
         }
 
         /**
+         * Sets the number of covered items.
+         *
+         * @param covered
+         *         the number of covered items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setCovered(final String covered) {
+            return setCovered(CoverageParser.parseInteger(covered));
+        }
+
+        /**
          * Sets the number of missed items.
          *
          * @param missed
@@ -343,6 +381,19 @@ public final class Coverage extends Value {
             this.missed = missed;
             isMissedSet = true;
             return this;
+        }
+
+        /**
+         * Sets the number of missed items.
+         *
+         * @param missed
+         *         the number of missed items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setMissed(final String missed) {
+            return setMissed(CoverageParser.parseInteger(missed));
         }
 
         /**

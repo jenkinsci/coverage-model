@@ -133,8 +133,8 @@ public final class ModuleNode extends Node {
     }
 
     /**
-     * Searches for the specified package. If the package is not found then a new package will be created and linked to
-     * this module.
+     * Searches for the specified package node. If the package node is not found then a new package node will be created
+     * and linked to this module.
      *
      * @param packageName
      *         the package name

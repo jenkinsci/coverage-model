@@ -33,7 +33,7 @@ public abstract class CoverageParser implements Serializable {
      */
     public abstract ModuleNode parse(Reader reader, FilteredLog log);
 
-    protected final Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
+    protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
         if (value == null) {
             return Optional.empty();
@@ -42,7 +42,7 @@ public abstract class CoverageParser implements Serializable {
         return Optional.of(value.getValue());
     }
 
-    protected int getIntegerValueOf(final StartElement element, final QName attributeName) {
+    protected static int getIntegerValueOf(final StartElement element, final QName attributeName) {
         try {
             return parseInteger(getValueOf(element, attributeName));
         }
@@ -51,18 +51,22 @@ public abstract class CoverageParser implements Serializable {
         }
     }
 
-    protected final String getValueOf(final StartElement element, final QName attribute) {
+    protected static String getValueOf(final StartElement element, final QName attribute) {
         return getOptionalValueOf(element, attribute).orElseThrow(
                 () -> new NoSuchElementException(String.format(
                         "Could not obtain attribute '%s' from element '%s'", attribute, element)));
     }
 
-    protected int parseInteger(final String value) {
+    protected static int parseInteger(final String value) {
         try {
             return Integer.parseInt(value);
         }
         catch (NumberFormatException ignore) {
             return 0;
         }
+    }
+
+    protected ParsingException createEofException() {
+        return new ParsingException("Unexpected end of file");
     }
 }

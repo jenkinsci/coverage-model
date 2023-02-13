@@ -108,7 +108,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private PackageNode readPackage(final XMLEventReader reader,
@@ -137,7 +137,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private Node readClass(final XMLEventReader reader, final PackageNode packageNode,
@@ -165,7 +165,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
@@ -192,7 +192,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private void readLine(final FileNode fileNode, final StartElement startElement)  {
@@ -238,7 +238,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private MethodNode createMethod(final StartElement startElement, final String methodName,
@@ -253,21 +253,22 @@ public class JacocoParser extends CoverageParser {
         String currentType = getValueOf(startElement, TYPE);
 
         if (StringUtils.containsAny(currentType, "LINE", "INSTRUCTION", "BRANCH", "COMPLEXITY")) {
-            var covered = Integer.parseInt(getValueOf(startElement, COVERED));
-            var missed = Integer.parseInt(getValueOf(startElement, MISSED));
-            Value value;
-            if ("COMPLEXITY".equals(currentType)) {
-                int complexity = covered + missed;
-                value = new CyclomaticComplexity(complexity);
-            }
-            else {
-                var builder = new CoverageBuilder();
-                value = builder.setMetric(Metric.valueOf(currentType))
-                        // TODO: create String setters in builder
+            var covered = getIntegerValueOf(startElement, COVERED);
+            var missed = getIntegerValueOf(startElement, MISSED);
+
+            node.addValue(createValue(currentType, covered, missed));
+        }
+    }
+
+    private Value createValue(final String currentType, final int covered, final int missed) {
+        if ("COMPLEXITY".equals(currentType)) {
+            return new CyclomaticComplexity(covered + missed);
+        }
+        else {
+            var builder = new CoverageBuilder();
+            return builder.setMetric(Metric.valueOf(currentType))
                         .setCovered(covered)
                         .setMissed(missed).build();
-            }
-            node.addValue(value);
         }
     }
 }

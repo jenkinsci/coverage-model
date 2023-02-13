@@ -39,7 +39,7 @@ public class CoberturaParser extends CoverageParser {
     private static final QName METHOD = new QName("method");
     private static final QName LINE = new QName("line");
 
-    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*(\\d+)/(\\d+)\\)");
+    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*(?<covered>\\d+)/(?<total>\\d+)\\)");
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
@@ -52,6 +52,8 @@ public class CoberturaParser extends CoverageParser {
     /** Not required attributes of the XML elements. */
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
+    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
+    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
 
     /**
      * Parses the Cobertura report. The report is expected to be in XML format.
@@ -112,9 +114,6 @@ public class CoberturaParser extends CoverageParser {
 
     private Node readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final StartElement parentElement) throws XMLStreamException {
-        var lineCovered = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
-        var lineMissed = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
-
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
@@ -128,8 +127,6 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    int lineNumber = getIntegerValueOf(nextElement, NUMBER);
-
                     Coverage coverage;
                     if (isBranchCoverage(nextElement)) {
                         coverage = readBranchCoverage(nextElement);
@@ -137,11 +134,12 @@ public class CoberturaParser extends CoverageParser {
                     }
                     else {
                         int lineHits = getIntegerValueOf(nextElement, HITS);
-                        coverage = lineHits > 0 ? lineCovered : lineMissed;
+                        coverage = lineHits > 0 ? LINE_COVERED : LINE_MISSED;
                         lineCoverage = lineCoverage.add(coverage);
                     }
 
                     if (CLASS.equals(parentElement.getName())) { // Counters are stored at file level
+                        int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                         fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
                     }
                 }
@@ -161,7 +159,7 @@ public class CoberturaParser extends CoverageParser {
                 }
             }
         }
-        throw new ParsingException("Unexpected end of file");
+        throw createEofException();
     }
 
     private Node createNode(final FileNode file, final StartElement parentElement) {
@@ -192,7 +190,7 @@ public class CoberturaParser extends CoverageParser {
     private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
-        while (true) {
+        while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
@@ -211,8 +209,8 @@ public class CoberturaParser extends CoverageParser {
         if (matcher.matches()) {
             var builder = new CoverageBuilder();
             return builder.setMetric(Metric.BRANCH)
-                    .setCovered(parseInteger(matcher.group(1)))
-                    .setTotal(parseInteger(matcher.group(2)))
+                    .setCovered(matcher.group("covered"))
+                    .setTotal(matcher.group("total"))
                     .build();
         }
         return Coverage.nullObject(Metric.BRANCH);
