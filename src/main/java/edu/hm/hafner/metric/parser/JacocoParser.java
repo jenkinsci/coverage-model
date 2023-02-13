@@ -196,10 +196,10 @@ public class JacocoParser extends CoverageParser {
     }
 
     private void readLine(final FileNode fileNode, final StartElement startElement)  {
-        int lineNumber = Integer.parseInt(getValueOf(startElement, LINE_NUMBER));
-        int coveredInstructions = Integer.parseInt(getValueOf(startElement, COVERED_INSTRUCTIONS));
-        int coveredBranches = Integer.parseInt(getValueOf(startElement, COVERED_BRANCHED));
-        int missedBranches = Integer.parseInt(getValueOf(startElement, MISSED_BRANCHES));
+        int lineNumber = getIntegerValueOf(startElement, LINE_NUMBER);
+        int coveredInstructions = getIntegerValueOf(startElement, COVERED_INSTRUCTIONS);
+        int coveredBranches = getIntegerValueOf(startElement, COVERED_BRANCHED);
+        int missedBranches = getIntegerValueOf(startElement, MISSED_BRANCHES);
 
         int missed;
         int covered;
@@ -244,7 +244,7 @@ public class JacocoParser extends CoverageParser {
     private MethodNode createMethod(final StartElement startElement, final String methodName,
             final String methodSignature) {
         return getOptionalValueOf(startElement, LINE)
-                .map(Integer::parseInt)
+                .map(CoverageParser::parseInteger)
                 .map(line -> new MethodNode(methodName, methodSignature, line))
                 .orElseGet(() -> new MethodNode(methodName, methodSignature));
     }

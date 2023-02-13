@@ -216,7 +216,7 @@ public class PitestParser extends CoverageParser {
         }
 
         private void setLineNumber(final String lineNumber) {
-            this.lineNumber = Integer.parseInt(lineNumber);
+            this.lineNumber = parseInteger(lineNumber);
         }
 
         private void setMutator(final Mutator mutator) {
