@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.PathUtil;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -37,6 +38,7 @@ public abstract class Node implements Serializable {
     static final String EMPTY_NAME = "-";
     private static final String SLASH = "/";
     static final String ROOT = "^";
+    private static final String DOT = ".";
 
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
@@ -112,9 +114,18 @@ public abstract class Node implements Serializable {
         if (hasParent()) {
             String parentPath = getParent().getPath();
 
-            if (StringUtils.isBlank(parentPath) || parentPath.equals(SLASH) || localPath.startsWith(parentPath + SLASH)) {
+            var pathUtil = new PathUtil();
+
+            if (StringUtils.isBlank(parentPath)
+                    || parentPath.equals(SLASH)
+                    || parentPath.equals(DOT)) {
                 return localPath;
             }
+            if (localPath.startsWith(parentPath + SLASH)
+                    || pathUtil.isAbsolute(localPath)) {
+                return localPath;
+            }
+
             if (StringUtils.isBlank(localPath)) {
                 return parentPath;
             }
@@ -372,7 +383,7 @@ public abstract class Node implements Serializable {
         for (Node node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
             parentsOfSameType.add(0, node.getName());
         }
-        return String.join(".", parentsOfSameType);
+        return String.join(DOT, parentsOfSameType);
     }
 
     /**

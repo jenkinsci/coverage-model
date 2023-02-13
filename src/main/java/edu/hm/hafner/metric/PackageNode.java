@@ -1,6 +1,7 @@
 package edu.hm.hafner.metric;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,6 +14,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  */
 public final class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
+
+    private static final Pattern PACKAGE_PATTERN = Pattern.compile("[a-z]+[.\\w]*");
 
     /**
      * Replace slashes and backslashes with a dot so that package names use the typical format of packages or
@@ -61,7 +64,14 @@ public final class PackageNode extends Node {
 
     @Override
     public String getPath() {
-        return mergePath(getName().replaceAll("\\.", "/"));
+        String localPath;
+        if (PACKAGE_PATTERN.matcher(getName()).matches()) {
+            localPath = getName().replaceAll("\\.", "/");
+        }
+        else {
+            localPath = getName();
+        }
+        return mergePath(localPath);
     }
 
     static PackageNode appendPackage(final PackageNode localChild, final PackageNode localParent) {

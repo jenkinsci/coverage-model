@@ -9,9 +9,6 @@ package edu.hm.hafner.metric;
 public final class ContainerNode extends Node {
     private static final long serialVersionUID = 6304208788771158650L;
 
-    /** Null object that represents an empty coverage tree. */
-    public static final Node EMPTY_TREE = new ContainerNode("<Empty>");
-
     /**
      * Creates a new {@link ContainerNode} with the given name.
      *

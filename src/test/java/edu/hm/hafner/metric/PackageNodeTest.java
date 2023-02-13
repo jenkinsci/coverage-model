@@ -21,10 +21,10 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldGetPath() {
-        String pkgName = ".ui.home.model";
+        String pkgName = "ui.home.model";
         var pkg = new PackageNode(pkgName);
 
-        assertThat(pkg.getPath()).isEqualTo("/ui/home/model");
+        assertThat(pkg.getPath()).isEqualTo("ui/home/model");
     }
 
     @Test
@@ -67,12 +67,12 @@ class PackageNodeTest extends AbstractNodeTest {
     @Test
     void shouldMatchPath() {
         // Given
-        String pkgName = ".ui.home.model";
+        String pkgName = "ui.home.model";
         var pkg = new PackageNode(pkgName);
 
         // When & Then
-        assertThat(pkg.matches(PACKAGE, "/ui/home/model".hashCode())).isTrue();
-        assertThat(pkg.matches(PACKAGE, "/test/path".hashCode())).isFalse();
+        assertThat(pkg.matches(PACKAGE, "ui/home/model".hashCode())).isTrue();
+        assertThat(pkg.matches(PACKAGE, "test/path".hashCode())).isFalse();
     }
 
     @Test

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage line-rate="1" branch-rate="1" lines-covered="12" lines-valid="12" branches-covered="6" branches-valid="6" complexity="6" version="0" timestamp="1675424586">
+  <sources>
+    <source>D:\</source>
+  </sources>
+  <packages>
+    <package name="Numbers" line-rate="1" branch-rate="1" complexity="6">
+      <classes>
+        <class name="Numbers.PrimeService" filename="D:\Build\workspace\esignPlugins_test-jenkins-plugin\Numbers\PrimeService.cs" line-rate="1" branch-rate="1" complexity="NaN">
+          <methods>
+            <method name="IsPrime" signature="(System.Int32)" line-rate="1" branch-rate="1" complexity="NaN">
+              <lines>
+                <line number="8" hits="11" branch="false" />
+                <line number="9" hits="11" branch="true" condition-coverage="100% (2/2)" />
+                <line number="10" hits="3" branch="false" />
+                <line number="11" hits="3" branch="false" />
+                <line number="14" hits="22" branch="true" condition-coverage="100% (2/2)" />
+                <line number="15" hits="7" branch="false" />
+                <line number="16" hits="7" branch="true" condition-coverage="100% (2/2)" />
+                <line number="17" hits="4" branch="false" />
+                <line number="18" hits="4" branch="false" />
+                <line number="20" hits="3" branch="false" />
+                <line number="21" hits="4" branch="false" />
+                <line number="22" hits="11" branch="false" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="8" hits="11" branch="false" />
+            <line number="9" hits="11" branch="true" condition-coverage="100% (2/2)" />
+            <line number="10" hits="3" branch="false" />
+            <line number="11" hits="3" branch="false" />
+            <line number="14" hits="22" branch="true" condition-coverage="100% (2/2)" />
+            <line number="15" hits="7" branch="false" />
+            <line number="16" hits="7" branch="true" condition-coverage="100% (2/2)" />
+            <line number="17" hits="4" branch="false" />
+            <line number="18" hits="4" branch="false" />
+            <line number="20" hits="3" branch="false" />
+            <line number="21" hits="4" branch="false" />
+            <line number="22" hits="11" branch="false" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
