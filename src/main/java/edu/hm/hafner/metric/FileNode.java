@@ -355,6 +355,16 @@ public final class FileNode extends Node {
         return !getCoveredLinesOfChangeSet().isEmpty();
     }
 
+    /**
+     * Add the coverage counters for the specified line.
+     *
+     * @param lineNumber
+     *         the line number to add the counters for
+     * @param covered
+     *         the number of covered items
+     * @param missed
+     *         the number of missed items
+     */
     public void addCounters(final int lineNumber, final int covered, final int missed) {
         coveredPerLine.put(lineNumber, covered);
         missedPerLine.put(lineNumber, missed);
@@ -368,6 +378,30 @@ public final class FileNode extends Node {
         return entriesToArray(missedPerLine);
     }
 
+    /**
+     * Returns the number of covered items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of covered items for the specified line
+     */
+    public int getCoveredOfLine(final int line) {
+        return coveredPerLine.getOrDefault(line, 0);
+    }
+
+    /**
+     * Returns the number of missed items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of missed items for the specified line
+     */
+    public int getMissedOfLine(final int line) {
+        return missedPerLine.getOrDefault(line, 0);
+    }
+
     private int[] entriesToArray(final NavigableMap<Integer, Integer> map) {
         return map.values().stream().mapToInt(i -> i).toArray();
     }
@@ -376,12 +410,32 @@ public final class FileNode extends Node {
         return Collections.unmodifiableNavigableMap(coveredPerLine);
     }
 
-    public int getCoveredOfLine(final int line) {
-        return coveredPerLine.getOrDefault(line, 0);
+    /**
+     * Create a new class node with the given name and add it to the list of children.
+     *
+     * @param className
+     *         the class name
+     *
+     * @return the created and linked class node
+     */
+    public ClassNode createClassNode(final String className) {
+        var classNode = new ClassNode(className);
+        addChild(classNode);
+        return classNode;
     }
 
-    public int getMissedOfLine(final int line) {
-        return missedPerLine.getOrDefault(line, 0);
+    /**
+     * Searches for the specified class node. If the class node is not found then a new class node will be created and
+     * linked to this file node.
+     *
+     * @param className
+     *         the class name
+     *
+     * @return the created and linked class node
+     * @see #createClassNode(String)
+     */
+    public ClassNode findOrCreateClassNode(final String className) {
+        return findClass(className).orElseGet(() -> createClassNode(className));
     }
 
     @Override
@@ -407,33 +461,5 @@ public final class FileNode extends Node {
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
                 coverageDelta);
-    }
-
-    /**
-     * Create a new class node with the given name and add it to the list of children.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked package node
-     */
-    public ClassNode createClassNode(final String className) {
-        var classNode = new ClassNode(className);
-        addChild(classNode);
-        return classNode;
-    }
-
-    /**
-     * Searches for the specified class node. If the class node is not found then a new class node will be created
-     * and linked to this module.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked package node
-     * @see #createClassNode(String)
-     */
-    public ClassNode findOrCreateClassNode(final String className) {
-        return findClass(className).orElseGet(() -> createClassNode(className));
     }
 }

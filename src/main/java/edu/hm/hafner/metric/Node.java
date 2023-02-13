@@ -260,8 +260,7 @@ public abstract class Node implements Serializable {
         values.clear();
     }
 
-    // TODO: check if this method needs to be exposed as API
-    public void clearChildren() {
+    private void clearChildren() {
         children.forEach(c -> c.parent = null);
         children.clear();
         values.clear();
@@ -619,18 +618,7 @@ public abstract class Node implements Serializable {
     }
 
     private void safelyCombineChildren(final Node other) {
-        other.values.forEach((ov) -> {
-            if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
-                var old = getValueOf(ov.getMetric());
-                if (hasChildren()) {
-                    replaceValue(old.add(ov));
-                }
-                else {
-                    replaceValue(old.max(ov));
-                }
-            }
-        });
-
+        other.values.forEach(this::mergeValues);
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
                     .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
@@ -641,6 +629,18 @@ public abstract class Node implements Serializable {
                 addChild(otherChild.copyTree());
             }
         });
+    }
+
+    private void mergeValues(final Value ov) {
+        if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
+            var old = getValueOf(ov.getMetric());
+            if (hasChildren()) {
+                replaceValue(old.add(ov));
+            }
+            else {
+                replaceValue(old.max(ov));
+            }
+        }
     }
 
     /**

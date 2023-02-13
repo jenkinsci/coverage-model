@@ -74,18 +74,36 @@ public final class PackageNode extends Node {
         return new PackageNode(getName());
     }
 
-    @Override
-    public String toString() {
-        return String.format("[%s] %s (%s) <%d>", getMetric(), getName(), getPath(), getChildren().size());
-    }
-
+    /**
+     * Create a new file node with the given name and add it to the list of children.
+     *
+     * @param fileName
+     *         the file name
+     *
+     * @return the created and linked file node
+     */
     public FileNode createFileNode(final String fileName) {
         var fileNode = new FileNode(fileName);
         addChild(fileNode);
         return fileNode;
     }
 
+    /**
+     * Searches for the specified file node. If the file node is not found then a new file node will be created
+     * and linked to this package node.
+     *
+     * @param fileName
+     *         the file name
+     *
+     * @return the existing or created file node
+     * @see #createFileNode(String)
+     */
     public FileNode findOrCreateFileNode(final String fileName) {
         return findFile(fileName).orElseGet(() -> createFileNode(fileName));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s] %s (%s) <%d>", getMetric(), getName(), getPath(), getChildren().size());
     }
 }

@@ -134,12 +134,12 @@ public final class ModuleNode extends Node {
 
     /**
      * Searches for the specified package node. If the package node is not found then a new package node will be created
-     * and linked to this module.
+     * and linked to this module node.
      *
      * @param packageName
      *         the package name
      *
-     * @return the created and linked package node
+     * @return the existing or created package node
      * @see #createPackageNode(String)
      */
     public PackageNode findOrCreatePackageNode(final String packageName) {
