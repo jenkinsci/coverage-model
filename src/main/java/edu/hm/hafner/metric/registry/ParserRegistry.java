@@ -26,7 +26,7 @@ public class ParserRegistry {
      *
      * @return the created parser
      */
-    public static CoverageParser getParser(final String parserName) {
+    public CoverageParser getParser(final String parserName) {
         return getParser(CoverageParserType.valueOf(parserName));
     }
 
@@ -38,7 +38,7 @@ public class ParserRegistry {
      *
      * @return the created parser
      */
-    public static CoverageParser getParser(final CoverageParserType parser) {
+    public CoverageParser getParser(final CoverageParserType parser) {
         switch (parser) {
             case COBERTURA:
                 return new CoberturaParser();
