@@ -22,6 +22,7 @@ import edu.hm.hafner.metric.Coverage.CoverageBuilder;
  *
  * @author Ullrich Hafner
  */
+@SuppressWarnings("PMD.GodClass")
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();

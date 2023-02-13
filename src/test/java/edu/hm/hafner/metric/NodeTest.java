@@ -604,9 +604,9 @@ class NodeTest {
                     assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
                     var builder = new CoverageBuilder();
                     assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                            builder.setMetric(Metric.LINE).setCovered(2).setMissed(2).build());
+                            builder.setMetric(LINE).setCovered(2).setMissed(2).build());
                     assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                            builder.setMetric(Metric.BRANCH).setCovered(4).setMissed(4).build());
+                            builder.setMetric(BRANCH).setCovered(4).setMissed(4).build());
                 });
     }
 
@@ -644,9 +644,9 @@ class NodeTest {
                     assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
                     var builder = new CoverageBuilder();
                     assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                            builder.setMetric(Metric.LINE).setCovered(4).setMissed(4).build());
+                            builder.setMetric(LINE).setCovered(4).setMissed(4).build());
                     assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                            builder.setMetric(Metric.BRANCH).setCovered(8).setMissed(8).build());
+                            builder.setMetric(BRANCH).setCovered(8).setMissed(8).build());
                 });
     }
 
@@ -681,9 +681,9 @@ class NodeTest {
                     assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
                     var builder = new CoverageBuilder();
                     assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                            builder.setMetric(Metric.LINE).setCovered(2).setMissed(2).build());
+                            builder.setMetric(LINE).setCovered(2).setMissed(2).build());
                     assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                            builder.setMetric(Metric.BRANCH).setCovered(4).setMissed(4).build());
+                            builder.setMetric(BRANCH).setCovered(4).setMissed(4).build());
                 });
     }
 
@@ -694,14 +694,14 @@ class NodeTest {
         file.addModifiedLine(13);
 
         var method = new MethodNode("aMethod", "{}");
-        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+        var builder = new CoverageBuilder().setMetric(LINE);
         file.addCounters(10, 1, 0);
         file.addCounters(11, 0, 1);
         file.addCounters(12, 1, 0);
         file.addCounters(13, 0, 1);
         method.addValue(builder.setCovered(2).setMissed(2).build());
 
-        builder.setMetric(Metric.BRANCH);
+        builder.setMetric(BRANCH);
         file.addCounters(11, 0, 4);
         file.addCounters(12, 4, 0);
         method.addValue(builder.setCovered(4).setMissed(4).build());
@@ -711,14 +711,14 @@ class NodeTest {
 
     private void registerCoverageWithoutChange(final FileNode file) {
         var method = new MethodNode("bMethod", "{}");
-        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+        var builder = new CoverageBuilder().setMetric(LINE);
         file.addCounters(15, 1, 0);
         file.addCounters(16, 0, 1);
         file.addCounters(17, 1, 0);
         file.addCounters(18, 0, 1);
         method.addValue(builder.setCovered(2).setMissed(2).build());
 
-        builder.setMetric(Metric.BRANCH);
+        builder.setMetric(BRANCH);
         file.addCounters(16, 0, 4);
         file.addCounters(17, 4, 0);
         method.addValue(builder.setCovered(4).setMissed(4).build());

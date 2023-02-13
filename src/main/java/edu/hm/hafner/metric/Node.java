@@ -30,7 +30,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Ullrich Hafner
  */
 // TODO: Make sure that we do not have children with the same name in the same node
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
@@ -55,8 +55,7 @@ public abstract class Node implements Serializable {
             return nodes.get(0); // No merge required
         }
 
-        if (nodes.stream().map(Node::getName).distinct().count() == 1
-                && nodes.stream().map(Node::getMetric).distinct().count() == 1) {
+        if (haveSameNameAndMetric(nodes)) {
             return nodes.stream()
                     .map(t -> (Node) t)
                     .reduce(Node::combineWith)
@@ -66,6 +65,11 @@ public abstract class Node implements Serializable {
         var container = new ContainerNode("Container");
         container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
         return container;
+    }
+
+    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
+        return nodes.stream().map(Node::getName).distinct().count() == 1
+                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
     }
 
     private final Metric metric;
@@ -249,21 +253,6 @@ public abstract class Node implements Serializable {
 
     public List<Node> getChildren() {
         return new ArrayList<>(children);
-    }
-
-    /**
-     * Clear the children and values of this node.
-     */
-    // TODO: check if this method needs to be exposed as API
-    public void clear() {
-        clearChildren();
-        values.clear();
-    }
-
-    private void clearChildren() {
-        children.forEach(c -> c.parent = null);
-        children.clear();
-        values.clear();
     }
 
     /**
@@ -595,7 +584,7 @@ public abstract class Node implements Serializable {
      * @throws IllegalArgumentException
      *         if this root node is not compatible to the {@code other} root node
      */
-    @SuppressWarnings("ReferenceEquality")
+    @SuppressWarnings({"ReferenceEquality", "PMD.CompareObjectsWithEquals"})
     public Node combineWith(final Node other) {
         if (other == this) {
             return this; // nothing to do
@@ -751,28 +740,6 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Filters a coverage tree by the given mapping function.
-     *
-     * @param mappingFunction
-     *         The mapping function to be used
-     *
-     * @return the root of the pruned coverage tree
-     */
-    private Optional<Node> filterTreeByMapping(final Function<Node, Optional<Node>> mappingFunction) {
-        var copy = copy();
-        var prunedChildren = getChildren()
-                .stream()
-                .map(mappingFunction)
-                .flatMap(Optional::stream)
-                .collect(Collectors.toList());
-        if (prunedChildren.isEmpty()) {
-            return Optional.empty();
-        }
-        copy.addAllChildren(prunedChildren);
-        return Optional.of(copy);
-    }
-
-    /**
      * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
      * that have elements with a modified coverage but with no modified code lines.
      *
@@ -783,15 +750,28 @@ public abstract class Node implements Serializable {
     }
 
     protected Optional<Node> filterByIndirectChanges() {
-        var copy = copy();
+        return filterTreeByMapping(Node::filterByIndirectChanges);
+    }
+
+    /**
+     * Filters a coverage tree by the given mapping function.
+     *
+     * @param mappingFunction
+     *         The mapping function to be used
+     *
+     * @return the root of the pruned coverage tree
+     */
+    private Optional<Node> filterTreeByMapping(final Function<Node, Optional<Node>> mappingFunction) {
         var prunedChildren = getChildren()
                 .stream()
-                .map(Node::filterByIndirectChanges)
+                .map(mappingFunction)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
         if (prunedChildren.isEmpty()) {
             return Optional.empty();
         }
+
+        var copy = copy();
         copy.addAllChildren(prunedChildren);
         return Optional.of(copy);
     }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.FileNode;
-import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Node;
 
@@ -100,7 +99,7 @@ class PitestParserTest extends AbstractParserTest {
         assertThat(tree.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
                 coverage -> assertThat(coverage).hasCovered(222).hasTotal(246));
 
-        assertThat(tree.find(Metric.METHOD, "endElement")).isPresent().hasValueSatisfying(
+        assertThat(tree.find(METHOD, "endElement")).isPresent().hasValueSatisfying(
                 node -> assertThat(node.getValue(MUTATION))
                         .isNotEmpty().get()
                         .isInstanceOfSatisfying(Coverage.class, m -> assertThat(m).hasCovered(3).hasMissed(2)));

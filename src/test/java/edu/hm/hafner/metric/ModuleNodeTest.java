@@ -11,7 +11,7 @@ import static edu.hm.hafner.metric.assertions.Assertions.*;
 class ModuleNodeTest extends AbstractNodeTest {
     @Override
     Metric getMetric() {
-        return Metric.MODULE;
+        return MODULE;
     }
 
     @Override

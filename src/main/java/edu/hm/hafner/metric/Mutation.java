@@ -11,7 +11,7 @@ import java.util.Objects;
 public final class Mutation implements Serializable {
     private static final long serialVersionUID = -7725185756332899065L;
 
-    private final boolean isDetected;
+    private final boolean detected;
     private final MutationStatus status;
     private int lineNumber;
     private Mutator mutator;
@@ -21,10 +21,10 @@ public final class Mutation implements Serializable {
     private final String signature;
     private final String description;
 
-    public Mutation(final boolean isDetected, final MutationStatus status, final int lineNumber, final Mutator mutator,
+    public Mutation(final boolean detected, final MutationStatus status, final int lineNumber, final Mutator mutator,
             final String killingTest, final String mutatedClass,
             final String method, final String signature, final String description) {
-        this.isDetected = isDetected;
+        this.detected = detected;
         this.status = status;
         this.lineNumber = lineNumber;
         this.mutator = mutator;
@@ -52,7 +52,7 @@ public final class Mutation implements Serializable {
     }
 
     public boolean isDetected() {
-        return isDetected;
+        return detected;
     }
 
     public MutationStatus getStatus() {
@@ -116,7 +116,7 @@ public final class Mutation implements Serializable {
     @Override
     public String toString() {
         return "[Mutation]:"
-                + " isDetected=" + isDetected
+                + " isDetected=" + detected
                 + ", status=" + status
                 + ", lineNumber=" + lineNumber
                 + ", mutator=" + mutator
@@ -132,12 +132,12 @@ public final class Mutation implements Serializable {
             return false;
         }
         Mutation mutation = (Mutation) o;
-        return isDetected == mutation.isDetected && lineNumber == mutation.lineNumber && status == mutation.status
+        return detected == mutation.detected && lineNumber == mutation.lineNumber && status == mutation.status
                 && mutator == mutation.mutator && Objects.equals(killingTest, mutation.killingTest);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isDetected, status, lineNumber, mutator, killingTest);
+        return Objects.hash(detected, status, lineNumber, mutator, killingTest);
     }
 }

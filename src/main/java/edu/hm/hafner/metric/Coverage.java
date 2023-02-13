@@ -220,7 +220,7 @@ public final class Coverage extends Value {
     /**
      * Builder to create cached {@link Coverage} instances.
      */
-    public static class CoverageBuilder {
+    public static final class CoverageBuilder {
         @VisibleForTesting
         static final int CACHE_SIZE = 16;
         private static final Coverage[] LINE_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
@@ -436,6 +436,8 @@ public final class Coverage extends Value {
                         return BRANCH_CACHE[getCacheIndex(covered, missed)];
                     case INSTRUCTION:
                         return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
+                    case MUTATION:
+                        return MUTATION_CACHE[getCacheIndex(covered, missed)];
                     default:
                         // use constructor to create instance
                 }

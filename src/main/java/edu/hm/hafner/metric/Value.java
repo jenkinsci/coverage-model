@@ -160,6 +160,7 @@ public abstract class Value implements Serializable {
      *
      * @param threshold
      *         the threshold to check against
+     * @return {@code true} if this value is below the specified threshold, {@code false} otherwise
      */
     public abstract boolean isBelowThreshold(double threshold);
 
