@@ -62,9 +62,8 @@ public final class FileNode extends Node {
      *
      * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
      */
-    // FIXME: Modified Lines
     @Override
-    public boolean hasChangedLines() {
+    public boolean hasModifiedLines() {
         return !modifiedLines.isEmpty();
     }
 
@@ -91,7 +90,7 @@ public final class FileNode extends Node {
     }
 
     @Override
-    protected Optional<Node> filterByModifiedLines() {
+    protected Optional<Node> filterTreeByModifiedLines() {
         if (!hasCoveredLinesInChangeSet()) {
             return Optional.empty();
         }
@@ -124,7 +123,7 @@ public final class FileNode extends Node {
     }
 
     @Override
-    protected Optional<Node> filterByModifiedFiles() {
+    protected Optional<Node> filterTreeByModifiedFiles() {
         return hasCoveredLinesInChangeSet() ? Optional.of(copyTree()) : Optional.empty();
     }
 
@@ -140,7 +139,7 @@ public final class FileNode extends Node {
 
     @Override
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    protected Optional<Node> filterByIndirectChanges() {
+    protected Optional<Node> filterTreeByIndirectChanges() {
         if (!hasIndirectCoverageChanges()) {
             return Optional.empty();
         }

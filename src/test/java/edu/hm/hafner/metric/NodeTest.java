@@ -576,7 +576,7 @@ class NodeTest {
     void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
-        assertThat(tree.filterChanges())
+        assertThat(tree.filterByModifiedLines())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -594,7 +594,7 @@ class NodeTest {
 
         registerCodeChangesAndCoverage((FileNode) node.get());
 
-        assertThat(tree.filterChanges())
+        assertThat(tree.filterByModifiedLines())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -614,7 +614,7 @@ class NodeTest {
     void shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
-        assertThat(tree.filterByModifiedFilesCoverage())
+        assertThat(tree.filterByModifiedFiles())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -634,7 +634,7 @@ class NodeTest {
         registerCoverageWithoutChange(fileNode);
         registerCodeChangesAndCoverage(fileNode);
 
-        assertThat(tree.filterByModifiedFilesCoverage())
+        assertThat(tree.filterByModifiedFiles())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -653,7 +653,7 @@ class NodeTest {
     @Test
     void shouldCreateEmptyIndirectCoverageChangesTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
-        assertThat(tree.filterByIndirectlyChangedCoverage())
+        assertThat(tree.filterByIndirectChanges())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())
@@ -671,7 +671,7 @@ class NodeTest {
 
         registerIndirectCoverageChanges((FileNode) node.get());
 
-        assertThat(tree.filterByIndirectlyChangedCoverage())
+        assertThat(tree.filterByIndirectChanges())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasPath(tree.getPath())

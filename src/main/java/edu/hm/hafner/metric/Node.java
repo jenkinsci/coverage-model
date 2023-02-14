@@ -724,8 +724,8 @@ public abstract class Node implements Serializable {
      *
      * @return {@code true} whether code changes have been detected
      */
-    public boolean hasChangedLines() {
-        return getChildren().stream().anyMatch(Node::hasChangedLines);
+    public boolean hasModifiedLines() {
+        return getChildren().stream().anyMatch(Node::hasModifiedLines);
     }
 
     /**
@@ -734,28 +734,28 @@ public abstract class Node implements Serializable {
      *
      * @return the filtered tree
      */
-    public Node filterChanges() {
-        return filterByModifiedLines().orElse(copy());
+    public Node filterByModifiedLines() {
+        return filterTreeByModifiedLines().orElse(copy());
     }
 
-    protected Optional<Node> filterByModifiedLines() {
-        return filterTreeByMapping(Node::filterByModifiedLines);
+    protected Optional<Node> filterTreeByModifiedLines() {
+        return filterTreeByMapping(Node::filterTreeByModifiedLines);
     }
 
     /**
-     * Creates a new coverage tree that represents the Changed Files Coverage. This new tree will contain only those
-     * elements that have modified files. The difference against the Change Coverage is that the Changed Files Coverage
-     * tree represents the total coverage of all files with coverage relevant changes, not only the coverage of the
-     * modified lines of code.
+     * Creates a new coverage tree that represents the modified files coverage. This new tree will contain only those
+     * elements that have modified files. The difference against the modified line coverage is that the modified files
+     * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage
+     * of the modified lines.
      *
      * @return the filtered tree
      */
-    public Node filterByModifiedFilesCoverage() {
-        return filterByModifiedFiles().orElse(copy());
+    public Node filterByModifiedFiles() {
+        return filterTreeByModifiedFiles().orElse(copy());
     }
 
-    protected Optional<Node> filterByModifiedFiles() {
-        return filterTreeByMapping(Node::filterByModifiedFiles);
+    protected Optional<Node> filterTreeByModifiedFiles() {
+        return filterTreeByMapping(Node::filterTreeByModifiedFiles);
     }
 
     /**
@@ -764,12 +764,12 @@ public abstract class Node implements Serializable {
      *
      * @return the filtered tree
      */
-    public Node filterByIndirectlyChangedCoverage() {
-        return filterByIndirectChanges().orElse(copy());
+    public Node filterByIndirectChanges() {
+        return filterTreeByIndirectChanges().orElse(copy());
     }
 
-    protected Optional<Node> filterByIndirectChanges() {
-        return filterTreeByMapping(Node::filterByIndirectChanges);
+    protected Optional<Node> filterTreeByIndirectChanges() {
+        return filterTreeByMapping(Node::filterTreeByIndirectChanges);
     }
 
     /**
