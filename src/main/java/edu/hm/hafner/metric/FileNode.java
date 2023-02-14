@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.PathUtil;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -259,7 +260,8 @@ public final class FileNode extends Node {
 
     @Override
     public String getPath() {
-        return mergePath(getName());
+        var pathUtil = new PathUtil();
+        return mergePath(pathUtil.getAbsolutePath(getName()));
     }
 
     @Override

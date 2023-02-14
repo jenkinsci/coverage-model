@@ -56,6 +56,36 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldReadCoberturaIssue551() {
+        Node tree = readReport("cobertura-absolute-path.xml");
+
+        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
+        assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("Numbers");
+        assertThat(tree.getAll(FILE)).hasSize(1).extracting(Node::getName).containsOnly("D:\\Build\\workspace\\esignPlugins_test-jenkins-plugin\\Numbers\\PrimeService.cs");
+        assertThat(tree.getAll(CLASS)).hasSize(1)
+                .extracting(Node::getName)
+                .containsOnly("Numbers.PrimeService");
+
+        assertThat(tree.getAllFileNodes()).hasSize(1).extracting(Node::getPath)
+                .containsOnly("D:/Build/workspace/esignPlugins_test-jenkins-plugin/Numbers/PrimeService.cs");
+
+        var builder = new CoverageBuilder();
+
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY, COMPLEXITY_DENSITY, LOC);
+        assertThat(tree.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(1).setMissed(0).build(),
+                builder.setMetric(LINE).setCovered(9).setMissed(0).build(),
+                builder.setMetric(BRANCH).setCovered(6).setMissed(0).build(),
+                new CyclomaticComplexity(0),
+                new FractionValue(COMPLEXITY_DENSITY, 0, 9),
+                new LinesOfCode(9));
+    }
+
+    @Test
     void shouldConvertCoberturaBigToTree() {
         Node root = readExampleReport();
 
