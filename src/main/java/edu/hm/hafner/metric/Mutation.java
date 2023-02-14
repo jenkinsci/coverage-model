@@ -12,6 +12,7 @@ import edu.hm.hafner.metric.Coverage.CoverageBuilder;
  *
  * @author Melissa Bauer
  */
+@SuppressWarnings("PMD.DataClass")
 public final class Mutation implements Serializable {
     private static final long serialVersionUID = -7725185756332899065L;
 
