@@ -69,8 +69,8 @@ public class PitestParser extends CoverageParser {
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
 
-                if (event.isStartElement() && MUTATIONS.equals(event.asStartElement().getName())) {
-                    readMutations(eventReader, root);
+                if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
+                    readMutation(eventReader, root, event.asStartElement());
                     isEmpty = false;
                 }
             }
@@ -122,16 +122,6 @@ public class PitestParser extends CoverageParser {
         }
         var builder = new CoverageBuilder(Metric.LINE);
         methodNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
-    }
-
-    private void readMutations(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
-        while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
-
-            if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
-                readMutation(reader, root, event.asStartElement());
-            }
-        }
     }
 
     private void readMutation(final XMLEventReader reader, final ModuleNode root, final StartElement mutationElement)
