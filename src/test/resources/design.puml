@@ -7,8 +7,11 @@ skinparam component {
 }
 
 [Metric Model] <<..metric>>
+[Parser Registry] <<..registry>>
 [Coverage Parsers] <<..parser>>
 
+[Parser Registry] --> [Metric Model]
+[Parser Registry] --> [Coverage Parsers]
 [Coverage Parsers] -> [Metric Model]
 
 @enduml

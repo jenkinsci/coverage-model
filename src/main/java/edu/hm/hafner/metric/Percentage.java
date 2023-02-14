@@ -21,7 +21,6 @@ public final class Percentage implements Serializable {
     public static final Percentage ZERO = new Percentage(0, 1);
 
     static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
-    private static final Fraction HUNDRED = Fraction.getFraction("100.0");
 
     /**
      * Creates an instance of {@link Percentage} in the range [0,100] from a {@link Fraction fraction} within the range

@@ -103,7 +103,7 @@ class CoverageTest {
         var builder = new CoverageBuilder().setMetric(Metric.LINE);
 
         Coverage coverage = builder.setCovered(1).setMissed(2).build();
-        LinesOfCode loc = new LinesOfCode(1);
+        var loc = new LinesOfCode(1);
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.add(loc));
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.max(loc));

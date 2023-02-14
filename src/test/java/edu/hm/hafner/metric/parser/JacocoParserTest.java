@@ -8,6 +8,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.CyclomaticComplexity;
 import edu.hm.hafner.metric.FractionValue;
 import edu.hm.hafner.metric.LinesOfCode;
@@ -26,7 +27,7 @@ class JacocoParserTest extends AbstractParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 
     @Override
-    XmlParser createParser() {
+    CoverageParser createParser() {
         return new JacocoParser();
     }
 
@@ -68,7 +69,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         Node any = tree.getAll(FILE)
                 .stream()
-                .filter(n -> n.getName().equals("Ensure.java"))
+                .filter(n -> "Ensure.java".equals(n.getName()))
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
         assertThat(any.getValue(LINE)).contains(builder.setMetric(LINE).setCovered(100).setMissed(25).build());

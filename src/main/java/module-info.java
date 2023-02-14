@@ -6,5 +6,5 @@ module edu.hm.hafner.metric {
     requires edu.hm.hafner.codingstyle;
 
     exports edu.hm.hafner.metric;
-    exports edu.hm.hafner.metric.parser;
+    exports edu.hm.hafner.metric.registry;
 }

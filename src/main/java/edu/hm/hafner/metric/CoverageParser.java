@@ -1,4 +1,4 @@
-package edu.hm.hafner.metric.parser;
+package edu.hm.hafner.metric;
 
 import java.io.Reader;
 import java.io.Serializable;
@@ -8,8 +8,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
-import edu.hm.hafner.metric.ModuleNode;
-import edu.hm.hafner.metric.Node;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
@@ -25,14 +24,16 @@ public abstract class CoverageParser implements Serializable {
      *
      * @param reader
      *         the reader with the coverage information
+     * @param log
+     *         the logger to write messages to
      *
      * @return the root of the created tree
      * @throws ParsingException
      *         if the XML content cannot be read
      */
-    public abstract ModuleNode parse(Reader reader);
+    public abstract ModuleNode parse(Reader reader, FilteredLog log);
 
-    protected final Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
+    protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
         if (value == null) {
             return Optional.empty();
@@ -41,9 +42,31 @@ public abstract class CoverageParser implements Serializable {
         return Optional.of(value.getValue());
     }
 
-    protected String getValueOf(final StartElement element, final QName attribute) {
+    protected static int getIntegerValueOf(final StartElement element, final QName attributeName) {
+        try {
+            return parseInteger(getValueOf(element, attributeName));
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
+    }
+
+    protected static String getValueOf(final StartElement element, final QName attribute) {
         return getOptionalValueOf(element, attribute).orElseThrow(
                 () -> new NoSuchElementException(String.format(
                         "Could not obtain attribute '%s' from element '%s'", attribute, element)));
+    }
+
+    protected static int parseInteger(final String value) {
+        try {
+            return Integer.parseInt(value);
+        }
+        catch (NumberFormatException ignore) {
+            return 0;
+        }
+    }
+
+    protected static ParsingException createEofException() {
+        return new ParsingException("Unexpected end of file");
     }
 }

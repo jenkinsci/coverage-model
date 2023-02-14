@@ -3,15 +3,20 @@ package edu.hm.hafner.metric;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+
 /**
  * Class which represents a mutation of the PIT Mutation Testing tool.
  *
  * @author Melissa Bauer
  */
+@SuppressWarnings("PMD.DataClass")
 public final class Mutation implements Serializable {
     private static final long serialVersionUID = -7725185756332899065L;
 
-    private final boolean isDetected;
+    private final boolean detected;
     private final MutationStatus status;
     private int lineNumber;
     private Mutator mutator;
@@ -21,10 +26,11 @@ public final class Mutation implements Serializable {
     private final String signature;
     private final String description;
 
-    public Mutation(final boolean isDetected, final MutationStatus status, final int lineNumber, final Mutator mutator,
+    @SuppressWarnings("checkstyle:ParameterNumber")
+    private Mutation(final boolean detected, final MutationStatus status, final int lineNumber, final Mutator mutator,
             final String killingTest, final String mutatedClass,
             final String method, final String signature, final String description) {
-        this.isDetected = isDetected;
+        this.detected = detected;
         this.status = status;
         this.lineNumber = lineNumber;
         this.mutator = mutator;
@@ -52,7 +58,7 @@ public final class Mutation implements Serializable {
     }
 
     public boolean isDetected() {
-        return isDetected;
+        return detected;
     }
 
     public MutationStatus getStatus() {
@@ -116,7 +122,7 @@ public final class Mutation implements Serializable {
     @Override
     public String toString() {
         return "[Mutation]:"
-                + " isDetected=" + isDetected
+                + " isDetected=" + detected
                 + ", status=" + status
                 + ", lineNumber=" + lineNumber
                 + ", mutator=" + mutator
@@ -132,12 +138,98 @@ public final class Mutation implements Serializable {
             return false;
         }
         Mutation mutation = (Mutation) o;
-        return isDetected == mutation.isDetected && lineNumber == mutation.lineNumber && status == mutation.status
+        return detected == mutation.detected && lineNumber == mutation.lineNumber && status == mutation.status
                 && mutator == mutation.mutator && Objects.equals(killingTest, mutation.killingTest);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isDetected, status, lineNumber, mutator, killingTest);
+        return Objects.hash(detected, status, lineNumber, mutator, killingTest);
+    }
+
+    /**
+     * Builder to create new {@link Mutation} instances.
+     */
+    public static class MutationBuilder {
+        private boolean isDetected;
+        private MutationStatus status = MutationStatus.NO_COVERAGE;
+        private int lineNumber;
+        private Mutator mutator = Mutator.NOT_SPECIFIED;
+        private String killingTest = StringUtils.EMPTY;
+        private String description = StringUtils.EMPTY;
+        private String sourceFile = StringUtils.EMPTY;
+        private String mutatedClass = StringUtils.EMPTY;
+        private String mutatedMethod = StringUtils.EMPTY;
+        private String mutatedMethodSignature = StringUtils.EMPTY;
+
+        public void setIsDetected(final boolean isDetected) {
+            this.isDetected = isDetected;
+        }
+
+        public void setStatus(final MutationStatus status) {
+            this.status = status;
+        }
+
+        public void setLineNumber(final String lineNumber) {
+            this.lineNumber = CoverageParser.parseInteger(lineNumber);
+        }
+
+        public void setMutator(final Mutator mutator) {
+            this.mutator = mutator;
+        }
+
+        public void setKillingTest(final String killingTest) {
+            this.killingTest = killingTest;
+        }
+
+        public void setDescription(final String description) {
+            this.description = description;
+        }
+
+        public void setSourceFile(final String sourceFile) {
+            this.sourceFile = sourceFile;
+        }
+
+        public void setMutatedClass(final String mutatedClass) {
+            this.mutatedClass = mutatedClass;
+        }
+
+        public void setMutatedMethod(final String mutatedMethod) {
+            this.mutatedMethod = mutatedMethod;
+        }
+
+        public void setMutatedMethodSignature(final String mutatedMethodSignature) {
+            this.mutatedMethodSignature = mutatedMethodSignature;
+        }
+
+        /**
+         * Builds a new mutation and adds it to the root of the tree.
+         *
+         * @param root
+         *         the module root to add the mutations to
+         */
+        public void buildAndAddToModule(final ModuleNode root) {
+            String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
+            String className = StringUtils.substringAfterLast(mutatedClass, ".");
+            var packageNode = root.findPackage(packageName).orElseGet(() -> root.createPackageNode(packageName));
+            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> packageNode.createFileNode(sourceFile));
+            var classNode = fileNode.findClass(className).orElseGet(() -> fileNode.createClassNode(className));
+            var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
+                    .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
+
+            var coverage = methodNode.getValue(Metric.MUTATION)
+                    .map(Coverage.class::cast)
+                    .orElse(Coverage.nullObject(Metric.MUTATION));
+            var builder = new CoverageBuilder(coverage);
+            if (isDetected) {
+                builder.incrementCovered();
+            }
+            else {
+                builder.incrementMissed();
+            }
+            methodNode.replaceValue(builder.build());
+            methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
+                    mutatedClass, mutatedMethod, mutatedMethodSignature, description));
+        }
     }
 }

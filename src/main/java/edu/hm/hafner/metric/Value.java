@@ -70,6 +70,7 @@ public abstract class Value implements Serializable {
      * @throws IllegalArgumentException
      *         if the string is not a valid cov instance
      */
+    @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
     public static Value valueOf(final String stringRepresentation) {
         var errorMessage = String.format("Cannot convert '%s' to a valid Value instance.", stringRepresentation);
         try {
@@ -95,8 +96,6 @@ public abstract class Value implements Serializable {
                         return new CyclomaticComplexity(Integer.parseInt(value));
                     case LOC:
                         return new LinesOfCode(Integer.parseInt(value));
-                    default:
-                        throw new IllegalStateException(String.format("Metric %s is not supported yet", metric));
                 }
             }
         }
@@ -162,6 +161,7 @@ public abstract class Value implements Serializable {
      *
      * @param threshold
      *         the threshold to check against
+     * @return {@code true} if this value is below the specified threshold, {@code false} otherwise
      */
     public abstract boolean isBelowThreshold(double threshold);
 

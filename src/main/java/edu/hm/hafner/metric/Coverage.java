@@ -6,6 +6,8 @@ import java.util.function.UnaryOperator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -218,7 +220,7 @@ public final class Coverage extends Value {
     /**
      * Builder to create cached {@link Coverage} instances.
      */
-    public static class CoverageBuilder {
+    public static final class CoverageBuilder {
         @VisibleForTesting
         static final int CACHE_SIZE = 16;
         private static final Coverage[] LINE_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
@@ -231,8 +233,7 @@ public final class Coverage extends Value {
                 for (int missed = 0; missed < CACHE_SIZE; missed++) {
                     LINE_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.LINE, covered, missed);
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
-                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
-                            missed);
+                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered, missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
                 }
             }
@@ -288,8 +289,37 @@ public final class Coverage extends Value {
          *
          * @return this
          */
+        @CanIgnoreReturnValue
         public CoverageBuilder setMetric(final Metric metric) {
             this.metric = metric;
+            return this;
+        }
+
+        /**
+         * Sets the metric of the coverage.
+         *
+         * @param metric
+         *         the metric of the coverage
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setMetric(final String metric) {
+            return setMetric(Metric.valueOf(metric));
+        }
+
+        /**
+         * Sets the number of total items.
+         *
+         * @param total
+         *         the number of total items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setTotal(final int total) {
+            this.total = total;
+            isTotalSet = true;
             return this;
         }
 
@@ -301,9 +331,25 @@ public final class Coverage extends Value {
          *
          * @return this
          */
-        public CoverageBuilder setTotal(final int total) {
-            this.total = total;
-            isTotalSet = true;
+        @CanIgnoreReturnValue
+        public CoverageBuilder setTotal(final String total) {
+            return setTotal(CoverageParser.parseInteger(total));
+        }
+
+        /**
+         * Sets the number of covered items.
+         *
+         * @param covered
+         *         the number of covered items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setCovered(final int covered) {
+            Ensure.that(covered >= 0).isTrue("No negative values allowed for covered items: %s", covered);
+
+            this.covered = covered;
+            isCoveredSet = true;
             return this;
         }
 
@@ -315,11 +361,25 @@ public final class Coverage extends Value {
          *
          * @return this
          */
-        public CoverageBuilder setCovered(final int covered) {
-            Ensure.that(covered >= 0).isTrue("No negative values allowed for covered items: %s", covered);
+        @CanIgnoreReturnValue
+        public CoverageBuilder setCovered(final String covered) {
+            return setCovered(CoverageParser.parseInteger(covered));
+        }
 
-            this.covered = covered;
-            isCoveredSet = true;
+        /**
+         * Sets the number of missed items.
+         *
+         * @param missed
+         *         the number of missed items
+         *
+         * @return this
+         */
+        @CanIgnoreReturnValue
+        public CoverageBuilder setMissed(final int missed) {
+            Ensure.that(missed >= 0).isTrue("No negative values allowed for missed items: %s", missed);
+
+            this.missed = missed;
+            isMissedSet = true;
             return this;
         }
 
@@ -331,12 +391,9 @@ public final class Coverage extends Value {
          *
          * @return this
          */
-        public CoverageBuilder setMissed(final int missed) {
-            Ensure.that(missed >= 0).isTrue("No negative values allowed for missed items: %s", missed);
-
-            this.missed = missed;
-            isMissedSet = true;
-            return this;
+        @CanIgnoreReturnValue
+        public CoverageBuilder setMissed(final String missed) {
+            return setMissed(CoverageParser.parseInteger(missed));
         }
 
         /**
@@ -379,6 +436,8 @@ public final class Coverage extends Value {
                         return BRANCH_CACHE[getCacheIndex(covered, missed)];
                     case INSTRUCTION:
                         return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
+                    case MUTATION:
+                        return MUTATION_CACHE[getCacheIndex(covered, missed)];
                     default:
                         // use constructor to create instance
                 }

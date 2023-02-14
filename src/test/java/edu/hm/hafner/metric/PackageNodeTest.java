@@ -21,18 +21,18 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldGetPath() {
-        String pkgName = ".ui.home.model";
-        PackageNode pkg = new PackageNode(pkgName);
+        String pkgName = "ui.home.model";
+        var pkg = new PackageNode(pkgName);
 
-        assertThat(pkg.getPath()).isEqualTo("/ui/home/model");
+        assertThat(pkg.getPath()).isEqualTo("ui/home/model");
     }
 
     @Test
     void shouldMergePathWithChild() {
         // Given
         String parentName = "ui";
-        PackageNode parent = new PackageNode(parentName);
-        PackageNode child = new PackageNode("model");
+        var parent = new PackageNode(parentName);
+        var child = new PackageNode("model");
         parent.addChild(child);
 
         // When & Then
@@ -47,8 +47,8 @@ class PackageNodeTest extends AbstractNodeTest {
     void shouldCopyEmpty() {
         // Given
         String parentName = ".ui.home.model";
-        PackageNode parent = new PackageNode(parentName);
-        PackageNode child = new PackageNode("data");
+        var parent = new PackageNode(parentName);
+        var child = new PackageNode("data");
         parent.addChild(child);
 
         // When
@@ -67,17 +67,17 @@ class PackageNodeTest extends AbstractNodeTest {
     @Test
     void shouldMatchPath() {
         // Given
-        String pkgName = ".ui.home.model";
-        PackageNode pkg = new PackageNode(pkgName);
+        String pkgName = "ui.home.model";
+        var pkg = new PackageNode(pkgName);
 
         // When & Then
-        assertThat(pkg.matches(PACKAGE, "/ui/home/model".hashCode())).isTrue();
-        assertThat(pkg.matches(PACKAGE, "/test/path".hashCode())).isFalse();
+        assertThat(pkg.matches(PACKAGE, "ui/home/model".hashCode())).isTrue();
+        assertThat(pkg.matches(PACKAGE, "test/path".hashCode())).isFalse();
     }
 
     @Test
     void shouldSplitPackages() {
-        ModuleNode root = new ModuleNode("root");
+        var root = new ModuleNode("root");
 
         root.addChild(new PackageNode("left"));
         root.addChild(new PackageNode("left.right"));
@@ -93,7 +93,7 @@ class PackageNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldSplitReversePackages() {
-        ModuleNode root = new ModuleNode("root");
+        var root = new ModuleNode("root");
 
         root.addChild(new PackageNode("left.right"));
         root.addChild(new PackageNode("left"));

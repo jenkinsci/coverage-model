@@ -32,9 +32,9 @@ class MethodNodeTest extends AbstractNodeTest {
     void shouldGetValidLineNumber() {
         // Given
         int validLineNumber = 5;
-        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V", validLineNumber);
+        var node = new MethodNode("main", "(Ljava/util/Map;)V", validLineNumber);
         int secondValidLineNumber = 1;
-        MethodNode secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
+        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
 
         // When & Then
         assertThat(node)
@@ -51,8 +51,8 @@ class MethodNodeTest extends AbstractNodeTest {
     @Test
     void shouldCheckInvalidLineNumber() {
         // Given
-        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V", -1);
-        MethodNode secondNode = new MethodNode("main", "(Ljava/util/Map;)V", 0);
+        var node = new MethodNode("main", "(Ljava/util/Map;)V", -1);
+        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V", 0);
 
         // When & Then
         assertThat(node).doesNotHaveValidLineNumber();
@@ -62,7 +62,7 @@ class MethodNodeTest extends AbstractNodeTest {
     @Test
     void shouldCheckLineNumberZero() {
         // Given
-        MethodNode node = new MethodNode("main", "(Ljava/util/Map;)V");
+        var node = new MethodNode("main", "(Ljava/util/Map;)V");
 
         // When & Then
         assertThat(node).hasMetric(Metric.METHOD).hasLineNumber(0);

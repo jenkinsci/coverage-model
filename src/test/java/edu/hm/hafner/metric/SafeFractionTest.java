@@ -13,8 +13,8 @@ import static org.assertj.core.api.Assertions.*;
 class SafeFractionTest {
     @Test
     void shouldDelegateToFraction() {
-        Fraction ten = Fraction.getFraction(10, 1);
-        SafeFraction safeFraction = new SafeFraction(ten);
+        var ten = Fraction.getFraction(10, 1);
+        var safeFraction = new SafeFraction(ten);
         assertThat(safeFraction.multiplyBy(ten).doubleValue()).isEqualTo(100.0);
         assertThat(safeFraction.subtract(ten).doubleValue()).isEqualTo(0);
         assertThat(safeFraction.add(ten).doubleValue()).isEqualTo(20.0);
@@ -22,22 +22,22 @@ class SafeFractionTest {
 
     @Test
     void shouldHandleOverflowForMultiply() {
-        Fraction fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
-        SafeFraction safeFraction = new SafeFraction(fraction);
+        var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
+        var safeFraction = new SafeFraction(fraction);
         assertThat(safeFraction.multiplyBy(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(100.0);
     }
 
     @Test
     void shouldHandleOverflowForSubtract() {
-        Fraction fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
-        SafeFraction safeFraction = new SafeFraction(fraction);
+        var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
+        var safeFraction = new SafeFraction(fraction);
         assertThat(safeFraction.subtract(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(-99.0);
     }
 
     @Test
     void shouldHandleOverflowForAdd() {
-        Fraction fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
-        SafeFraction safeFraction = new SafeFraction(fraction);
+        var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
+        var safeFraction = new SafeFraction(fraction);
         assertThat(safeFraction.add(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(101.0);
     }
 }

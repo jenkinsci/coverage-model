@@ -20,4 +20,20 @@ public final class ClassNode extends Node {
     public ClassNode copy() {
         return new ClassNode(getName());
     }
+
+    /**
+     * Create a new method node with the given method name and signature and add it to the list of children.
+     *
+     * @param methodName
+     *         the method name
+     * @param signature
+     *         the signature of the method
+     *
+     * @return the created and linked package node
+     */
+    public MethodNode createMethodNode(final String methodName, final String signature) {
+        var fileNode = new MethodNode(methodName, signature);
+        addChild(fileNode);
+        return fileNode;
+    }
 }

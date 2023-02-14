@@ -15,18 +15,18 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.metric.ClassNode;
 import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.FileNode;
 import edu.hm.hafner.metric.MethodNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Mutation;
+import edu.hm.hafner.metric.Mutation.MutationBuilder;
 import edu.hm.hafner.metric.MutationStatus;
 import edu.hm.hafner.metric.Mutator;
-import edu.hm.hafner.metric.Node;
-import edu.hm.hafner.metric.PackageNode;
+import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
@@ -53,27 +53,25 @@ public class PitestParser extends CoverageParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
-    private static final QName INDEX = new QName("index"); // TODO: not used yet
-    private static final QName BLOCK = new QName("block"); // TODO: not used yet
-
     /**
-     * Parses a PIT XML report.
+     * Parses the PIT report. The report is expected to be in XML format.
      *
      * @param reader
-     *         the reader to wrap
+     *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader) {
+    public ModuleNode parse(final Reader reader, final FilteredLog log) {
         try {
-            SecureXmlParserFactory factory = new SecureXmlParserFactory();
-            XMLEventReader eventReader = factory.createXmlEventReader(reader);
+            var factory = new SecureXmlParserFactory();
+            var eventReader = factory.createXmlEventReader(reader);
+
             var root = new ModuleNode("-");
             boolean isEmpty = true;
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
 
-                if (event.isStartElement() && MUTATIONS.equals(event.asStartElement().getName())) {
-                    readMutations(eventReader, root);
+                if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
+                    readMutation(eventReader, root, event.asStartElement());
                     isEmpty = false;
                 }
             }
@@ -121,20 +119,10 @@ public class PitestParser extends CoverageParser {
         var coveredLines = collectLines(List.of(methodNode), Mutation::isCovered);
         var missedLines = collectLines(List.of(methodNode), Mutation::isMissed);
         if (new HashSet<>(coveredLines).removeAll(missedLines)) {
-            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check?
+            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check before going live?
         }
         var builder = new CoverageBuilder(Metric.LINE);
         methodNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
-    }
-
-    private void readMutations(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
-        while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
-
-            if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
-                readMutation(reader, root, event.asStartElement());
-            }
-        }
     }
 
     private void readMutation(final XMLEventReader reader, final ModuleNode root, final StartElement mutationElement)
@@ -148,16 +136,17 @@ public class PitestParser extends CoverageParser {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                readProperty(reader, builder, event.asStartElement());
+                readProperty(reader, builder);
             }
             else if (event.isEndElement()) {
-                builder.build(root);
+                builder.buildAndAddToModule(root);
                 return;
             }
         }
     }
 
-    private void readProperty(final XMLEventReader reader, final MutationBuilder builder, final StartElement property)
+    @SuppressWarnings("PMD.CyclomaticComplexity") // There are a lot of properties to read
+    private void readProperty(final XMLEventReader reader, final MutationBuilder builder)
             throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
@@ -167,7 +156,7 @@ public class PitestParser extends CoverageParser {
                 aggregatedContent.append(event.asCharacters().getData());
             }
             else if (event.isEndElement()) {
-                var content = StringUtils.strip(aggregatedContent.toString());
+                var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
                 var name = event.asEndElement().getName();
                 if (name.equals(MUTATOR)) {
                     builder.setMutator(Mutator.fromPath(content));
@@ -195,107 +184,6 @@ public class PitestParser extends CoverageParser {
                 }
                 return;
             }
-        }
-    }
-
-    private static class MutationBuilder {
-        private boolean isDetected;
-        private MutationStatus status;
-        private int lineNumber;
-        private Mutator mutator;
-        private String killingTest;
-        private String description;
-        private String sourceFile;
-        private String mutatedClass;
-        private String mutatedMethod;
-        private String mutatedMethodSignature;
-
-        private void setIsDetected(final boolean isDetected) {
-            this.isDetected = isDetected;
-        }
-
-        private void setStatus(final MutationStatus status) {
-            this.status = status;
-        }
-
-        private void setLineNumber(final String lineNumber) {
-            this.lineNumber = Integer.parseInt(lineNumber);
-        }
-
-        private void setMutator(final Mutator mutator) {
-            this.mutator = mutator;
-        }
-
-        private void setKillingTest(final String killingTest) {
-            this.killingTest = killingTest;
-        }
-
-        private void setDescription(final String description) {
-            this.description = description;
-        }
-
-        private void setSourceFile(final String sourceFile) {
-            this.sourceFile = sourceFile;
-        }
-
-        private void setMutatedClass(final String mutatedClass) {
-            this.mutatedClass = mutatedClass;
-        }
-
-        private void setMutatedMethod(final String mutatedMethod) {
-            this.mutatedMethod = mutatedMethod;
-        }
-
-        private void setMutatedMethodSignature(final String mutatedMethodSignature) {
-            this.mutatedMethodSignature = mutatedMethodSignature;
-        }
-
-        private void build(final Node root) {
-            String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
-            String className = StringUtils.substringAfterLast(mutatedClass, ".");
-            var packageNode = root.findPackage(packageName).orElseGet(() -> createPackageNode(root, packageName));
-            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> createFileNode(packageNode, sourceFile));
-            var classNode = fileNode.findClass(className).orElseGet(() -> createClassNode(fileNode, className));
-            var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
-                    .orElseGet(() -> createMethodNode(classNode, mutatedMethod, mutatedMethodSignature));
-
-            var coverage = methodNode.getValue(Metric.MUTATION)
-                    .map(Coverage.class::cast)
-                    .orElse(Coverage.nullObject(Metric.MUTATION));
-            var builder = new CoverageBuilder(coverage);
-            if (isDetected) {
-                builder.incrementCovered();
-            }
-            else {
-                builder.incrementMissed();
-            }
-            methodNode.replaceValue(builder.build());
-            methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
-                    mutatedClass, mutatedMethod, mutatedMethodSignature, description));
-        }
-
-        private PackageNode createPackageNode(final Node root, final String packageName) {
-            var fileNode = new PackageNode(packageName);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private FileNode createFileNode(final Node root, final String fileName) {
-            var fileNode = new FileNode(fileName);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private ClassNode createClassNode(final Node root, final String className) {
-            var fileNode = new ClassNode(className);
-            root.addChild(fileNode);
-            return fileNode;
-        }
-
-        private MethodNode createMethodNode(final Node root, final String methodName, final String signature) {
-            var fileNode = new MethodNode(methodName, signature);
-            root.addChild(fileNode);
-            return fileNode;
         }
     }
 }
