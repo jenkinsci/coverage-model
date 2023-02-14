@@ -36,8 +36,9 @@ public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
     static final String EMPTY_NAME = "-";
-    private static final String SLASH = "/";
     static final String ROOT = "^";
+
+    private static final String SLASH = "/";
     private static final String DOT = ".";
 
     /**
@@ -60,7 +61,7 @@ public abstract class Node implements Serializable {
         if (haveSameNameAndMetric(nodes)) {
             return nodes.stream()
                     .map(t -> (Node) t)
-                    .reduce(Node::combineWith)
+                    .reduce(Node::merge)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
@@ -97,6 +98,67 @@ public abstract class Node implements Serializable {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the name of the parent element or {@link #ROOT} if there is no such element.
+     *
+     * @return the name of the parent element
+     */
+    public String getParentName() {
+        if (parent == null) {
+            return ROOT;
+        }
+        Metric type = parent.getMetric();
+
+        List<String> parentsOfSameType = new ArrayList<>();
+        for (Node node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
+            parentsOfSameType.add(0, node.getName());
+        }
+        return String.join(".", parentsOfSameType);
+    }
+
+    public Metric getMetric() {
+        return metric;
+    }
+
+    /**
+     * Returns the available metrics for the whole tree starting with this node.
+     *
+     * @return the elements in this tree
+     */
+    public NavigableSet<Metric> getMetrics() {
+        NavigableSet<Metric> elements = children.stream()
+                .map(Node::getMetrics)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        elements.add(getMetric());
+        getMetricsOfValues().forEach(elements::add);
+        if (elements.contains(Metric.LINE)) {
+            // These metrics depend on the existence of other metrics
+            elements.add(Metric.LOC);
+            if (elements.contains(Metric.COMPLEXITY)) {
+                elements.add(Metric.COMPLEXITY_DENSITY);
+            }
+        }
+        return elements;
+    }
+
+    /**
+     * Returns whether results for the specified metric are available within the tree spanned by this node.
+     *
+     * @param searchMetric
+     *         the metric to look for
+     *
+     * @return {@code true} if results for the specified metric are available, {@code false} otherwise
+     */
+    public boolean containsMetric(final Metric searchMetric) {
+        return getMetrics().contains(searchMetric);
+    }
+
     /**
      * Returns the source code path of this node.
      *
@@ -106,6 +168,14 @@ public abstract class Node implements Serializable {
         return StringUtils.EMPTY;
     }
 
+    /**
+     * Merges the specified path with the path of the parent of this node.
+     *
+     * @param localPath
+     *         the local path
+     *
+     * @return the concatenated path
+     */
     protected String mergePath(final String localPath) {
         if (EMPTY_NAME.equals(localPath)) {
             return StringUtils.EMPTY;
@@ -136,124 +206,6 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Returns the type of the metric for this node.
-     *
-     * @return the element type
-     */
-    public Metric getMetric() {
-        return metric;
-    }
-
-    /**
-     * Returns the available metrics for the whole tree starting with this node.
-     *
-     * @return the elements in this tree
-     */
-    public NavigableSet<Metric> getMetrics() {
-        NavigableSet<Metric> elements = children.stream()
-                .map(Node::getMetrics)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toCollection(TreeSet::new));
-
-        elements.add(getMetric());
-        getMetricsOfValues().forEach(elements::add);
-        if (elements.contains(Metric.LINE)) {
-            // TODO: would it make sense to make that not hard-coded?
-            elements.add(Metric.LOC);
-            if (elements.contains(Metric.COMPLEXITY)) {
-                elements.add(Metric.COMPLEXITY_DENSITY);
-            }
-        }
-        return elements;
-    }
-
-    /**
-     * Returns whether results for the specified metric are available within the tree spanned by this node.
-     *
-     * @param searchMetric
-     *         the metric to look for
-     *
-     * @return {@code true} if results for the specified metric are available, {@code false} otherwise
-     */
-    public boolean containsMetric(final Metric searchMetric) {
-        return getMetrics().contains(searchMetric);
-    }
-
-    private Stream<Metric> getMetricsOfValues() {
-        return values.stream().map(Value::getMetric);
-    }
-
-    /**
-     * Returns the available metrics for the whole tree starting with this node.
-     *
-     * @return the elements in this tree
-     */
-    public NavigableSet<Metric> getValueMetrics() {
-        NavigableSet<Metric> elements = children.stream()
-                .map(Node::getValueMetrics)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toCollection(TreeSet::new));
-
-        getMetricsOfValues().forEach(elements::add);
-        return elements;
-    }
-
-    NavigableMap<Metric, Value> getMetricsDistribution() {
-        return new TreeMap<>(aggregateValues().stream()
-                .collect(Collectors.toMap(Value::getMetric, Function.identity())));
-    }
-
-    private Value getValueOf(final Metric searchMetric) {
-        return getValue(searchMetric).orElseThrow(() ->
-                new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
-    }
-
-    /**
-     * Aggregates all values that are part of the subtree that is spanned by this node.
-     *
-     * @return aggregation of values below this tree
-     */
-    public List<Value> aggregateValues() {
-        return getMetrics().stream().map(this::getValue).flatMap(Optional::stream)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Computes the coverage delta between this node and the specified reference node as fractions between 0 and 1.
-     *
-     * @param reference
-     *         the reference node
-     *
-     * @return the delta coverage for each available metric as fraction
-     */
-    public NavigableMap<Metric, Fraction> computeDelta(final Node reference) {
-        NavigableMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
-        NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
-        NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
-
-        for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
-            Metric key = entry.getKey();
-            if (referencePercentages.containsKey(key)) {
-                deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
-            }
-        }
-        return deltaPercentages;
-    }
-
-    /**
-     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
-     *
-     * @return {@code true} whether code changes have been detected
-     */
-    public boolean hasChangedLines() {
-        return getChildren().stream().anyMatch(Node::hasChangedLines);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    /**
      * Returns whether this node has children or not.
      *
      * @return {@code true} if this node has children, {@code false} otherwise
@@ -277,6 +229,7 @@ public abstract class Node implements Serializable {
         child.setParent(this);
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // remove link to parent
     protected void removeChild(final Node child) {
         Ensure.that(children.contains(child)).isTrue("The node %s is not a child of this node %s", child, this);
 
@@ -292,6 +245,44 @@ public abstract class Node implements Serializable {
      */
     public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
+    }
+
+
+    /**
+     * Returns the parent node.
+     *
+     * @return the parent, if existent
+     * @throws NoSuchElementException
+     *         if no parent exists
+     */
+    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "This class is about walking through a tree of nodes.")
+    public Node getParent() {
+        if (parent == null) {
+            throw new NoSuchElementException("Parent is not set");
+        }
+        return parent;
+    }
+
+    /**
+     * Returns whether this node is the root of the tree.
+     *
+     * @return {@code true} if this node is the root of the tree, {@code false} otherwise
+     */
+    public boolean isRoot() {
+        return parent == null;
+    }
+
+    /**
+     * Returns whether this node has a parent node.
+     *
+     * @return {@code true} if this node has a parent node, {@code false} if it is the root of the hierarchy
+     */
+    public boolean hasParent() {
+        return !isRoot();
+    }
+
+    private void setParent(final Node parent) {
+        this.parent = Objects.requireNonNull(parent);
     }
 
     public List<Value> getValues() {
@@ -332,58 +323,99 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Returns the parent node.
+     * Returns the available metrics for the whole tree starting with this node.
      *
-     * @return the parent, if existent
-     * @throws NoSuchElementException
-     *         if no parent exists
+     * @return the elements in this tree
      */
-    @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "This class is about walking through a tree of nodes.")
-    public Node getParent() {
-        if (parent == null) {
-            throw new NoSuchElementException("Parent is not set");
-        }
-        return parent;
+    public NavigableSet<Metric> getValueMetrics() {
+        NavigableSet<Metric> elements = children.stream()
+                .map(Node::getValueMetrics)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        getMetricsOfValues().forEach(elements::add);
+        return elements;
+    }
+
+    private Stream<Metric> getMetricsOfValues() {
+        return values.stream().map(Value::getMetric);
+    }
+
+    NavigableMap<Metric, Value> getMetricsDistribution() {
+        return new TreeMap<>(aggregateValues().stream()
+                .collect(Collectors.toMap(Value::getMetric, Function.identity())));
+    }
+
+    private Value getValueOf(final Metric searchMetric) {
+        return getValue(searchMetric).orElseThrow(() ->
+                new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
     }
 
     /**
-     * Returns whether this node is the root of the tree.
+     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
+     * of.
      *
-     * @return {@code true} if this node is the root of the tree, {@code false} otherwise
+     * @param searchMetric
+     *         the metric to get the value for
+     *
+     * @return coverage ratio
      */
-    public boolean isRoot() {
-        return parent == null;
+    public Optional<Value> getValue(final Metric searchMetric) {
+        return searchMetric.getValueFor(this);
     }
 
     /**
-     * Returns whether this node has a parent node.
+     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
+     * of.
      *
-     * @return {@code true} if this node has a parent node, {@code false} if it is the root of the hierarchy
+     * @param searchMetric
+     *         the metric to get the value for
+     * @param defaultValue
+     *         the default value to return if no value has been defined for the specified metric
+     * @param <T>
+     *         the concrete type of the value
+     *
+     * @return coverage ratio
      */
-    public boolean hasParent() {
-        return !isRoot();
-    }
+    public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
+        var possiblyValue = searchMetric.getValueFor(this);
 
-    private void setParent(final Node parent) {
-        this.parent = Objects.requireNonNull(parent);
+        //noinspection unchecked
+        return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
     }
 
     /**
-     * Returns the name of the parent element or {@link #ROOT} if there is no such element.
+     * Aggregates all values that are part of the subtree that is spanned by this node.
      *
-     * @return the name of the parent element
+     * @return aggregation of values below this tree
      */
-    public String getParentName() {
-        if (parent == null) {
-            return ROOT;
-        }
-        Metric type = parent.getMetric();
+    public List<Value> aggregateValues() {
+        return getMetrics().stream().map(this::getValue).flatMap(Optional::stream)
+                .collect(Collectors.toList());
+    }
 
-        List<String> parentsOfSameType = new ArrayList<>();
-        for (Node node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
-            parentsOfSameType.add(0, node.getName());
+    /**
+     * Computes the delta of all metrics between this node and the specified reference node as fractions. Each delta
+     * value is computed by the value specific {@link Value#delta(Value)} method. If the reference node does not contain
+     * a specific metric, then no delta is computed and the metric is omitted in the result map.
+     *
+     * @param reference
+     *         the reference node
+     *
+     * @return the delta coverage for each available metric as fraction
+     */
+    public NavigableMap<Metric, Fraction> computeDelta(final Node reference) {
+        NavigableMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
+        NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
+        NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
+
+        for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
+            Metric key = entry.getKey();
+            if (referencePercentages.containsKey(key)) {
+                deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
+            }
         }
-        return String.join(DOT, parentsOfSameType);
+        return deltaPercentages;
     }
 
     /**
@@ -479,6 +511,23 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Returns the file names that are contained within the subtree of this node.
+     *
+     * @return the file names
+     */
+    public Set<String> getFiles() {
+        return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    public List<FileNode> getAllFileNodes() {
+        return getAll(Metric.FILE).stream().map(FileNode.class::cast).collect(Collectors.toList());
+    }
+
+    public List<MethodNode> getAllMethodNodes() {
+        return getAll(Metric.METHOD).stream().map(MethodNode.class::cast).collect(Collectors.toList());
+    }
+
+    /**
      * Finds the metric with the given hash code starting from this node.
      *
      * @param searchMetric
@@ -542,7 +591,7 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Recursively copies the tree with the passed {@link Node} as root.
+     * Creates a deep copy of the tree with the specified {@link Node} as root.
      *
      * @param copiedParent
      *         The root node
@@ -596,7 +645,7 @@ public abstract class Node implements Serializable {
      *         if this root node is not compatible to the {@code other} root node
      */
     @SuppressWarnings({"ReferenceEquality", "PMD.CompareObjectsWithEquals"})
-    public Node combineWith(final Node other) {
+    public Node merge(final Node other) {
         if (other == this) {
             return this; // nothing to do
         }
@@ -608,7 +657,7 @@ public abstract class Node implements Serializable {
 
         if (getName().equals(other.getName())) {
             Node combinedReport = copyTree();
-            combinedReport.safelyCombineChildren(other);
+            combinedReport.mergeChildren(other);
             return combinedReport;
         }
         else {
@@ -617,13 +666,13 @@ public abstract class Node implements Serializable {
         }
     }
 
-    private void safelyCombineChildren(final Node other) {
+    private void mergeChildren(final Node other) {
         other.values.forEach(this::mergeValues);
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
                     .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
             if (existingChild.isPresent()) {
-                existingChild.get().safelyCombineChildren(otherChild);
+                existingChild.get().mergeChildren(otherChild);
             }
             else {
                 addChild(otherChild.copyTree());
@@ -631,49 +680,16 @@ public abstract class Node implements Serializable {
         });
     }
 
-    private void mergeValues(final Value ov) {
-        if (getMetricsOfValues().anyMatch(v -> v.equals(ov.getMetric()))) {
-            var old = getValueOf(ov.getMetric());
+    private void mergeValues(final Value otherValue) {
+        if (getMetricsOfValues().anyMatch(v -> v.equals(otherValue.getMetric()))) {
+            var old = getValueOf(otherValue.getMetric());
             if (hasChildren()) {
-                replaceValue(old.add(ov));
+                replaceValue(old.add(otherValue));
             }
             else {
-                replaceValue(old.max(ov));
+                replaceValue(old.max(otherValue));
             }
         }
-    }
-
-    /**
-     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
-     * of.
-     *
-     * @param searchMetric
-     *         the metric to get the value for
-     *
-     * @return coverage ratio
-     */
-    public Optional<Value> getValue(final Metric searchMetric) {
-        return searchMetric.getValueFor(this);
-    }
-
-    /**
-     * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
-     * of.
-     *
-     * @param searchMetric
-     *         the metric to get the value for
-     * @param defaultValue
-     *         the default value to return if no value has been defined for the specified metric
-     * @param <T>
-     *         the concrete type of the value
-     *
-     * @return coverage ratio
-     */
-    public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
-        var possiblyValue = searchMetric.getValueFor(this);
-
-        //noinspection unchecked
-        return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
     }
 
     @Override
@@ -699,25 +715,17 @@ public abstract class Node implements Serializable {
         return String.format("[%s] %s <%d>", getMetric(), getName(), children.size());
     }
 
-    /**
-     * Returns the file names that are contained within the subtree of this node.
-     *
-     * @return the file names
-     */
-    public Set<String> getFiles() {
-        return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
-    }
-
-    public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE).stream().map(FileNode.class::cast).collect(Collectors.toList());
-    }
-
-    public List<MethodNode> getAllMethodNodes() {
-        return getAll(Metric.METHOD).stream().map(MethodNode.class::cast).collect(Collectors.toList());
-    }
-
     public boolean isEmpty() {
         return getChildren().isEmpty() && getValues().isEmpty();
+    }
+
+    /**
+     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
+     *
+     * @return {@code true} whether code changes have been detected
+     */
+    public boolean hasChangedLines() {
+        return getChildren().stream().anyMatch(Node::hasChangedLines);
     }
 
     /**

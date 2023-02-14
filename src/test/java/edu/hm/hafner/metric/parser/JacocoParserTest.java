@@ -69,7 +69,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         Node any = tree.getAll(FILE)
                 .stream()
-                .filter(n -> n.getName().equals("Ensure.java"))
+                .filter(n -> "Ensure.java".equals(n.getName()))
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
         assertThat(any.getValue(LINE)).contains(builder.setMetric(LINE).setCovered(100).setMissed(25).build());

@@ -66,7 +66,7 @@ public abstract class CoverageParser implements Serializable {
         }
     }
 
-    protected ParsingException createEofException() {
+    protected static ParsingException createEofException() {
         return new ParsingException("Unexpected end of file");
     }
 }

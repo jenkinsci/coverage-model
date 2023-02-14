@@ -55,7 +55,7 @@ abstract class AbstractNodeTest {
         assertThat(child.find(getMetric(), CHILD)).contains(child);
 
         verifySingleNode(parent.copyNode());
-        assertThat(parent.combineWith(parent)).isEqualTo(parent);
+        assertThat(parent.merge(parent)).isEqualTo(parent);
         assertThat(parent.copyTree()).isEqualTo(parent);
     }
 

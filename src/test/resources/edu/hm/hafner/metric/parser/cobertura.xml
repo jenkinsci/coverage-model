@@ -2,7 +2,7 @@
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 <coverage line-rate="0.76829268292683" branch-rate="0" lines-covered="63" lines-valid="82" branches-covered="0" branches-valid="0" complexity="22" version="0.4" timestamp="1653406063">
   <sources>
-    <source>\app/app/code/Invocare/InventoryBranch</source>
+    <source>/app/app/code/Invocare/InventoryBranch</source>
   </sources>
   <packages>
     <package name="" line-rate="0" branch-rate="0" complexity="0">

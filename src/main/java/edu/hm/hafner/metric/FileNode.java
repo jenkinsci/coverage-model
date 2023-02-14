@@ -139,6 +139,7 @@ public final class FileNode extends Node {
     }
 
     @Override
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     protected Optional<Node> filterByIndirectChanges() {
         if (!hasIndirectCoverageChanges()) {
             return Optional.empty();

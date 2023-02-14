@@ -70,6 +70,7 @@ public abstract class Value implements Serializable {
      * @throws IllegalArgumentException
      *         if the string is not a valid cov instance
      */
+    @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
     public static Value valueOf(final String stringRepresentation) {
         var errorMessage = String.format("Cannot convert '%s' to a valid Value instance.", stringRepresentation);
         try {
