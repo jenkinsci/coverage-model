@@ -97,7 +97,7 @@ public final class ModuleNode extends Node {
             if (isEqual(packageNode, existing)) {
                 // replace existing with merged two nodes
                 removeChild(existing);
-                Node merged = existing.combineWith(packageNode);
+                Node merged = existing.merge(packageNode);
                 addChild(merged);
 
                 return;

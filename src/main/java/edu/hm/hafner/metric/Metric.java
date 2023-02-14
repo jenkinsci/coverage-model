@@ -116,7 +116,6 @@ public enum Metric {
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
                 var builder = new CoverageBuilder().setMetric(searchMetric);
-                // FIXME: create a checked method that will return the null object
                 Optional<Value> lineCoverage = LINE.getValueFor(node);
                 if (lineCoverage.isPresent() && ((Coverage) lineCoverage.get()).getCovered() > 0) {
                     builder.setCovered(1).setMissed(0);

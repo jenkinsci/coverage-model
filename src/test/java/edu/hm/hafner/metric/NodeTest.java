@@ -258,10 +258,10 @@ class NodeTest {
 
         assertThatIllegalArgumentException()
                 .as("Should not accept incompatible nodes (different metric)")
-                .isThrownBy(() -> module.combineWith(pkg));
+                .isThrownBy(() -> module.merge(pkg));
         assertThatIllegalArgumentException()
                 .as("Should not accept incompatible nodes (different name)")
-                .isThrownBy(() -> module.combineWith(moduleTwo));
+                .isThrownBy(() -> module.merge(moduleTwo));
     }
 
     @Test
@@ -273,7 +273,7 @@ class NodeTest {
 
         module.addChild(pkgOne);
         sameModule.addChild(pkgTwo);
-        var combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.merge(sameModule);
 
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
@@ -289,7 +289,7 @@ class NodeTest {
 
         module.addChild(pkg);
         sameModule.addChild(samePackage);
-        var combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.merge(sameModule);
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(1);
@@ -305,7 +305,7 @@ class NodeTest {
         module.addChild(pkg);
         sameModule.addChild(pkgTwo);
         sameModule.addChild(pkg.copy());
-        var combinedReport = module.combineWith(sameModule);
+        var combinedReport = module.merge(sameModule);
 
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
@@ -330,7 +330,7 @@ class NodeTest {
         module.addChild(pkg);
         samePackage.addChild(otherFileToKeep);
         sameModule.addChild(samePackage);
-        Node combinedReport = module.combineWith(sameModule);
+        Node combinedReport = module.merge(sameModule);
 
         assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep, otherFileToKeep);
 
@@ -355,12 +355,12 @@ class NodeTest {
         samePackage.addChild(sameFileToKeep);
         sameFileToKeep.addChild(classA);
 
-        Node combinedReport = module.combineWith(sameModule);
+        Node combinedReport = module.merge(sameModule);
         assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep);
         assertThat(combinedReport.getAll(CLASS)).hasSize(1);
 
         sameFileToKeep.addChild(classB);
-        Node combinedReport2Classes = module.combineWith(sameModule);
+        Node combinedReport2Classes = module.merge(sameModule);
         assertThat(combinedReport2Classes.getAll(CLASS)).hasSize(2);
         assertThat(combinedReport2Classes.getChildren().get(0).getChildren().get(0)).hasOnlyChildren(classA, classB);
     }
@@ -399,7 +399,7 @@ class NodeTest {
         otherNode.getAll(CLASS).get(0).addChild(addMethod); // the same class node in the copied tree
         addMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build());
 
-        Node combinedReport = module.combineWith(otherNode);
+        Node combinedReport = module.merge(otherNode);
         assertThat(combinedReport.getAll(METHOD)).hasSize(2);
         assertThat(getCoverage(combinedReport, LINE)).hasCovered(1).hasMissed(1);
     }
@@ -414,7 +414,7 @@ class NodeTest {
         method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(8).build());
         methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
 
-        Node combinedReport = module.combineWith(sameProject);
+        Node combinedReport = module.merge(sameProject);
         assertThat(combinedReport.getAll(METHOD)).hasSize(1);
         assertThat(getCoverage(combinedReport, LINE)).hasCovered(5).hasMissed(5);
     }
@@ -427,13 +427,13 @@ class NodeTest {
         Node sameProject = setUpNodeTree();
         Node methodOtherCov = sameProject.getAll(METHOD).get(0);
 
-        assertThat(module.combineWith(sameProject)).isEqualTo(
+        assertThat(module.merge(sameProject)).isEqualTo(
                 module); // should not throw error if no line coverage exists for method
 
         method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
         methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(7).build());
         assertThatExceptionOfType(AssertionError.class)
-                .isThrownBy(() -> module.combineWith(sameProject))
+                .isThrownBy(() -> module.merge(sameProject))
                 .withMessageContaining("Cannot compute maximum of coverages", "(5/10)", "(2/9)");
     }
 
@@ -451,7 +451,7 @@ class NodeTest {
         method.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(7).setMissed(8).build());
         methodOtherCov.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(5).setMissed(10).build());
 
-        Node combinedReport = module.combineWith(sameProject);
+        Node combinedReport = module.merge(sameProject);
         assertThat(getCoverage(combinedReport, LINE)).hasCovered(5).hasMissed(5);
         assertThat(getCoverage(combinedReport, BRANCH)).hasCovered(12).hasMissed(3);
         assertThat(getCoverage(combinedReport, INSTRUCTION)).hasCovered(7).hasMissed(8);
@@ -482,7 +482,7 @@ class NodeTest {
         report.getAll(PACKAGE).get(0).addChild(pkgCovFile);
         otherReport.getAll(PACKAGE).get(0).addChild(covLeavefile);
 
-        var combinedReport = report.combineWith(otherReport);
+        var combinedReport = report.merge(otherReport);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
         assertThat(combinedReport.getAll(FILE)).hasSize(4);
         assertThat(combinedReport.getAll(CLASS)).hasSize(3);
@@ -499,7 +499,7 @@ class NodeTest {
 
         project.addChild(coveragePkg);
         sameProject.addChild(autogradingPkg);
-        Node combinedReport = project.combineWith(sameProject);
+        Node combinedReport = project.merge(sameProject);
 
         assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).get())
                 .isNotSameAs(coveragePkg);
@@ -522,7 +522,7 @@ class NodeTest {
         report.find(FILE, file.getName()).get().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
-        Node combined = report.combineWith(otherReport);
+        Node combined = report.merge(otherReport);
         assertThat(getCoverage(combined, LINE)).hasMissed(10).hasCovered(90);
     }
 
@@ -540,7 +540,7 @@ class NodeTest {
         report.find(FILE, file.getName()).get().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
-        Node combined = report.combineWith(otherReport);
+        Node combined = report.merge(otherReport);
         assertThat(getCoverage(combined, LINE)).hasMissed(20).hasCovered(80);
     }
 
@@ -566,9 +566,9 @@ class NodeTest {
         report.find(FILE, file.getName()).get().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
-        assertThat(getCoverage(report.combineWith(otherReport), LINE)).hasMissed(10).hasCovered(90);
-        assertThat(getCoverage(otherReport.combineWith(report), LINE)).hasMissed(10).hasCovered(90);
-        assertThat(report.combineWith(otherReport).find(covNodeClass.getMetric(), covNodeClass.getName()).get())
+        assertThat(getCoverage(report.merge(otherReport), LINE)).hasMissed(10).hasCovered(90);
+        assertThat(getCoverage(otherReport.merge(report), LINE)).hasMissed(10).hasCovered(90);
+        assertThat(report.merge(otherReport).find(covNodeClass.getMetric(), covNodeClass.getName()).get())
                 .isNotSameAs(covNodeClass);
     }
 
