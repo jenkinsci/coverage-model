@@ -23,6 +23,7 @@ import edu.hm.hafner.metric.MethodNode;
 import edu.hm.hafner.metric.Metric;
 import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Mutation;
+import edu.hm.hafner.metric.Mutation.MutationBuilder;
 import edu.hm.hafner.metric.MutationStatus;
 import edu.hm.hafner.metric.Mutator;
 import edu.hm.hafner.util.FilteredLog;
@@ -138,7 +139,7 @@ public class PitestParser extends CoverageParser {
                 readProperty(reader, builder);
             }
             else if (event.isEndElement()) {
-                builder.build(root);
+                builder.buildAndAddToModule(root);
                 return;
             }
         }
@@ -183,83 +184,6 @@ public class PitestParser extends CoverageParser {
                 }
                 return;
             }
-        }
-    }
-
-    private static class MutationBuilder {
-        private boolean isDetected;
-        private MutationStatus status = MutationStatus.NO_COVERAGE;
-        private int lineNumber;
-        private Mutator mutator = Mutator.NOT_SPECIFIED;
-        private String killingTest = StringUtils.EMPTY;
-        private String description = StringUtils.EMPTY;
-        private String sourceFile = StringUtils.EMPTY;
-        private String mutatedClass = StringUtils.EMPTY;
-        private String mutatedMethod = StringUtils.EMPTY;
-        private String mutatedMethodSignature = StringUtils.EMPTY;
-
-        private void setIsDetected(final boolean isDetected) {
-            this.isDetected = isDetected;
-        }
-
-        private void setStatus(final MutationStatus status) {
-            this.status = status;
-        }
-
-        private void setLineNumber(final String lineNumber) {
-            this.lineNumber = parseInteger(lineNumber);
-        }
-
-        private void setMutator(final Mutator mutator) {
-            this.mutator = mutator;
-        }
-
-        private void setKillingTest(final String killingTest) {
-            this.killingTest = killingTest;
-        }
-
-        private void setDescription(final String description) {
-            this.description = description;
-        }
-
-        private void setSourceFile(final String sourceFile) {
-            this.sourceFile = sourceFile;
-        }
-
-        private void setMutatedClass(final String mutatedClass) {
-            this.mutatedClass = mutatedClass;
-        }
-
-        private void setMutatedMethod(final String mutatedMethod) {
-            this.mutatedMethod = mutatedMethod;
-        }
-
-        private void setMutatedMethodSignature(final String mutatedMethodSignature) {
-            this.mutatedMethodSignature = mutatedMethodSignature;
-        }
-
-        private void build(final ModuleNode root) {
-            String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
-            String className = StringUtils.substringAfterLast(mutatedClass, ".");
-            var packageNode = root.findPackage(packageName).orElseGet(() -> root.createPackageNode(packageName));
-            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> packageNode.createFileNode(sourceFile));
-            var classNode = fileNode.findClass(className).orElseGet(() -> fileNode.createClassNode(className));
-            var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
-                    .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
-
-            var coverage = methodNode.getValue(Metric.MUTATION)
-                    .map(Coverage.class::cast)
-                    .orElse(Coverage.nullObject(Metric.MUTATION));
-            var builder = new CoverageBuilder(coverage);
-            if (isDetected) {
-                builder.incrementCovered();
-            }
-            else {
-                builder.incrementMissed();
-            }
-            methodNode.replaceValue(builder.build());
-            methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
-                    mutatedClass, mutatedMethod, mutatedMethodSignature, description));
         }
     }
 }
