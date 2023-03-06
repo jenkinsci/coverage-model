@@ -13,14 +13,15 @@ import edu.hm.hafner.metric.Coverage.CoverageBuilder;
  * @author Melissa Bauer
  */
 @SuppressWarnings("PMD.DataClass")
+// FIXME: use TreeString instead of String
 public final class Mutation implements Serializable {
     private static final long serialVersionUID = -7725185756332899065L;
 
     private final boolean detected;
     private final MutationStatus status;
-    private int lineNumber;
-    private String mutator;
-    private String killingTest;
+    private final int lineNumber;
+    private final String mutator;
+    private final String killingTest;
     private final String mutatedClass;
     private final String method;
     private final String signature;
@@ -81,20 +82,8 @@ public final class Mutation implements Serializable {
         return lineNumber;
     }
 
-    public void setLineNumber(final int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
-
     public String getMutator() {
         return mutator;
-    }
-
-    public void setMutator(final String mutator) {
-        this.mutator = mutator;
-    }
-
-    public void setKillingTest(final String killingTest) {
-        this.killingTest = killingTest;
     }
 
     public String getKillingTest() {
@@ -232,7 +221,7 @@ public final class Mutation implements Serializable {
                 builder.incrementMissed();
             }
             methodNode.replaceValue(builder.build());
-            methodNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
+            fileNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
                     mutatedClass, mutatedMethod, mutatedMethodSignature, description));
         }
     }

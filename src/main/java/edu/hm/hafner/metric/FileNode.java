@@ -1,5 +1,6 @@
 package edu.hm.hafner.metric;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ public final class FileNode extends Node {
 
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
+
+    private final List<Mutation> mutations = new ArrayList<>();
 
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
@@ -445,6 +448,19 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Adds a mutation to the method.
+     *
+     * @param mutation the mutation to add
+     */
+    public void addMutation(final Mutation mutation) {
+        mutations.add(mutation);
+    }
+
+    public List<Mutation> getMutations() {
+        return Collections.unmodifiableList(mutations);
+    }
+
+    /**
      * Create a new class node with the given name and add it to the list of children.
      *
      * @param className
@@ -486,6 +502,7 @@ public final class FileNode extends Node {
         FileNode fileNode = (FileNode) o;
         return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
                 && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(mutations, fileNode.mutations)
                 && Objects.equals(modifiedLines, fileNode.modifiedLines)
                 && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
                 && Objects.equals(coverageDelta, fileNode.coverageDelta);
@@ -493,7 +510,7 @@ public final class FileNode extends Node {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
-                coverageDelta);
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
+                indirectCoverageChanges, coverageDelta);
     }
 }
