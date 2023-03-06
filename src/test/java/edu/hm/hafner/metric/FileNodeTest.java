@@ -42,8 +42,4 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
         assertThat(file.getAll(Metric.FILE)).containsExactly(file);
     }
-
-    @Test
-    void shouldName() {
-    }
 }

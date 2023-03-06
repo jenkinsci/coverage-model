@@ -592,6 +592,9 @@ class NodeTest {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2);
+
+            assertThat(file.getMissedLines()).containsExactly(11, 13);
+            assertThat(file.getMissedBranches()).containsExactly(entry(14, 4), entry(16, 2));
         });
     }
 
@@ -650,6 +653,9 @@ class NodeTest {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2, 1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2, 0, 1, 0, 1, 4, 0, 2);
+
+            assertThat(file.getMissedLines()).containsExactly(11, 13, 21, 23);
+            assertThat(file.getMissedBranches()).containsExactly(entry(14, 4), entry(16, 2), entry(24, 4), entry(26, 2));
         });
     }
 
