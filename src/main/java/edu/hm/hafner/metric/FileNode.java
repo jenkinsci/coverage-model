@@ -415,6 +415,31 @@ public final class FileNode extends Node {
         return map.values().stream().mapToInt(i -> i).toArray();
     }
 
+    /**
+     * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
+     * these are reported separately in {@link #getMissedBranches()}.
+     *
+     * @return the lines that have no line coverage
+     */
+    public NavigableSet<Integer> getMissedLines() {
+        return getLinesWithCoverage().stream()
+                .filter(line -> getCoveredOfLine(line) == 0 && getMissedOfLine(line) == 1)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    /**
+     * Returns the lines that have a branch coverage less than 100%. The returned map contains the line number as the
+     * key and the number of missed branches as value.
+     *
+     * @return the mapping of not fully covered lines to the number of missed branches
+     */
+    public NavigableMap<Integer, Integer> getMissedBranches() {
+        return getLinesWithCoverage().stream()
+                .filter(line -> getCoveredOfLine(line) + getMissedOfLine(line) > 1)
+                .filter(line -> getMissedOfLine(line) > 0)
+                .collect(Collectors.toMap(line -> line, missedPerLine::get, (a, b) -> a, TreeMap::new));
+    }
+
     public NavigableMap<Integer, Integer> getCounters() {
         return Collections.unmodifiableNavigableMap(coveredPerLine);
     }
@@ -470,30 +495,5 @@ public final class FileNode extends Node {
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, modifiedLines, indirectCoverageChanges,
                 coverageDelta);
-    }
-
-    /**
-     * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
-     * these are reported separately in {@link #getMissedBranches()}.
-     *
-     * @return the lines that have no line coverage
-     */
-    public NavigableSet<Integer> getMissedLines() {
-        return getLinesWithCoverage().stream()
-                .filter(line -> getCoveredOfLine(line) == 0 && getMissedOfLine(line) == 1)
-                .collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    /**
-     * Returns the lines that have a branch coverage less than 100%. The returned map contains the line number as the
-     * key and the number of missed branches as value.
-     *
-     * @return the mapping of not fully covered lines to the number of missed branches
-     */
-    public NavigableMap<Integer, Integer> getMissedBranches() {
-        return getLinesWithCoverage().stream()
-                .filter(line -> getCoveredOfLine(line) + getMissedOfLine(line) > 1)
-                .filter(line -> getMissedOfLine(line) > 0)
-                .collect(Collectors.toMap(line -> line, missedPerLine::get, (a, b) -> a, TreeMap::new));
     }
 }

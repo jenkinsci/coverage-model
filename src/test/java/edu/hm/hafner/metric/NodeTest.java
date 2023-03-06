@@ -12,8 +12,7 @@ import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
 import static edu.hm.hafner.metric.Metric.*;
-import static edu.hm.hafner.metric.assertions.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.metric.assertions.Assertions.*;
 
 /**
  * Tests the class {@link Node}.
@@ -599,7 +598,7 @@ class NodeTest {
     }
 
     private void verifyCountersOfCoveredClass(final FileNode file) {
-        assertThat(file).hasOnlyChangedLines(10, 11, 12, 13, 14, 15, 16);
+        assertThat(file).hasOnlyModifiedLines(10, 11, 12, 13, 14, 15, 16);
         assertThat(file.getIndirectCoverageChanges()).isEmpty();
         List.of(10, 11, 12, 13, 14, 15, 16).forEach(line -> {
             assertThat(file.hasModifiedLine(line)).isTrue();

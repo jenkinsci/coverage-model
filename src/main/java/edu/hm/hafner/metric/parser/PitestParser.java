@@ -25,7 +25,6 @@ import edu.hm.hafner.metric.ModuleNode;
 import edu.hm.hafner.metric.Mutation;
 import edu.hm.hafner.metric.Mutation.MutationBuilder;
 import edu.hm.hafner.metric.MutationStatus;
-import edu.hm.hafner.metric.Mutator;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
@@ -159,7 +158,7 @@ public class PitestParser extends CoverageParser {
                 var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
                 var name = event.asEndElement().getName();
                 if (name.equals(MUTATOR)) {
-                    builder.setMutator(Mutator.fromPath(content));
+                    builder.setMutator(content);
                 }
                 else if (name.equals(KILLING_TEST)) {
                     builder.setKillingTest(content);

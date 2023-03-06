@@ -19,7 +19,7 @@ public final class Mutation implements Serializable {
     private final boolean detected;
     private final MutationStatus status;
     private int lineNumber;
-    private Mutator mutator;
+    private String mutator;
     private String killingTest;
     private final String mutatedClass;
     private final String method;
@@ -27,7 +27,7 @@ public final class Mutation implements Serializable {
     private final String description;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private Mutation(final boolean detected, final MutationStatus status, final int lineNumber, final Mutator mutator,
+    private Mutation(final boolean detected, final MutationStatus status, final int lineNumber, final String mutator,
             final String killingTest, final String mutatedClass,
             final String method, final String signature, final String description) {
         this.detected = detected;
@@ -85,11 +85,11 @@ public final class Mutation implements Serializable {
         this.lineNumber = lineNumber;
     }
 
-    public Mutator getMutator() {
+    public String getMutator() {
         return mutator;
     }
 
-    public void setMutator(final Mutator mutator) {
+    public void setMutator(final String mutator) {
         this.mutator = mutator;
     }
 
@@ -139,12 +139,16 @@ public final class Mutation implements Serializable {
         }
         Mutation mutation = (Mutation) o;
         return detected == mutation.detected && lineNumber == mutation.lineNumber && status == mutation.status
-                && mutator == mutation.mutator && Objects.equals(killingTest, mutation.killingTest);
+                && Objects.equals(mutator, mutation.mutator) && Objects.equals(killingTest,
+                mutation.killingTest) && Objects.equals(mutatedClass, mutation.mutatedClass)
+                && Objects.equals(method, mutation.method) && Objects.equals(signature,
+                mutation.signature) && Objects.equals(description, mutation.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(detected, status, lineNumber, mutator, killingTest);
+        return Objects.hash(detected, status, lineNumber, mutator, killingTest, mutatedClass, method, signature,
+                description);
     }
 
     /**
@@ -154,7 +158,7 @@ public final class Mutation implements Serializable {
         private boolean isDetected;
         private MutationStatus status = MutationStatus.NO_COVERAGE;
         private int lineNumber;
-        private Mutator mutator = Mutator.NOT_SPECIFIED;
+        private String mutator = StringUtils.EMPTY;
         private String killingTest = StringUtils.EMPTY;
         private String description = StringUtils.EMPTY;
         private String sourceFile = StringUtils.EMPTY;
@@ -174,7 +178,7 @@ public final class Mutation implements Serializable {
             this.lineNumber = CoverageParser.parseInteger(lineNumber);
         }
 
-        public void setMutator(final Mutator mutator) {
+        public void setMutator(final String mutator) {
             this.mutator = mutator;
         }
 
