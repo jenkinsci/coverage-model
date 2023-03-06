@@ -457,7 +457,6 @@ public final class Coverage extends Value {
          */
         public void incrementMissed() {
             setMissed(missed + 1);
-
         }
     }
 }

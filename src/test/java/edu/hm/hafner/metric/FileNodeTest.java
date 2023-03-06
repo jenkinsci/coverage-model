@@ -15,7 +15,7 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode(name);
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
-        fileNode.addModifiedLine(10);
+        fileNode.addModifiedLines(10);
         fileNode.addIndirectCoverageChange(15, 123);
         var empty = new FileNode("empty");
         fileNode.computeDelta(empty);
@@ -41,5 +41,9 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(module.getAll(Metric.FILE)).containsExactly(file);
         assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
         assertThat(file.getAll(Metric.FILE)).containsExactly(file);
+    }
+
+    @Test
+    void shouldName() {
     }
 }

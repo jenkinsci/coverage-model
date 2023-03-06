@@ -26,8 +26,10 @@ import edu.hm.hafner.util.PathUtil;
 @SuppressWarnings("PMD.GodClass")
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L;
+
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
+
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
@@ -53,7 +55,7 @@ public final class FileNode extends Node {
         return file;
     }
 
-    public SortedSet<Integer> getChangedLines() {
+    public SortedSet<Integer> getModifiedLines() {
         return modifiedLines;
     }
 
@@ -75,18 +77,20 @@ public final class FileNode extends Node {
      *
      * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
      */
-    public boolean hasChangedLine(final int line) {
+    public boolean hasModifiedLine(final int line) {
         return modifiedLines.contains(line);
     }
 
     /**
-     * Mark a specific line as being modified.
+     * Marks the specified lines as being modified.
      *
-     * @param line
-     *         the modified code line
+     * @param lines
+     *         the modified code lines
      */
-    public void addModifiedLine(final int line) {
-        modifiedLines.add(line);
+    public void addModifiedLines(final int... lines) {
+        for (int line : lines) {
+            modifiedLines.add(line);
+        }
     }
 
     @Override
@@ -103,11 +107,12 @@ public final class FileNode extends Node {
         for (int line : getCoveredLinesOfChangeSet()) {
             var covered = coveredPerLine.getOrDefault(line, 0);
             var missed = missedPerLine.getOrDefault(line, 0);
+            var total = covered + missed;
             copy.addCounters(line, covered, missed);
-            if (covered + missed == 0) {
+            if (total == 0) {
                 throw new IllegalArgumentException("No coverage for line " + line);
             }
-            else if (covered + missed == 1) {
+            else if (total == 1) {
                 lineCoverage = lineCoverage.add(lineBuilder.setCovered(covered).setMissed(missed).build());
             }
             else {
@@ -116,7 +121,7 @@ public final class FileNode extends Node {
                         lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
-            copy.addModifiedLine(line);
+            copy.addModifiedLines(line);
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
         return Optional.of(copy);
@@ -333,19 +338,8 @@ public final class FileNode extends Node {
      */
     public SortedSet<Integer> getCoveredLinesOfChangeSet() {
         SortedSet<Integer> coveredDelta = getLinesWithCoverage();
-        coveredDelta.retainAll(getChangedLines());
+        coveredDelta.retainAll(getModifiedLines());
         return coveredDelta;
-    }
-
-    /**
-     * Returns the line coverage results for lines that are part of the change set.
-     *
-     * @return the line coverage results for lines that are part of the change set.
-     */
-    public List<Coverage> getCoverageOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
-        coveredDelta.retainAll(getChangedLines());
-        return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
     }
 
     /**
@@ -356,6 +350,17 @@ public final class FileNode extends Node {
      */
     public boolean hasCoveredLinesInChangeSet() {
         return !getCoveredLinesOfChangeSet().isEmpty();
+    }
+
+    /**
+     * Returns the line coverage results for lines that are part of the change set.
+     *
+     * @return the line coverage results for lines that are part of the change set.
+     */
+    public List<Coverage> getCoverageOfChangeSet() {
+        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
+        coveredDelta.retainAll(getModifiedLines());
+        return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
     }
 
     /**
