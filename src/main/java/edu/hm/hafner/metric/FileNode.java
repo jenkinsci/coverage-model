@@ -420,7 +420,7 @@ public final class FileNode extends Node {
 
     /**
      * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
-     * these are reported separately in {@link #getMissedBranches()}.
+     * these are reported separately in {@link #getPartiallyCoveredLines()}.
      *
      * @return the lines that have no line coverage
      */
@@ -431,12 +431,24 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
+     * these are reported separately in {@link #getPartiallyCoveredLines()}.
+     *
+     * @return the lines that have no line coverage
+     */
+    public NavigableMap<Integer, Integer> getSurvivedMutations() {
+        return getMutations().stream()
+                .filter(Mutation::hasSurvived)
+                .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.summingInt(a -> 1)));
+    }
+
+    /**
      * Returns the lines that have a branch coverage less than 100%. The returned map contains the line number as the
      * key and the number of missed branches as value.
      *
      * @return the mapping of not fully covered lines to the number of missed branches
      */
-    public NavigableMap<Integer, Integer> getMissedBranches() {
+    public NavigableMap<Integer, Integer> getPartiallyCoveredLines() {
         return getLinesWithCoverage().stream()
                 .filter(line -> getCoveredOfLine(line) + getMissedOfLine(line) > 1)
                 .filter(line -> getMissedOfLine(line) > 0)

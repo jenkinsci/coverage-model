@@ -1,9 +1,8 @@
 package edu.hm.hafner.metric.parser;
 
 import java.io.Reader;
-import java.util.HashSet;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
@@ -14,7 +13,6 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.metric.Coverage;
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 import edu.hm.hafner.metric.CoverageParser;
 import edu.hm.hafner.metric.FileNode;
@@ -75,7 +73,7 @@ public class PitestParser extends CoverageParser {
             if (isEmpty) {
                 throw new NoSuchElementException("No mutations found in the specified file.");
             }
-            root.getAllFileNodes().forEach(this::collectLineCoverageForFiles);
+            root.getAllFileNodes().forEach(this::collectLineCoverage);
             return root;
         }
         catch (XMLStreamException exception) {
@@ -83,40 +81,28 @@ public class PitestParser extends CoverageParser {
         }
     }
 
-    private void collectLineCoverageForFiles(final FileNode fileNode) {
-        collectLineCoverage(fileNode);
-        collectCounters(fileNode);
+    private void collectLineCoverage(final FileNode fileNode) {
+        var builder = new CoverageBuilder(Metric.LINE);
+        var coveredLine = builder.setCovered(1).setMissed(0).build();
+        var uncoveredLine = builder.setCovered(0).setMissed(1).build();
+
+        var lineMapping = collectLines(fileNode, Mutation::isCovered).stream()
+                .collect(Collectors.toMap(k -> k, v -> coveredLine));
+        var covered = lineMapping.size();
+
+        collectLines(fileNode, Mutation::isMissed).forEach(line -> lineMapping.put(line, uncoveredLine));
+        var missed = lineMapping.size() - covered;
+
+        lineMapping.forEach((line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
+        fileNode.addValue(builder.setCovered(covered).setMissed(missed).build());
     }
 
-    private static List<Integer> collectLines(final FileNode fileNode,
+    private static Set<Integer> collectLines(final FileNode fileNode,
             final Predicate<Mutation> filterPredicate) {
         return fileNode.getMutations().stream()
                 .filter(filterPredicate)
-                .map(Mutation::getLineNumber)
-                .collect(Collectors.toList());
-    }
-
-    private void collectCounters(final FileNode fileNode) {
-        var builder = new CoverageBuilder(Metric.LINE);
-        var killed = builder.setCovered(1).setMissed(0).build();
-        var survived = builder.setCovered(0).setMissed(1).build();
-
-        var lineMapping = collectLines(fileNode, Mutation::isDetected).stream()
-                .collect(Collectors.toMap(k -> k, v -> killed, Coverage::add));
-        collectLines(fileNode, Predicate.not(Mutation::isDetected))
-                .forEach(line -> lineMapping.merge(line, survived, Coverage::add));
-
-        lineMapping.forEach((line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
-    }
-
-    private void collectLineCoverage(final FileNode fileNode) {
-        var coveredLines = collectLines(fileNode, Mutation::isCovered);
-        var missedLines = collectLines(fileNode, Mutation::isMissed);
-        if (new HashSet<>(coveredLines).removeAll(missedLines)) {
-            throw new IllegalStateException("Line coverage is not exclusive: " + coveredLines); // FIXME: should we remove that check before going live?
-        }
-        var builder = new CoverageBuilder(Metric.LINE);
-        fileNode.addValue(builder.setCovered(coveredLines.size()).setMissed(missedLines.size()).build());
+                .map(Mutation::getLine)
+                .collect(Collectors.toSet());
     }
 
     private void readMutation(final XMLEventReader reader, final ModuleNode root, final StartElement mutationElement)

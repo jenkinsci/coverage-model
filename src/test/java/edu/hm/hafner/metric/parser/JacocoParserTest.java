@@ -78,6 +78,10 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
 
         verifyCoverageMetrics(tree);
+
+        var log = tree.findFile("TreeStringBuilder.java").orElseThrow();
+        assertThat(log.getMissedLines()).containsExactly(61, 62);
+        assertThat(log.getPartiallyCoveredLines()).containsExactly(entry(113, 1));
     }
 
     @Test
