@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
+import edu.hm.hafner.metric.Mutation.MutationBuilder;
 
 import static edu.hm.hafner.metric.Metric.CLASS;
 import static edu.hm.hafner.metric.Metric.FILE;
@@ -465,7 +466,7 @@ class NodeTest {
         var report = setUpNodeTree();
         var otherReport = setUpNodeTree();
 
-        // Difference on Package Level
+        // Difference on package level
         var autograding = new PackageNode("autograding");
         var file = new FileNode("Main.java");
         var mainClass = new ClassNode("Main.class");
@@ -477,13 +478,13 @@ class NodeTest {
         mainClass.addChild(mainMethod);
         mainMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(8).setMissed(2).build());
 
-        // Difference on File Level
-        var covLeavefile = new FileNode("Leaf");
+        // Difference on file level
+        var leaf = new FileNode("Leaf");
         var pkgCovFile = new FileNode("HelloWorld");
-        covLeavefile.addChild(mainClass.copyTree());
+        leaf.addChild(mainClass.copyTree());
 
         report.getAll(PACKAGE).get(0).addChild(pkgCovFile);
-        otherReport.getAll(PACKAGE).get(0).addChild(covLeavefile);
+        otherReport.getAll(PACKAGE).get(0).addChild(leaf);
 
         var combinedReport = report.merge(otherReport);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
@@ -586,19 +587,22 @@ class NodeTest {
                 builder.setMetric(LINE).setCovered(4).setMissed(3).build());
         assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
                 builder.setMetric(BRANCH).setCovered(6).setMissed(6).build());
+        assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
+                builder.setMetric(MUTATION).setCovered(1).setMissed(2).build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2);
-
             assertThat(file.getMissedLines()).containsExactly(11, 13);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(14, 4), entry(16, 2));
+            assertThat(file.getMutations()).hasSize(3)
+                    .extracting(Mutation::getLine).containsExactlyInAnyOrder(17, 18, 19);
         });
     }
 
     private void verifyCountersOfCoveredClass(final FileNode file) {
-        assertThat(file).hasOnlyModifiedLines(10, 11, 12, 13, 14, 15, 16);
+        assertThat(file).hasOnlyModifiedLines(10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
         assertThat(file.getIndirectCoverageChanges()).isEmpty();
         List.of(10, 11, 12, 13, 14, 15, 16).forEach(line -> {
             assertThat(file.hasModifiedLine(line)).isTrue();
@@ -647,14 +651,17 @@ class NodeTest {
                 builder.setMetric(LINE).setCovered(8).setMissed(6).build());
         assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
                 builder.setMetric(BRANCH).setCovered(12).setMissed(12).build());
+        assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
+                builder.setMetric(MUTATION).setCovered(2).setMissed(4).build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2, 1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2, 0, 1, 0, 1, 4, 0, 2);
-
             assertThat(file.getMissedLines()).containsExactly(11, 13, 21, 23);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(14, 4), entry(16, 2), entry(24, 4), entry(26, 2));
+            assertThat(file.getMutations()).hasSize(6)
+                    .extracting(Mutation::getLine).containsExactlyInAnyOrder(17, 18, 19, 27, 28, 29);
         });
     }
 
@@ -694,7 +701,8 @@ class NodeTest {
     private void registerCodeChangesAndCoverage(final FileNode file) {
         file.addModifiedLines(
                 10, 11, 12, 13, // line
-                14, 15, 16 // branch
+                14, 15, 16, // branch
+                17, 18, 19 // mutation
         );
 
         var classNode = file.createClassNode(CLASS_WITH_MODIFICATIONS);
@@ -703,6 +711,7 @@ class NodeTest {
         var builder = new CoverageBuilder();
         classNode.addValue(builder.setMetric(LINE).setCovered(4).setMissed(3).build());
         classNode.addValue(builder.setMetric(BRANCH).setCovered(6).setMissed(6).build());
+        classNode.addValue(builder.setMetric(MUTATION).setCovered(2).setMissed(4).build());
     }
 
     private void addCounters(final FileNode fileNode, final ClassNode classNode, final int offset) {
@@ -714,6 +723,12 @@ class NodeTest {
         fileNode.addCounters(14 + offset, 0, 4);
         fileNode.addCounters(15 + offset, 4, 0);
         fileNode.addCounters(16 + offset, 2, 2);
+
+        MutationBuilder builder = new MutationBuilder().setMutatedClass(classNode.getName()).setMutatedMethod("method");
+
+        fileNode.addMutation(builder.setLine(17 + offset).setStatus(MutationStatus.KILLED).setIsDetected(true).build());
+        fileNode.addMutation(builder.setLine(18 + offset).setStatus(MutationStatus.SURVIVED).setIsDetected(false).build());
+        fileNode.addMutation(builder.setLine(19 + offset).setStatus(MutationStatus.NO_COVERAGE).setIsDetected(false).build());
     }
 
     private void registerCoverageWithoutChange(final FileNode file) {

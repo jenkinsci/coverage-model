@@ -143,10 +143,11 @@ public final class Mutation implements Serializable {
     /**
      * Builder to create new {@link Mutation} instances.
      */
+    @SuppressWarnings({"checkstyle:MissingJavadocMethod", "UnusedReturnValue"})
     public static class MutationBuilder {
         private boolean isDetected;
         private MutationStatus status = MutationStatus.NO_COVERAGE;
-        private int lineNumber;
+        private int line;
         private String mutator = StringUtils.EMPTY;
         private String killingTest = StringUtils.EMPTY;
         private String description = StringUtils.EMPTY;
@@ -155,44 +156,70 @@ public final class Mutation implements Serializable {
         private String mutatedMethod = StringUtils.EMPTY;
         private String mutatedMethodSignature = StringUtils.EMPTY;
 
-        public void setIsDetected(final boolean isDetected) {
+        public MutationBuilder setIsDetected(final boolean isDetected) {
             this.isDetected = isDetected;
+
+            return this;
         }
 
-        public void setStatus(final MutationStatus status) {
+        public MutationBuilder setStatus(final MutationStatus status) {
             this.status = status;
+
+            return this;
         }
 
-        public void setLineNumber(final String lineNumber) {
-            this.lineNumber = CoverageParser.parseInteger(lineNumber);
+        public MutationBuilder setLine(final String line) {
+            this.line = CoverageParser.parseInteger(line);
+
+            return this;
         }
 
-        public void setMutator(final String mutator) {
+        public MutationBuilder setLine(final int line) {
+            this.line = line;
+
+            return this;
+        }
+
+        public MutationBuilder setMutator(final String mutator) {
             this.mutator = mutator;
+
+            return this;
         }
 
-        public void setKillingTest(final String killingTest) {
+        public MutationBuilder setKillingTest(final String killingTest) {
             this.killingTest = killingTest;
+
+            return this;
         }
 
-        public void setDescription(final String description) {
+        public MutationBuilder setDescription(final String description) {
             this.description = description;
+
+            return this;
         }
 
-        public void setSourceFile(final String sourceFile) {
+        public MutationBuilder setSourceFile(final String sourceFile) {
             this.sourceFile = sourceFile;
+
+            return this;
         }
 
-        public void setMutatedClass(final String mutatedClass) {
+        public MutationBuilder setMutatedClass(final String mutatedClass) {
             this.mutatedClass = mutatedClass;
+
+            return this;
         }
 
-        public void setMutatedMethod(final String mutatedMethod) {
+        public MutationBuilder setMutatedMethod(final String mutatedMethod) {
             this.mutatedMethod = mutatedMethod;
+
+            return this;
         }
 
-        public void setMutatedMethodSignature(final String mutatedMethodSignature) {
+        public MutationBuilder setMutatedMethodSignature(final String mutatedMethodSignature) {
             this.mutatedMethodSignature = mutatedMethodSignature;
+
+            return this;
         }
 
         /**
@@ -221,8 +248,12 @@ public final class Mutation implements Serializable {
                 builder.incrementMissed();
             }
             methodNode.replaceValue(builder.build());
-            fileNode.addMutation(new Mutation(isDetected, status, lineNumber, mutator, killingTest,
-                    mutatedClass, mutatedMethod, mutatedMethodSignature, description));
+            fileNode.addMutation(build());
+        }
+
+        public Mutation build() {
+            return new Mutation(isDetected, status, line, mutator, killingTest,
+                    mutatedClass, mutatedMethod, mutatedMethodSignature, description);
         }
     }
 }

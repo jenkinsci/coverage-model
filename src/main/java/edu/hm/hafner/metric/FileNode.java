@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.Fraction;
@@ -51,11 +52,17 @@ public final class FileNode extends Node {
     @Override
     public FileNode copy() {
         var file = new FileNode(getName());
+
         file.coveredPerLine.putAll(coveredPerLine);
         file.missedPerLine.putAll(missedPerLine);
+
         file.modifiedLines.addAll(modifiedLines);
+
+        file.mutations.addAll(mutations);
+
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
         file.coverageDelta.putAll(coverageDelta);
+
         return file;
     }
 
@@ -104,6 +111,15 @@ public final class FileNode extends Node {
         }
 
         var copy = new FileNode(getName());
+        copy.modifiedLines.addAll(modifiedLines);
+
+        filterLineAndBranchCoverage(copy);
+        filterMutations(copy);
+
+        return Optional.of(copy);
+    }
+
+    private void filterLineAndBranchCoverage(final FileNode copy) {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
@@ -125,10 +141,16 @@ public final class FileNode extends Node {
                         lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
                 branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
             }
-            copy.addModifiedLines(line);
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
-        return Optional.of(copy);
+    }
+
+    private void filterMutations(final FileNode copy) {
+        mutations.stream().filter(mutation -> modifiedLines.contains(mutation.getLine())).forEach(copy::addMutation);
+        var builder = new CoverageBuilder().setMetric(Metric.MUTATION);
+        copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
+        copy.mutations.stream().filter(Predicate.not(Mutation::isDetected)).forEach(mutation -> builder.incrementMissed());
+        copy.addValue(builder.build());
     }
 
     @Override
@@ -146,6 +168,7 @@ public final class FileNode extends Node {
         }
     }
 
+    // FIXME: the API for indirect changes does not work yet for mutations
     @Override
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     protected Optional<Node> filterTreeByIndirectChanges() {

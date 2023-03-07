@@ -160,7 +160,7 @@ public class PitestParser extends CoverageParser {
                     builder.setMutatedMethodSignature(content);
                 }
                 else if (name.equals(LINE_NUMBER)) {
-                    builder.setLineNumber(content);
+                    builder.setLine(content);
                 }
                 return;
             }
