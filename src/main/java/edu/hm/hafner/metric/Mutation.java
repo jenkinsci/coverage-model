@@ -5,6 +5,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.metric.Coverage.CoverageBuilder;
 
 /**
@@ -156,66 +158,77 @@ public final class Mutation implements Serializable {
         private String mutatedMethod = StringUtils.EMPTY;
         private String mutatedMethodSignature = StringUtils.EMPTY;
 
+        @CanIgnoreReturnValue
         public MutationBuilder setIsDetected(final boolean isDetected) {
             this.isDetected = isDetected;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setStatus(final MutationStatus status) {
             this.status = status;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setLine(final String line) {
             this.line = CoverageParser.parseInteger(line);
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setLine(final int line) {
             this.line = line;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setMutator(final String mutator) {
             this.mutator = mutator;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setKillingTest(final String killingTest) {
             this.killingTest = killingTest;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setDescription(final String description) {
             this.description = description;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setSourceFile(final String sourceFile) {
             this.sourceFile = sourceFile;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setMutatedClass(final String mutatedClass) {
             this.mutatedClass = mutatedClass;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setMutatedMethod(final String mutatedMethod) {
             this.mutatedMethod = mutatedMethod;
 
             return this;
         }
 
+        @CanIgnoreReturnValue
         public MutationBuilder setMutatedMethodSignature(final String mutatedMethodSignature) {
             this.mutatedMethodSignature = mutatedMethodSignature;
 

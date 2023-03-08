@@ -106,7 +106,7 @@ public final class FileNode extends Node {
 
     @Override
     protected Optional<Node> filterTreeByModifiedLines() {
-        if (!hasCoveredLinesInChangeSet()) {
+        if (!hasCoveredAndModifiedLines()) {
             return Optional.empty();
         }
 
@@ -124,7 +124,7 @@ public final class FileNode extends Node {
         var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
         var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
-        for (int line : getCoveredLinesOfChangeSet()) {
+        for (int line : getCoveredAndModifiedLines()) {
             var covered = coveredPerLine.getOrDefault(line, 0);
             var missed = missedPerLine.getOrDefault(line, 0);
             var total = covered + missed;
@@ -150,18 +150,20 @@ public final class FileNode extends Node {
         if (!copy.mutations.isEmpty()) {
             var builder = new CoverageBuilder().setMetric(Metric.MUTATION).setMissed(0).setCovered(0);
             copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
-            copy.mutations.stream().filter(Predicate.not(Mutation::isDetected)).forEach(mutation -> builder.incrementMissed());
+            copy.mutations.stream()
+                    .filter(Predicate.not(Mutation::isDetected))
+                    .forEach(mutation -> builder.incrementMissed());
             copy.addValue(builder.build());
         }
     }
 
     @Override
     protected Optional<Node> filterTreeByModifiedFiles() {
-        return hasCoveredLinesInChangeSet() ? Optional.of(copyTree()) : Optional.empty();
+        return hasCoveredAndModifiedLines() ? Optional.of(copyTree()) : Optional.empty();
     }
 
-    private static void addLineAndBranchCoverage(final FileNode copy, final Coverage lineCoverage,
-            final Coverage branchCoverage) {
+    private void addLineAndBranchCoverage(final FileNode copy,
+            final Coverage lineCoverage, final Coverage branchCoverage) {
         if (lineCoverage.isSet()) {
             copy.addValue(lineCoverage);
         }
@@ -234,6 +236,7 @@ public final class FileNode extends Node {
         return new TreeMap<>(indirectCoverageChanges);
     }
 
+    // FIXME: the API does not work yet for mutations
     public NavigableSet<Integer> getLinesWithCoverage() {
         return new TreeSet<>(coveredPerLine.keySet());
     }
@@ -250,15 +253,7 @@ public final class FileNode extends Node {
         return coveredPerLine.containsKey(line);
     }
 
-    /**
-     * Returns the line coverage result for the specified line.
-     *
-     * @param line
-     *         the line to check
-     *
-     * @return the line coverage result for the specified line.
-     */
-    public Coverage getLineCoverage(final int line) {
+    private Coverage getLineCoverage(final int line) {
         if (hasCoverageForLine(line)) {
             var covered = getCoveredOfLine(line) > 0 ? 1 : 0;
             return new CoverageBuilder().setMetric(Metric.LINE)
@@ -269,15 +264,7 @@ public final class FileNode extends Node {
         return Coverage.nullObject(Metric.LINE);
     }
 
-    /**
-     * Returns the branch coverage result for the specified line.
-     *
-     * @param line
-     *         the line to check
-     *
-     * @return the line coverage result for the specified line.
-     */
-    public Coverage getBranchCoverage(final int line) {
+    private Coverage getBranchCoverage(final int line) {
         if (hasCoverageForLine(line)) {
             var covered = getCoveredOfLine(line);
             var missed = getMissedOfLine(line);
@@ -303,22 +290,6 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Computes a delta coverage between this node and the given reference node.
-     *
-     * @param referenceNode
-     *         the node to compare with this node
-     */
-    // TODO: wouldn't it make more sense to return an independent object?
-    public void computeDelta(final FileNode referenceNode) {
-        NavigableMap<Metric, Value> referenceCoverage = referenceNode.getMetricsDistribution();
-        getMetricsDistribution().forEach((metric, value) -> {
-            if (referenceCoverage.containsKey(metric)) {
-                coverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
-            }
-        });
-    }
-
-    /**
      * Returns whether the coverage of this node is affected indirectly by the tests in the change set.
      *
      * @return {@code true} if this node is affected indirectly by the tests.
@@ -328,68 +299,66 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the coverage percentage for modified code lines (for the specified metric).
+     * Computes the delta of all values between this file and the given reference file. Values that are not present in
+     * both files are ignored.
+     *
+     * @param referenceFile
+     *         the file to compare with this file
+     */
+    // TODO: wouldn't it make more sense to return an independent object?
+    public void computeDelta(final FileNode referenceFile) {
+        NavigableMap<Metric, Value> referenceCoverage = referenceFile.getMetricsDistribution();
+        getMetricsDistribution().forEach((metric, value) -> {
+            if (referenceCoverage.containsKey(metric)) {
+                coverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
+            }
+        });
+    }
+
+    /**
+     * Returns the delta for the specified metric. If no delta is available for the specified metric, then 0 is
+     * returned.
      *
      * @param metric
-     *         the metric to check
+     *         the metric to get the delta for
      *
-     * @return the coverage percentage for modified code lines
+     * @return the delta for the specified metric
      */
-    public Fraction getModifiedLinesCoverage(final Metric metric) {
+    public Fraction getDelta(final Metric metric) {
         return coverageDelta.getOrDefault(metric, Fraction.ZERO);
     }
 
     /**
-     * Returns whether this file has coverage results for modified code lines (for the specified metric).
+     * Returns whether this file has a delta result for the specified metric.
      *
      * @param metric
      *         the metric to check
      *
-     * @return {@code true} has coverage results for modified code lines, {@code false} otherwise
+     * @return {@code true} has delta results are available, {@code false} otherwise
      */
-    public boolean hasModifiedLinesCoverage(final Metric metric) {
+    public boolean hasDelta(final Metric metric) {
         return coverageDelta.containsKey(metric);
     }
 
     /**
-     * Returns whether this file has coverage results for ch    anged code lines.
+     * Returns the lines with code coverage that also have been modified.
      *
-     * @return {@code true} if this file has coverage results for modified code lines, {@code false} otherwise
+     * @return the lines with code coverage that also have been modified
      */
-    public boolean hasModifiedLinesCoverage() {
-        return hasModifiedLinesCoverage(Metric.LINE) || hasModifiedLinesCoverage(Metric.BRANCH);
-    }
-
-    /**
-     * Returns the lines with code coverage that are part of the change set.
-     *
-     * @return the lines with code coverage that are part of the change set
-     */
-    public SortedSet<Integer> getCoveredLinesOfChangeSet() {
+    public SortedSet<Integer> getCoveredAndModifiedLines() {
         SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getModifiedLines());
         return coveredDelta;
     }
 
     /**
-     * Returns whether this file has lines with code coverage that are part of the change set.
+     * Returns whether this file has lines with code coverage that also have been modified.
      *
-     * @return {@code true} if this file has lines with code coverage that are part of the change set, {@code false}
+     * @return {@code true} if this file has lines with code coverage that also have been modified, {@code false}
      *         otherwise.
      */
-    public boolean hasCoveredLinesInChangeSet() {
-        return !getCoveredLinesOfChangeSet().isEmpty();
-    }
-
-    /**
-     * Returns the line coverage results for lines that are part of the change set.
-     *
-     * @return the line coverage results for lines that are part of the change set.
-     */
-    public List<Coverage> getCoverageOfChangeSet() {
-        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
-        coveredDelta.retainAll(getModifiedLines());
-        return coveredDelta.stream().map(this::getLineCoverage).collect(Collectors.toList());
+    public boolean hasCoveredAndModifiedLines() {
+        return !getCoveredAndModifiedLines().isEmpty();
     }
 
     /**
@@ -487,8 +456,10 @@ public final class FileNode extends Node {
     /**
      * Adds a mutation to the method.
      *
-     * @param mutation the mutation to add
+     * @param mutation
+     *         the mutation to add
      */
+    // TODO: not part of API, only for tests?
     public void addMutation(final Mutation mutation) {
         mutations.add(mutation);
     }
