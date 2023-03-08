@@ -147,10 +147,12 @@ public final class FileNode extends Node {
 
     private void filterMutations(final FileNode copy) {
         mutations.stream().filter(mutation -> modifiedLines.contains(mutation.getLine())).forEach(copy::addMutation);
-        var builder = new CoverageBuilder().setMetric(Metric.MUTATION);
-        copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
-        copy.mutations.stream().filter(Predicate.not(Mutation::isDetected)).forEach(mutation -> builder.incrementMissed());
-        copy.addValue(builder.build());
+        if (!copy.mutations.isEmpty()) {
+            var builder = new CoverageBuilder().setMetric(Metric.MUTATION).setMissed(0).setCovered(0);
+            copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
+            copy.mutations.stream().filter(Predicate.not(Mutation::isDetected)).forEach(mutation -> builder.incrementMissed());
+            copy.addValue(builder.build());
+        }
     }
 
     @Override
