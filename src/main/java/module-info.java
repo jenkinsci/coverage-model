@@ -5,6 +5,6 @@ module edu.hm.hafner.metric {
     requires com.google.errorprone.annotations;
     requires edu.hm.hafner.codingstyle;
 
-    exports edu.hm.hafner.metric;
-    exports edu.hm.hafner.metric.registry;
+    exports edu.hm.hafner.coverage;
+    exports edu.hm.hafner.coverage.registry;
 }

@@ -47,7 +47,7 @@
   <url>https://www.cs.hm.edu/die_fakultaet/ansprechpartner/professoren/hafner/index.de.html</url>
 
   <properties>
-    <module.name>edu.hm.hafner.metric</module.name>
+    <module.name>edu.hm.hafner.coverage</module.name>
   </properties>
 
   <build>
@@ -64,9 +64,9 @@
         <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
         <configuration>
           <packages>
-            <package>edu.hm.hafner.metric</package>
+            <package>edu.hm.hafner.coverage</package>
           </packages>
-          <entryPointClassPackage>edu.hm.hafner.metric.assertions</entryPointClassPackage>
+          <entryPointClassPackage>edu.hm.hafner.coverage.assertions</entryPointClassPackage>
         </configuration>
       </plugin>
       <plugin>

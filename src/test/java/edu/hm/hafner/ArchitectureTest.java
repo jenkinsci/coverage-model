@@ -10,7 +10,7 @@ import com.tngtech.archunit.lang.ArchRule;
  * @author Ullrich Hafner
  */
 @SuppressWarnings("hideutilityclassconstructor")
-@AnalyzeClasses(packages = "edu.hm.hafner.metric")
+@AnalyzeClasses(packages = "edu.hm.hafner.coverage")
 class ArchitectureTest {
     @ArchTest
     static final ArchRule NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR = ArchitectureRules.NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR;
