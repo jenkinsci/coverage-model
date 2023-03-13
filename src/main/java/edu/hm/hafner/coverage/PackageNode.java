@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
@@ -62,6 +63,7 @@ public final class PackageNode extends Node {
         addAllValues(values);
     }
 
+    @SuppressFBWarnings("MODIFICATION_AFTER_VALIDATION")
     @Override
     public String getPath() {
         String localPath;
