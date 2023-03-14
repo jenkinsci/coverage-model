@@ -598,6 +598,11 @@ public abstract class Node implements Serializable {
      */
     public abstract Node copy();
 
+    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
+        return nodes.stream().map(Node::getName).distinct().count() == 1
+                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
+    }
+
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
      * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
@@ -625,11 +630,6 @@ public abstract class Node implements Serializable {
         var container = new ContainerNode("Container");
         container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
         return container;
-    }
-
-    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
-        return nodes.stream().map(Node::getName).distinct().count() == 1
-                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
     }
 
     /**
