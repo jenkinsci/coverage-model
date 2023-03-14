@@ -41,40 +41,6 @@ public abstract class Node implements Serializable {
     private static final String SLASH = "/";
     private static final String DOT = ".";
 
-    /**
-     * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
-     * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
-     *
-     * @param nodes
-     *         the nodes to merge
-     *
-     * @return a new tree with the merged {@link Node nodes}
-     */
-    public static Node merge(final List<? extends Node> nodes) {
-        if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
-        }
-        if (nodes.size() == 1) {
-            return nodes.get(0); // No merge required
-        }
-
-        if (haveSameNameAndMetric(nodes)) {
-            return nodes.stream()
-                    .map(t -> (Node) t)
-                    .reduce(Node::merge)
-                    .orElseThrow(() -> new NoSuchElementException("No node found"));
-        }
-
-        var container = new ContainerNode("Container");
-        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
-        return container;
-    }
-
-    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
-        return nodes.stream().map(Node::getName).distinct().count() == 1
-                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
-    }
-
     private final Metric metric;
     private final String name;
     private final List<Node> children = new ArrayList<>();
@@ -631,6 +597,40 @@ public abstract class Node implements Serializable {
      * @return the copied node
      */
     public abstract Node copy();
+
+    /**
+     * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
+     * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
+     *
+     * @param nodes
+     *         the nodes to merge
+     *
+     * @return a new tree with the merged {@link Node nodes}
+     */
+    public static Node merge(final List<? extends Node> nodes) {
+        if (nodes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
+        }
+        if (nodes.size() == 1) {
+            return nodes.get(0); // No merge required
+        }
+
+        if (haveSameNameAndMetric(nodes)) {
+            return nodes.stream()
+                    .map(t -> (Node) t)
+                    .reduce(Node::merge)
+                    .orElseThrow(() -> new NoSuchElementException("No node found"));
+        }
+
+        var container = new ContainerNode("Container");
+        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
+        return container;
+    }
+
+    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
+        return nodes.stream().map(Node::getName).distinct().count() == 1
+                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
+    }
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at

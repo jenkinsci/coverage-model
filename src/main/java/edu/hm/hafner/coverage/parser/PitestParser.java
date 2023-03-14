@@ -35,7 +35,6 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 public class PitestParser extends CoverageParser {
     private static final long serialVersionUID = 3449160972709724274L;
 
-    private static final QName MUTATIONS = new QName("mutations");
     private static final QName MUTATION = new QName("mutation");
     private static final QName SOURCE_FILE = new QName("sourceFile");
     private static final QName MUTATED_CLASS = new QName("mutatedClass");
