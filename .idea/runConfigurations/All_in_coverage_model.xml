@@ -4,7 +4,7 @@
     <useClassPathOnly />
     <extension name="coverage" sample_coverage="false">
       <pattern>
-        <option name="PATTERN" value="edu.hm.hafner.metric.*" />
+        <option name="PATTERN" value="edu.hm.hafner.coverage.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
