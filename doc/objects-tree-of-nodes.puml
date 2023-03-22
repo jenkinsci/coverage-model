@@ -3,6 +3,8 @@
 skinparam object {
   BackgroundColor #yellow
   BorderColor #a0a0a0
+  BackgroundColor<<Nodes>> cornsilk
+  BackgroundColor<<Values>> moccasin
   BorderColor black
   ArrowColor black
   FontName  Arial Unicode MS
@@ -17,61 +19,62 @@ skinparam ArrowColor black
 skinparam ArrowThickness 2
 
 hide circle
+hide stereotype
 
-object "coverage-model : ModuleNode" as ModuleNode {
+object "coverage-model : ModuleNode" as ModuleNode <<Nodes>> {
   name = "coverage-model"
   metric = Metric.MODULE
   parent = null
 }
 
-object "metrics : PackageNode" as PackageNode {
+object "metrics : PackageNode" as PackageNode <<Nodes>> {
   name = "edu.hm.hafner.metrics"
   metric = Metric.PACKAGE
 }
 
-object "Coverage.java : FileNode" as FileNode {
+object "Coverage.java : FileNode" as FileNode <<Nodes>> {
   name = "Coverage.java"
   metric = Metric.FILE
 }
 
-object "Coverage : ClassNode" as ClassNode {
+object "Coverage : ClassNode" as ClassNode <<Nodes>> {
   name = "Coverage"
   metric = Metric.CLASS
 }
 
-object "equals : MethodNode" as EqualsMethodNode {
+object "equals : MethodNode" as EqualsMethodNode <<Nodes>> {
   name = "equals()"
   signature = "(Ljava/lang/Object;)Z"
   lineNumber = 171
   metric = Metric.METHOD
 }
 
-object "hashCode : MethodNode" as HashCodeMethodNode {
+object "hashCode : MethodNode" as HashCodeMethodNode <<Nodes>> {
   name = "hashcode()"
   signature = "()V"
   lineNumber = 182
   metric = Metric.METHOD
 }
 
-object "EqualsLineCoverage : Coverage" as EqualsLineCoverage {
+object "EqualsLineCoverage : Coverage" as EqualsLineCoverage <<Values>> {
   metric = Metric.LINE
   covered = 8
   missed = 0
 }
 
-object "EqualsBranchCoverage : Coverage" as EqualsBranchCoverage {
+object "EqualsBranchCoverage : Coverage" as EqualsBranchCoverage <<Values>> {
   metric = Metric.BRANCH
   covered = 3
   missed = 0
 }
 
-object "HashCodeLineCoverage : Coverage" as HashCodeLineCoverage {
+object "HashCodeLineCoverage : Coverage" as HashCodeLineCoverage <<Values>> {
   metric = Metric.LINE
   covered = 1
   missed = 0
 }
 
-object "HashCodesBranchCoverage : Coverage" as HashCodeBranchCoverage {
+object "HashCodesBranchCoverage : Coverage" as HashCodeBranchCoverage <<Values>> {
   metric = Metric.BRANCH
   covered = 1
   missed = 0

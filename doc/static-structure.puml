@@ -1,145 +1,126 @@
 @startuml
 
-abstract class edu.hm.hafner.metric.parser.XmlParser {
-+ ModuleNode parse(Reader)
-# {abstract}void startElement(StartElement)
-# {abstract}void endElement(EndElement)
-# String getValueOf(StartElement,QName)
-# Optional<String> getOptionalValueOf(StartElement,QName)
+hide circle
+hide stereotype
+
+skinparam class {
+  BackgroundColor #f0f0f0
+  BorderColor #a0a0a0
+  BackgroundColor<<Nodes>> cornsilk
+  BackgroundColor<<Values>> moccasin
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+skinparam classFontSize 24
+skinparam classAttributeIconSize 0
+skinparam defaultFontSize 20
+
+skinparam ArrowColor black
+skinparam ArrowThickness 2
+
+package coverage as "edu.hm.hafner.coverage" {
+abstract class CoverageParser {
++ {abstract}parse(reader, log): ModuleNode
 }
 
-class edu.hm.hafner.metric.parser.CoberturaParser {
-+ ModuleNode parse(Reader)
-# void startElement(StartElement)
-# void endElement(EndElement)
+class parser.CoberturaParser {
++ parse(reader, log): ModuleNode
 }
 
-class edu.hm.hafner.metric.parser.JacocoParser {
-# void startElement(StartElement)
-# void endElement(EndElement)
+class parser.JacocoParser {
++ parse(reader, log): ModuleNode
 }
 
-class edu.hm.hafner.metric.parser.PitestParser {
-+ ModuleNode parse(Reader)
-# void startElement(StartElement)
-# void endElement(EndElement)
+class parser.PitestParser {
++ parse(reader, log): ModuleNode
 }
 
-enum edu.hm.hafner.metric.Metric {
-+  CONTAINER
-+  MODULE
-+  PACKAGE
-+  FILE
-+  CLASS
-+  METHOD
-+  LINE
-+  INSTRUCTION
-+  BRANCH
-+  MUTATION
-+  COMPLEXITY
-+  COMPLEXITY_DENSITY
-+  LOC
-+ {static} boolean isNodeMetric(Metric)
+abstract class Node <<Nodes>> {
+- metric: Metric <<pk>>
+- name: Name <<pk>>
+
++ {abstract} copy(): Node
 }
 
-abstract class edu.hm.hafner.metric.Node {
-+ Metric getMetric()
-+ String getName()
-+ boolean isEmpty()
-+ boolean hasChildren()
-+ List<Node> getChildren()
-+ void addChild(Node)
-+ List<Node> getAll(Metric)
-+ List<Value> getValues()
-+ Optional<Value> getValue(Metric)
-+ void addValue(Value)
-+ Node getParent()
-+ boolean isRoot()
-+ Optional<Node> find(Metric,String)
+class ContainerNode <<Nodes>> {
++ copy(): ContainerNode
 }
 
-class edu.hm.hafner.metric.ContainerNode {
-+ {static} Node EMPTY_TREE
-+ ContainerNode copy()
+class ModuleNode <<Nodes>> {
+- sources: List<String>
++ copy(): ModuleNode
++ splitPackages()
 }
 
-class edu.hm.hafner.metric.ModuleNode {
-+ ModuleNode copy()
-+ List<String> getSources()
-+ void addSource(String)
-+ void splitPackages()
-+ boolean equals(Object)
-+ int hashCode()
-+ String toString()
+class PackageNode <<Nodes>> {
++ getPath(): String
++ copy(): PackageNode
 }
 
-class edu.hm.hafner.metric.PackageNode {
-+ {static} String normalizePackageName(String)
-+ String getPath()
-+ PackageNode copy()
-+ String toString()
+class ClassNode <<Nodes>> {
++ copy(): ClassNode
 }
 
-class edu.hm.hafner.metric.ClassNode {
-+ Optional<MethodNode> findMethodNode(String,String)
+class MethodNode <<Nodes>> {
+- lineNumber: Integer
+- signature: String
++ copy(): MethodNode
 }
 
-class edu.hm.hafner.metric.MethodNode {
-+ boolean hasValidLineNumber()
-+ int getLineNumber()
-+ String getSignature()
+class FileNode <<Nodes>> {
++ copy(): FileNode
 }
 
-class edu.hm.hafner.metric.FileNode {
-+ SortedSet<Integer> getCoveredLines()
-+ boolean hasCoverageForLine(int)
-+ String getPath()
-}
-
-abstract class edu.hm.hafner.metric.Value {
-+ {static} Value getValue(Metric,List<? extends Value>)
-+ {static} Optional<? extends Value> findValue(Metric,List<? extends Value>)
-+ {static} Value valueOf(String)
-+ Metric getMetric()
-+ {abstract}Value add(Value)
-+ {abstract}Fraction delta(Value)
-+ {abstract}Value max(Value)
-+ {abstract}boolean isBelowThreshold(double)
+abstract class Value <<Values>> {
+- metric: Metric
++ {abstract}add(other: Value): Value
++ {abstract}max(other: Value): Value
++ {abstract}delta(other: Value): Fraction
++ {abstract}isBelowThreshold(double): boolean
 + {abstract}String serialize()
 }
 
-class edu.hm.hafner.metric.CyclomaticComplexity {
-# IntegerValue create(int)
+class CyclomaticComplexity <<Values>> {
+# create(integer: Integer): IntegerValue
 }
 
-class edu.hm.hafner.metric.LinesOfCode {
-# IntegerValue create(int)
+class LinesOfCode <<Values>> {
+# create(integer: Integer): IntegerValue
 }
 
-class edu.hm.hafner.metric.Coverage {
-+ int getCovered()
-+ int getMissed()
-+ int getTotal()
-+ boolean isSet()
+class Coverage <<Values>> {
+- covered: Integer
+- missed: Integer
++ isSet(): Boolean
++ add(other: Value): Value
++ max(other: Value): Value
++ delta(other: Value): Fraction
++ isBelowThreshold(double): boolean
++ String serialize()
 }
 
-class edu.hm.hafner.metric.FractionValue {
-+ Fraction getFraction()
+class FractionValue <<Values>> {
+- fraction: Fraction
++ add(other: Value): Value
++ max(other: Value): Value
++ delta(other: Value): Fraction
++ isBelowThreshold(double): boolean
++ String serialize()
 }
 
-class edu.hm.hafner.metric.MutationValue {
-+ List<Mutation> getMutations()
-+ int getKilled()
-+ int getSurvived()
-+ int getTotal()
+abstract class IntegerValue <<Values>> {
+- integer: Integer
++ add(other: Value): Value
++ max(other: Value): Value
++ delta(other: Value): Fraction
++ isBelowThreshold(double): boolean
++ String serialize()
+# {abstract}create(integer: Integer): IntegerValue
 }
 
-abstract class edu.hm.hafner.metric.IntegerValue {
-+ int getValue()
-# {abstract}IntegerValue create(int)
-}
-
-class edu.hm.hafner.metric.Mutation {
+class Mutation {
 + boolean isDetected()
 + MutationStatus getStatus()
 + int getLineNumber()
@@ -148,48 +129,30 @@ class edu.hm.hafner.metric.Mutation {
 + boolean isKilled()
 }
 
-enum edu.hm.hafner.metric.Mutator {
-+  CONDITIONALS_BOUNDARY
-+  CONSTRUCTOR_CALLS
-+  INCREMENTS
-+  INVERT_NEGS
-+  MATH
-+  NEGATE_CONDITIONALS
-+  NON_VOID_METHOD_CALLS
-+  RETURN_VALS
-+  VOID_METHOD_CALLS
-+  FALSE_RETURNS
-+  TRUE_RETURNS
-+  EMPTY_RETURNS
-+  NULL_RETURNS
-+  PRIMITIVE_RETURNS
-+  NOT_SPECIFIED
-+ {static} Mutator fromPath(String)
+IntegerValue <|-up- LinesOfCode
+IntegerValue <|-up- CyclomaticComplexity
+
+Value <|-up- Coverage
+Value <|-up- FractionValue
+Value <|-up- IntegerValue
+
+Node <|-- MethodNode
+Node <|-- ClassNode
+Node <|-- PackageNode
+Node <|-- ModuleNode
+Node <|-- ContainerNode
+Node <|-- FileNode
+
+CoverageParser <|-- parser.PitestParser
+CoverageParser <|-- parser.JacocoParser
+CoverageParser <|-- parser.CoberturaParser
+
+Node o- Node: children
+
+FileNode o-left- Mutation
+Value -o Node : values\t
+Value -[hidden]-- CoverageParser
+
 }
 
-enum edu.hm.hafner.metric.MutationStatus {
-+  KILLED
-+  SURVIVED
-+  NO_COVERAGE
-+  NON_VIABLE
-+  TIMED_OUT
-+  MEMORY_ERROR
-+  RUN_ERROR
-}
-
-edu.hm.hafner.metric.IntegerValue <|-- edu.hm.hafner.metric.LinesOfCode
-edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.Coverage
-edu.hm.hafner.metric.parser.XmlParser <|-- edu.hm.hafner.metric.parser.PitestParser
-edu.hm.hafner.metric.IntegerValue <|-- edu.hm.hafner.metric.CyclomaticComplexity
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.MethodNode
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.ClassNode
-edu.hm.hafner.metric.parser.XmlParser <|-- edu.hm.hafner.metric.parser.JacocoParser
-edu.hm.hafner.metric.parser.XmlParser <|-- edu.hm.hafner.metric.parser.CoberturaParser
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.PackageNode
-edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.FractionValue
-edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.MutationValue
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.ModuleNode
-edu.hm.hafner.metric.Value <|-- edu.hm.hafner.metric.IntegerValue
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.ContainerNode
-edu.hm.hafner.metric.Node <|-- edu.hm.hafner.metric.FileNode
 @enduml
