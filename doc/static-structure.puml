@@ -13,6 +13,16 @@ skinparam class {
   FontName  Arial Unicode MS
   FontSize 20
 }
+
+skinparam package {
+  BorderColor #a0a0a0
+  BackgroundColor<<internal>> lightsalmon
+  BorderColor black
+  ArrowColor black
+  FontName  Arial Unicode MS
+  FontSize 20
+}
+
 skinparam classFontSize 24
 skinparam classAttributeIconSize 0
 skinparam defaultFontSize 20
@@ -20,21 +30,31 @@ skinparam defaultFontSize 20
 skinparam ArrowColor black
 skinparam ArrowThickness 2
 
+interface Serializable <<interface>> {
+    writeObject(out: ObjectOutputStream)
+    readObject(in: ObjectInputStream)
+}
+
+hide Serializable fields
+
 package coverage as "edu.hm.hafner.coverage" {
+
+package parser <<internal>> {
+    class CoberturaParser {
+    + parse(reader, log): ModuleNode
+    }
+
+    class JacocoParser {
+    + parse(reader, log): ModuleNode
+    }
+
+    class PitestParser {
+    + parse(reader, log): ModuleNode
+    }
+}
+
 abstract class CoverageParser {
 + {abstract}parse(reader, log): ModuleNode
-}
-
-class parser.CoberturaParser {
-+ parse(reader, log): ModuleNode
-}
-
-class parser.JacocoParser {
-+ parse(reader, log): ModuleNode
-}
-
-class parser.PitestParser {
-+ parse(reader, log): ModuleNode
 }
 
 abstract class Node <<Nodes>> {
@@ -79,7 +99,7 @@ abstract class Value <<Values>> {
 + {abstract}max(other: Value): Value
 + {abstract}delta(other: Value): Fraction
 + {abstract}isBelowThreshold(double): boolean
-+ {abstract}String serialize()
++ {abstract}serialize(): String
 }
 
 class CyclomaticComplexity <<Values>> {
@@ -98,7 +118,7 @@ class Coverage <<Values>> {
 + max(other: Value): Value
 + delta(other: Value): Fraction
 + isBelowThreshold(double): boolean
-+ String serialize()
++ serialize(): String
 }
 
 class FractionValue <<Values>> {
@@ -107,7 +127,7 @@ class FractionValue <<Values>> {
 + max(other: Value): Value
 + delta(other: Value): Fraction
 + isBelowThreshold(double): boolean
-+ String serialize()
++ serialize(): String
 }
 
 abstract class IntegerValue <<Values>> {
@@ -116,7 +136,7 @@ abstract class IntegerValue <<Values>> {
 + max(other: Value): Value
 + delta(other: Value): Fraction
 + isBelowThreshold(double): boolean
-+ String serialize()
++ serialize(): String
 # {abstract}create(integer: Integer): IntegerValue
 }
 
@@ -143,15 +163,28 @@ Node <|-- ModuleNode
 Node <|-- ContainerNode
 Node <|-- FileNode
 
-CoverageParser <|-- parser.PitestParser
-CoverageParser <|-- parser.JacocoParser
-CoverageParser <|-- parser.CoberturaParser
+package registry {
+    class ParserRegistry {
+        + {static}getParser(String): CoverageParser
+    }
+
+    ParserRegistry .up.> CoberturaParser
+    ParserRegistry .up.> PitestParser
+    ParserRegistry .up.> JacocoParser
+}
+
+CoverageParser <|-- PitestParser
+CoverageParser <|-- JacocoParser
+CoverageParser <|-- CoberturaParser
 
 Node o- Node: children
 
 FileNode o-left- Mutation
 Value -o Node : values\t
 Value -[hidden]-- CoverageParser
+
+Serializable <|. Value : \t
+Serializable <|. Node
 
 }
 
