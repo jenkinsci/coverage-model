@@ -2,6 +2,7 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -142,10 +143,16 @@ public class JacocoParser extends CoverageParser {
 
     private Node readClass(final XMLEventReader reader, final PackageNode packageNode,
             final StartElement startElement) throws XMLStreamException {
-        String fileName = getValueOf(startElement, SOURCE_FILE_NAME);
-        var fileNode = packageNode.findOrCreateFileNode(fileName);
-        var classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
+        Optional<String> fileName = getOptionalValueOf(startElement, SOURCE_FILE_NAME);
+        ClassNode classNode;
+        if (fileName.isPresent()) {
+            var fileNode = packageNode.findOrCreateFileNode(fileName.get());
 
+            classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
+        }
+        else {
+            classNode = packageNode.findOrCreateClassNode(getValueOf(startElement, NAME));
+        }
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.coverage.Coverage;
@@ -35,9 +37,10 @@ class JacocoParserTest extends AbstractParserTest {
         return (Coverage) node.getValue(metric).get();
     }
 
-    @Test
-    void shouldConvertCodingStyleToTree() {
-        Node tree = readExampleReport();
+    @ParameterizedTest(name = "Read and parse coding style report \"{0}\" to tree of nodes")
+    @ValueSource(strings = {"jacoco-codingstyle.xml", "jacoco-codingstyle-no-sourcefilename.xml"})
+    void shouldConvertCodingStyleToTree(final String fileName) {
+        Node tree = readReport(fileName);
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
@@ -170,13 +173,6 @@ class JacocoParserTest extends AbstractParserTest {
                 .hasTotal(1);
 
         assertThat(tree).hasName(PROJECT_NAME).doesNotHaveParent().isRoot().hasMetric(MODULE).hasParentName("^");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenAttributesAreMissing() {
-        assertThatThrownBy(() -> readReport("jacoco-missing-attribute.xml"))
-                .isInstanceOf(NoSuchElementException.class)
-                .hasMessageContaining("Could not obtain attribute 'sourcefilename' from element '<class name='edu/hm/hafner/util/NoSuchElementException'>'");
     }
 
     private ModuleNode readExampleReport() {
