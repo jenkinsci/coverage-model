@@ -33,11 +33,12 @@ start
 :jacoco.xml]
 :read and parse coverage file;
 repeat
-:create Node instance;
+:  create or link\nNode instances;
 :Node]
-repeat while (coverage results available?) is (   [yes])
+:      create \nValue instances;
+:Value]
+repeat while (coverage results\n     available?) is (   [yes])
 ->  [no, last line reached];
-:connect Nodes to tree;
 :run autograding;
 |GitHub Action|
 :show results in pull request;
