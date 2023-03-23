@@ -1,5 +1,7 @@
 # Code coverage model 
 
+[![Join the chat at Gitter/Matrix](https://badges.gitter.im/jenkinsci/code-coverage-api-plugin.svg)](https://gitter.im/jenkinsci/code-coverage-api-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Jenkins](https://ci.jenkins.io/job/Plugins/job/coverage-model/job/main/badge/icon?subject=Jenkins%20CI)](https://ci.jenkins.io/job/Plugins/job/coverage-model/job/main/)
 [![CI on all platforms](https://github.com/jenkinsci/coverage-model/workflows/GitHub%20CI/badge.svg?branch=main)](https://github.com/jenkinsci/coverage-model/actions/workflows/ci.yml)
 [![Codecov](https://codecov.io/gh/jenkinsci/coverage-model/branch/main/graph/badge.svg)](https://codecov.io/gh/jenkinsci/coverage-model)
 [![CodeQL](https://github.com/jenkinsci/coverage-model/workflows/CodeQL/badge.svg?branch=main)](https://github.com/jenkinsci/coverage-model/actions/workflows/codeql.yml)
