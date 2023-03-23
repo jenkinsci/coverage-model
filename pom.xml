@@ -21,9 +21,9 @@
   <description>Provides a Java API and model to parse and collect code coverage results</description>
 
   <scm>
-    <connection>scm:git:https://github.com/uhafner/coverage-model.git</connection>
-    <developerConnection>scm:git:git@github.com:uhafner/coverage-model.git</developerConnection>
-    <url>https://github.com/uhafner/coverage-model</url>
+    <connection>scm:git:https://github.com/jenkinsci/coverage-model.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/coverage-model.git</developerConnection>
+    <url>https://github.com/jenkinsci/coverage-model</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -89,15 +89,36 @@
     </plugins>
   </build>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
+  <repositories>
     <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
-  </distributionManagement>
+    <repository>
+      <id>incrementals.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/incrementals/</url>
+    </repository>
+  </repositories>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>incrementals.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/incrementals/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>maven.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 </project>
