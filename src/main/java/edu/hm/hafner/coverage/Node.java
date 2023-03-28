@@ -172,6 +172,18 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Returns a collection of source folders that contain the source code files of all {@link FileNode file nodes}.
+     *
+     * @return a collection of source folders
+     */
+    public Set<String> getSourceFolders() {
+        return children.stream()
+                .map(Node::getSourceFolders)
+                .flatMap(Collection::parallelStream)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Returns whether this node has children or not.
      *
      * @return {@code true} if this node has children, {@code false} otherwise
