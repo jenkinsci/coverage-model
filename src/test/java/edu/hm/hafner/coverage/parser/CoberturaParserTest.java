@@ -32,12 +32,9 @@ class CoberturaParserTest extends AbstractParserTest {
     void shouldReadCoberturaIssue599() {
         Node tree = readReport("cobertura-ts.xml");
 
-        assertThat(tree.getAll(MODULE)).hasSize(1).element(0)
-                .isInstanceOfSatisfying(ModuleNode.class, m -> {
-                    assertThat(m).hasName("-");
-                    assertThat(m.getSourceFolders()).containsExactly(
-                            "/var/jenkins_home/workspace/imdb-songs_imdb-songs_PR-14/PR-14-15");
-                });
+        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).isEqualTo("-");
+        assertThat(tree.getSourceFolders()).containsExactly(
+                "/var/jenkins_home/workspace/imdb-songs_imdb-songs_PR-14/PR-14-15");
         assertThat(tree.getAll(PACKAGE)).extracting(Node::getName).containsExactly("libs.env.src",
                 "services.api.src",
                 "services.api.src.database",
