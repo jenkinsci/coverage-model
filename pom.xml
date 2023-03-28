@@ -37,9 +37,7 @@
     <developer>
       <name>Ullrich Hafner</name>
       <id>uhafner</id>
-      <email>ullrich.hafner@hm.edu</email>
-      <organization>Munich University of Applied Sciences</organization>
-      <organizationUrl>https://www.hm.edu/en/index.en.html</organizationUrl>
+      <email>ullrich.hafner@gmail.com</email>
     </developer>
   </developers>
 
@@ -55,13 +53,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.revapi</groupId>
-        <artifactId>revapi-maven-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
@@ -88,7 +79,13 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
