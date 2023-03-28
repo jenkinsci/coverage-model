@@ -109,6 +109,9 @@ public class CoberturaParser extends CoverageParser {
                     readClassOrMethod(reader, fileNode, nextElement);
                 }
             }
+            else if (event.isEndElement()) {
+                return; // finish processing of package
+            }
         }
     }
 
