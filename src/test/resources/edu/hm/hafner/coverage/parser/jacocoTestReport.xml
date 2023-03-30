@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN"
+        "report.dtd">
+<report name="jenkins-shared-library">
+  <sessioninfo id="ADAM-DESKTOP-622362cb" start="1679870147641" dump="1679870151723"/>
+  <package name="org/aboe026">
+    <class name="org/aboe026/ParameterValidator" sourcefilename="ParameterValidator.groovy">
+      <method name="required" desc="(Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;" line="11">
+        <counter type="INSTRUCTION" missed="0" covered="120"/>
+        <counter type="BRANCH" missed="0" covered="8"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="0" covered="5"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="requiredWithConstructorFallback"
+              desc="(Ljava/lang/Object;Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+              line="23">
+        <counter type="INSTRUCTION" missed="0" covered="118"/>
+        <counter type="BRANCH" missed="0" covered="10"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="0" covered="6"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="enumerable" desc="(Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V" line="35">
+        <counter type="INSTRUCTION" missed="0" covered="128"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="defaultIfNotSet" desc="(Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+              line="62">
+        <counter type="INSTRUCTION" missed="0" covered="43"/>
+        <counter type="BRANCH" missed="0" covered="8"/>
+        <counter type="LINE" missed="0" covered="7"/>
+        <counter type="COMPLEXITY" missed="0" covered="5"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="isArray" desc="(Ljava/lang/Object;)Z" line="76">
+        <counter type="INSTRUCTION" missed="0" covered="32"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="441"/>
+      <counter type="BRANCH" missed="0" covered="32"/>
+      <counter type="LINE" missed="0" covered="26"/>
+      <counter type="COMPLEXITY" missed="0" covered="21"/>
+      <counter type="METHOD" missed="0" covered="5"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoberturaCoverageResult_closure1$_closure5"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="24"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Lnet/sf/json/JSONObject;)Ljava/lang/Object;" line="152">
+        <counter type="INSTRUCTION" missed="5" covered="51"/>
+        <counter type="BRANCH" missed="0" covered="4"/>
+        <counter type="LINE" missed="0" covered="3"/>
+        <counter type="COMPLEXITY" missed="0" covered="3"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="5" covered="75"/>
+      <counter type="BRANCH" missed="0" covered="4"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="4"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/EnumUtil$_getValues_closure1" sourcefilename="EnumUtil.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;)V">
+        <counter type="INSTRUCTION" missed="0" covered="8"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Enum;)Ljava/lang/Object;" line="10">
+        <counter type="INSTRUCTION" missed="0" covered="9"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="17"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadJacocoCoverageResult_closure2$_closure7"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="32"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/String;)Ljava/lang/Object;" line="183">
+        <counter type="INSTRUCTION" missed="8" covered="66"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="8" covered="98"/>
+      <counter type="BRANCH" missed="0" covered="6"/>
+      <counter type="LINE" missed="0" covered="6"/>
+      <counter type="COMPLEXITY" missed="0" covered="5"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/EnumUtil" sourcefilename="EnumUtil.groovy">
+      <method name="getValues" desc="(Ljava/lang/Class;)Ljava/util/List;" line="9">
+        <counter type="INSTRUCTION" missed="0" covered="21"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="21"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="1"/>
+      <counter type="METHOD" missed="0" covered="1"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoberturaCoverageResult_closure1$_closure6"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="158">
+        <counter type="INSTRUCTION" missed="0" covered="12"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="28"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadJacocoCoverageResult_closure2$_closure8"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/String;)Ljava/lang/Object;" line="192">
+        <counter type="INSTRUCTION" missed="0" covered="12"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="28"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges" sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="()V" line="18">
+        <counter type="INSTRUCTION" missed="0" covered="22"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(Lgroovy/lang/Script;)V" line="30">
+        <counter type="INSTRUCTION" missed="0" covered="8"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(Lgroovy/lang/Script;Ljava/lang/String;Ljava/lang/String;)V" line="46">
+        <counter type="INSTRUCTION" missed="0" covered="79"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="5"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(Ljava/util/Map;)V" line="67">
+        <counter type="INSTRUCTION" missed="0" covered="72"/>
+        <counter type="LINE" missed="0" covered="4"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="uploadBuildResult" desc="(Ljava/util/Map;)V" line="84">
+        <counter type="INSTRUCTION" missed="9" covered="472"/>
+        <counter type="BRANCH" missed="0" covered="10"/>
+        <counter type="LINE" missed="0" covered="39"/>
+        <counter type="COMPLEXITY" missed="0" covered="6"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="uploadCoberturaCoverageResult" desc="(Ljava/util/Map;)V" line="144">
+        <counter type="INSTRUCTION" missed="0" covered="69"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="4"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="uploadJacocoCoverageResult" desc="(Ljava/util/Map;)V" line="176">
+        <counter type="INSTRUCTION" missed="0" covered="76"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="4"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="uploadCoverageResult" desc="(Ljava/util/Map;)V" line="210">
+        <counter type="INSTRUCTION" missed="0" covered="76"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="4"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getAndUploadCoverageResult"
+              desc="(Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;Lgroovy/lang/Closure;)V" line="234">
+        <counter type="INSTRUCTION" missed="12" covered="524"/>
+        <counter type="BRANCH" missed="0" covered="10"/>
+        <counter type="LINE" missed="0" covered="35"/>
+        <counter type="COMPLEXITY" missed="0" covered="6"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="isCategoryIgnored" desc="(Ljava/util/List;Ljava/lang/String;)Z" line="287">
+        <counter type="INSTRUCTION" missed="0" covered="22"/>
+        <counter type="BRANCH" missed="0" covered="4"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="3"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getAveragePercentage" desc="(Ljava/util/List;)I" line="291">
+        <counter type="INSTRUCTION" missed="0" covered="63"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="5"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="21" covered="1483"/>
+      <counter type="BRANCH" missed="0" covered="50"/>
+      <counter type="LINE" missed="0" covered="103"/>
+      <counter type="COMPLEXITY" missed="0" covered="36"/>
+      <counter type="METHOD" missed="0" covered="11"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ParameterValidator$_isArray_closure3" sourcefilename="ParameterValidator.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="77">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="32"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/Xml" sourcefilename="Xml.groovy">
+      <method name="transform" desc="(Ljava/lang/String;Lgroovy/lang/Closure;)Ljava/lang/String;" line="76">
+        <counter type="INSTRUCTION" missed="4" covered="89"/>
+        <counter type="LINE" missed="0" covered="7"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="4" covered="89"/>
+      <counter type="LINE" missed="0" covered="7"/>
+      <counter type="COMPLEXITY" missed="0" covered="1"/>
+      <counter type="METHOD" missed="0" covered="1"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/CoberturaCategory" sourcefilename="CoberturaCategory.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/String;ILjava/lang/String;)V" line="17">
+        <counter type="INSTRUCTION" missed="0" covered="25"/>
+        <counter type="LINE" missed="0" covered="2"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="toString" desc="()Ljava/lang/String;" line="23">
+        <counter type="INSTRUCTION" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;clinit&gt;" desc="()V">
+        <counter type="INSTRUCTION" missed="0" covered="152"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="183"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadgeColor" sourcefilename="ShieldsIoBadgeColor.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/String;ILjava/lang/String;)V" line="19">
+        <counter type="INSTRUCTION" missed="0" covered="25"/>
+        <counter type="LINE" missed="0" covered="2"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="toString" desc="()Ljava/lang/String;" line="25">
+        <counter type="INSTRUCTION" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;clinit&gt;" desc="()V">
+        <counter type="INSTRUCTION" missed="0" covered="196"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="227"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadJacocoCoverageResult_closure2"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="24"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Lnet/sf/json/JSONObject;)Ljava/lang/Object;" line="181">
+        <counter type="INSTRUCTION" missed="0" covered="65"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="5"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="89"/>
+      <counter type="BRANCH" missed="0" covered="2"/>
+      <counter type="LINE" missed="0" covered="5"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/CodeCoverageCategory" sourcefilename="CodeCoverageCategory.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/String;ILjava/lang/String;)V" line="19">
+        <counter type="INSTRUCTION" missed="0" covered="25"/>
+        <counter type="LINE" missed="0" covered="2"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="toString" desc="()Ljava/lang/String;" line="25">
+        <counter type="INSTRUCTION" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;clinit&gt;" desc="()V">
+        <counter type="INSTRUCTION" missed="0" covered="196"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="227"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/DockerUtil" sourcefilename="DockerUtil.groovy">
+      <method name="&lt;init&gt;" desc="()V" line="14">
+        <counter type="INSTRUCTION" missed="0" covered="22"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(Lgroovy/lang/Script;)V" line="26">
+        <counter type="INSTRUCTION" missed="0" covered="23"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(Ljava/util/Map;)V" line="40">
+        <counter type="INSTRUCTION" missed="0" covered="41"/>
+        <counter type="LINE" missed="0" covered="2"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getHostMountDir" desc="(Ljava/util/Map;)Ljava/lang/String;" line="50">
+        <counter type="INSTRUCTION" missed="15" covered="149"/>
+        <counter type="BRANCH" missed="2" covered="6"/>
+        <counter type="LINE" missed="0" covered="10"/>
+        <counter type="COMPLEXITY" missed="2" covered="3"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getContainerVolumes" desc="(Ljava/util/Map;)Ljava/util/List;" line="73">
+        <counter type="INSTRUCTION" missed="15" covered="68"/>
+        <counter type="BRANCH" missed="2" covered="4"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="2" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getContainerDetails" desc="(Ljava/lang/String;)Lnet/sf/json/JSONObject;" line="87">
+        <counter type="INSTRUCTION" missed="4" covered="169"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="9"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="34" covered="472"/>
+      <counter type="BRANCH" missed="4" covered="12"/>
+      <counter type="LINE" missed="0" covered="29"/>
+      <counter type="COMPLEXITY" missed="4" covered="10"/>
+      <counter type="METHOD" missed="0" covered="6"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoverageResult_closure3$_closure10"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/String;)Ljava/lang/Object;" line="226">
+        <counter type="INSTRUCTION" missed="0" covered="12"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="28"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoverageResult_closure3$_closure9"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="32"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/String;)Ljava/lang/Object;" line="217">
+        <counter type="INSTRUCTION" missed="8" covered="73"/>
+        <counter type="BRANCH" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="6"/>
+        <counter type="COMPLEXITY" missed="0" covered="4"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="8" covered="105"/>
+      <counter type="BRANCH" missed="0" covered="6"/>
+      <counter type="LINE" missed="0" covered="6"/>
+      <counter type="COMPLEXITY" missed="0" covered="5"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoverageResult_closure3" sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="24"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Lnet/sf/json/JSONObject;)Ljava/lang/Object;" line="215">
+        <counter type="INSTRUCTION" missed="0" covered="69"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="5"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="93"/>
+      <counter type="BRANCH" missed="0" covered="2"/>
+      <counter type="LINE" missed="0" covered="5"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/JacocoCategory" sourcefilename="JacocoCategory.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/String;ILjava/lang/String;)V" line="17">
+        <counter type="INSTRUCTION" missed="0" covered="25"/>
+        <counter type="LINE" missed="0" covered="2"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="toString" desc="()Ljava/lang/String;" line="23">
+        <counter type="INSTRUCTION" missed="0" covered="6"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="&lt;clinit&gt;" desc="()V">
+        <counter type="INSTRUCTION" missed="0" covered="152"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="183"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_getAveragePercentage_closure4" sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="296">
+        <counter type="INSTRUCTION" missed="0" covered="20"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="36"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ParameterValidator$_enumerable_closure2" sourcefilename="ParameterValidator.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="32"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="44">
+        <counter type="INSTRUCTION" missed="5" covered="84"/>
+        <counter type="BRANCH" missed="0" covered="4"/>
+        <counter type="LINE" missed="0" covered="4"/>
+        <counter type="COMPLEXITY" missed="0" covered="3"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="5" covered="116"/>
+      <counter type="BRANCH" missed="0" covered="4"/>
+      <counter type="LINE" missed="0" covered="4"/>
+      <counter type="COMPLEXITY" missed="0" covered="4"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/DockerUtil$_getHostMountDir_closure1" sourcefilename="DockerUtil.groovy">
+      <method name="&lt;init&gt;"
+              desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="24"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="57">
+        <counter type="INSTRUCTION" missed="5" covered="36"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="3"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="5" covered="60"/>
+      <counter type="BRANCH" missed="0" covered="2"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ParameterValidator$_enumerable_closure1" sourcefilename="ParameterValidator.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="40">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="32"/>
+      <counter type="LINE" missed="0" covered="1"/>
+      <counter type="COMPLEXITY" missed="0" covered="2"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/ShieldsIoBadges$_uploadCoberturaCoverageResult_closure1"
+           sourcefilename="ShieldsIoBadges.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Lnet/sf/json/JSONObject;)Ljava/lang/Object;" line="150">
+        <counter type="INSTRUCTION" missed="0" covered="70"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="5"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="0" covered="86"/>
+      <counter type="BRANCH" missed="0" covered="2"/>
+      <counter type="LINE" missed="0" covered="5"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <class name="org/aboe026/DockerUtil$_getContainerVolumes_closure2" sourcefilename="DockerUtil.groovy">
+      <method name="&lt;init&gt;" desc="(Ljava/lang/Object;Ljava/lang/Object;Lgroovy/lang/Reference;)V">
+        <counter type="INSTRUCTION" missed="0" covered="16"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="doCall" desc="(Ljava/lang/Object;)Ljava/lang/Object;" line="78">
+        <counter type="INSTRUCTION" missed="5" covered="26"/>
+        <counter type="BRANCH" missed="0" covered="2"/>
+        <counter type="LINE" missed="0" covered="3"/>
+        <counter type="COMPLEXITY" missed="0" covered="2"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <counter type="INSTRUCTION" missed="5" covered="42"/>
+      <counter type="BRANCH" missed="0" covered="2"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="2"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <sourcefile name="ShieldsIoBadges.groovy">
+      <line nr="18" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="30" mi="0" ci="5" mb="0" cb="0"/>
+      <line nr="46" mi="0" ci="7" mb="0" cb="4"/>
+      <line nr="47" mi="0" ci="26" mb="0" cb="0"/>
+      <line nr="49" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="50" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="51" mi="0" ci="16" mb="0" cb="2"/>
+      <line nr="67" mi="0" ci="11" mb="0" cb="0"/>
+      <line nr="68" mi="0" ci="15" mb="0" cb="0"/>
+      <line nr="69" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="70" mi="0" ci="18" mb="0" cb="0"/>
+      <line nr="84" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="85" mi="0" ci="7" mb="0" cb="2"/>
+      <line nr="86" mi="0" ci="11" mb="0" cb="0"/>
+      <line nr="87" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="88" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="89" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="90" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="91" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="94" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="95" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="96" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="97" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="98" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="99" mi="0" ci="12" mb="0" cb="2"/>
+      <line nr="100" mi="0" ci="6" mb="0" cb="0"/>
+      <line nr="101" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="102" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="103" mi="3" ci="12" mb="0" cb="2"/>
+      <line nr="104" mi="0" ci="6" mb="0" cb="0"/>
+      <line nr="105" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="106" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="107" mi="3" ci="12" mb="0" cb="2"/>
+      <line nr="108" mi="0" ci="6" mb="0" cb="0"/>
+      <line nr="109" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="110" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="111" mi="3" ci="12" mb="0" cb="2"/>
+      <line nr="112" mi="0" ci="6" mb="0" cb="0"/>
+      <line nr="113" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="114" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="116" mi="0" ci="6" mb="0" cb="0"/>
+      <line nr="117" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="118" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="120" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="122" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="123" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="124" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="125" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="126" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="127" mi="0" ci="50" mb="0" cb="0"/>
+      <line nr="144" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="145" mi="0" ci="18" mb="0" cb="6"/>
+      <line nr="146" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="149" mi="0" ci="18" mb="0" cb="0"/>
+      <line nr="150" mi="0" ci="10" mb="0" cb="0"/>
+      <line nr="151" mi="0" ci="16" mb="0" cb="0"/>
+      <line nr="152" mi="0" ci="24" mb="0" cb="4"/>
+      <line nr="153" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="154" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="156" mi="0" ci="11" mb="0" cb="2"/>
+      <line nr="157" mi="0" ci="21" mb="0" cb="0"/>
+      <line nr="158" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="161" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="176" mi="0" ci="16" mb="0" cb="0"/>
+      <line nr="177" mi="0" ci="18" mb="0" cb="6"/>
+      <line nr="178" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="180" mi="0" ci="19" mb="0" cb="0"/>
+      <line nr="181" mi="0" ci="10" mb="0" cb="0"/>
+      <line nr="182" mi="0" ci="17" mb="0" cb="0"/>
+      <line nr="183" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="184" mi="0" ci="3" mb="0" cb="2"/>
+      <line nr="185" mi="0" ci="20" mb="0" cb="4"/>
+      <line nr="186" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="187" mi="3" ci="2" mb="0" cb="0"/>
+      <line nr="188" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="190" mi="0" ci="5" mb="0" cb="2"/>
+      <line nr="191" mi="0" ci="15" mb="0" cb="0"/>
+      <line nr="192" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="195" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="210" mi="0" ci="16" mb="0" cb="0"/>
+      <line nr="211" mi="0" ci="18" mb="0" cb="6"/>
+      <line nr="212" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="214" mi="0" ci="19" mb="0" cb="0"/>
+      <line nr="215" mi="0" ci="10" mb="0" cb="0"/>
+      <line nr="216" mi="0" ci="17" mb="0" cb="0"/>
+      <line nr="217" mi="0" ci="17" mb="0" cb="0"/>
+      <line nr="218" mi="0" ci="3" mb="0" cb="2"/>
+      <line nr="219" mi="0" ci="20" mb="0" cb="4"/>
+      <line nr="220" mi="0" ci="26" mb="0" cb="0"/>
+      <line nr="221" mi="3" ci="2" mb="0" cb="0"/>
+      <line nr="222" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="224" mi="0" ci="9" mb="0" cb="2"/>
+      <line nr="225" mi="0" ci="15" mb="0" cb="0"/>
+      <line nr="226" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="229" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="234" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="235" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="236" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="237" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="239" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="240" mi="0" ci="37" mb="0" cb="0"/>
+      <line nr="242" mi="0" ci="40" mb="0" cb="0"/>
+      <line nr="247" mi="0" ci="27" mb="0" cb="0"/>
+      <line nr="249" mi="0" ci="10" mb="0" cb="0"/>
+      <line nr="251" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="252" mi="0" ci="3" mb="0" cb="0"/>
+      <line nr="253" mi="0" ci="5" mb="0" cb="2"/>
+      <line nr="254" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="255" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="256" mi="3" ci="9" mb="0" cb="2"/>
+      <line nr="257" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="258" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="259" mi="3" ci="9" mb="0" cb="2"/>
+      <line nr="260" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="261" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="262" mi="3" ci="9" mb="0" cb="2"/>
+      <line nr="263" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="264" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="265" mi="3" ci="9" mb="0" cb="2"/>
+      <line nr="266" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="267" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="269" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="270" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="272" mi="0" ci="22" mb="0" cb="0"/>
+      <line nr="274" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="275" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="276" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="277" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="278" mi="0" ci="47" mb="0" cb="0"/>
+      <line nr="279" mi="0" ci="50" mb="0" cb="0"/>
+      <line nr="287" mi="0" ci="19" mb="0" cb="4"/>
+      <line nr="291" mi="0" ci="9" mb="0" cb="2"/>
+      <line nr="292" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="294" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="295" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="296" mi="0" ci="17" mb="0" cb="0"/>
+      <line nr="298" mi="0" ci="25" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="42" covered="2149"/>
+      <counter type="BRANCH" missed="0" covered="72"/>
+      <counter type="LINE" missed="0" covered="137"/>
+      <counter type="COMPLEXITY" missed="0" covered="67"/>
+      <counter type="METHOD" missed="0" covered="31"/>
+      <counter type="CLASS" missed="0" covered="11"/>
+    </sourcefile>
+    <sourcefile name="ParameterValidator.groovy">
+      <line nr="11" mi="0" ci="8" mb="0" cb="2"/>
+      <line nr="12" mi="0" ci="7" mb="0" cb="4"/>
+      <line nr="13" mi="0" ci="42" mb="0" cb="0"/>
+      <line nr="15" mi="0" ci="9" mb="0" cb="2"/>
+      <line nr="16" mi="0" ci="42" mb="0" cb="0"/>
+      <line nr="18" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="23" mi="0" ci="33" mb="0" cb="6"/>
+      <line nr="24" mi="0" ci="7" mb="0" cb="4"/>
+      <line nr="25" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="26" mi="0" ci="36" mb="0" cb="0"/>
+      <line nr="27" mi="0" ci="33" mb="0" cb="0"/>
+      <line nr="30" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="35" mi="0" ci="7" mb="0" cb="4"/>
+      <line nr="36" mi="0" ci="28" mb="0" cb="0"/>
+      <line nr="38" mi="0" ci="10" mb="0" cb="0"/>
+      <line nr="39" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="40" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="42" mi="0" ci="41" mb="0" cb="2"/>
+      <line nr="43" mi="0" ci="15" mb="0" cb="0"/>
+      <line nr="44" mi="0" ci="18" mb="0" cb="4"/>
+      <line nr="45" mi="0" ci="26" mb="0" cb="0"/>
+      <line nr="46" mi="0" ci="35" mb="0" cb="0"/>
+      <line nr="48" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="62" mi="0" ci="7" mb="0" cb="4"/>
+      <line nr="63" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="65" mi="0" ci="9" mb="0" cb="2"/>
+      <line nr="66" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="68" mi="0" ci="9" mb="0" cb="2"/>
+      <line nr="69" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="71" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="76" mi="0" ci="23" mb="0" cb="0"/>
+      <line nr="77" mi="0" ci="13" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="5" covered="621"/>
+      <counter type="BRANCH" missed="0" covered="36"/>
+      <counter type="LINE" missed="0" covered="32"/>
+      <counter type="COMPLEXITY" missed="0" covered="29"/>
+      <counter type="METHOD" missed="0" covered="11"/>
+      <counter type="CLASS" missed="0" covered="4"/>
+    </sourcefile>
+    <sourcefile name="EnumUtil.groovy">
+      <line nr="9" mi="0" ci="18" mb="0" cb="0"/>
+      <line nr="10" mi="0" ci="6" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="0" covered="38"/>
+      <counter type="LINE" missed="0" covered="2"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="2"/>
+    </sourcefile>
+    <sourcefile name="JacocoCategory.groovy">
+      <line nr="17" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="18" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="23" mi="0" ci="3" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="0" covered="183"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <sourcefile name="CoberturaCategory.groovy">
+      <line nr="17" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="18" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="23" mi="0" ci="3" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="0" covered="183"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <sourcefile name="DockerUtil.groovy">
+      <line nr="14" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="26" mi="0" ci="9" mb="0" cb="0"/>
+      <line nr="40" mi="0" ci="11" mb="0" cb="0"/>
+      <line nr="41" mi="0" ci="16" mb="0" cb="0"/>
+      <line nr="50" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="51" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="52" mi="0" ci="19" mb="0" cb="0"/>
+      <line nr="53" mi="15" ci="13" mb="2" cb="2"/>
+      <line nr="54" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="55" mi="0" ci="7" mb="0" cb="2"/>
+      <line nr="56" mi="0" ci="17" mb="0" cb="0"/>
+      <line nr="57" mi="0" ci="10" mb="0" cb="2"/>
+      <line nr="58" mi="0" ci="21" mb="0" cb="0"/>
+      <line nr="59" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="62" mi="0" ci="6" mb="0" cb="2"/>
+      <line nr="63" mi="0" ci="36" mb="0" cb="0"/>
+      <line nr="65" mi="0" ci="14" mb="0" cb="0"/>
+      <line nr="73" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="74" mi="0" ci="12" mb="0" cb="0"/>
+      <line nr="75" mi="15" ci="13" mb="2" cb="2"/>
+      <line nr="76" mi="0" ci="7" mb="0" cb="2"/>
+      <line nr="77" mi="0" ci="16" mb="0" cb="0"/>
+      <line nr="78" mi="0" ci="8" mb="0" cb="2"/>
+      <line nr="79" mi="0" ci="13" mb="0" cb="0"/>
+      <line nr="80" mi="5" ci="2" mb="0" cb="0"/>
+      <line nr="83" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="87" mi="0" ci="53" mb="0" cb="0"/>
+      <line nr="91" mi="0" ci="4" mb="0" cb="2"/>
+      <line nr="92" mi="0" ci="26" mb="0" cb="0"/>
+      <line nr="94" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="96" mi="0" ci="25" mb="0" cb="0"/>
+      <line nr="97" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="98" mi="0" ci="46" mb="0" cb="0"/>
+      <line nr="99" mi="4" ci="4" mb="0" cb="0"/>
+      <line nr="100" mi="0" ci="2" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="44" covered="574"/>
+      <counter type="BRANCH" missed="4" covered="16"/>
+      <counter type="LINE" missed="0" covered="35"/>
+      <counter type="COMPLEXITY" missed="4" covered="16"/>
+      <counter type="METHOD" missed="0" covered="10"/>
+      <counter type="CLASS" missed="0" covered="3"/>
+    </sourcefile>
+    <sourcefile name="ShieldsIoBadgeColor.groovy">
+      <line nr="19" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="20" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="25" mi="0" ci="3" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="0" covered="227"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <sourcefile name="Xml.groovy">
+      <line nr="76" mi="0" ci="4" mb="0" cb="0"/>
+      <line nr="78" mi="0" ci="18" mb="0" cb="0"/>
+      <line nr="79" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="80" mi="0" ci="38" mb="0" cb="0"/>
+      <line nr="81" mi="4" ci="4" mb="0" cb="0"/>
+      <line nr="82" mi="0" ci="7" mb="0" cb="0"/>
+      <line nr="83" mi="0" ci="13" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="4" covered="89"/>
+      <counter type="LINE" missed="0" covered="7"/>
+      <counter type="COMPLEXITY" missed="0" covered="1"/>
+      <counter type="METHOD" missed="0" covered="1"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <sourcefile name="CodeCoverageCategory.groovy">
+      <line nr="19" mi="0" ci="8" mb="0" cb="0"/>
+      <line nr="20" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="25" mi="0" ci="3" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="0" covered="227"/>
+      <counter type="LINE" missed="0" covered="3"/>
+      <counter type="COMPLEXITY" missed="0" covered="3"/>
+      <counter type="METHOD" missed="0" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="95" covered="4291"/>
+    <counter type="BRANCH" missed="4" covered="124"/>
+    <counter type="LINE" missed="0" covered="225"/>
+    <counter type="COMPLEXITY" missed="4" covered="128"/>
+    <counter type="METHOD" missed="0" covered="68"/>
+    <counter type="CLASS" missed="0" covered="25"/>
+  </package>
+  <counter type="INSTRUCTION" missed="95" covered="4291"/>
+  <counter type="BRANCH" missed="4" covered="124"/>
+  <counter type="LINE" missed="0" covered="225"/>
+  <counter type="COMPLEXITY" missed="4" covered="128"/>
+  <counter type="METHOD" missed="0" covered="68"/>
+  <counter type="CLASS" missed="0" covered="25"/>
+</report>

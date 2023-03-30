@@ -1,6 +1,10 @@
 package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -25,29 +29,37 @@ class MethodNodeTest extends AbstractNodeTest {
                 .hasValidLineNumber();
     }
 
-    /**
-     * Tests with a valid line number.
-     */
     @Test
     void shouldGetValidLineNumber() {
-        // Given
         int validLineNumber = 5;
         var node = new MethodNode("main", "(Ljava/util/Map;)V", validLineNumber);
-        int secondValidLineNumber = 1;
-        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
 
-        // When & Then
         assertThat(node)
                 .hasValidLineNumber()
                 .hasLineNumber(validLineNumber);
+
+        int secondValidLineNumber = 1;
+        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
         assertThat(secondNode)
                 .hasValidLineNumber()
                 .hasLineNumber(secondValidLineNumber);
     }
 
-    /**
-     * Tests if an invalid line number is recognized.
-     */
+    @ParameterizedTest(name = "[{index}] Compute method coverage based on {0} metric")
+    @EnumSource(value = Metric.class, names = {"LINE", "BRANCH", "INSTRUCTION"})
+    void shouldComputeMethodCoverage(final Metric targetMetric) {
+        var node = new MethodNode("method", "signature");
+
+        var builder = new CoverageBuilder().setMetric(Metric.METHOD);
+        var notCovered = builder.setCovered(0).setMissed(1).build();
+        var covered = builder.setCovered(1).setMissed(0).build();
+
+        assertThat(node.getValue(Metric.METHOD)).isPresent().contains(notCovered);
+
+        node.addValue(builder.setMetric(targetMetric).setCovered(1).setMissed(0).build());
+        assertThat(node.getValue(Metric.METHOD)).isPresent().contains(covered);
+    }
+
     @Test
     void shouldCheckInvalidLineNumber() {
         // Given

@@ -13,7 +13,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 abstract class AbstractNodeTest {
     private static final String NAME = "Node Name";
     private static final String CHILD = "Child";
-    private static final Coverage BRANCH_COVERAGE = new CoverageBuilder().setMetric(Metric.BRANCH)
+    private static final Coverage MUTATION_COVERAGE = new CoverageBuilder().setMetric(Metric.MUTATION)
             .setCovered(5)
             .setMissed(10)
             .build();
@@ -32,7 +32,7 @@ abstract class AbstractNodeTest {
     private Node createParentWithValues() {
         Node node = createNode(NAME);
         node.addValue(new LinesOfCode(15));
-        node.addValue(BRANCH_COVERAGE);
+        node.addValue(MUTATION_COVERAGE);
         return node;
     }
 
@@ -40,7 +40,7 @@ abstract class AbstractNodeTest {
     void shouldCopyNode() {
         Node parent = createParentWithValues();
         Node child = createNode(CHILD);
-        child.addValue(BRANCH_COVERAGE);
+        child.addValue(MUTATION_COVERAGE);
         parent.addChild(child);
 
         assertThat(parent)
@@ -83,7 +83,7 @@ abstract class AbstractNodeTest {
     private List<? extends Value> createMetricDistributionWithMissed(final int missed) {
         var builder = new CoverageBuilder();
         builder.setMetric(getMetric()).setCovered(0).setMissed(missed);
-        return List.of(builder.build(), BRANCH_COVERAGE);
+        return List.of(builder.build(), MUTATION_COVERAGE);
     }
 
     @Test

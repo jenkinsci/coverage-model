@@ -118,8 +118,7 @@ public enum Metric {
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
                 var builder = new CoverageBuilder().setMetric(searchMetric);
-                Optional<Value> lineCoverage = LINE.getValueFor(node);
-                if (lineCoverage.isPresent() && ((Coverage) lineCoverage.get()).getCovered() > 0) {
+                if (hasCoverage(node)) {
                     builder.setCovered(1).setMissed(0);
                 }
                 else {
@@ -128,6 +127,19 @@ public enum Metric {
                 return Optional.of(builder.build());
             }
             return Optional.empty();
+        }
+
+        private boolean hasCoverage(final Node node) {
+            return hasCoverage(node, Metric.INSTRUCTION)
+                    || hasCoverage(node, Metric.LINE)
+                    || hasCoverage(node, Metric.BRANCH);
+        }
+
+        private boolean hasCoverage(final Node node, final Metric metric) {
+            return node.getValue(metric)
+                    .filter(value -> ((Coverage) value).getCovered() > 0)
+                    .isPresent();
+
         }
 
         @Override

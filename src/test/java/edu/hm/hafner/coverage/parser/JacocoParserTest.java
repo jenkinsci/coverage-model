@@ -37,6 +37,22 @@ class JacocoParserTest extends AbstractParserTest {
         return (Coverage) node.getValue(metric).get();
     }
 
+    @Test
+    void shouldDetectMethodCoverage() {
+        ModuleNode module = readReport("jacocoTestReport.xml");
+
+        assertThat(module.getAll(PACKAGE)).hasSize(1);
+        assertThat(module.findFile("CodeCoverageCategory.groovy")).isPresent().hasValueSatisfying(
+                file -> assertThat(file.findClass("org/aboe026/CodeCoverageCategory")).isPresent()
+                        .hasValueSatisfying(
+                                classNode -> assertThat(file.getAll(METHOD).size()).isEqualTo(3)));
+
+        var methods = module.getAll(METHOD);
+        assertThat(methods).hasSize(68);
+        assertThat(module.getValue(METHOD)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                coverage -> assertThat(coverage).hasTotal(68).hasCovered(68));
+    }
+
     @ParameterizedTest(name = "Read and parse coding style report \"{0}\" to tree of nodes")
     @ValueSource(strings = {"jacoco-codingstyle.xml", "jacoco-codingstyle-no-sourcefilename.xml"})
     void shouldConvertCodingStyleToTree(final String fileName) {
