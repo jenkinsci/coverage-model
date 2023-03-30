@@ -110,6 +110,9 @@ public abstract class Node implements Serializable {
                 elements.add(Metric.COMPLEXITY_DENSITY);
             }
         }
+        if (elements.contains(Metric.COMPLEXITY)) {
+            elements.add(Metric.COMPLEXITY_MAXIMUM);
+        }
         return elements;
     }
 
