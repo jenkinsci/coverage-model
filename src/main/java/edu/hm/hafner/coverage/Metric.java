@@ -35,6 +35,7 @@ public enum Metric {
     MUTATION(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator()),
     COMPLEXITY_DENSITY(new DensityEvaluator()),
+    COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder()),
     LOC(new LocEvaluator());
 
     /**
@@ -171,6 +172,24 @@ public enum Metric {
                 }
             }
             return Optional.empty();
+        }
+    }
+
+    private static class MethodMaxComplexityFinder extends MetricEvaluator {
+        @Override
+        public boolean isAggregatingChildren() {
+            return false;
+        }
+
+        @Override
+        Optional<Value> compute(final Node node, final Metric searchMetric) {
+            if (node.getMetric() == Metric.METHOD) {
+                return COMPLEXITY.getValueFor(node);
+            }
+            return node.getChildren().stream()
+                    .map(c -> compute(c, searchMetric))
+                    .flatMap(Optional::stream)
+                    .reduce(Value::max);
         }
     }
 

@@ -49,7 +49,7 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
-                COMPLEXITY, COMPLEXITY_DENSITY, LOC);
+                COMPLEXITY, COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
 
         var builder = new CoverageBuilder();
 
@@ -64,6 +64,7 @@ class JacocoParserTest extends AbstractParserTest {
                 builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
                 new CyclomaticComplexity(160),
                 new FractionValue(COMPLEXITY_DENSITY, 160, 294 + 29),
+                new CyclomaticComplexity(6),
                 new LinesOfCode(294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
