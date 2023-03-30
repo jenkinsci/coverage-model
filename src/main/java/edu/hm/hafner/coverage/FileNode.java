@@ -425,8 +425,8 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
-     * these are reported separately in {@link #getPartiallyCoveredLines()}.
+     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and the
+     * number of survived mutations as value.
      *
      * @return the lines that have no line coverage
      */
