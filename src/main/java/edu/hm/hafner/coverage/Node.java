@@ -31,7 +31,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Ullrich Hafner
  */
 // TODO: Make sure that we do not have children with the same name in the same node
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity"})
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
@@ -150,13 +150,13 @@ public abstract class Node implements Serializable {
         if (hasParent()) {
             String parentPath = getParent().getPath();
 
-            var pathUtil = new PathUtil();
-
             if (StringUtils.isBlank(parentPath)
-                    || parentPath.equals(SLASH)
-                    || parentPath.equals(DOT)) {
+                    || SLASH.equals(parentPath)
+                    || DOT.equals(parentPath)) {
                 return localPath;
             }
+
+            var pathUtil = new PathUtil();
             if (localPath.startsWith(parentPath + SLASH)
                     || pathUtil.isAbsolute(localPath)) {
                 return localPath;
@@ -169,6 +169,18 @@ public abstract class Node implements Serializable {
         }
 
         return localPath;
+    }
+
+    /**
+     * Returns a collection of source folders that contain the source code files of all {@link FileNode file nodes}.
+     *
+     * @return a collection of source folders
+     */
+    public Set<String> getSourceFolders() {
+        return children.stream()
+                .map(Node::getSourceFolders)
+                .flatMap(Collection::parallelStream)
+                .collect(Collectors.toSet());
     }
 
     /**

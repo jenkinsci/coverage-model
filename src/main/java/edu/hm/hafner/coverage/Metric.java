@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import com.google.errorprone.annotations.Immutable;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A coverage metric to identify the coverage result type. Note the enum order since the ordinal is used to sort the
@@ -50,6 +51,7 @@ public enum Metric {
         return valueOf(tag.toUpperCase(Locale.ENGLISH).replaceAll("-", "_"));
     }
 
+    @SuppressFBWarnings("SE_BAD_FIELD")
     private final MetricEvaluator evaluator;
 
     Metric(final MetricEvaluator evaluator) {

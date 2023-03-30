@@ -2,9 +2,11 @@ package edu.hm.hafner.coverage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -33,12 +35,13 @@ public final class ModuleNode extends Node {
     @Override
     public ModuleNode copy() {
         var moduleNode = new ModuleNode(getName());
-        getSources().forEach(moduleNode::addSource);
+        getSourceFolders().forEach(moduleNode::addSource);
         return moduleNode;
     }
 
-    public List<String> getSources() {
-        return List.copyOf(sources);
+    @Override
+    public Set<String> getSourceFolders() {
+        return new HashSet<>(sources);
     }
 
     /**
@@ -168,6 +171,6 @@ public final class ModuleNode extends Node {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSources());
+        return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSourceFolders());
     }
 }
