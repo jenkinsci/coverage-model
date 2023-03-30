@@ -45,17 +45,6 @@ public final class ModuleNode extends Node {
     }
 
     /**
-     * Returns a collection of source folders that contain the source code files of all {@link FileNode file nodes}.
-     *
-     * @return a collection of source folders
-     * @deprecated replaced by {@link #getSourceFolders()}
-     */
-    @Deprecated
-    public List<String> getSources() {
-        return List.copyOf(sources);
-    }
-
-    /**
      * Appends the specified source to the list of sources.
      *
      * @param source
