@@ -34,10 +34,10 @@ public enum Metric {
 
     /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
-    COMPLEXITY(new ValuesAggregator()),
-    COMPLEXITY_DENSITY(new DensityEvaluator()),
-    COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder()),
-    LOC(new LocEvaluator());
+    COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
+    COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),
+    COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
+    LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER);
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -54,9 +54,19 @@ public enum Metric {
 
     @SuppressFBWarnings("SE_BAD_FIELD")
     private final MetricEvaluator evaluator;
+    private final MetricTendency tendency;
 
     Metric(final MetricEvaluator evaluator) {
+        this(evaluator, MetricTendency.LARGER_IS_BETTER);
+    }
+
+    Metric(final MetricEvaluator evaluator, final MetricTendency tendency) {
         this.evaluator = evaluator;
+        this.tendency = tendency;
+    }
+
+    public MetricTendency getTendency() {
+        return tendency;
     }
 
     /**
@@ -101,6 +111,17 @@ public enum Metric {
                 Metric.BRANCH,
                 Metric.INSTRUCTION
         ));
+    }
+
+    /**
+     * Metric tendency: some metrics are getting better when the value is getting larger, some other metrics are getting
+     * better when the value is getting smaller.
+     */
+    public enum MetricTendency {
+        /** Larger values will indicate better results. */
+        LARGER_IS_BETTER,
+        /** Smaller values will indicate better results. */
+        SMALLER_IS_BETTER
     }
 
     @Immutable
@@ -198,7 +219,9 @@ public enum Metric {
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             if (node.getMetric() == Metric.METHOD) {
-                return COMPLEXITY.getValueFor(node);
+                return COMPLEXITY.getValueFor(node)
+                        .map(c -> new CyclomaticComplexity(((CyclomaticComplexity)c).getValue(),
+                                Metric.COMPLEXITY_MAXIMUM));
             }
             return node.getChildren().stream()
                     .map(c -> compute(c, searchMetric))

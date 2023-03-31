@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.math.Fraction;
 
+import edu.hm.hafner.coverage.Metric.MetricTendency;
+
 /**
  * Represents the value of a rational number based metric. Internally the rational number is stored using a
  * {@link Fraction} instance.
@@ -74,9 +76,23 @@ public final class FractionValue extends Value {
         throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
     }
 
+    /**
+     * Returns whether this fraction is out of the valid range. For values that have a metric that is getting better
+     * when values are increasing (e.g., coverage), the method will return {@code true} if the fraction value is
+     * smaller than the threshold. For values that have a metric that is getting better when values are decreasing
+     * (e.g., complexity), the method will return {@code true} if the fraction value is larger than the threshold.
+     *
+     * @param threshold
+     *         the threshold to compare with
+     *
+     * @return {@code true}, if this value is larger or smaller than specified threshold (see {@link MetricTendency})
+     */
     @Override
-    public boolean isBelowThreshold(final double threshold) {
-        return fraction.doubleValue() < threshold;
+    public boolean isOutOfValidRange(final double threshold) {
+        if (getMetric().getTendency() == MetricTendency.LARGER_IS_BETTER) {
+            return fraction.doubleValue() < threshold;
+        }
+        return fraction.doubleValue() > threshold;
     }
 
     private SafeFraction asSafeFraction() {

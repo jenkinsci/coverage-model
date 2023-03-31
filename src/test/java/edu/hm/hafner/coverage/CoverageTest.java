@@ -48,12 +48,12 @@ class CoverageTest {
         Coverage fifty = builder.setCovered(2).setMissed(2).build();
         Coverage hundred = builder.setCovered(2).setMissed(0).build();
 
-        assertThat(zero.isBelowThreshold(0)).isFalse();
-        assertThat(zero.isBelowThreshold(0.1)).isTrue();
-        assertThat(fifty.isBelowThreshold(50)).isFalse();
-        assertThat(fifty.isBelowThreshold(50.1)).isTrue();
-        assertThat(hundred.isBelowThreshold(100)).isFalse();
-        assertThat(hundred.isBelowThreshold(100.1)).isTrue();
+        assertThat(zero.isOutOfValidRange(0)).isFalse();
+        assertThat(zero.isOutOfValidRange(0.1)).isTrue();
+        assertThat(fifty.isOutOfValidRange(50)).isFalse();
+        assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
+        assertThat(hundred.isOutOfValidRange(100)).isFalse();
+        assertThat(hundred.isOutOfValidRange(100.1)).isTrue();
     }
 
     private double getDelta(final String value) {

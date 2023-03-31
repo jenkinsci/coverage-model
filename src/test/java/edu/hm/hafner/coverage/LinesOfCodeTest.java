@@ -28,9 +28,9 @@ class LinesOfCodeTest {
 
     @Test
     void shouldCompareWithThreshold() {
-        assertThat(new LinesOfCode(125).isBelowThreshold(0)).isFalse();
-        assertThat(new LinesOfCode(125).isBelowThreshold(125)).isFalse();
-        assertThat(new LinesOfCode(125).isBelowThreshold(125.1)).isTrue();
+        assertThat(new LinesOfCode(125).isOutOfValidRange(200)).isFalse();
+        assertThat(new LinesOfCode(125).isOutOfValidRange(125)).isFalse();
+        assertThat(new LinesOfCode(125).isOutOfValidRange(124.9)).isTrue();
     }
 
     @Test

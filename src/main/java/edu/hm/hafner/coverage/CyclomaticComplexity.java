@@ -10,12 +10,25 @@ public final class CyclomaticComplexity extends IntegerValue {
 
     /**
      * Creates a new {@link CyclomaticComplexity} instance with the specified complexity.
+     * The metric is set to {@link Metric#COMPLEXITY}.
      *
      * @param complexity
      *         the cyclomatic complexity
      */
     public CyclomaticComplexity(final int complexity) {
-        super(Metric.COMPLEXITY, complexity);
+        this(complexity, Metric.COMPLEXITY);
+    }
+
+    /**
+     * Creates a new {@link CyclomaticComplexity} instance with the specified complexity.
+     *
+     * @param complexity
+     *         the cyclomatic complexity
+     * @param metric
+     *         the metric of this value
+     */
+    public CyclomaticComplexity(final int complexity, final Metric metric) {
+        super(metric, complexity);
     }
 
     @Override

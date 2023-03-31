@@ -27,9 +27,9 @@ class CyclomaticComplexityTest {
 
     @Test
     void shouldCompareWithThreshold() {
-        assertThat(new CyclomaticComplexity(125).isBelowThreshold(0)).isFalse();
-        assertThat(new CyclomaticComplexity(125).isBelowThreshold(125)).isFalse();
-        assertThat(new CyclomaticComplexity(125).isBelowThreshold(125.1)).isTrue();
+        assertThat(new CyclomaticComplexity(125).isOutOfValidRange(200)).isFalse();
+        assertThat(new CyclomaticComplexity(125).isOutOfValidRange(125)).isFalse();
+        assertThat(new CyclomaticComplexity(125).isOutOfValidRange(124.9)).isTrue();
     }
 
     @Test
