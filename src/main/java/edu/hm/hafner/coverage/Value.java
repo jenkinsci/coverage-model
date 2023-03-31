@@ -93,8 +93,9 @@ public abstract class Value implements Serializable {
                     case COMPLEXITY_DENSITY:
                         return new FractionValue(metric, Fraction.getFraction(value));
                     case COMPLEXITY:
-                    case COMPLEXITY_MAXIMUM:
                         return new CyclomaticComplexity(Integer.parseInt(value));
+                    case COMPLEXITY_MAXIMUM:
+                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.COMPLEXITY_MAXIMUM);
                     case LOC:
                         return new LinesOfCode(Integer.parseInt(value));
                 }

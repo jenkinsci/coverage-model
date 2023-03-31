@@ -198,7 +198,9 @@ public enum Metric {
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             if (node.getMetric() == Metric.METHOD) {
-                return COMPLEXITY.getValueFor(node);
+                return COMPLEXITY.getValueFor(node)
+                        .map(c -> new CyclomaticComplexity(((CyclomaticComplexity)c).getValue(),
+                                Metric.COMPLEXITY_MAXIMUM));
             }
             return node.getChildren().stream()
                     .map(c -> compute(c, searchMetric))
