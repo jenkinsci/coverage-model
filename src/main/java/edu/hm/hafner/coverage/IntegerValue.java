@@ -74,16 +74,16 @@ public abstract class IntegerValue extends Value {
     }
 
     /**
-     * Returns whether this integer value is below the given threshold.
+     * Returns whether this integer value is larger than the given threshold.
      *
      * @param threshold
      *         the threshold
      *
-     * @return {@code true}, if this value is below the specified threshold
+     * @return {@code true}, if this value is larger than the specified threshold
      */
     @Override
-    public boolean isBelowThreshold(final double threshold) {
-        return getValue() < threshold;
+    public boolean isOutOfValidRange(final double threshold) {
+        return getValue() > threshold;
     }
 
     @Override

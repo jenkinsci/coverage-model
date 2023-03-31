@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
+import edu.hm.hafner.coverage.Metric.MetricTendency;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 /**
@@ -159,13 +160,17 @@ public abstract class Value implements Serializable {
     public abstract Value max(Value other);
 
     /**
-     * Returns whether this value if below the specified threshold (given as double value).
+     * Returns whether this value if within the specified threshold (given as double value). For metrics of type
+     * {@link MetricTendency#LARGER_IS_BETTER} (like coverage percentage) this value will be checked with greater or
+     * equal than the threshold. For metrics of type {@link MetricTendency#SMALLER_IS_BETTER} (like complexity) this
+     * value will be checked with less or equal than.
      *
      * @param threshold
      *         the threshold to check against
-     * @return {@code true} if this value is below the specified threshold, {@code false} otherwise
+     *
+     * @return {@code true} if this value is within the specified threshold, {@code false} otherwise
      */
-    public abstract boolean isBelowThreshold(double threshold);
+    public abstract boolean isOutOfValidRange(double threshold);
 
     /**
      * Serializes this instance into a String.

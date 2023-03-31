@@ -145,8 +145,8 @@ public final class Coverage extends Value {
     }
 
     /**
-     * Returns whether this coverage is below the given threshold. The threshold must be a percentage in the range of
-     * [0, 100].
+     * Returns whether this coverage percentage is below the given threshold. The threshold must be a percentage in the
+     * range of [0, 100].
      *
      * @param threshold
      *         the threshold in the range of [0, 100]
@@ -154,7 +154,7 @@ public final class Coverage extends Value {
      * @return {@code true}, if this value is below the specified threshold
      */
     @Override
-    public boolean isBelowThreshold(final double threshold) {
+    public boolean isOutOfValidRange(final double threshold) {
         return getCoveredPercentage().toDouble() < threshold;
     }
 
@@ -233,7 +233,8 @@ public final class Coverage extends Value {
                 for (int missed = 0; missed < CACHE_SIZE; missed++) {
                     LINE_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.LINE, covered, missed);
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
-                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered, missed);
+                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
+                            missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
                 }
             }

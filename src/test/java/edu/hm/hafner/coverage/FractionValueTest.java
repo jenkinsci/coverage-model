@@ -20,8 +20,8 @@ class FractionValueTest {
         var fiftyAgain = new FractionValue(Metric.LINE, 50, 1);
         var hundred = new FractionValue(Metric.LINE, Fraction.getFraction(100, 1));
 
-        assertThat(fifty.isBelowThreshold(50.1)).isTrue();
-        assertThat(fifty.isBelowThreshold(50)).isFalse();
+        assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
+        assertThat(fifty.isOutOfValidRange(50)).isFalse();
 
         assertThat(fifty.add(fifty)).isEqualTo(hundred);
         assertThat(fifty.max(hundred)).isEqualTo(hundred);
@@ -55,8 +55,8 @@ class FractionValueTest {
         var fifty = new FractionValue(Metric.LINE, Fraction.getFraction(50, 1));
         var hundred = new FractionValue(Metric.LINE, Fraction.getFraction(100, 1));
 
-        assertThat(fifty.isBelowThreshold(50.1)).isTrue();
-        assertThat(fifty.isBelowThreshold(50)).isFalse();
+        assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
+        assertThat(fifty.isOutOfValidRange(50)).isFalse();
 
         assertThat(hundred.delta(fifty)).isEqualTo(Fraction.getFraction(50, 1));
     }
