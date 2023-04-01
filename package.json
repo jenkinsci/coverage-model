@@ -21,9 +21,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uhafner/coverage-model.git"
+    "url": "git+https://github.com/jenkinsci/coverage-model.git"
   },
   "author": "Ullrich Hafner",
   "license": "MIT",
-  "homepage": "https://github.com/uhafner/coverage-model#readme"
+  "homepage": "https://github.com/jenkinsci/coverage-model#readme"
 }
