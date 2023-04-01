@@ -120,8 +120,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.setMetric(LINE).setCovered(42).setMissed(9).build(),
                 builder.setMetric(BRANCH).setCovered(3).setMissed(1).build(),
                 new CyclomaticComplexity(8),
-                new FractionValue(COMPLEXITY_DENSITY, 8, 42 + 9),
                 new CyclomaticComplexity(4, COMPLEXITY_MAXIMUM),
+                new FractionValue(COMPLEXITY_DENSITY, 8, 42 + 9),
                 new LinesOfCode(42 + 9));
     }
 
@@ -154,8 +154,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.setMetric(LINE).setCovered(9).setMissed(0).build(),
                 builder.setMetric(BRANCH).setCovered(6).setMissed(0).build(),
                 new CyclomaticComplexity(0),
-                new FractionValue(COMPLEXITY_DENSITY, 0, 9),
                 new CyclomaticComplexity(0, COMPLEXITY_MAXIMUM),
+                new FractionValue(COMPLEXITY_DENSITY, 0, 9),
                 new LinesOfCode(9));
     }
 
@@ -182,8 +182,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.setMetric(LINE).setCovered(61).setMissed(19).build(),
                 builder.setMetric(BRANCH).setCovered(2).setMissed(2).build(),
                 new CyclomaticComplexity(22),
-                new FractionValue(COMPLEXITY_DENSITY, 22, 61 + 19),
                 new CyclomaticComplexity(7, COMPLEXITY_MAXIMUM),
+                new FractionValue(COMPLEXITY_DENSITY, 22, 61 + 19),
                 new LinesOfCode(61 + 19));
 
         assertThat(root.getChildren()).extracting(Node::getName)
