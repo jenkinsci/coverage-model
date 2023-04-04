@@ -10,8 +10,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -119,7 +117,11 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private String getFileName(final String relativePath) {
-        return StringUtils.defaultString(Paths.get(relativePath).getFileName().toString(), relativePath);
+        var path = Paths.get(relativePath).getFileName();
+        if (path == null) {
+            return relativePath;
+        }
+        return path.toString();
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
