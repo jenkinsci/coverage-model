@@ -142,9 +142,12 @@ class CoberturaParserTest extends AbstractParserTest {
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("Numbers");
-        assertThat(tree.getAll(FILE)).hasSize(1)
+        assertThat(tree.getAllFileNodes()).hasSize(1)
                 .extracting(Node::getName)
-                .containsOnly("D:\\Build\\workspace\\esignPlugins_test-jenkins-plugin\\Numbers\\PrimeService.cs");
+                .containsOnly("PrimeService.cs");
+        assertThat(tree.getAllFileNodes()).hasSize(1)
+                .extracting(FileNode::getRelativePath)
+                .containsOnly("D:/Build/workspace/esignPlugins_test-jenkins-plugin/Numbers/PrimeService.cs");
         assertThat(tree.getAll(CLASS)).hasSize(1)
                 .extracting(Node::getName)
                 .containsOnly("Numbers.PrimeService");

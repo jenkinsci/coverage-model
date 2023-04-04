@@ -34,6 +34,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 public class CoberturaParser extends CoverageParser {
     private static final long serialVersionUID = -3625341318291829577L;
 
+    private static final PathUtil PATH_UTIL = new PathUtil();
     private static final QName SOURCE = new QName("source");
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
@@ -117,7 +118,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private String getFileName(final String relativePath) {
-        var path = Paths.get(relativePath).getFileName();
+        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
         if (path == null) {
             return relativePath;
         }
