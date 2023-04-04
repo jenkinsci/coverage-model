@@ -1,12 +1,12 @@
 package edu.hm.hafner.coverage;
 
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.util.PathUtil;
+import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
@@ -16,7 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public final class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
 
-    private static final Pattern PACKAGE_PATTERN = Pattern.compile("[a-z]+[.\\w]*");
+    private static final PathUtil PATH_UTIL = new PathUtil();
 
     /**
      * Replace slashes and backslashes with a dot so that package names use the typical format of packages or
@@ -63,19 +63,6 @@ public final class PackageNode extends Node {
         addAllValues(values);
     }
 
-    @SuppressFBWarnings("MODIFICATION_AFTER_VALIDATION")
-    @Override
-    public String getPath() {
-        String localPath;
-        if (PACKAGE_PATTERN.matcher(getName()).matches()) {
-            localPath = getName().replaceAll("\\.", "/");
-        }
-        else {
-            localPath = getName();
-        }
-        return mergePath(localPath);
-    }
-
     static PackageNode appendPackage(final PackageNode localChild, final PackageNode localParent) {
         localParent.addChild(localChild);
         return localParent;
@@ -91,27 +78,31 @@ public final class PackageNode extends Node {
      *
      * @param fileName
      *         the file name
+     * @param relativePath
+     *         the relative path of the file
      *
      * @return the created and linked file node
      */
-    public FileNode createFileNode(final String fileName) {
-        var fileNode = new FileNode(fileName);
+    public FileNode createFileNode(final String fileName, final String relativePath) {
+        var fileNode = new FileNode(fileName, TreeString.valueOf(relativePath));
         addChild(fileNode);
         return fileNode;
     }
 
     /**
-     * Searches for the specified file node. If the file node is not found then a new file node will be created
-     * and linked to this package node.
+     * Searches for the specified file node. If the file node is not found then a new file node will be created and
+     * linked to this package node.
      *
      * @param fileName
      *         the file name
+     * @param relativePath
+     *         the relative path of the file
      *
      * @return the existing or created file node
-     * @see #createFileNode(String)
+     * @see #createFileNode(String, String)
      */
-    public FileNode findOrCreateFileNode(final String fileName) {
-        return findFile(fileName).orElseGet(() -> createFileNode(fileName));
+    public FileNode findOrCreateFileNode(final String fileName, final String relativePath) {
+        return findFile(fileName).orElseGet(() -> createFileNode(fileName, PATH_UTIL.getAbsolutePath(relativePath)));
     }
 
     /**
@@ -144,6 +135,6 @@ public final class PackageNode extends Node {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s (%s) <%d>", getMetric(), getName(), getPath(), getChildren().size());
+        return String.format("[%s] %s <%d>", getMetric(), getName(), getChildren().size());
     }
 }

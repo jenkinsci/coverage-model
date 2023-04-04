@@ -244,9 +244,9 @@ public final class Mutation implements Serializable {
         public void buildAndAddToModule(final ModuleNode root) {
             String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
             String className = StringUtils.substringAfterLast(mutatedClass, ".");
-            var packageNode = root.findPackage(packageName).orElseGet(() -> root.createPackageNode(packageName));
-            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> packageNode.createFileNode(sourceFile));
-            var classNode = fileNode.findClass(className).orElseGet(() -> fileNode.createClassNode(className));
+            var packageNode = root.findOrCreatePackageNode(packageName);
+            var fileNode = packageNode.findOrCreateFileNode(sourceFile, packageName.replace('.', '/') + '/' + sourceFile);
+            var classNode = fileNode.findOrCreateClassNode(className);
             var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 

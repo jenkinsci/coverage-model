@@ -17,30 +17,6 @@ class PackageNodeTest extends AbstractNodeTest {
     }
 
     /**
-     * Tests if correct package path is returned.
-     */
-    @Test
-    void shouldGetPath() {
-        String pkgName = "ui.home.model";
-        var pkg = new PackageNode(pkgName);
-
-        assertThat(pkg.getPath()).isEqualTo("ui/home/model");
-    }
-
-    @Test
-    void shouldMergePathWithChild() {
-        // Given
-        String parentName = "ui";
-        var parent = new PackageNode(parentName);
-        var child = new PackageNode("model");
-        parent.addChild(child);
-
-        // When & Then
-        assertThat(child.mergePath("Update.java")).isEqualTo(parentName + "/Update.java");
-        assertThat(child.mergePath("")).isEqualTo(parentName);
-    }
-
-    /**
      * Tests the copy functionality with a child.
      */
     @Test
@@ -71,8 +47,8 @@ class PackageNodeTest extends AbstractNodeTest {
         var pkg = new PackageNode(pkgName);
 
         // When & Then
-        assertThat(pkg.matches(PACKAGE, "ui/home/model".hashCode())).isTrue();
-        assertThat(pkg.matches(PACKAGE, "test/path".hashCode())).isFalse();
+        assertThat(pkg.matches(PACKAGE, "ui.home.model".hashCode())).isTrue();
+        assertThat(pkg.matches(PACKAGE, "test.path".hashCode())).isFalse();
     }
 
     @Test

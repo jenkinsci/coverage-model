@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -8,6 +9,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -104,8 +107,8 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    var fileNode = packageNode.findOrCreateFileNode(getValueOf(nextElement, FILE_NAME));
-
+                    var relativePath = getValueOf(nextElement, FILE_NAME);
+                    var fileNode = packageNode.findOrCreateFileNode(getFileName(relativePath), relativePath);
                     readClassOrMethod(reader, fileNode, nextElement);
                 }
             }
@@ -113,6 +116,10 @@ public class CoberturaParser extends CoverageParser {
                 return; // finish processing of package
             }
         }
+    }
+
+    private String getFileName(final String relativePath) {
+        return StringUtils.defaultString(Paths.get(relativePath).getFileName().toString(), relativePath);
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})

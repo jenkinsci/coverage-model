@@ -16,10 +16,11 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.util.PathUtil;
+import edu.hm.hafner.util.TreeString;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -39,19 +40,38 @@ public final class FileNode extends Node {
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
+    private final TreeString relativePath;
+    private TreeString absolutePath = TreeString.valueOf(StringUtils.EMPTY);
+
     /**
      * Creates a new {@link FileNode} with the given name.
      *
      * @param name
      *         the human-readable name of the node
+     * @param relativePath
+     *         the relative path of the file
      */
-    public FileNode(final String name) {
+    public FileNode(final String name, final TreeString relativePath) {
         super(Metric.FILE, name);
+
+        this.relativePath = relativePath;
+    }
+
+    /**
+     * Creates a new {@link FileNode} with the given name.
+     *
+     * @param name
+     *         the human-readable name of the node
+     * @param relativePath
+     *         the relative path of the file
+     */
+    public FileNode(final String name, final String relativePath) {
+        this(name, TreeString.valueOf(relativePath));
     }
 
     @Override
     public FileNode copy() {
-        var file = new FileNode(getName());
+        var file = new FileNode(getName(), relativePath);
 
         file.coveredPerLine.putAll(coveredPerLine);
         file.missedPerLine.putAll(missedPerLine);
@@ -63,7 +83,25 @@ public final class FileNode extends Node {
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
         file.coverageDelta.putAll(coverageDelta);
 
+        file.absolutePath = absolutePath;
+
         return file;
+    }
+
+    @Override
+    public boolean matches(final Metric searchMetric, final String searchName) {
+        if (super.matches(searchMetric, searchName)) {
+            return true;
+        }
+        return getRelativePath().equals(searchName);
+    }
+
+    @Override
+    public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
+        if (super.matches(searchMetric, searchNameHashCode)) {
+            return true;
+        }
+        return getRelativePath().hashCode() == searchNameHashCode;
     }
 
     public SortedSet<Integer> getModifiedLines() {
@@ -110,7 +148,7 @@ public final class FileNode extends Node {
             return Optional.empty();
         }
 
-        var copy = new FileNode(getName());
+        var copy = new FileNode(getName(), relativePath);
         copy.modifiedLines.addAll(modifiedLines);
 
         filterLineAndBranchCoverage(copy);
@@ -180,7 +218,7 @@ public final class FileNode extends Node {
             return Optional.empty();
         }
 
-        var copy = new FileNode(getName());
+        var copy = new FileNode(getName(), relativePath);
         Coverage lineCoverage = Coverage.nullObject(Metric.LINE);
         Coverage branchCoverage = Coverage.nullObject(Metric.BRANCH);
         for (Map.Entry<Integer, Integer> change : getIndirectCoverageChanges().entrySet()) {
@@ -279,14 +317,8 @@ public final class FileNode extends Node {
     }
 
     @Override
-    public String getPath() {
-        var pathUtil = new PathUtil();
-        return mergePath(pathUtil.getAbsolutePath(getName()));
-    }
-
-    @Override
     public Set<String> getFiles() {
-        return Set.of(getPath());
+        return Set.of(getRelativePath());
     }
 
     /**
@@ -496,6 +528,18 @@ public final class FileNode extends Node {
         return findClass(className).orElseGet(() -> createClassNode(className));
     }
 
+    public String getRelativePath() {
+        return StringUtils.defaultString(relativePath.toString(), getName());
+    }
+
+    void setAbsolutePath(final TreeString absolutePath) {
+        this.absolutePath = absolutePath;
+    }
+
+    public String getAbsolutePath() {
+        return StringUtils.defaultString(absolutePath.toString(), getRelativePath());
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -508,17 +552,17 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-        return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
-                && Objects.equals(missedPerLine, fileNode.missedPerLine)
-                && Objects.equals(mutations, fileNode.mutations)
-                && Objects.equals(modifiedLines, fileNode.modifiedLines)
-                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
-                && Objects.equals(coverageDelta, fileNode.coverageDelta);
+        return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
+                fileNode.missedPerLine) && Objects.equals(mutations, fileNode.mutations)
+                && Objects.equals(modifiedLines, fileNode.modifiedLines) && Objects.equals(
+                indirectCoverageChanges, fileNode.indirectCoverageChanges) && Objects.equals(coverageDelta,
+                fileNode.coverageDelta) && Objects.equals(relativePath, fileNode.relativePath)
+                && Objects.equals(absolutePath, fileNode.absolutePath);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
-                indirectCoverageChanges, coverageDelta);
+                indirectCoverageChanges, coverageDelta, relativePath, absolutePath);
     }
 }

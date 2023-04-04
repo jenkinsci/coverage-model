@@ -76,26 +76,11 @@ class NodeTest {
     }
 
     @Test
-    void shouldReturnCorrectPathInBaseClass() {
-        var root = new ModuleNode("Root");
-        var child = new FileNode("Child");
-        var childOfChild = new ClassNode("ChildOfChild");
-
-        root.addChild(child);
-        child.addChild(childOfChild);
-
-        assertThat(root).hasPath("");
-        assertThat(root.mergePath("-")).isEmpty();
-        assertThat(child.mergePath("/local/path")).isEqualTo("/local/path");
-        assertThat(childOfChild.mergePath("")).isEqualTo("Child");
-    }
-
-    @Test
     void shouldPrintAllMetricsForNodeAndChildNodes() {
         var parent = new ModuleNode("Parent");
         var child1 = new PackageNode("ChildOne");
         var child2 = new PackageNode("ChildTwo");
-        var childOfChildOne = new FileNode("ChildOfChildOne");
+        var childOfChildOne = new FileNode("ChildOfChildOne", "path");
 
         parent.addChild(child1);
         parent.addChild(child2);
@@ -150,8 +135,8 @@ class NodeTest {
         Node parent = new ModuleNode("Parent");
         Node child1 = new PackageNode("ChildOne");
         Node child2 = new PackageNode("ChildTwo");
-        Node childOfChildOne = new FileNode("ChildOfChildOne");
-        Node childOfChildTwo = new FileNode("ChildOfChildTwo");
+        Node childOfChildOne = new FileNode("ChildOfChildOne", "path");
+        Node childOfChildTwo = new FileNode("ChildOfChildTwo", "path");
 
         parent.addChild(child1);
         parent.addChild(child2);
@@ -181,8 +166,8 @@ class NodeTest {
     @Test
     void shouldCalculateCorrectCoverageWithNestedStructure() {
         var node = new ModuleNode("Node");
-        var missedFile = new FileNode("fileMissed");
-        var coveredFile = new FileNode("fileCovered");
+        var missedFile = new FileNode("fileMissed", "path");
+        var coveredFile = new FileNode("fileCovered", "path");
         var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
         var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
@@ -199,7 +184,7 @@ class NodeTest {
     @Test
     void shouldDeepCopyNodeTree() {
         var node = new ModuleNode("Node");
-        var childNode = new FileNode("childNode");
+        var childNode = new FileNode("childNode", "path");
         var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
         var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
 
@@ -215,7 +200,7 @@ class NodeTest {
     @Test
     void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
         var node = new ModuleNode("Node");
-        var childNode = new FileNode("childNode");
+        var childNode = new FileNode("childNode", "path");
         var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
         var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
         var newParent = new ModuleNode("parent");
@@ -238,13 +223,12 @@ class NodeTest {
 
         assertThat(node.matches(MODULE, node.getName().hashCode())).isTrue();
         assertThat(node.matches(MODULE, "WrongName".hashCode())).isFalse();
-        assertThat(node.matches(MODULE, node.getPath().hashCode())).isTrue();
     }
 
     @Test
     void shouldFindNodeByNameOrHashCode() {
         var node = new ModuleNode("Node");
-        var childNode = new FileNode("childNode");
+        var childNode = new FileNode("childNode", "path");
         node.addChild(childNode);
 
         assertThat(node.find(BRANCH, "NotExisting")).isNotPresent();
@@ -327,8 +311,8 @@ class NodeTest {
         Node pkg = new PackageNode("coverage");
         Node samePackage = new PackageNode("coverage");
 
-        Node fileToKeep = new FileNode("KeepMe");
-        Node otherFileToKeep = new FileNode("KeepMeToo");
+        Node fileToKeep = new FileNode("KeepMe", "path");
+        Node otherFileToKeep = new FileNode("KeepMeToo", "path");
 
         pkg.addChild(fileToKeep);
         module.addChild(pkg);
@@ -346,8 +330,8 @@ class NodeTest {
         Node sameModule = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
         Node samePackage = new PackageNode("coverage");
-        Node fileToKeep = new FileNode("KeepMe");
-        Node sameFileToKeep = new FileNode("KeepMe");
+        Node fileToKeep = new FileNode("KeepMe", "path");
+        Node sameFileToKeep = new FileNode("KeepMe", "path");
         Node classA = new ClassNode("ClassA");
         Node classB = new ClassNode("ClassB");
 
@@ -372,7 +356,7 @@ class NodeTest {
     private static Node setUpNodeTree() {
         Node module = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java");
+        Node file = new FileNode("Node.java", "path");
         Node covNodeClass = new ClassNode("Node.class");
         Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
 
@@ -388,7 +372,7 @@ class NodeTest {
     void shouldComputeCorrectCoverageAfterCombiningMethods() {
         Node module = new ModuleNode("edu.hm.hafner.module");
         Node pkg = new PackageNode("edu.hm.hafner.package");
-        Node file = new FileNode("Node.java");
+        Node file = new FileNode("Node.java", "path");
         Node covNodeClass = new ClassNode("Node.class");
         Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
 
@@ -468,7 +452,7 @@ class NodeTest {
 
         // Difference on package level
         var autograding = new PackageNode("autograding");
-        var file = new FileNode("Main.java");
+        var file = new FileNode("Main.java", "path");
         var mainClass = new ClassNode("Main.class");
         var mainMethod = new MethodNode("main", "(Ljava/util/Map;)V", 10);
 
@@ -479,8 +463,8 @@ class NodeTest {
         mainMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(8).setMissed(2).build());
 
         // Difference on file level
-        var leaf = new FileNode("Leaf");
-        var pkgCovFile = new FileNode("HelloWorld");
+        var leaf = new FileNode("Leaf", "path");
+        var pkgCovFile = new FileNode("HelloWorld", "path");
         leaf.addChild(mainClass.copyTree());
 
         report.getAll(PACKAGE).get(0).addChild(pkgCovFile);
@@ -515,7 +499,7 @@ class NodeTest {
     void shouldAlsoHandleReportsThatStopAtHigherLevelThanMethod() {
         Node report = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java");
+        Node file = new FileNode("Node.java", "path");
 
         report.addChild(pkg);
         pkg.addChild(file);
@@ -534,7 +518,7 @@ class NodeTest {
     void shouldAlsoHandleReportsThatStopAtHigherLevelAndOtherReportHasHigherCoverage() {
         Node report = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java");
+        Node file = new FileNode("Node.java", "path");
 
         report.addChild(pkg);
         pkg.addChild(file);
@@ -572,9 +556,8 @@ class NodeTest {
         assertThat(filteredTree)
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
-                .hasPath(tree.getPath())
                 .hasMetric(tree.getMetric())
-                .hasOnlyFiles("coverage/" + COVERED_FILE)
+                .hasOnlyFiles("path/to/" + COVERED_FILE)
                 .hasModifiedLines()
                 .satisfies(treeVerification);
     }
@@ -622,7 +605,6 @@ class NodeTest {
         assertThat(filteredTree)
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
-                .hasPath(tree.getPath())
                 .hasMetric(tree.getMetric())
                 .hasNoChildren()
                 .hasNoValues();
@@ -682,9 +664,8 @@ class NodeTest {
         assertThat(tree.filterByIndirectChanges())
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
-                .hasPath(tree.getPath())
                 .hasMetric(tree.getMetric())
-                .hasFiles("coverage/" + COVERED_FILE)
+                .hasFiles("path/to/" + COVERED_FILE)
                 .satisfies(this::verifyIndirectChanges);
     }
 
@@ -754,8 +735,8 @@ class NodeTest {
     private Node createTreeWithoutCoverage() {
         Node moduleNode = new ModuleNode("edu.hm.hafner.module1");
         Node packageNode = new PackageNode("coverage");
-        Node coveredFileNode = new FileNode(COVERED_FILE);
-        Node missedFileNode = new FileNode(MISSED_FILE);
+        Node coveredFileNode = new FileNode(COVERED_FILE, "path/to/" + COVERED_FILE);
+        Node missedFileNode = new FileNode(MISSED_FILE, "path/to/" + MISSED_FILE);
 
         moduleNode.addChild(packageNode);
 

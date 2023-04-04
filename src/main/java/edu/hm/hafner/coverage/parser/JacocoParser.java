@@ -114,18 +114,18 @@ public class JacocoParser extends CoverageParser {
 
     private PackageNode readPackage(final XMLEventReader reader,
             final ModuleNode root, final StartElement startElement) throws XMLStreamException {
-        var packageNode = root.findOrCreatePackageNode(getValueOf(startElement, NAME));
-
+        var packageName = getValueOf(startElement, NAME);
+        var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    readClass(reader, packageNode, nextElement);
+                    readClass(reader, packageNode, packageName, nextElement);
                 }
                 else if (SOURCE_FILE.equals(nextElement.getName())) {
-                    readSourceFile(reader, packageNode, nextElement);
+                    readSourceFile(reader, packageNode, packageName, nextElement);
                 }
                 else if (COUNTER.equals(startElement.getName())) {
                     readValueCounter(packageNode, startElement);
@@ -142,11 +142,12 @@ public class JacocoParser extends CoverageParser {
     }
 
     private Node readClass(final XMLEventReader reader, final PackageNode packageNode,
-            final StartElement startElement) throws XMLStreamException {
-        Optional<String> fileName = getOptionalValueOf(startElement, SOURCE_FILE_NAME);
+            final String packageName, final StartElement startElement) throws XMLStreamException {
+        Optional<String> possibleFileName = getOptionalValueOf(startElement, SOURCE_FILE_NAME);
         ClassNode classNode;
-        if (fileName.isPresent()) {
-            var fileNode = packageNode.findOrCreateFileNode(fileName.get());
+        if (possibleFileName.isPresent()) {
+            var fileName = possibleFileName.get();
+            var fileNode = packageNode.findOrCreateFileNode(fileName, packageName + '/' + fileName);
 
             classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
@@ -176,9 +177,9 @@ public class JacocoParser extends CoverageParser {
     }
 
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
-            final StartElement startElement) throws XMLStreamException {
+            final String packageName, final StartElement startElement) throws XMLStreamException {
         String fileName = getValueOf(startElement, NAME);
-        var fileNode = packageNode.findOrCreateFileNode(fileName);
+        var fileNode = packageNode.findOrCreateFileNode(fileName, packageName + '/' + fileName);
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();

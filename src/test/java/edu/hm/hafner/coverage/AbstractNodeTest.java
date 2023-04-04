@@ -5,8 +5,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.TreeString;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -88,10 +90,12 @@ abstract class AbstractNodeTest {
 
     @Test
     void shouldAdhereToEquals() {
-        EqualsVerifier.forClass(createNode(NAME).getClass()).withPrefabValues(
-                Node.class,
-                new PackageNode("src"),
-                new PackageNode("test")
-        ).withIgnoredFields("parent").withRedefinedSuperclass().verify();
+        EqualsVerifier.forClass(createNode(NAME).getClass())
+                .withPrefabValues(Node.class, new PackageNode("src"), new PackageNode("test"))
+                .withPrefabValues(TreeString.class, TreeString.valueOf("src"), TreeString.valueOf("test"))
+                .withIgnoredFields("parent")
+                .withRedefinedSuperclass()
+                .suppress(Warning.NONFINAL_FIELDS)
+                .verify();
     }
 }

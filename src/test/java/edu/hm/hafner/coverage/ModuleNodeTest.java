@@ -28,7 +28,7 @@ class ModuleNodeTest extends AbstractNodeTest {
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        root.addChild(new FileNode("file.c"));
+        root.addChild(new FileNode("file.c", "path"));
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
     }
@@ -75,7 +75,7 @@ class ModuleNodeTest extends AbstractNodeTest {
         root.addChild(differentPackage);
         root.addChild(eduPackage);
 
-        eduPackage.addChild(new FileNode("edu/File.c"));
+        eduPackage.addChild(new FileNode("File.c", "edu/File.c"));
 
         var builder = new CoverageBuilder().setMetric(LINE);
         eduPackage.addValue(builder.setCovered(10).setMissed(0).build());
@@ -86,7 +86,7 @@ class ModuleNodeTest extends AbstractNodeTest {
         var subPackage = new PackageNode("edu.hm.hafner");
         root.addChild(subPackage);
         subPackage.addValue(builder.setMissed(10).build());
-        subPackage.addChild(new FileNode("edu.hm.hafner/OtherFile.c"));
+        subPackage.addChild(new FileNode("OtherFile.c", "edu.hm.hafner/OtherFile.c"));
         assertThat(root.getValue(LINE)).contains(builder.setCovered(20).setMissed(10).build());
 
         root.splitPackages();
@@ -103,7 +103,7 @@ class ModuleNodeTest extends AbstractNodeTest {
     void shouldKeepNodesAfterSplitting() {
         var root = new ModuleNode("Root");
         Node pkg = new PackageNode("edu.hm.hafner");
-        Node file = new FileNode("HelloWorld.java");
+        Node file = new FileNode("HelloWorld.java", "path");
 
         root.addChild(pkg);
         pkg.addChild(file);
@@ -117,7 +117,7 @@ class ModuleNodeTest extends AbstractNodeTest {
     void shouldNotMergeWhenDifferentMetric() {
         var root = new ModuleNode("Root");
         Node pkg = new PackageNode("edu.hm.hafner");
-        Node file = new FileNode("Helicopter.java");
+        Node file = new FileNode("Helicopter.java", "path");
 
         root.addChild(pkg);
         root.addChild(file);

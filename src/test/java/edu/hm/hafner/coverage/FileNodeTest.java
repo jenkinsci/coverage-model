@@ -12,12 +12,12 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Override
     FileNode createNode(final String name) {
-        var fileNode = new FileNode(name);
+        var fileNode = new FileNode(name, "path");
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
         fileNode.addModifiedLines(10);
         fileNode.addIndirectCoverageChange(15, 123);
-        var empty = new FileNode("empty");
+        var empty = new FileNode("empty", "path");
         fileNode.computeDelta(empty);
         return fileNode;
     }
@@ -26,17 +26,17 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldGetFilePath() {
         var module = new ModuleNode("top-level"); // just for testing
         var folder = new PackageNode("folder"); // just for testing
-        var file = new FileNode("Coverage.java");
-
+        var fileName = "Coverage.java";
+        var relativePath = "relative/path/to/file";
+        var file = new FileNode(fileName, relativePath);
         folder.addChild(file);
         module.addChild(folder);
 
-        var absolutePath = "folder/Coverage.java";
+        assertThat(file.getRelativePath()).isEqualTo(relativePath);
 
-        assertThat(file.getPath()).isEqualTo(absolutePath);
-        assertThat(file.getFiles()).containsExactly(absolutePath);
-        assertThat(folder.getFiles()).containsExactly(absolutePath);
-        assertThat(module.getFiles()).containsExactly(absolutePath);
+        assertThat(file.getFiles()).containsExactly(relativePath);
+        assertThat(folder.getFiles()).containsExactly(relativePath);
+        assertThat(module.getFiles()).containsExactly(relativePath);
 
         assertThat(module.getAll(Metric.FILE)).containsExactly(file);
         assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
