@@ -762,10 +762,11 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Resolves the absolute paths of all files in this tree. The mapping is used to map the relative file names
-     * to the absolute file names.
+     * Resolves the absolute paths of all files in this tree. The mapping is used to map the relative file names to the
+     * absolute file names.
      *
-     * @param pathMapping the mapping from relative to absolute file names
+     * @param pathMapping
+     *         the mapping from relative to absolute file names
      */
     public void resolvePaths(final Map<String, String> pathMapping) {
         var builder = new TreeStringBuilder();
