@@ -40,7 +40,7 @@ public final class FileNode extends Node {
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
-    private final TreeString relativePath;
+    private TreeString relativePath;
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -99,6 +99,10 @@ public final class FileNode extends Node {
             return true;
         }
         return getRelativePath().hashCode() == searchNameHashCode;
+    }
+
+    public void setRelativePath(final String relativePath) {
+        this.relativePath = TreeString.valueOf(relativePath);
     }
 
     public SortedSet<Integer> getModifiedLines() {

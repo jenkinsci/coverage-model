@@ -2,12 +2,24 @@ package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.util.TreeString;
+
+import nl.jqno.equalsverifier.Warning;
+import nl.jqno.equalsverifier.api.EqualsVerifierApi;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class FileNodeTest extends AbstractNodeTest {
     @Override
     Metric getMetric() {
         return Metric.FILE;
+    }
+
+    @Override
+    void configureEqualsVerifier(final EqualsVerifierApi<? extends Node> verifier) {
+        verifier.withPrefabValues(TreeString.class, TreeString.valueOf("src"), TreeString.valueOf("test"))
+                .suppress(Warning.NONFINAL_FIELDS);
+
     }
 
     @Override
