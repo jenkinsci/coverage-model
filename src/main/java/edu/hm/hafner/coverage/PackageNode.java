@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Collection;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.util.PathUtil;
@@ -44,23 +42,6 @@ public final class PackageNode extends Node {
      */
     public PackageNode(@CheckForNull final String name) {
         super(Metric.PACKAGE, normalizePackageName(name));
-    }
-
-    /**
-     * Creates a new coverage item node with the given name. / and \ in the name are replaced with a .
-     *
-     * @param name
-     *         the human-readable name of the node, see {@link #normalizePackageName(String)}
-     * @param values
-     *         the values to add
-     *
-     * @see #addValue(Value)
-     * @see #addAllValues(Collection)
-     */
-    public PackageNode(@CheckForNull final String name, final Collection<Value> values) {
-        this(name);
-
-        addAllValues(values);
     }
 
     static PackageNode appendPackage(final PackageNode localChild, final PackageNode localParent) {
