@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -21,7 +20,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
-import edu.hm.hafner.util.TreeStringBuilder;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -759,22 +757,5 @@ public abstract class Node implements Serializable {
         var copy = copy();
         copy.addAllChildren(prunedChildren);
         return Optional.of(copy);
-    }
-
-    /**
-     * Resolves the absolute paths of all files in this tree. The mapping is used to map the relative file names to the
-     * absolute file names.
-     *
-     * @param pathMapping
-     *         the mapping from relative to absolute file names
-     */
-    public void resolvePaths(final Map<String, String> pathMapping) {
-        var builder = new TreeStringBuilder();
-        for (FileNode fileNode : getAllFileNodes()) {
-            if (pathMapping.containsKey(fileNode.getName())) {
-                fileNode.setAbsolutePath(builder.intern(pathMapping.get(fileNode.getName())));
-            }
-        }
-        builder.dedup();
     }
 }

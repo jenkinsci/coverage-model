@@ -8,7 +8,6 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.TreeString;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -95,7 +94,6 @@ abstract class AbstractNodeTest {
                 .withPrefabValues(TreeString.class, TreeString.valueOf("src"), TreeString.valueOf("test"))
                 .withIgnoredFields("parent")
                 .withRedefinedSuperclass()
-                .suppress(Warning.NONFINAL_FIELDS)
                 .verify();
     }
 }

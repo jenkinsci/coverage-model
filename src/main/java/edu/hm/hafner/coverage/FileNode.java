@@ -41,7 +41,6 @@ public final class FileNode extends Node {
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
     private final TreeString relativePath;
-    private TreeString absolutePath = TreeString.valueOf(StringUtils.EMPTY);
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -82,8 +81,6 @@ public final class FileNode extends Node {
 
         file.indirectCoverageChanges.putAll(indirectCoverageChanges);
         file.coverageDelta.putAll(coverageDelta);
-
-        file.absolutePath = absolutePath;
 
         return file;
     }
@@ -532,14 +529,6 @@ public final class FileNode extends Node {
         return StringUtils.defaultString(relativePath.toString(), getName());
     }
 
-    void setAbsolutePath(final TreeString absolutePath) {
-        this.absolutePath = absolutePath;
-    }
-
-    public String getAbsolutePath() {
-        return StringUtils.defaultString(absolutePath.toString(), getRelativePath());
-    }
-
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -552,17 +541,18 @@ public final class FileNode extends Node {
             return false;
         }
         FileNode fileNode = (FileNode) o;
-        return Objects.equals(coveredPerLine, fileNode.coveredPerLine) && Objects.equals(missedPerLine,
-                fileNode.missedPerLine) && Objects.equals(mutations, fileNode.mutations)
-                && Objects.equals(modifiedLines, fileNode.modifiedLines) && Objects.equals(
-                indirectCoverageChanges, fileNode.indirectCoverageChanges) && Objects.equals(coverageDelta,
-                fileNode.coverageDelta) && Objects.equals(relativePath, fileNode.relativePath)
-                && Objects.equals(absolutePath, fileNode.absolutePath);
+        return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
+                && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(mutations, fileNode.mutations)
+                && Objects.equals(modifiedLines, fileNode.modifiedLines)
+                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
+                && Objects.equals(coverageDelta, fileNode.coverageDelta)
+                && Objects.equals(relativePath, fileNode.relativePath);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
-                indirectCoverageChanges, coverageDelta, relativePath, absolutePath);
+                indirectCoverageChanges, coverageDelta, relativePath);
     }
 }
