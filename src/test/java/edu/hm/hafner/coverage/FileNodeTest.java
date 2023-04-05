@@ -45,6 +45,7 @@ class FileNodeTest extends AbstractNodeTest {
         module.addChild(folder);
 
         assertThat(file.getRelativePath()).isEqualTo(relativePath);
+        var otherPath = "other";
 
         assertThat(file.getFiles()).containsExactly(relativePath);
         assertThat(folder.getFiles()).containsExactly(relativePath);
@@ -53,5 +54,16 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(module.getAll(Metric.FILE)).containsExactly(file);
         assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
         assertThat(file.getAll(Metric.FILE)).containsExactly(file);
+
+        file.setRelativePath(otherPath);
+        assertThat(file.getRelativePath()).isEqualTo(otherPath);
+
+        assertThat(file.matches(Metric.FILE, fileName)).isTrue();
+        assertThat(file.matches(Metric.FILE, otherPath)).isTrue();
+        assertThat(file.matches(Metric.FILE, "wrong")).isFalse();
+
+        assertThat(file.matches(Metric.FILE, fileName.hashCode())).isTrue();
+        assertThat(file.matches(Metric.FILE, otherPath.hashCode())).isTrue();
+        assertThat(file.matches(Metric.FILE, "wrong".hashCode())).isFalse();
     }
 }

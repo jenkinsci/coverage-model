@@ -101,10 +101,6 @@ public final class FileNode extends Node {
         return getRelativePath().hashCode() == searchNameHashCode;
     }
 
-    public void setRelativePath(final String relativePath) {
-        this.relativePath = TreeString.valueOf(relativePath);
-    }
-
     public SortedSet<Integer> getModifiedLines() {
         return modifiedLines;
     }
@@ -529,8 +525,23 @@ public final class FileNode extends Node {
         return findClass(className).orElseGet(() -> createClassNode(className));
     }
 
+    /**
+     * Returns the relative path of the file. If no relative path is set then the name of this node is returned.
+     *
+     * @return the relative path of the file
+     */
     public String getRelativePath() {
         return StringUtils.defaultString(relativePath.toString(), getName());
+    }
+
+    /**
+     * Sets the relative path of the file.
+     *
+     * @param relativePath
+     *         the relative path
+     */
+    public void setRelativePath(final String relativePath) {
+        this.relativePath = TreeString.valueOf(relativePath);
     }
 
     @Override
