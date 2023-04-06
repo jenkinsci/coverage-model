@@ -55,7 +55,7 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(folder.getAll(Metric.FILE)).containsExactly(file);
         assertThat(file.getAll(Metric.FILE)).containsExactly(file);
 
-        file.setRelativePath(otherPath);
+        file.setRelativePath(TreeString.valueOf(otherPath));
         assertThat(file.getRelativePath()).isEqualTo(otherPath);
 
         assertThat(file.matches(Metric.FILE, fileName)).isTrue();

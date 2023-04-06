@@ -540,8 +540,8 @@ public final class FileNode extends Node {
      * @param relativePath
      *         the relative path
      */
-    public void setRelativePath(final String relativePath) {
-        this.relativePath = TreeString.valueOf(relativePath);
+    public void setRelativePath(final TreeString relativePath) {
+        this.relativePath = relativePath;
     }
 
     @Override
