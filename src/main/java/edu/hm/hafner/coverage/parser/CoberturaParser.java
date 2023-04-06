@@ -64,13 +64,13 @@ public class CoberturaParser extends CoverageParser {
      *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
-            var factory = new SecureXmlParserFactory();
-            var eventReader = factory.createXmlEventReader(reader);
+            var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode("-");
             boolean isEmpty = true;
+
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
 
@@ -106,8 +106,10 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    var relativePath = getValueOf(nextElement, FILE_NAME);
-                    var fileNode = packageNode.findOrCreateFileNode(getFileName(relativePath), relativePath);
+                    var fileName = getValueOf(nextElement, FILE_NAME);
+                    var relativePath = PATH_UTIL.getRelativePath(fileName);
+                    var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
+                            getTreeStringBuilder().intern(relativePath));
                     readClassOrMethod(reader, fileNode, nextElement);
                 }
             }

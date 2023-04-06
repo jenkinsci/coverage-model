@@ -2,7 +2,6 @@ package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
@@ -13,8 +12,6 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  */
 public final class PackageNode extends Node {
     private static final long serialVersionUID = 8236436628673022634L;
-
-    private static final PathUtil PATH_UTIL = new PathUtil();
 
     /**
      * Replace slashes and backslashes with a dot so that package names use the typical format of packages or
@@ -64,8 +61,8 @@ public final class PackageNode extends Node {
      *
      * @return the created and linked file node
      */
-    public FileNode createFileNode(final String fileName, final String relativePath) {
-        var fileNode = new FileNode(fileName, TreeString.valueOf(relativePath));
+    public FileNode createFileNode(final String fileName, final TreeString relativePath) {
+        var fileNode = new FileNode(fileName, relativePath);
         addChild(fileNode);
         return fileNode;
     }
@@ -80,10 +77,10 @@ public final class PackageNode extends Node {
      *         the relative path of the file
      *
      * @return the existing or created file node
-     * @see #createFileNode(String, String)
+     * @see #createFileNode(String, TreeString)
      */
-    public FileNode findOrCreateFileNode(final String fileName, final String relativePath) {
-        return findFile(fileName).orElseGet(() -> createFileNode(fileName, PATH_UTIL.getAbsolutePath(relativePath)));
+    public FileNode findOrCreateFileNode(final String fileName, final TreeString relativePath) {
+        return findFile(fileName).orElseGet(() -> createFileNode(fileName, relativePath));
     }
 
     /**

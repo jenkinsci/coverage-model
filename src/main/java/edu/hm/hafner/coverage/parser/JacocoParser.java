@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.xml.namespace.QName;
@@ -23,14 +24,17 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.hm.hafner.util.TreeString;
 
 /**
  * A parser which parses reports made by Jacoco into a Java Object Model.
  *
  * @author Melissa Bauer
  */
+@SuppressWarnings("PMD.GodClass")
 public class JacocoParser extends CoverageParser {
     private static final long serialVersionUID = -6021749565311262221L;
 
@@ -55,6 +59,7 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
     private static final QName MISSED_BRANCHES = new QName("mb");
     private static final QName COVERED_BRANCHED = new QName("cb");
+    private static final PathUtil PATH_UTIL = new PathUtil();
 
     /**
      * Parses the JaCoCo report. The report is expected to be in XML format.
@@ -63,7 +68,7 @@ public class JacocoParser extends CoverageParser {
      *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
@@ -147,7 +152,7 @@ public class JacocoParser extends CoverageParser {
         ClassNode classNode;
         if (possibleFileName.isPresent()) {
             var fileName = possibleFileName.get();
-            var fileNode = packageNode.findOrCreateFileNode(fileName, packageName + '/' + fileName);
+            var fileNode = packageNode.findOrCreateFileNode(fileName, internPath(packageName, fileName));
 
             classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
@@ -176,10 +181,14 @@ public class JacocoParser extends CoverageParser {
         throw createEofException();
     }
 
+    private TreeString internPath(final String packageName, final String fileName) {
+        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Paths.get(packageName, fileName)));
+    }
+
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final String packageName, final StartElement startElement) throws XMLStreamException {
         String fileName = getValueOf(startElement, NAME);
-        var fileNode = packageNode.findOrCreateFileNode(fileName, packageName + '/' + fileName);
+        var fileNode = packageNode.findOrCreateFileNode(fileName, internPath(packageName, fileName));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();

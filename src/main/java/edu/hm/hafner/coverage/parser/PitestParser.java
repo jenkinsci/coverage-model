@@ -54,7 +54,7 @@ public class PitestParser extends CoverageParser {
      *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
@@ -118,7 +118,7 @@ public class PitestParser extends CoverageParser {
                 readProperty(reader, builder);
             }
             else if (event.isEndElement()) {
-                builder.buildAndAddToModule(root);
+                builder.buildAndAddToModule(root, getTreeStringBuilder());
                 return;
             }
         }

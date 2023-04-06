@@ -10,6 +10,7 @@ import javax.xml.stream.events.StartElement;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.hm.hafner.util.TreeStringBuilder;
 
 /**
  * Parses a file and returns the code coverage information in a tree of {@link Node} instances.
@@ -18,6 +19,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
  */
 public abstract class CoverageParser implements Serializable {
     private static final long serialVersionUID = 3941742254762282096L;
+    private transient TreeStringBuilder treeStringBuilder = new TreeStringBuilder();
 
     /**
      * Parses a report provided by the given reader.
@@ -31,7 +33,41 @@ public abstract class CoverageParser implements Serializable {
      * @throws ParsingException
      *         if the XML content cannot be read
      */
-    public abstract ModuleNode parse(Reader reader, FilteredLog log);
+    public ModuleNode parse(final Reader reader, final FilteredLog log) {
+        var moduleNode = parseReport(reader, log);
+        getTreeStringBuilder().dedup();
+        return moduleNode;
+    }
+
+    /**
+     * Called after de-serialization to restore transient fields.
+     *
+     * @return this
+     */
+    @SuppressWarnings("PMD.NullAssignment")
+    protected Object readResolve() {
+        treeStringBuilder = new TreeStringBuilder();
+
+        return this;
+    }
+
+    public final TreeStringBuilder getTreeStringBuilder() {
+        return treeStringBuilder;
+    }
+
+    /**
+     * Parses a report provided by the given reader.
+     *
+     * @param reader
+     *         the reader with the coverage information
+     * @param log
+     *         the logger to write messages to
+     *
+     * @return the root of the created tree
+     * @throws ParsingException
+     *         if the XML content cannot be read
+     */
+    protected abstract ModuleNode parseReport(Reader reader, FilteredLog log);
 
     protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
