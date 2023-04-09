@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.api.EqualsVerifierApi;
+import nl.jqno.equalsverifier.api.SingleTypeEqualsVerifierApi;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -88,10 +90,16 @@ abstract class AbstractNodeTest {
 
     @Test
     void shouldAdhereToEquals() {
-        EqualsVerifier.forClass(createNode(NAME).getClass()).withPrefabValues(
-                Node.class,
-                new PackageNode("src"),
-                new PackageNode("test")
-        ).withIgnoredFields("parent").withRedefinedSuperclass().verify();
+        SingleTypeEqualsVerifierApi<? extends Node> equalsVerifier = EqualsVerifier.forClass(
+                        createNode(NAME).getClass())
+                .withPrefabValues(Node.class, new PackageNode("src"), new PackageNode("test"))
+                .withIgnoredFields("parent")
+                .withRedefinedSuperclass();
+        configureEqualsVerifier(equalsVerifier);
+        equalsVerifier.verify();
+    }
+
+    void configureEqualsVerifier(final EqualsVerifierApi<? extends Node> verifier) {
+        // no additional configuration
     }
 }

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.TreeStringBuilder;
 
 /**
  * Class which represents a mutation of the PIT Mutation Testing tool.
@@ -240,13 +241,16 @@ public final class Mutation implements Serializable {
          *
          * @param root
          *         the module root to add the mutations to
+         * @param treeStringBuilder
+         *         the tree string builder to create the file names
          */
-        public void buildAndAddToModule(final ModuleNode root) {
+        public void buildAndAddToModule(final ModuleNode root, final TreeStringBuilder treeStringBuilder) {
             String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
             String className = StringUtils.substringAfterLast(mutatedClass, ".");
-            var packageNode = root.findPackage(packageName).orElseGet(() -> root.createPackageNode(packageName));
-            var fileNode = packageNode.findFile(sourceFile).orElseGet(() -> packageNode.createFileNode(sourceFile));
-            var classNode = fileNode.findClass(className).orElseGet(() -> fileNode.createClassNode(className));
+            var packageNode = root.findOrCreatePackageNode(packageName);
+            var relativePath = packageName.replace('.', '/') + '/' + sourceFile;
+            var fileNode = packageNode.findOrCreateFileNode(sourceFile, treeStringBuilder.intern(relativePath));
+            var classNode = fileNode.findOrCreateClassNode(className);
             var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 

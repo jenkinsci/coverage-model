@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -33,6 +34,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 public class CoberturaParser extends CoverageParser {
     private static final long serialVersionUID = -3625341318291829577L;
 
+    private static final PathUtil PATH_UTIL = new PathUtil();
     private static final QName SOURCE = new QName("source");
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
@@ -62,13 +64,13 @@ public class CoberturaParser extends CoverageParser {
      *         the reader to read the report from
      */
     @Override
-    public ModuleNode parse(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
-            var factory = new SecureXmlParserFactory();
-            var eventReader = factory.createXmlEventReader(reader);
+            var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode("-");
             boolean isEmpty = true;
+
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
 
@@ -104,8 +106,10 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    var fileNode = packageNode.findOrCreateFileNode(getValueOf(nextElement, FILE_NAME));
-
+                    var fileName = getValueOf(nextElement, FILE_NAME);
+                    var relativePath = PATH_UTIL.getRelativePath(fileName);
+                    var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
+                            getTreeStringBuilder().intern(relativePath));
                     readClassOrMethod(reader, fileNode, nextElement);
                 }
             }
@@ -113,6 +117,14 @@ public class CoberturaParser extends CoverageParser {
                 return; // finish processing of package
             }
         }
+    }
+
+    private String getFileName(final String relativePath) {
+        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
+        if (path == null) {
+            return relativePath;
+        }
+        return path.toString();
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})

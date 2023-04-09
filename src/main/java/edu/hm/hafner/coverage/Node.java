@@ -17,11 +17,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.util.Ensure;
-import edu.hm.hafner.util.PathUtil;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -37,9 +35,6 @@ public abstract class Node implements Serializable {
 
     static final String EMPTY_NAME = "-";
     static final String ROOT = "^";
-
-    private static final String SLASH = "/";
-    private static final String DOT = ".";
 
     private final Metric metric;
     private final String name;
@@ -126,52 +121,6 @@ public abstract class Node implements Serializable {
      */
     public boolean containsMetric(final Metric searchMetric) {
         return getMetrics().contains(searchMetric);
-    }
-
-    /**
-     * Returns the source code path of this node.
-     *
-     * @return the element type
-     */
-    public String getPath() {
-        return StringUtils.EMPTY;
-    }
-
-    /**
-     * Merges the specified path with the path of the parent of this node.
-     *
-     * @param localPath
-     *         the local path
-     *
-     * @return the concatenated path
-     */
-    protected String mergePath(final String localPath) {
-        if (EMPTY_NAME.equals(localPath)) {
-            return StringUtils.EMPTY;
-        }
-
-        if (hasParent()) {
-            String parentPath = getParent().getPath();
-
-            if (StringUtils.isBlank(parentPath)
-                    || SLASH.equals(parentPath)
-                    || DOT.equals(parentPath)) {
-                return localPath;
-            }
-
-            var pathUtil = new PathUtil();
-            if (localPath.startsWith(parentPath + SLASH)
-                    || pathUtil.isAbsolute(localPath)) {
-                return localPath;
-            }
-
-            if (StringUtils.isBlank(localPath)) {
-                return parentPath;
-            }
-            return parentPath + SLASH + localPath;
-        }
-
-        return localPath;
     }
 
     /**
@@ -542,7 +491,7 @@ public abstract class Node implements Serializable {
         if (!metric.equals(searchMetric)) {
             return false;
         }
-        return name.equals(searchName) || getPath().equals(searchName);
+        return name.equals(searchName);
     }
 
     /**
@@ -559,7 +508,7 @@ public abstract class Node implements Serializable {
         if (!metric.equals(searchMetric)) {
             return false;
         }
-        return name.hashCode() == searchNameHashCode || getPath().hashCode() == searchNameHashCode;
+        return name.hashCode() == searchNameHashCode;
     }
 
     /**
