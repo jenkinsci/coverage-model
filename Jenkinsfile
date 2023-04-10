@@ -5,7 +5,7 @@ def configurations = [
 
 def params = [
     failFast: false,
-    pit: true,
+    pit: [skip: false],
     configurations: configurations,
     checkstyle: [qualityGates: [[threshold: 1, type: 'NEW', unstable: true]]],
     pmd: [qualityGates: [[threshold: 1, type: 'NEW', unstable: true]]],
@@ -148,9 +148,10 @@ def params = [
                     mavenOptions += '-DskipTests'
                   }
                   mavenOptions += 'clean install'
-                  def pit = params.containsKey('pit') ? params.pit : false
-                  if (pit && first) {
-                    mavenOptions += ' org.pitest:pitest-maven:mutationCoverage'
+                  def pit = params?.pit as Map ?: [:]
+                  def runWithPit = pit.containsKey('skip') && pit.get('skip') == true // use same convention as in tests.skip
+                  if (runWithPit && first) {
+                    mavenOptions += '-Ppit'
                   }
                   try {
                     infra.runMaven(mavenOptions, jdk, null, addToolEnv, useArtifactCachingProxy)
@@ -161,17 +162,16 @@ def params = [
                         discoverReferenceBuild()
                         // Default configuration for JaCoCo can be overwritten using a `jacoco` parameter (map).
                         // Configuration see: https://www.jenkins.io/doc/pipeline/steps/code-coverage-api/#recordcoverage-record-code-coverage-results
-                        Map jacocoArguments = [tools: [[parser: 'JACOCO', pattern: '**/jacoco/jacoco.xml']]]
+                        Map jacocoArguments = [tools: [[parser: 'JACOCO', pattern: '**/jacoco/jacoco.xml']], sourceCodeRetention: 'MODIFIED']
                         if (params?.jacoco) {
                           jacocoArguments.putAll(params.jacoco as Map)
                         }
                         recordCoverage jacocoArguments
                         if (pit) {
-                          recordCoverage(
-                                tools: [[parser: 'PIT', pattern: '**/pit-reports/mutations.xml']],
-                                id: 'pit',
-                                name: 'Mutation Coverage',
-                                checksName: 'Mutation Coverage')
+                          Map pitArguments = [tools: [[parser: 'PIT', pattern: '**/pit-reports/mutations.xml']], id: 'pit', name: 'Mutation Coverage']
+                          pitArguments.putAll(pit)
+                          pitArguments.remove('skip')
+                          recordCoverage(pitArguments)
                         }
                       }
                     }
@@ -280,6 +280,21 @@ def params = [
                       )
                   if (failFast && currentBuild.result == 'UNSTABLE') {
                     error 'Static analysis quality gates not passed; halting early'
+                  }
+                  /*
+                   * If the current build was successful, we send the commits to Launchable so that
+                   * the result can be consumed by a Launchable build in the future. We do not
+                   * attempt to record commits for non-incrementalified plugins because such
+                   * plugins' PR builds could not be consumed by anything else anyway, and all
+                   * plugins currently in the BOM are incrementalified. We do not attempt to record
+                   * commits on Windows because our Windows agents do not have Python installed.
+                   */
+                  if (incrementals && platform != 'windows' && currentBuild.currentResult == 'SUCCESS') {
+                    launchable.install()
+                    withCredentials([string(credentialsId: 'launchable-jenkins-bom', variable: 'LAUNCHABLE_TOKEN')]) {
+                      launchable('verify')
+                      launchable('record commit')
+                    }
                   }
                 } else {
                   echo "Skipping static analysis results for ${stageIdentifier}"
