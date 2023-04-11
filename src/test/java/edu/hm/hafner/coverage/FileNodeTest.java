@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.util.TreeString;
@@ -19,7 +20,6 @@ class FileNodeTest extends AbstractNodeTest {
     void configureEqualsVerifier(final EqualsVerifierApi<? extends Node> verifier) {
         verifier.withPrefabValues(TreeString.class, TreeString.valueOf("src"), TreeString.valueOf("test"))
                 .suppress(Warning.NONFINAL_FIELDS);
-
     }
 
     @Override
@@ -65,5 +65,14 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(file.matches(Metric.FILE, fileName.hashCode())).isTrue();
         assertThat(file.matches(Metric.FILE, otherPath.hashCode())).isTrue();
         assertThat(file.matches(Metric.FILE, "wrong".hashCode())).isFalse();
+    }
+
+    @Test
+    void shouldReadOldVersion() {
+        byte[] restored = readAllBytes("version-0.21.0.ser");
+
+        var serializable = (FileNode)createSerializable();
+        serializable.setRelativePath(TreeString.valueOf(StringUtils.EMPTY));
+        assertThatRestoredInstanceEqualsOriginalInstance(serializable, restore(restored));
     }
 }

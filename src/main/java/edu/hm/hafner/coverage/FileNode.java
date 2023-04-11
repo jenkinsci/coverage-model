@@ -29,7 +29,7 @@ import edu.hm.hafner.util.TreeString;
  */
 @SuppressWarnings("PMD.GodClass")
 public final class FileNode extends Node {
-    private static final long serialVersionUID = 2L; // @since 0.22.0
+    private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
 
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
@@ -73,7 +73,7 @@ public final class FileNode extends Node {
      *
      * @return this
      */
-    protected Object readResolve() {
+    private Object readResolve() {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }
