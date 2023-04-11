@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.SerializableTest;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
@@ -12,13 +13,18 @@ import nl.jqno.equalsverifier.api.SingleTypeEqualsVerifierApi;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
-abstract class AbstractNodeTest {
+abstract class AbstractNodeTest extends SerializableTest<Node> {
     private static final String NAME = "Node Name";
     private static final String CHILD = "Child";
     private static final Coverage MUTATION_COVERAGE = new CoverageBuilder().setMetric(Metric.MUTATION)
             .setCovered(5)
             .setMissed(10)
             .build();
+
+    @Override
+    protected Node createSerializable() {
+        return createNode("Serialized");
+    }
 
     abstract Metric getMetric();
 
