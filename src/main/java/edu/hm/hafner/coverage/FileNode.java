@@ -40,7 +40,7 @@ public final class FileNode extends Node {
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
     private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
 
-    private TreeString relativePath;
+    private TreeString relativePath; // @since 0.22.0
 
     /**
      * Creates a new {@link FileNode} with the given name.
@@ -66,6 +66,18 @@ public final class FileNode extends Node {
      */
     public FileNode(final String name, final String relativePath) {
         this(name, TreeString.valueOf(relativePath));
+    }
+
+    /**
+     * Called after de-serialization to retain backward compatibility.
+     *
+     * @return this
+     */
+    private Object readResolve() {
+        if (relativePath == null) {
+            relativePath = TreeString.valueOf(StringUtils.EMPTY);
+        }
+        return this;
     }
 
     @Override
