@@ -41,7 +41,7 @@ public class CoberturaParser extends CoverageParser {
     private static final QName METHOD = new QName("method");
     private static final QName LINE = new QName("line");
 
-    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*(?<covered>\\d+)/(?<total>\\d+)\\)");
+    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="1" branch-rate="0.9687" version="1.9" timestamp="1680679952" lines-covered="97" lines-valid="97" branches-covered="31" branches-valid="32">
+  <sources>
+    <source></source>
+  </sources>
+  <packages>
+    <package name="" line-rate="1" branch-rate="0.9687" complexity="59">
+      <classes>
+        <class name="" filename="" line-rate="1" branch-rate="0.9687" complexity="58">
+          <methods>
+            <method name="get_Registrations" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="27" hits="34" branch="False" />
+                <line number="28" hits="101" branch="False" />
+                <line number="29" hits="101" branch="False" />
+                <line number="30" hits="101" branch="False" />
+                <line number="31" hits="101" branch="False" />
+                <line number="32" hits="101" branch="False" />
+                <line number="33" hits="101" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="39" hits="1" branch="False" />
+                <line number="40" hits="1" branch="False" />
+                <line number="52" hits="15" branch="False" />
+                <line number="53" hits="15" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="8" branch="False" />
+                <line number="47" hits="7" branch="False" />
+                <line number="66" hits="8" branch="False" />
+                <line number="67" hits="8" branch="False" />
+                <line number="68" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="59" hits="5" branch="False" />
+                <line number="60" hits="5" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="(System.Type)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="73" hits="4" branch="False" />
+                <line number="74" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="(System.Type,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="79" hits="6" branch="False" />
+                <line number="80" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="(System.Type,System.Type)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="85" hits="2" branch="False" />
+                <line number="86" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterType" signature="(System.Type,System.Type,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="91" hits="1" branch="False" />
+                <line number="92" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterInstance" signature="(TInterface)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="97" hits="1" branch="False" />
+                <line number="98" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterInstance" signature="" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="104" hits="4" branch="False" />
+                <line number="106" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterFactory" signature="(System.Func`1&lt;TInterface&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="111" hits="11" branch="False" />
+                <line number="112" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterFactory" signature="(System.Func1" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="118" hits="17" branch="False" />
+                <line number="119" hits="8" branch="False" />
+                <line number="120" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterFactory" signature="(System.Func`2&lt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="126" hits="3" branch="False" />
+                <line number="127" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="RegisterFactory" signature="1" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="133" hits="17" branch="False" />
+                <line number="134" hits="8" branch="False" />
+                <line number="135" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="Resolve" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="146" hits="89" branch="False" />
+                <line number="150" hits="2" branch="False" />
+                <line number="152" hits="87" branch="False" />
+              </lines>
+            </method>
+            <method name="Resolve" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="158" hits="9" branch="False" />
+                <line number="162" hits="2" branch="False" />
+                <line number="164" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="Resolve" signature="(System.Type)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="170" hits="4" branch="False" />
+                <line number="174" hits="2" branch="False" />
+                <line number="176" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="Resolve" signature="(System.Type,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="182" hits="3" branch="False" />
+                <line number="186" hits="2" branch="False" />
+                <line number="188" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="ResolveAll" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="194" hits="3" branch="False" />
+                <line number="198" hits="1" branch="False" />
+                <line number="200" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ResolveAll" signature="(System.Type)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="206" hits="3" branch="False" />
+                <line number="210" hits="1" branch="False" />
+                <line number="212" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="CreateChildContainer" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="216" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="Finalize" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="223" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="Dispose" signature="(System.Boolean)" line-rate="1" branch-rate="0.8332999999999999" complexity="6">
+              <lines>
+                <line number="227" hits="5" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="228" hits="1" branch="False" />
+                <line number="230" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="10" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="232" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="235" hits="4" branch="False" />
+                <line number="236" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="Dispose" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="240" hits="2" branch="False" />
+                <line number="241" hits="2" branch="False" />
+                <line number="242" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="GetMappedLifetimeManager" signature="()" line-rate="1" branch-rate="1" complexity="8">
+              <lines>
+                <line number="253" hits="4" branch="True" condition-coverage="100% (8/8)">
+                  <conditions>
+                    <condition number="1" type="switch" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="255" hits="4" branch="False" />
+                <line number="257" hits="4" branch="False" />
+                <line number="259" hits="4" branch="False" />
+                <line number="261" hits="4" branch="False" />
+                <line number="263" hits="4" branch="False" />
+                <line number="265" hits="4" branch="False" />
+                <line number="267" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="GetMappedLifetimeManager" signature="" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="276" hits="1" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="1" type="switch" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="278" hits="1" branch="False" />
+                <line number="280" hits="1" branch="False" />
+                <line number="282" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="GetMappedResolveLifeTime" signature="(Unity.Lifetime.LifetimeManager)" line-rate="1" branch-rate="1" complexity="14">
+              <lines>
+                <line number="291" hits="3" branch="True" condition-coverage="100% (14/14)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                    <condition number="14" type="jump" coverage="100%" />
+                    <condition number="22" type="jump" coverage="100%" />
+                    <condition number="30" type="jump" coverage="100%" />
+                    <condition number="38" type="jump" coverage="100%" />
+                    <condition number="46" type="jump" coverage="100%" />
+                    <condition number="54" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="293" hits="18" branch="False" />
+                <line number="295" hits="2" branch="False" />
+                <line number="297" hits="3" branch="False" />
+                <line number="299" hits="2" branch="False" />
+                <line number="301" hits="2" branch="False" />
+                <line number="303" hits="3" branch="False" />
+                <line number="305" hits="34" branch="False" />
+              </lines>
+            </method>
+            <method name="FromUnityException" signature="(Unity.ResolutionFailedException)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="311" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="66" branch="False" />
+                <line number="19" hits="66" branch="False" />
+                <line number="20" hits="66" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Unity.IUnityContainer)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="22" hits="12" branch="False" />
+                <line number="24" hits="12" branch="False" />
+                <line number="25" hits="12" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="27" hits="34" branch="False" />
+            <line number="28" hits="101" branch="False" />
+            <line number="29" hits="101" branch="False" />
+            <line number="30" hits="101" branch="False" />
+            <line number="31" hits="101" branch="False" />
+            <line number="32" hits="101" branch="False" />
+            <line number="33" hits="101" branch="False" />
+            <line number="39" hits="1" branch="False" />
+            <line number="40" hits="1" branch="False" />
+            <line number="52" hits="15" branch="False" />
+            <line number="53" hits="15" branch="False" />
+            <line number="46" hits="8" branch="False" />
+            <line number="47" hits="7" branch="False" />
+            <line number="66" hits="8" branch="False" />
+            <line number="67" hits="8" branch="False" />
+            <line number="68" hits="7" branch="False" />
+            <line number="59" hits="5" branch="False" />
+            <line number="60" hits="5" branch="False" />
+            <line number="73" hits="4" branch="False" />
+            <line number="74" hits="4" branch="False" />
+            <line number="79" hits="6" branch="False" />
+            <line number="80" hits="6" branch="False" />
+            <line number="85" hits="2" branch="False" />
+            <line number="86" hits="2" branch="False" />
+            <line number="91" hits="1" branch="False" />
+            <line number="92" hits="1" branch="False" />
+            <line number="97" hits="1" branch="False" />
+            <line number="98" hits="1" branch="False" />
+            <line number="104" hits="4" branch="False" />
+            <line number="106" hits="3" branch="False" />
+            <line number="111" hits="11" branch="False" />
+            <line number="112" hits="7" branch="False" />
+            <line number="118" hits="17" branch="False" />
+            <line number="119" hits="8" branch="False" />
+            <line number="120" hits="7" branch="False" />
+            <line number="126" hits="3" branch="False" />
+            <line number="127" hits="1" branch="False" />
+            <line number="133" hits="17" branch="False" />
+            <line number="134" hits="8" branch="False" />
+            <line number="135" hits="7" branch="False" />
+            <line number="146" hits="89" branch="False" />
+            <line number="150" hits="2" branch="False" />
+            <line number="152" hits="87" branch="False" />
+            <line number="158" hits="9" branch="False" />
+            <line number="162" hits="2" branch="False" />
+            <line number="164" hits="7" branch="False" />
+            <line number="170" hits="4" branch="False" />
+            <line number="174" hits="2" branch="False" />
+            <line number="176" hits="2" branch="False" />
+            <line number="182" hits="3" branch="False" />
+            <line number="186" hits="2" branch="False" />
+            <line number="188" hits="1" branch="False" />
+            <line number="194" hits="3" branch="False" />
+            <line number="198" hits="1" branch="False" />
+            <line number="200" hits="2" branch="False" />
+            <line number="206" hits="3" branch="False" />
+            <line number="210" hits="1" branch="False" />
+            <line number="212" hits="2" branch="False" />
+            <line number="216" hits="1" branch="False" />
+            <line number="223" hits="3" branch="False" />
+            <line number="227" hits="5" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="228" hits="1" branch="False" />
+            <line number="230" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="10" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="232" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="19" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="235" hits="4" branch="False" />
+            <line number="236" hits="4" branch="False" />
+            <line number="240" hits="2" branch="False" />
+            <line number="241" hits="2" branch="False" />
+            <line number="242" hits="2" branch="False" />
+            <line number="253" hits="4" branch="True" condition-coverage="100% (8/8)">
+              <conditions>
+                <condition number="1" type="switch" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="255" hits="4" branch="False" />
+            <line number="257" hits="4" branch="False" />
+            <line number="259" hits="4" branch="False" />
+            <line number="261" hits="4" branch="False" />
+            <line number="263" hits="4" branch="False" />
+            <line number="265" hits="4" branch="False" />
+            <line number="267" hits="4" branch="False" />
+            <line number="276" hits="1" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="1" type="switch" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="278" hits="1" branch="False" />
+            <line number="280" hits="1" branch="False" />
+            <line number="282" hits="1" branch="False" />
+            <line number="291" hits="3" branch="True" condition-coverage="100% (14/14)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+                <condition number="14" type="jump" coverage="100%" />
+                <condition number="22" type="jump" coverage="100%" />
+                <condition number="30" type="jump" coverage="100%" />
+                <condition number="38" type="jump" coverage="100%" />
+                <condition number="46" type="jump" coverage="100%" />
+                <condition number="54" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="293" hits="18" branch="False" />
+            <line number="295" hits="2" branch="False" />
+            <line number="297" hits="3" branch="False" />
+            <line number="299" hits="2" branch="False" />
+            <line number="301" hits="2" branch="False" />
+            <line number="303" hits="3" branch="False" />
+            <line number="305" hits="34" branch="False" />
+            <line number="311" hits="10" branch="False" />
+            <line number="17" hits="66" branch="False" />
+            <line number="19" hits="66" branch="False" />
+            <line number="20" hits="66" branch="False" />
+            <line number="22" hits="12" branch="False" />
+            <line number="24" hits="12" branch="False" />
+            <line number="25" hits="12" branch="False" />
+          </lines>
+        </class>
+        <class name="" filename="" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="Create" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="65" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="14" hits="65" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
