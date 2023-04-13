@@ -29,6 +29,14 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldCountCorrectly625() {
+        Node tree = readReport("cobertura-counter-aggregation.xml");
+
+        var expectedValue = new CoverageBuilder().setCovered(31).setMissed(1).setMetric(BRANCH).build();
+        assertThat(tree.getValue(BRANCH)).isPresent().contains(expectedValue);
+    }
+
+    @Test
     void shouldReadCoberturaIssue610() {
         Node tree = readReport("coverage-missing-sources.xml");
 
