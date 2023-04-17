@@ -38,6 +38,26 @@ class JacocoParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldReadAggregationWithGroups() {
+        ModuleNode jenkinsRoot = readReport("jacoco-jenkins.xml");
+
+        assertThat(jenkinsRoot.getChildren()).hasSize(2)
+                .extracting(Node::getName)
+                .containsExactly("cli", "jenkins-core");
+        assertThat(jenkinsRoot.getAll(PACKAGE)).hasSize(2)
+                .extracting(Node::getName)
+                .containsExactly("hudson.cli.client", "org.acegisecurity.context");
+
+        var builder = new CoverageBuilder().setMetric(LINE);
+        assertThat(jenkinsRoot.getValue(LINE))
+                .contains(builder.setCovered(35611).setMissed(18100).build());
+        assertThat(jenkinsRoot.find(MODULE, "cli").get().getValue(LINE))
+                .contains(builder.setCovered(337).setMissed(558).build());
+        assertThat(jenkinsRoot.find(MODULE, "jenkins-core").get().getValue(LINE))
+                .contains(builder.setCovered(35274).setMissed(17542).build());
+    }
+
+    @Test
     void shouldDetectMethodCoverage() {
         ModuleNode module = readReport("jacocoTestReport.xml");
 
