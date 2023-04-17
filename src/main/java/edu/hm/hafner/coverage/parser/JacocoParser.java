@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -115,13 +116,16 @@ public class JacocoParser extends CoverageParser {
             }
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
-                if (REPORT.equals(endElement.getName())
-                        || GROUP.equals(endElement.getName())) {
+                if (isModuleEnd(endElement)) {
                     return module;
                 }
             }
         }
         throw createEofException();
+    }
+
+    private boolean isModuleEnd(final EndElement endElement) {
+        return REPORT.equals(endElement.getName()) || GROUP.equals(endElement.getName());
     }
 
     private PackageNode readPackage(final XMLEventReader reader,

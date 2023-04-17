@@ -50,11 +50,11 @@ class JacocoParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder().setMetric(LINE);
         assertThat(jenkinsRoot.getValue(LINE))
-                .contains(builder.setCovered(35611).setMissed(18100).build());
+                .contains(builder.setCovered(35_611).setMissed(18_100).build());
         assertThat(jenkinsRoot.find(MODULE, "cli").get().getValue(LINE))
                 .contains(builder.setCovered(337).setMissed(558).build());
         assertThat(jenkinsRoot.find(MODULE, "jenkins-core").get().getValue(LINE))
-                .contains(builder.setCovered(35274).setMissed(17542).build());
+                .contains(builder.setCovered(35_274).setMissed(17_542).build());
     }
 
     @Test
