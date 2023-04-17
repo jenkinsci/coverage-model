@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd">
+<report name="Jenkins coverage">
+  <group name="cli">
+    <package name="hudson/cli/client">
+      <class name="hudson/cli/client/Messages" sourcefilename="Messages.java">
+        <method name="&lt;init&gt;" desc="()V" line="20">
+          <counter type="INSTRUCTION" missed="3" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="CLI_NoSuchFileExists" desc="(Ljava/lang/Object;)Ljava/lang/String;" line="37">
+          <counter type="INSTRUCTION" missed="10" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="_CLI_NoSuchFileExists" desc="(Ljava/lang/Object;)Lorg/jvnet/localizer/Localizable;" line="49">
+          <counter type="INSTRUCTION" missed="12" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="CLI_NoURL" desc="()Ljava/lang/String;" line="60">
+          <counter type="INSTRUCTION" missed="6" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="_CLI_NoURL" desc="()Lorg/jvnet/localizer/Localizable;" line="71">
+          <counter type="INSTRUCTION" missed="8" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="CLI_Usage" desc="()Ljava/lang/String;" line="171">
+          <counter type="INSTRUCTION" missed="6" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="_CLI_Usage" desc="()Lorg/jvnet/localizer/Localizable;" line="271">
+          <counter type="INSTRUCTION" missed="8" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="CLI_BadAuth" desc="()Ljava/lang/String;" line="283">
+          <counter type="INSTRUCTION" missed="6" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="_CLI_BadAuth" desc="()Lorg/jvnet/localizer/Localizable;" line="295">
+          <counter type="INSTRUCTION" missed="8" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="&lt;clinit&gt;" desc="()V" line="26">
+          <counter type="INSTRUCTION" missed="4" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <counter type="INSTRUCTION" missed="71" covered="0"/>
+        <counter type="LINE" missed="10" covered="0"/>
+        <counter type="COMPLEXITY" missed="10" covered="0"/>
+        <counter type="METHOD" missed="10" covered="0"/>
+        <counter type="CLASS" missed="1" covered="0"/>
+      </class>
+      <sourcefile name="Messages.java">
+        <line nr="20" mi="3" ci="0" mb="0" cb="0"/>
+        <line nr="26" mi="4" ci="0" mb="0" cb="0"/>
+        <line nr="37" mi="10" ci="0" mb="0" cb="0"/>
+        <line nr="49" mi="12" ci="0" mb="0" cb="0"/>
+        <line nr="60" mi="6" ci="0" mb="0" cb="0"/>
+        <line nr="71" mi="8" ci="0" mb="0" cb="0"/>
+        <line nr="171" mi="6" ci="0" mb="0" cb="0"/>
+        <line nr="271" mi="8" ci="0" mb="0" cb="0"/>
+        <line nr="283" mi="6" ci="0" mb="0" cb="0"/>
+        <line nr="295" mi="8" ci="0" mb="0" cb="0"/>
+        <counter type="INSTRUCTION" missed="71" covered="0"/>
+        <counter type="LINE" missed="10" covered="0"/>
+        <counter type="COMPLEXITY" missed="10" covered="0"/>
+        <counter type="METHOD" missed="10" covered="0"/>
+        <counter type="CLASS" missed="1" covered="0"/>
+      </sourcefile>
+      <counter type="INSTRUCTION" missed="71" covered="0"/>
+      <counter type="LINE" missed="10" covered="0"/>
+      <counter type="COMPLEXITY" missed="10" covered="0"/>
+      <counter type="METHOD" missed="10" covered="0"/>
+      <counter type="CLASS" missed="1" covered="0"/>
+    </package>
+    <counter type="INSTRUCTION" missed="2281" covered="1318"/>
+    <counter type="BRANCH" missed="273" covered="114"/>
+    <counter type="LINE" missed="558" covered="337"/>
+    <counter type="COMPLEXITY" missed="268" covered="103"/>
+    <counter type="METHOD" missed="101" covered="66"/>
+    <counter type="CLASS" missed="16" covered="16"/>
+  </group>
+  <group name="jenkins-core">
+    <package name="org/acegisecurity/context">
+      <class name="org/acegisecurity/context/SecurityContextHolder" sourcefilename="SecurityContextHolder.java">
+        <method name="&lt;init&gt;" desc="()V" line="34">
+          <counter type="INSTRUCTION" missed="3" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="getContext" desc="()Lorg/acegisecurity/context/SecurityContext;" line="37">
+          <counter type="INSTRUCTION" missed="3" covered="0"/>
+          <counter type="LINE" missed="1" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="setContext" desc="(Lorg/acegisecurity/context/SecurityContext;)V" line="41">
+          <counter type="INSTRUCTION" missed="4" covered="0"/>
+          <counter type="LINE" missed="2" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <method name="clearContext" desc="()V" line="45">
+          <counter type="INSTRUCTION" missed="2" covered="0"/>
+          <counter type="LINE" missed="2" covered="0"/>
+          <counter type="COMPLEXITY" missed="1" covered="0"/>
+          <counter type="METHOD" missed="1" covered="0"/>
+        </method>
+        <counter type="INSTRUCTION" missed="12" covered="0"/>
+        <counter type="LINE" missed="6" covered="0"/>
+        <counter type="COMPLEXITY" missed="4" covered="0"/>
+        <counter type="METHOD" missed="4" covered="0"/>
+        <counter type="CLASS" missed="1" covered="0"/>
+      </class>
+              <counter type="INSTRUCTION" missed="1361" covered="4212"/>
+      <counter type="BRANCH" missed="141" covered="335"/>
+      <counter type="LINE" missed="324" covered="932"/>
+      <counter type="COMPLEXITY" missed="178" covered="391"/>
+      <counter type="METHOD" missed="71" covered="258"/>
+      <counter type="CLASS" missed="3" covered="52"/>
+    </package>
+    <counter type="INSTRUCTION" missed="80151" covered="159210"/>
+    <counter type="BRANCH" missed="8541" covered="12832"/>
+    <counter type="LINE" missed="17542" covered="35274"/>
+    <counter type="COMPLEXITY" missed="11119" covered="14879"/>
+    <counter type="METHOD" missed="5166" covered="10095"/>
+    <counter type="CLASS" missed="375" covered="1873"/>
+  </group>
+  <counter type="INSTRUCTION" missed="82432" covered="160528"/>
+  <counter type="BRANCH" missed="8814" covered="12946"/>
+  <counter type="LINE" missed="18100" covered="35611"/>
+  <counter type="COMPLEXITY" missed="11387" covered="14982"/>
+  <counter type="METHOD" missed="5267" covered="10161"/>
+  <counter type="CLASS" missed="391" covered="1889"/>
+</report>

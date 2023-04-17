@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -40,6 +41,7 @@ public class JacocoParser extends CoverageParser {
 
     private static final QName REPORT = new QName("report");
     private static final QName PACKAGE = new QName("package");
+    private static final QName GROUP = new QName("group");
     private static final QName CLASS = new QName("class");
     private static final QName METHOD = new QName("method");
     private static final QName COUNTER = new QName("counter");
@@ -81,7 +83,7 @@ public class JacocoParser extends CoverageParser {
                     var tagName = startElement.getName();
                     if (REPORT.equals(tagName)) {
                         var root = new ModuleNode(getValueOf(startElement, NAME));
-                        readReport(eventReader, root);
+                        readModule(eventReader, root);
                         return root;
                     }
                 }
@@ -93,7 +95,7 @@ public class JacocoParser extends CoverageParser {
         }
     }
 
-    private ModuleNode readReport(final XMLEventReader reader, final ModuleNode root)
+    private ModuleNode readModule(final XMLEventReader reader, final ModuleNode module)
             throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -101,20 +103,29 @@ public class JacocoParser extends CoverageParser {
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
                 if (PACKAGE.equals(startElement.getName())) {
-                    readPackage(reader, root, startElement);
+                    readPackage(reader, module, startElement);
+                }
+                else if (GROUP.equals(startElement.getName())) {
+                    var subModule = new ModuleNode(getValueOf(startElement, NAME));
+                    readModule(reader, subModule);
+                    module.addChild(subModule);
                 }
                 else if (COUNTER.equals(startElement.getName())) {
-                    readValueCounter(root, startElement);
+                    readValueCounter(module, startElement);
                 }
             }
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
-                if (REPORT.equals(endElement.getName())) {
-                    return root;
+                if (isModuleEnd(endElement)) {
+                    return module;
                 }
             }
         }
         throw createEofException();
+    }
+
+    private boolean isModuleEnd(final EndElement endElement) {
+        return REPORT.equals(endElement.getName()) || GROUP.equals(endElement.getName());
     }
 
     private PackageNode readPackage(final XMLEventReader reader,
