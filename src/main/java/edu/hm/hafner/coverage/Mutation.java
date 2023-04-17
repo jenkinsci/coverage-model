@@ -37,12 +37,14 @@ public final class Mutation implements Serializable {
         this.detected = detected;
         this.status = status;
         this.line = line;
-        this.mutator = mutator;
-        this.killingTest = killingTest;
-        this.mutatedClass = mutatedClass;
-        this.method = method;
-        this.signature = signature;
-        this.description = description;
+
+        // Intern all these values as the content is repeated very often across all mutations
+        this.mutator = mutator.intern();
+        this.killingTest = killingTest.intern();
+        this.mutatedClass = mutatedClass.intern();
+        this.method = method.intern();
+        this.signature = signature.intern();
+        this.description = description.intern();
     }
 
     public String getMutatedClass() {
@@ -130,11 +132,15 @@ public final class Mutation implements Serializable {
             return false;
         }
         Mutation mutation = (Mutation) o;
-        return detected == mutation.detected && line == mutation.line && status == mutation.status
-                && Objects.equals(mutator, mutation.mutator) && Objects.equals(killingTest,
-                mutation.killingTest) && Objects.equals(mutatedClass, mutation.mutatedClass)
-                && Objects.equals(method, mutation.method) && Objects.equals(signature,
-                mutation.signature) && Objects.equals(description, mutation.description);
+        return detected == mutation.detected
+                && line == mutation.line
+                && status == mutation.status
+                && Objects.equals(mutator, mutation.mutator)
+                && Objects.equals(killingTest, mutation.killingTest)
+                && Objects.equals(mutatedClass, mutation.mutatedClass)
+                && Objects.equals(method, mutation.method)
+                && Objects.equals(signature, mutation.signature)
+                && Objects.equals(description, mutation.description);
     }
 
     @Override
