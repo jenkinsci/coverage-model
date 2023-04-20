@@ -124,7 +124,7 @@ public class PitestParser extends CoverageParser {
         }
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity") // There are a lot of properties to read
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"}) // There are a lot of properties to read
     private void readProperty(final XMLEventReader reader, final MutationBuilder builder)
             throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
@@ -133,6 +133,9 @@ public class PitestParser extends CoverageParser {
             XMLEvent event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
+            }
+            else if (event.isStartElement()) {
+                readProperty(reader, builder); // sometimes properties are wrapped by another container element
             }
             else if (event.isEndElement()) {
                 var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
