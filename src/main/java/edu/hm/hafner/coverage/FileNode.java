@@ -73,7 +73,7 @@ public final class FileNode extends Node {
      *
      * @return this
      */
-    protected Object readResolve() {
+    private Object readResolve() {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }

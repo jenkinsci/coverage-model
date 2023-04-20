@@ -4,6 +4,8 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
+import edu.hm.hafner.util.ArchitectureRules;
+
 /**
  * Defines several architecture rules for the code coverage model.
  *
