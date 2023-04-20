@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mutations>
+  <mutation detected='false' status='SURVIVED' numberOfTestsRun='1'>
+    <sourceFile>LookaheadStream.java</sourceFile>
+    <mutatedClass>edu.hm.hafner.util.LookaheadStream</mutatedClass>
+    <mutatedMethod>getFileName</mutatedMethod>
+    <methodDescription>()Ljava/lang/String;</methodDescription>
+    <lineNumber>5555</lineNumber>
+    <mutator>org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator</mutator>
+    <indexes>
+      <index>5</index>
+    </indexes>
+    <blocks>
+      <block>0</block>
+    </blocks>
+    <killingTest/>
+    <description>replaced return value with &quot;&quot; for edu/hm/hafner/util/LookaheadStream::getFileName
+    </description>
+  </mutation>
+</mutations>

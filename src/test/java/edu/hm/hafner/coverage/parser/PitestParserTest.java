@@ -26,6 +26,38 @@ class PitestParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldReadAllMutationProperties() {
+        ModuleNode tree = readReport("mutation.xml");
+        assertThat(tree.getAllFileNodes()).first()
+                .satisfies(file -> assertThat(file.getMutations())
+                        .first().satisfies(mutation ->
+                                assertThat(mutation).isDetected()
+                                        .hasMethod("add")
+                                        .hasSignature("(Ledu/hm/hafner/coverage/CoverageNode;)V")
+                                        .hasLine(175)
+                                        .hasMutator("NotExisting")
+                                        .hasKillingTest("edu.hm.hafner.coverage.CoverageNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.coverage.CoverageNodeTest]/[method:shouldAddChildren()]")
+                                        .hasDescription("removed call to edu/hm/hafner/coverage/CoverageNode::setParent")
+                        ));
+    }
+
+    @Test
+    void shouldReadAllMutationPropertiesEvenIfXmlContainsBlocksAndIndexes() {
+        ModuleNode tree = readReport("mutation-with-blocks-and-indexes.xml");
+        assertThat(tree.getAllFileNodes()).first()
+                .satisfies(file -> assertThat(file.getMutations())
+                        .first().satisfies(mutation ->
+                                assertThat(mutation).isNotDetected()
+                                        .hasMethod("getFileName")
+                                        .hasSignature("()Ljava/lang/String;")
+                                        .hasLine(5555)
+                                        .hasMutator("org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator")
+                                        .hasKillingTest("")
+                                        .hasDescription("replaced return value with \"\" for edu/hm/hafner/util/LookaheadStream::getFileName")
+                        ));
+    }
+
+    @Test
     void shouldMapLineCoveragesForPainting() {
         ModuleNode tree = readReport("mutations-codingstyle.xml");
 
@@ -53,8 +85,8 @@ class PitestParserTest extends AbstractParserTest {
                 .map(Mutation::getLine).sorted())
                 .containsExactly(238, 303, 340, 476, 620, 651);
         assertThat(file.getPartiallyCoveredLines()).isEmpty();
-        assertThat(file.getSurvivedMutations()).containsExactly(
-                entry(238, 1), entry(303, 1), entry(340, 1), entry(476, 1), entry(620, 1), entry(651, 1));
+        assertThat(file.getSurvivedMutations()).containsOnlyKeys(
+                238, 303, 340, 476, 620, 651);
         assertThat(file.getMissedLines()).containsExactly(81, 248, 486, 631);
         assertThat(file.getCoveredCounters()).containsExactly(1, 1,
                 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -84,8 +116,22 @@ class PitestParserTest extends AbstractParserTest {
                 50, 55, 65, 77, 78, 79, 81, 84, 96, 97, 99, 115, 117, 119, 121, 130);
         assertThat(file.getCoveredCounters()).containsOnly(1).hasSize(16);
         assertThat(file.getMissedCounters()).containsOnly(0).hasSize(16);
-        assertThat(file.getSurvivedMutations()).containsExactly(entry(50, 1));
+        assertThat(file.getSurvivedMutations()).containsOnlyKeys(50);
+        assertThat(file.getSurvivedMutations().values()).hasSize(1)
+                .first().asList()
+                .hasSize(1).first()
+                .isInstanceOfSatisfying(Mutation.class, this::verifyMutation);
         assertThat(file.getMissedLines()).isEmpty();
+    }
+
+    private void verifyMutation(final Mutation mutation) {
+        assertThat(mutation).hasSurvived()
+                .hasKillingTest("")
+                .hasMethod("getFileName")
+                .hasSignature("()Ljava/lang/String;")
+                .hasMutator("org.pitest.mutationtest.engine.gregor.mutators.returns.EmptyObjectReturnValsMutator")
+                .hasDescription("replaced return value with \"\" for edu/hm/hafner/util/LookaheadStream::getFileName")
+                .hasLine(50);
     }
 
     @Test

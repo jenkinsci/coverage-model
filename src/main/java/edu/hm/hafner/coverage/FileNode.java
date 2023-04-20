@@ -466,15 +466,15 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and the
-     * number of survived mutations as value.
+     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and a
+     * list of survived mutations as value.
      *
      * @return the lines that have no line coverage
      */
-    public NavigableMap<Integer, Integer> getSurvivedMutations() {
+    public NavigableMap<Integer, List<Mutation>> getSurvivedMutations() {
         return getMutations().stream()
                 .filter(Mutation::hasSurvived)
-                .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.summingInt(a -> 1)));
+                .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.toList()));
     }
 
     /**
