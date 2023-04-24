@@ -85,8 +85,9 @@ class PitestParserTest extends AbstractParserTest {
                 .map(Mutation::getLine).sorted())
                 .containsExactly(238, 303, 340, 476, 620, 651);
         assertThat(file.getPartiallyCoveredLines()).isEmpty();
-        assertThat(file.getSurvivedMutations()).containsOnlyKeys(
+        assertThat(file.getSurvivedMutationsPerLine()).containsOnlyKeys(
                 238, 303, 340, 476, 620, 651);
+        assertThat(file.getMutationsPerLine()).hasSize(66);
         assertThat(file.getMissedLines()).containsExactly(81, 248, 486, 631);
         assertThat(file.getCoveredCounters()).containsExactly(1, 1,
                 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -116,8 +117,8 @@ class PitestParserTest extends AbstractParserTest {
                 50, 55, 65, 77, 78, 79, 81, 84, 96, 97, 99, 115, 117, 119, 121, 130);
         assertThat(file.getCoveredCounters()).containsOnly(1).hasSize(16);
         assertThat(file.getMissedCounters()).containsOnly(0).hasSize(16);
-        assertThat(file.getSurvivedMutations()).containsOnlyKeys(50);
-        assertThat(file.getSurvivedMutations().values()).hasSize(1)
+        assertThat(file.getSurvivedMutationsPerLine()).containsOnlyKeys(50);
+        assertThat(file.getSurvivedMutationsPerLine().values()).hasSize(1)
                 .first().asList()
                 .hasSize(1).first()
                 .isInstanceOfSatisfying(Mutation.class, this::verifyMutation);
