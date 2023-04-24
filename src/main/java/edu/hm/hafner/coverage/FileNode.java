@@ -485,9 +485,9 @@ public final class FileNode extends Node {
         return createMapOfMutations(b -> true);
     }
 
-    private NavigableMap<Integer, List<Mutation>> createMapOfMutations(final Predicate<Mutation> hasSurvived) {
+    private NavigableMap<Integer, List<Mutation>> createMapOfMutations(final Predicate<Mutation> predicate) {
         return getMutations().stream()
-                .filter(hasSurvived)
+                .filter(predicate)
                 .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.toList()));
     }
 
