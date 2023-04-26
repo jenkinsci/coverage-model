@@ -27,7 +27,7 @@ import edu.hm.hafner.util.TreeString;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
 
@@ -73,7 +73,7 @@ public final class FileNode extends Node {
      *
      * @return this
      */
-    protected Object readResolve() {
+    private Object readResolve() {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }
@@ -466,15 +466,29 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and the
-     * number of survived mutations as value.
+     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and a
+     * list of survived mutations as value.
      *
      * @return the lines that have no line coverage
      */
-    public NavigableMap<Integer, Integer> getSurvivedMutations() {
+    public NavigableMap<Integer, List<Mutation>> getSurvivedMutationsPerLine() {
+        return createMapOfMutations(Mutation::hasSurvived);
+    }
+
+    /**
+     * Returns the lines that contain mutations. The returned map contains the line number as the key and a
+     * list of mutations as value.
+     *
+     * @return the lines that have no line coverage
+     */
+    public NavigableMap<Integer, List<Mutation>> getMutationsPerLine() {
+        return createMapOfMutations(b -> true);
+    }
+
+    private NavigableMap<Integer, List<Mutation>> createMapOfMutations(final Predicate<Mutation> predicate) {
         return getMutations().stream()
-                .filter(Mutation::hasSurvived)
-                .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.summingInt(a -> 1)));
+                .filter(predicate)
+                .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.toList()));
     }
 
     /**

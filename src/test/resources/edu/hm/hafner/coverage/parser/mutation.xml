@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mutations>
+  <mutation detected='true' status='KILLED' numberOfTestsRun='5'>
+    <sourceFile>CoverageNode.java</sourceFile>
+    <mutatedClass>edu.hm.hafner.coverage.CoverageNode</mutatedClass>
+    <mutatedMethod>add</mutatedMethod>
+    <methodDescription>(Ledu/hm/hafner/coverage/CoverageNode;)V</methodDescription>
+    <lineNumber>175</lineNumber>
+    <mutator>NotExisting</mutator>
+    <index>12</index>
+    <block>1</block>
+    <killingTest>
+      edu.hm.hafner.coverage.CoverageNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.coverage.CoverageNodeTest]/[method:shouldAddChildren()]
+    </killingTest>
+    <description>removed call to edu/hm/hafner/coverage/CoverageNode::setParent</description>
+  </mutation>
+</mutations>
