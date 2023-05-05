@@ -39,6 +39,7 @@ import edu.hm.hafner.util.TreeString;
 public class JacocoParser extends CoverageParser {
     private static final long serialVersionUID = -6021749565311262221L;
 
+    /** XML elements. */
     private static final QName REPORT = new QName("report");
     private static final QName PACKAGE = new QName("package");
     private static final QName GROUP = new QName("group");
@@ -55,7 +56,7 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED = new QName("covered");
     private static final QName LINE_NUMBER = new QName("nr");
 
-    /** Implied attributes of the XML elements. */
+    /** Optional attributes of the XML elements. */
     private static final QName SOURCE_FILE_NAME = new QName("sourcefilename");
     private static final QName LINE = new QName("line");
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
@@ -63,12 +64,6 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_BRANCHED = new QName("cb");
     private static final PathUtil PATH_UTIL = new PathUtil();
 
-    /**
-     * Parses the JaCoCo report. The report is expected to be in XML format.
-     *
-     * @param reader
-     *         the reader to read the report from
-     */
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {

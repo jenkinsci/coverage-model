@@ -47,12 +47,6 @@ public class PitestParser extends CoverageParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
-    /**
-     * Parses the PIT report. The report is expected to be in XML format.
-     *
-     * @param reader
-     *         the reader to read the report from
-     */
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {

@@ -34,14 +34,18 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 public class CoberturaParser extends CoverageParser {
     private static final long serialVersionUID = -3625341318291829577L;
 
+    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
     private static final PathUtil PATH_UTIL = new PathUtil();
+
+    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
+    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
+
+    /** XML elements. */
     private static final QName SOURCE = new QName("source");
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
     private static final QName METHOD = new QName("method");
     private static final QName LINE = new QName("line");
-
-    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
@@ -51,18 +55,10 @@ public class CoberturaParser extends CoverageParser {
     private static final QName COMPLEXITY = new QName("complexity");
     private static final QName NUMBER = new QName("number");
 
-    /** Not required attributes of the XML elements. */
+    /** Optional attributes of the XML elements. */
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
-    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
-    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
 
-    /**
-     * Parses the Cobertura report. The report is expected to be in XML format.
-     *
-     * @param reader
-     *         the reader to read the report from
-     */
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
