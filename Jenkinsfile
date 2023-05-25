@@ -9,7 +9,7 @@ def params = [
     configurations: configurations,
     checkstyle: [qualityGates: [[threshold: 1, type: 'NEW', unstable: true]]],
     pmd: [qualityGates: [[threshold: 1, type: 'NEW', unstable: true]]],
-    jacoco: [sourceCodeRetention: 'MODIFIED']
+    jacoco: [sourceCodeRetention: 'LAST_BUILD']
     ]
 
 buildPlugin(params)
