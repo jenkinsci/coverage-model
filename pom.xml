@@ -50,7 +50,7 @@
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
-    <incrementals-plugin.version>1.6</incrementals-plugin.version>
+    <incrementals-plugin.version>1.7</incrementals-plugin.version>
   </properties>
 
   <build>
