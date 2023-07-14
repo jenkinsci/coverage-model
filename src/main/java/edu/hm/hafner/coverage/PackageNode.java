@@ -110,9 +110,4 @@ public final class PackageNode extends Node {
         addChild(classNode);
         return classNode;
     }
-
-    @Override
-    public String toString() {
-        return String.format("[%s] %s <%d>", getMetric(), getName(), getChildren().size());
-    }
 }

@@ -85,7 +85,7 @@ class ModuleNodeTest extends AbstractNodeTest {
 
         var subPackage = new PackageNode("edu.hm.hafner");
         root.addChild(subPackage);
-        subPackage.addValue(builder.setMissed(10).build());
+        subPackage.addValue(builder.setCovered(10).setMissed(10).build());
         subPackage.addChild(new FileNode("OtherFile.c", "edu.hm.hafner/OtherFile.c"));
         assertThat(root.getValue(LINE)).contains(builder.setCovered(20).setMissed(10).build());
 

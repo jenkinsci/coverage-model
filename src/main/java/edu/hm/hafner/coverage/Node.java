@@ -647,11 +647,14 @@ public abstract class Node implements Serializable {
     private void mergeValues(final Value otherValue) {
         if (getMetricsOfValues().anyMatch(v -> v.equals(otherValue.getMetric()))) {
             var old = getValueOf(otherValue.getMetric());
-            if (hasChildren()) {
-                replaceValue(old.add(otherValue));
+            try {
+                var max = old.max(otherValue);
+
+                replaceValue(max);
             }
-            else {
-                replaceValue(old.max(otherValue));
+            catch (AssertionError exception) {
+                throw new IllegalStateException(String.format("Cannot merge coverage of %s because of: %s",
+                        this, exception.getMessage()), exception);
             }
         }
     }
@@ -676,7 +679,10 @@ public abstract class Node implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s <%d>", getMetric(), getName(), children.size());
+        return getValue(Metric.LINE)
+                .map(lineCoverage -> String.format("[%s] %s <%d, %s>",
+                        getMetric(), getName(), getChildren().size(), lineCoverage))
+                .orElse(String.format("[%s] %s <%d>", getMetric(), getName(), children.size()));
     }
 
     public boolean isEmpty() {

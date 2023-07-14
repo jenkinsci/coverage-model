@@ -100,6 +100,7 @@ public final class ModuleNode extends Node {
             if (isEqual(packageNode, existing)) {
                 // replace existing with merged two nodes
                 removeChild(existing);
+                // FIXME: at the root the values need to be added rather than merged
                 Node merged = existing.merge(packageNode);
                 addChild(merged);
 

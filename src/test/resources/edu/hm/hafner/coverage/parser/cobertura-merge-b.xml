@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="544" lines-covered="487" line-rate="0.8952" branches-valid="164" branches-covered="130" branch-rate="0.7926000000000001" timestamp="1689142282020" complexity="0" version="0.1">
+  <sources>
+    <source>${MY_DIRECTORY_PLACEHOLDER}</source>
+  </sources>
+  <packages>
+    <package name="src.app.utils" line-rate="0.8378" branch-rate="0">
+      <classes>
+        <class name="dateUtils.ts" filename="src\app\utils\dateUtils.ts" line-rate="0.7272" branch-rate="0">
+          <methods>
+            <method name="getTimeAgo" hits="0" signature="()V">
+              <lines>
+                <line number="35" hits="0"/>
+              </lines>
+            </method>
+            <method name="(anonymous_1)" hits="0" signature="()V">
+              <lines>
+                <line number="40" hits="0"/>
+              </lines>
+            </method>
+            <method name="isValidDate" hits="1070" signature="()V">
+              <lines>
+                <line number="71" hits="1070"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="1" hits="1" branch="false"/>
+            <line number="5" hits="1" branch="false"/>
+            <line number="6" hits="1" branch="false"/>
+            <line number="7" hits="1" branch="false"/>
+            <line number="8" hits="1" branch="false"/>
+            <line number="9" hits="1" branch="false"/>
+            <line number="10" hits="1" branch="false"/>
+            <line number="11" hits="1" branch="false"/>
+            <line number="20" hits="1" branch="false"/>
+            <line number="35" hits="1" branch="false"/>
+            <line number="36" hits="0" branch="false"/>
+            <line number="37" hits="0" branch="true" condition-coverage="0% (0/1)"/>
+            <line number="38" hits="0" branch="false"/>
+            <line number="40" hits="0" branch="true" condition-coverage="0% (0/2)"/>
+            <line number="41" hits="0" branch="false"/>
+            <line number="42" hits="0" branch="false"/>
+            <line number="45" hits="1" branch="false"/>
+            <line number="54" hits="1" branch="false"/>
+            <line number="60" hits="1" branch="false"/>
+            <line number="66" hits="1" branch="false"/>
+            <line number="71" hits="1" branch="false"/>
+            <line number="72" hits="1070" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
