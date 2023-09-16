@@ -285,4 +285,19 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(filteredFileNode)
                 .hasNoValueMetrics();
     }
+
+    @Test
+    void shouldReturnMissedLineRanges() {
+        var fileNode = new FileNode("file.java", ".");
+
+        assertThat(fileNode.getMissedLineRanges()).isEmpty();
+
+        fileNode.addCounters(1, 1, 0);
+        fileNode.addCounters(2, 0, 1);
+        fileNode.addCounters(3, 0, 1);
+        fileNode.addCounters(5, 0, 1);
+
+        assertThat(fileNode.getMissedLineRanges())
+                .containsExactly(new LineRange(2, 3), new LineRange(5));
+    }
 }

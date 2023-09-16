@@ -466,6 +466,16 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Returns the lines that have no line coverage grouped in LineRanges.
+     * E.g., the lines 1, 2, 3 will be grouped in one {@link LineRange} instance.
+     *
+     * @return the aggregated LineRanges that have no line coverage
+     */
+    public NavigableSet<LineRange> getMissedLineRanges() {
+        return LineRange.getRangesFromSortedLines(getMissedLines());
+    }
+
+    /**
      * Returns the lines that contain survived mutations. The returned map contains the line number as the key and a
      * list of survived mutations as value.
      *
