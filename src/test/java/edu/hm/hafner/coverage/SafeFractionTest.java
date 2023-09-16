@@ -40,4 +40,21 @@ class SafeFractionTest {
         var safeFraction = new SafeFraction(fraction);
         assertThat(safeFraction.add(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(101.0);
     }
+
+
+    @Test
+    void shouldThrowExceptionOnInstanceWithDenominatorZero() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new SafeFraction(1, 0))
+                .withMessageContaining(Percentage.TOTALS_ZERO_MESSAGE);
+    }
+
+    @Test
+    void shouldThrowExceptionOnSubtractWithDenominatorZero() {
+        var safeFraction = new SafeFraction(1, 1);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> safeFraction.subtract(1, 0))
+                .withMessageContaining(Percentage.TOTALS_ZERO_MESSAGE);
+    }
 }

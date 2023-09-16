@@ -103,11 +103,18 @@ class CoverageTest {
         var builder = new CoverageBuilder().setMetric(Metric.LINE);
 
         Coverage coverage = builder.setCovered(1).setMissed(2).build();
+        Coverage wrongMetric = builder.setMetric(Metric.LOC).build();
         var loc = new LinesOfCode(1);
 
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.add(loc));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.max(loc));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> coverage.delta(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.max(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.delta(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(wrongMetric));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.max(wrongMetric));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.delta(wrongMetric));
+        assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.add(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.max(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.delta(loc));
     }
 
     @Test
@@ -175,5 +182,122 @@ class CoverageTest {
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.forClass(Coverage.class).withRedefinedSuperclass().verify();
+    }
+
+    @Test
+    void shouldSerializeToString() {
+        var builder = new CoverageBuilder().setMetric(Metric.LINE);
+
+        Coverage coverage = builder.setCovered(10).setMissed(10).build();
+
+        assertThat(coverage.serialize()).isEqualTo("LINE: 10/20");
+    }
+
+    @Test
+    void shouldSetMetricCoveredMissedByString() {
+        var builder = new CoverageBuilder().setMetric("LINE");
+
+        Coverage coverage = builder.setCovered("10").setMissed("16").build();
+
+        assertThat(coverage)
+                .hasMetric(Metric.LINE)
+                .hasCovered(10)
+                .hasMissed(16);
+    }
+
+    @Test
+    void shouldCreateCoverageBasedOnStringRepresentation() {
+        Coverage coverage = valueOf(Metric.LINE, "16/20");
+
+        assertThat(coverage)
+                .hasMetric(Metric.LINE)
+                .hasCovered(16)
+                .hasMissed(4)
+                .hasTotal(20);
+    }
+
+    @Test
+    void shouldThrowExceptionOnBadStringRepresentation() {
+        String invalidSeparator = "10-20";
+        String totalSmallerThanCovered = "20/10";
+        String noNumber = "NO/NUMBER";
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> valueOf(Metric.LINE, invalidSeparator))
+                .withMessageContaining(invalidSeparator);
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> valueOf(Metric.LINE, totalSmallerThanCovered))
+                .withMessageContaining(totalSmallerThanCovered);
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> valueOf(Metric.LINE, noNumber))
+                .withMessageContaining(noNumber);
+    }
+
+    @Test
+    void shouldCreateCoverageBasedOnFullStringRepresentation() {
+        Value value = Value.valueOf("LINE:10/20");
+        assertThat(value).isInstanceOf(Coverage.class);
+
+        Coverage coverage = (Coverage) value;
+        assertThat(coverage)
+                .hasMetric(Metric.LINE)
+                .hasCovered(10)
+                .hasMissed(10)
+                .hasTotal(20);
+    }
+
+    @Test
+    void shouldCalculateThirdValueOnBuilder() {
+        Coverage coveredTotal = new CoverageBuilder().setMetric(Metric.LINE).setCovered(15).setTotal(40).build();
+        Coverage coveredMissed = new CoverageBuilder().setMetric(Metric.LINE).setCovered(16).setMissed(16).build();
+        Coverage totalMissed = new CoverageBuilder().setMetric(Metric.LINE).setTotal(40).setMissed(15).build();
+
+        assertThat(coveredTotal).hasTotal(40).hasMissed(25).hasCovered(15);
+        assertThat(coveredMissed).hasTotal(32).hasMissed(16).hasCovered(16);
+        assertThat(totalMissed).hasTotal(40).hasMissed(15).hasCovered(25);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSettingNoneOnBuilder() {
+        var coverageBuilder = new CoverageBuilder();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(coverageBuilder::build)
+                .withMessageContaining("Exactly two properties have to be set.");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSettingOneOnBuilder() {
+        CoverageBuilder onlyTotal = new CoverageBuilder().setTotal(20);
+        CoverageBuilder onlyMissed = new CoverageBuilder().setMissed(20);
+        CoverageBuilder onlyCovered = new CoverageBuilder().setCovered(20);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(onlyTotal::build)
+                .withMessageContaining("Exactly two properties have to be set.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(onlyMissed::build)
+                .withMessageContaining("Exactly two properties have to be set.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(onlyCovered::build)
+                .withMessageContaining("Exactly two properties have to be set.");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSettingThreeOnBuilder() {
+        var coverageBuilder = new CoverageBuilder().setCovered(10).setMissed(10).setTotal(20);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(coverageBuilder::build)
+                .withMessageContaining("Setting all three values covered, missed, and total is not allowed");
+    }
+
+    @Test
+    void shouldThrowExceptionIfNoMetricDefinedOnBuilder() {
+        var coverageBuilder = new CoverageBuilder().setMissed(10).setTotal(20);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(coverageBuilder::build)
+                .withMessageContaining("No metric defined.");
     }
 }
