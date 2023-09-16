@@ -153,7 +153,7 @@ class NodeTest {
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
-        return (Coverage) node.getValue(metric).get();
+        return (Coverage) node.getValue(metric).orElseThrow();
     }
 
     @Test
@@ -492,9 +492,9 @@ class NodeTest {
         sameProject.addChild(autogradingPkg);
         Node combinedReport = project.merge(sameProject);
 
-        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).get())
+        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).orElseThrow())
                 .isNotSameAs(coveragePkg);
-        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).get())
+        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).orElseThrow())
                 .isNotSameAs(autogradingPkg);
     }
 
@@ -508,9 +508,9 @@ class NodeTest {
         pkg.addChild(file);
         Node otherReport = report.copyTree();
 
-        otherReport.find(FILE, file.getName()).get().addValue(
+        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
-        report.find(FILE, file.getName()).get().addValue(
+        report.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.merge(otherReport);
@@ -526,9 +526,9 @@ class NodeTest {
         report.addChild(pkg);
         pkg.addChild(file);
         Node otherReport = report.copyTree();
-        otherReport.find(FILE, file.getName()).get().addValue(
+        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(70).setMissed(30).build());
-        report.find(FILE, file.getName()).get().addValue(
+        report.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.merge(otherReport);
@@ -854,7 +854,7 @@ class NodeTest {
         assertThat(merged)
                 .hasName("package")
                 .hasOnlyValueMetrics(LINE);
-        assertThat((Coverage) merged.getValue(LINE).get())
+        assertThat((Coverage) merged.getValue(LINE).orElseThrow())
                 .hasCovered(10)
                 .hasMissed(0);
     }
@@ -862,13 +862,13 @@ class NodeTest {
     @Test
     void shouldGetAllNodesOfTypeInTree() {
         Node tree = createTreeWithoutCoverage();
-        FileNode coveredFile = tree.findFile("Covered.java").get();
-        FileNode missedFile = tree.findFile("Missed.java").get();
+        FileNode coveredFile = tree.findFile("Covered.java").orElseThrow();
+        FileNode missedFile = tree.findFile("Missed.java").orElseThrow();
         MethodNode coveredMethod = new MethodNode("coveredMethod", "signature");
         MethodNode missedMethod = new MethodNode("missedMethod", "signature");
 
-        tree.findClass("CoveredClass.class").get().addChild(coveredMethod);
-        tree.findClass("MissedClass.class").get().addChild(missedMethod);
+        tree.findClass("CoveredClass.class").orElseThrow().addChild(coveredMethod);
+        tree.findClass("MissedClass.class").orElseThrow().addChild(missedMethod);
 
         assertThat(tree.getAllMethodNodes()).containsExactlyInAnyOrder(coveredMethod, missedMethod);
         assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(coveredFile, missedFile);

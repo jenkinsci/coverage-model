@@ -170,7 +170,7 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addMutation(mutation);
         fileNode.addMutation(otherMutation);
 
-        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().get();
+        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().orElseThrow();
 
         assertThat(fileNode).hasOnlyMutations(mutation);
     }
@@ -182,7 +182,7 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addCounters(2, 1, 0);
         fileNode.addModifiedLines(2);
 
-        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().get();
+        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().orElseThrow();
 
         assertThat(fileNode).hasNoMutations();
     }
@@ -201,26 +201,26 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, 2);
 
-        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().get();
-        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().get();
-        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().get();
+        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
+        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredLineCoverage)
                 .hasOnlyValueMetrics(Metric.LINE);
-        assertThat((Coverage) filteredLineCoverage.getValue(Metric.LINE).get())
+        assertThat((Coverage) filteredLineCoverage.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(1)
                 .hasMissed(0);
         assertThat(filteredBranchCoverage)
                 .hasOnlyValueMetrics(Metric.BRANCH);
-        assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).get())
+        assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(3)
                 .hasMissed(0);
         assertThat(filteredLineAndBranchCoverage)
                 .hasOnlyValueMetrics(Metric.LINE, Metric.BRANCH);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.LINE).get())
+        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(1)
                 .hasMissed(0);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).get())
+        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(2)
                 .hasMissed(0);
     }
@@ -239,20 +239,20 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, -2);
 
-        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().get();
-        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().get();
-        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().get();
+        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
+        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredLineCoverage)
                 .hasNoValueMetrics();
         assertThat(filteredBranchCoverage)
                 .hasOnlyValueMetrics(Metric.BRANCH);
-        assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).get())
+        assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(0)
                 .hasMissed(3);
         assertThat(filteredLineAndBranchCoverage)
                 .hasOnlyValueMetrics(Metric.BRANCH);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).get())
+        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(0)
                 .hasMissed(2);
     }
@@ -266,7 +266,7 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addIndirectCoverageChange(1, 0);
         fileNode.addIndirectCoverageChange(2, 0);
 
-        var filteredFileNode = fileNode.filterTreeByIndirectChanges().get();
+        var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredFileNode)
                 .hasNoValueMetrics();
@@ -280,7 +280,7 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addCounters(2, 1, 0);
         fileNode.addIndirectCoverageChange(3, 1);
 
-        var filteredFileNode = fileNode.filterTreeByIndirectChanges().get();
+        var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredFileNode)
                 .hasNoValueMetrics();
