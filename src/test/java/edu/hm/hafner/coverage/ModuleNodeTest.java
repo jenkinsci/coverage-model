@@ -2,8 +2,6 @@ package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-
 import static edu.hm.hafner.coverage.Metric.FILE;
 import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -64,39 +62,6 @@ class ModuleNodeTest extends AbstractNodeTest {
                 s -> assertThat(s).hasName("hm"),
                 s -> assertThat(s).hasName("edu")
         );
-    }
-
-    @Test
-    void shouldDetectExistingPackagesOnSplit() {
-        var root = new ModuleNode("Root");
-        Node eduPackage = new PackageNode("edu");
-        Node differentPackage = new PackageNode("org");
-
-        root.addChild(differentPackage);
-        root.addChild(eduPackage);
-
-        eduPackage.addChild(new FileNode("File.c", "edu/File.c"));
-
-        var builder = new CoverageBuilder().setMetric(LINE);
-        eduPackage.addValue(builder.setCovered(10).setMissed(0).build());
-
-        assertThat(root.getAll(PACKAGE)).hasSize(2);
-        assertThat(root.getValue(LINE)).contains(builder.build());
-
-        var subPackage = new PackageNode("edu.hm.hafner");
-        root.addChild(subPackage);
-        subPackage.addValue(builder.setMissed(10).build());
-        subPackage.addChild(new FileNode("OtherFile.c", "edu.hm.hafner/OtherFile.c"));
-        assertThat(root.getValue(LINE)).contains(builder.setCovered(20).setMissed(10).build());
-
-        root.splitPackages();
-        assertThat(root.getAll(PACKAGE)).hasSize(4);
-
-        assertThat(root.getChildren()).hasSize(2).satisfiesExactlyInAnyOrder(
-                org -> assertThat(org.getName()).isEqualTo("org"),
-                edu -> assertThat(edu.getName()).isEqualTo("edu"));
-
-        assertThat(root.getValue(LINE)).contains(builder.setCovered(20).setMissed(10).build());
     }
 
     @Test

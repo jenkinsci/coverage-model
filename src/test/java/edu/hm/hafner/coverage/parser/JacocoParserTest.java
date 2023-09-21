@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -35,6 +36,75 @@ class JacocoParserTest extends AbstractParserTest {
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
         return (Coverage) node.getValue(metric).get();
+    }
+
+    @ParameterizedTest(name = "[{index}] Split packages after read: {0}")
+    @ValueSource(booleans = {true, false})
+    @DisplayName("Read and merge two coverage reports with different packages")
+    void shouldMergeProjects(final boolean splitPackages) {
+        ModuleNode model = readReport("jacoco-analysis-model.xml");
+
+        assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
+                "edu.hm.hafner.analysis.parser.dry.simian",
+                "edu.hm.hafner.analysis.parser.gendarme",
+                "edu.hm.hafner.analysis.parser.dry",
+                "edu.hm.hafner.analysis.parser.checkstyle",
+                "edu.hm.hafner.analysis.registry",
+                "edu.hm.hafner.analysis.parser.findbugs",
+                "edu.hm.hafner.analysis.parser.pmd",
+                "edu.hm.hafner.analysis",
+                "edu.hm.hafner.analysis.parser.fxcop",
+                "edu.hm.hafner.analysis.parser.dry.dupfinder",
+                "edu.hm.hafner.analysis.parser.jcreport",
+                "edu.hm.hafner.analysis.parser.pylint",
+                "edu.hm.hafner.analysis.parser.pvsstudio",
+                "edu.hm.hafner.analysis.parser.dry.cpd",
+                "edu.hm.hafner.util",
+                "edu.hm.hafner.analysis.parser",
+                "edu.hm.hafner.analysis.parser.ccm",
+                "edu.hm.hafner.analysis.parser.violations");
+
+        ModuleNode style = readReport("jacoco-codingstyle.xml");
+
+        assertThat(style.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
+                "edu.hm.hafner.util");
+
+        var builder = new CoverageBuilder().setMetric(LINE);
+
+        var left = new ModuleNode("root");
+        model.getAll(PACKAGE).forEach(p -> left.addChild(p.copyTree()));
+
+        assertThat(left.find(PACKAGE, "edu.hm.hafner.util")).isPresent()
+                .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
+                        builder.setCovered(60).setTotal(62).build()));
+
+        var right = new ModuleNode("root");
+        style.getAll(PACKAGE).forEach(p -> right.addChild(p.copyTree()));
+
+        assertThat(right.find(PACKAGE, "edu.hm.hafner.util")).isPresent()
+                .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
+                        builder.setCovered(294).setTotal(323).build()));
+
+        if (splitPackages) {
+            left.splitPackages();
+            right.splitPackages();
+        }
+
+        var merged = left.merge(right);
+
+        var packageName = splitPackages ? "util" : "edu.hm.hafner.util";
+        assertThat(merged.find(PACKAGE, packageName)).isPresent()
+                .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
+                        builder.setCovered(294 + 60).setTotal(323 + 62).build()));
+    }
+
+    @Test
+    void shouldReadAndSplitSubpackage() {
+        ModuleNode model = readReport("file-subpackage.xml");
+
+        model.splitPackages();
+        assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
+                "util", "hafner", "hm", "edu");
     }
 
     @Test

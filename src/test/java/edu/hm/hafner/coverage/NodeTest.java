@@ -420,7 +420,7 @@ class NodeTest {
 
         method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
         methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(7).build());
-        assertThatExceptionOfType(AssertionError.class)
+        assertThatExceptionOfType(IllegalStateException.class)
                 .isThrownBy(() -> module.merge(sameProject))
                 .withMessageContaining("Cannot compute maximum of coverages", "(5/10)", "(2/9)");
     }

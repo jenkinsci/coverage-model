@@ -29,6 +29,55 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldMergeCorrectly729() {
+        var builder = new CoverageBuilder();
+
+        Node a = readReport("cobertura-merge-a.xml");
+        assertThat(a.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(3).setMissed(0).build(),
+                builder.setMetric(LINE).setCovered(20).setMissed(0).build(),
+                builder.setMetric(BRANCH).setCovered(2).setMissed(1).build(),
+                new LinesOfCode(20));
+
+        Node b = readReport("cobertura-merge-b.xml");
+        assertThat(b.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(1).setMissed(2).build(),
+                builder.setMetric(LINE).setCovered(16).setMissed(4).build(),
+                builder.setMetric(BRANCH).setCovered(0).setMissed(3).build(),
+                new LinesOfCode(20));
+
+        var left = a.merge(b);
+        var right = b.merge(a);
+
+        assertThat(left.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(3).setMissed(0).build(),
+                builder.setMetric(LINE).setCovered(20).setMissed(0).build(),
+                builder.setMetric(BRANCH).setCovered(2).setMissed(1).build(),
+                new LinesOfCode(20));
+        assertThat(right.aggregateValues()).containsExactly(
+                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
+                builder.setMetric(METHOD).setCovered(3).setMissed(0).build(),
+                builder.setMetric(LINE).setCovered(20).setMissed(0).build(),
+                builder.setMetric(BRANCH).setCovered(2).setMissed(1).build(),
+                new LinesOfCode(20));
+    }
+
+    @Test
     void shouldCountCorrectly625() {
         Node tree = readReport("cobertura-counter-aggregation.xml");
 
@@ -91,12 +140,15 @@ class CoberturaParserTest extends AbstractParserTest {
         var builder = new CoverageBuilder();
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, LOC);
-        assertThat(tree.aggregateValues()).containsAnyOf(
+        assertThat(tree.aggregateValues()).containsExactly(
                 builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
                 builder.setMetric(PACKAGE).setCovered(4).setMissed(3).build(),
-                builder.setMetric(FILE).setCovered(6).setMissed(12).build(),
-                builder.setMetric(CLASS).setCovered(6).setMissed(12).build(),
-                builder.setMetric(METHOD).setCovered(4).setMissed(1).build());
+                builder.setMetric(FILE).setCovered(6).setMissed(6).build(),
+                builder.setMetric(CLASS).setCovered(6).setMissed(6).build(),
+                builder.setMetric(METHOD).setCovered(14).setMissed(24).build(),
+                builder.setMetric(LINE).setCovered(52).setMissed(85).build(),
+                builder.setMetric(BRANCH).setCovered(21).setMissed(11).build(),
+                new LinesOfCode(137));
 
         assertThat(tree.findPackage("libs.env.src")).isNotEmpty().get().satisfies(
                 p -> {
