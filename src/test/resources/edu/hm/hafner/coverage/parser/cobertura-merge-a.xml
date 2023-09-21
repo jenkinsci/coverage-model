@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="4161" lines-covered="3788" line-rate="0.9103" branches-valid="1243" branches-covered="1032" branch-rate="0.8301999999999999" timestamp="1689142471140" complexity="0" version="0.1">
+  <sources>
+    <source>${MY_DIRECTORY_PLACEHOLDER}</source>
+  </sources>
+  <packages>
+    <package name="src.app.utils" line-rate="0.9923000000000001" branch-rate="0.9516">
+      <classes>
+        <class name="dateUtils.ts" filename="src\app\utils\dateUtils.ts" line-rate="1" branch-rate="0.6666">
+          <methods>
+            <method name="getTimeAgo" hits="43" signature="()V">
+              <lines>
+                <line number="35" hits="43"/>
+              </lines>
+            </method>
+            <method name="(anonymous_1)" hits="31" signature="()V">
+              <lines>
+                <line number="40" hits="31"/>
+              </lines>
+            </method>
+            <method name="isValidDate" hits="84" signature="()V">
+              <lines>
+                <line number="71" hits="84"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="1" hits="23" branch="false"/>
+            <line number="5" hits="23" branch="false"/>
+            <line number="6" hits="23" branch="false"/>
+            <line number="7" hits="23" branch="false"/>
+            <line number="8" hits="23" branch="false"/>
+            <line number="9" hits="23" branch="false"/>
+            <line number="10" hits="23" branch="false"/>
+            <line number="11" hits="23" branch="false"/>
+            <line number="20" hits="23" branch="false"/>
+            <line number="35" hits="23" branch="false"/>
+            <line number="36" hits="43" branch="false"/>
+            <line number="37" hits="43" branch="true" condition-coverage="100% (1/1)"/>
+            <line number="38" hits="34" branch="false"/>
+            <line number="40" hits="31" branch="true" condition-coverage="50% (1/2)"/>
+            <line number="41" hits="9" branch="false"/>
+            <line number="42" hits="9" branch="false"/>
+            <line number="45" hits="23" branch="false"/>
+            <line number="54" hits="23" branch="false"/>
+            <line number="60" hits="23" branch="false"/>
+            <line number="66" hits="23" branch="false"/>
+            <line number="71" hits="23" branch="false"/>
+            <line number="72" hits="84" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
