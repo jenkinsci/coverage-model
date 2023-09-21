@@ -752,7 +752,6 @@ class NodeTest {
         return moduleNode;
     }
 
-
     @Test
     void shouldCreateEmptyNodes() {
         Node fullyEmpty = new PackageNode("Empty Node");

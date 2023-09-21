@@ -41,7 +41,6 @@ class SafeFractionTest {
         assertThat(safeFraction.add(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(101.0);
     }
 
-
     @Test
     void shouldThrowExceptionOnInstanceWithDenominatorZero() {
         assertThatIllegalArgumentException()
