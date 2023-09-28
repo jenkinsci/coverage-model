@@ -1,7 +1,8 @@
 package edu.hm.hafner.coverage;
 
-import edu.hm.hafner.util.TreeStringBuilder;
 import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.util.TreeStringBuilder;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -14,7 +15,6 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * in the tests for the {@link Node} class --> {@link NodeTest}.
  */
 class MutationTest {
-
     private Mutation createDummyMutation(final String identifier, final boolean detected,
                                          final MutationStatus status) {
         return new Mutation.MutationBuilder()
