@@ -1,8 +1,11 @@
 package edu.hm.hafner.coverage;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.lang3.math.Fraction;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -150,7 +153,7 @@ class NodeTest {
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
-        return (Coverage) node.getValue(metric).get();
+        return (Coverage) node.getValue(metric).orElseThrow();
     }
 
     @Test
@@ -489,9 +492,9 @@ class NodeTest {
         sameProject.addChild(autogradingPkg);
         Node combinedReport = project.merge(sameProject);
 
-        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).get())
+        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).orElseThrow())
                 .isNotSameAs(coveragePkg);
-        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).get())
+        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).orElseThrow())
                 .isNotSameAs(autogradingPkg);
     }
 
@@ -505,9 +508,9 @@ class NodeTest {
         pkg.addChild(file);
         Node otherReport = report.copyTree();
 
-        otherReport.find(FILE, file.getName()).get().addValue(
+        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
-        report.find(FILE, file.getName()).get().addValue(
+        report.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.merge(otherReport);
@@ -523,9 +526,9 @@ class NodeTest {
         report.addChild(pkg);
         pkg.addChild(file);
         Node otherReport = report.copyTree();
-        otherReport.find(FILE, file.getName()).get().addValue(
+        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(70).setMissed(30).build());
-        report.find(FILE, file.getName()).get().addValue(
+        report.find(FILE, file.getName()).orElseThrow().addValue(
                 new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
 
         Node combined = report.merge(otherReport);
@@ -747,5 +750,209 @@ class NodeTest {
         missedFileNode.addChild(new ClassNode("MissedClass.class"));
 
         return moduleNode;
+    }
+
+    @Test
+    void shouldCreateEmptyNodes() {
+        Node fullyEmpty = new PackageNode("Empty Node");
+
+        assertThat(fullyEmpty).isEmpty();
+    }
+
+    @Test
+    void shouldCreateNonEmptyNodes() {
+        Node noChildrenButValues = new PackageNode("No Children");
+        noChildrenButValues.addValue(new CoverageBuilder().setMetric(LINE).setCovered(10).setMissed(0).build());
+        Node noValuesButChildren = new PackageNode("No Values");
+        noValuesButChildren.addChild(new FileNode("child", "."));
+
+        assertThat(noChildrenButValues).isNotEmpty();
+        assertThat(noValuesButChildren).isNotEmpty();
+    }
+
+    @Test
+    void shouldMergeSingleNodeInList() {
+        Node parent = new PackageNode("package");
+        Node child = new FileNode("file", ".");
+        parent.addChild(child);
+
+        Node merged = Node.merge(List.of(parent));
+
+        assertThat(merged).isEqualTo(parent);
+    }
+
+    @Test
+    void shouldThrowExceptionOnMergeWithEmptyList() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> Node.merge(List.of()))
+                .withMessageContaining("Cannot merge an empty list of nodes");
+    }
+
+    @Test
+    void shouldMergeMultipleNodesWithSameNameInList() {
+        Node parentA = new PackageNode("package");
+        Node childA = new FileNode("fileA", ".");
+        parentA.addChild(childA);
+        Node parentB = new PackageNode("package");
+        Node childB = new FileNode("fileB", ".");
+        parentB.addChild(childB);
+        Node parentC = new PackageNode("package");
+        Node childC = new FileNode("fileC", ".");
+        parentC.addChild(childC);
+
+        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+
+        assertThat(merged).hasOnlyChildren(childA, childB, childC);
+    }
+
+    @Test
+    void shouldMergeMultipleNodesWithDifferentNameInList() {
+        Node parentA = new PackageNode("packageA");
+        Node childA = new FileNode("fileA", ".");
+        parentA.addChild(childA);
+        Node parentB = new PackageNode("packageB");
+        Node childB = new FileNode("fileB", ".");
+        parentB.addChild(childB);
+        Node parentC = new PackageNode("packageC");
+        Node childC = new FileNode("fileC", ".");
+        parentC.addChild(childC);
+
+        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+
+        assertThat(merged)
+                .hasName("Container")
+                .hasMetric(CONTAINER)
+                .hasOnlyChildren(parentA, parentB, parentC);
+    }
+
+    @Test
+    void shouldMergeMultipleNodesWithDifferentMetricInList() {
+        Node parentA = new ModuleNode("NodeA");
+        Node parentB = new PackageNode("NodeA");
+        Node parentC = new FileNode("NodeA", ".");
+
+        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+
+        assertThat(merged)
+                .hasName("Container")
+                .hasMetric(CONTAINER)
+                .hasOnlyChildren(parentA, parentB, parentC);
+    }
+
+    @Test
+    void shouldMergeNodesWithValues() {
+        var coverageBuilder = new CoverageBuilder();
+        Node parentA = new PackageNode("package");
+        parentA.addValue(coverageBuilder.setMetric(LINE).setCovered(0).setMissed(10).build());
+        Node parentB = new PackageNode("package");
+        parentB.addValue(coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build());
+        parentB.addValue(coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build());
+
+        Node merged = Node.merge(List.of(parentA, parentB));
+
+        assertThat(merged)
+                .hasName("package")
+                .hasOnlyValueMetrics(LINE);
+        assertThat((Coverage) merged.getValue(LINE).orElseThrow())
+                .hasCovered(10)
+                .hasMissed(0);
+    }
+
+    @Test
+    void shouldGetAllNodesOfTypeInTree() {
+        Node tree = createTreeWithoutCoverage();
+        FileNode coveredFile = tree.findFile("Covered.java").orElseThrow();
+        FileNode missedFile = tree.findFile("Missed.java").orElseThrow();
+        MethodNode coveredMethod = new MethodNode("coveredMethod", "signature");
+        MethodNode missedMethod = new MethodNode("missedMethod", "signature");
+
+        tree.findClass("CoveredClass.class").orElseThrow().addChild(coveredMethod);
+        tree.findClass("MissedClass.class").orElseThrow().addChild(missedMethod);
+
+        assertThat(tree.getAllMethodNodes()).containsExactlyInAnyOrder(coveredMethod, missedMethod);
+        assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(coveredFile, missedFile);
+    }
+
+    @Test
+    void shouldComputeDelta() {
+        var coverageBuilder = new CoverageBuilder();
+        Node fileA = new FileNode("FileA.java", ".");
+        fileA.addAllValues(Arrays.asList(
+                coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build(),
+                coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build(),
+                coverageBuilder.setMetric(MUTATION).setCovered(2).setMissed(0).build()
+        ));
+        Node fileB = new FileNode("FileB.java", ".");
+        fileB.addAllValues(Arrays.asList(
+                coverageBuilder.setMetric(LINE).setCovered(0).setMissed(10).build(),
+                coverageBuilder.setMetric(BRANCH).setCovered(1).setMissed(1).build()
+        ));
+
+        NavigableMap<Metric, Fraction> delta = fileA.computeDelta(fileB);
+
+        assertThat(delta)
+                .containsKeys(FILE, LINE, BRANCH)
+                .doesNotContainKey(MUTATION);
+        assertThat(delta.getOrDefault(LINE, Fraction.ZERO)).isEqualTo(Fraction.getFraction(10, 10));
+        assertThat(delta.getOrDefault(BRANCH, Fraction.ZERO)).isEqualTo(Fraction.getFraction(1, 2));
+    }
+
+    @Test
+    void shouldGetAllValueMetrics() {
+        CoverageBuilder coverageBuilder = new CoverageBuilder();
+        Node fileA = new FileNode("FileA.java", ".");
+        fileA.addChild(new ClassNode("ClassA.java"));
+        fileA.addAllValues(Arrays.asList(
+                coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build(),
+                coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build(),
+                coverageBuilder.setMetric(MUTATION).setCovered(2).setMissed(0).build()
+        ));
+        assertThat(fileA.getValueMetrics())
+                .containsExactlyInAnyOrder(LINE, BRANCH, MUTATION);
+    }
+
+    @Test
+    void shouldContainMetric() {
+        Node fileA = new FileNode("FileA.java", ".");
+        fileA.addChild(new ClassNode("ClassA.java"));
+        fileA.addValue(new CoverageBuilder().setMetric(LINE).setCovered(10).setMissed(0).build());
+
+        assertThat(fileA.containsMetric(CLASS)).isTrue();
+        assertThat(fileA.containsMetric(LINE)).isTrue();
+        assertThat(fileA.containsMetric(BRANCH)).isFalse();
+    }
+
+    @Test
+    void shouldGetCoverageValueByMetricWithDefault() {
+        CoverageBuilder coverageBuilder = new CoverageBuilder();
+        Coverage fileACoverage = coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build();
+        Coverage defaultCoverage = coverageBuilder.setMetric(BRANCH).setCovered(1).setMissed(0).build();
+        Node fileA = new FileNode("FileA.java", ".");
+        fileA.addValue(fileACoverage);
+
+        assertThat(fileA.getTypedValue(LINE, defaultCoverage)).isEqualTo(fileACoverage);
+        assertThat(fileA.getTypedValue(BRANCH, defaultCoverage)).isEqualTo(defaultCoverage);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTryingToRemoveNodeThatIsNotAChild() {
+        Node moduleNode = new ModuleNode("module");
+        Node packageNode = new PackageNode("package");
+
+        assertThatExceptionOfType(AssertionError.class)
+                .isThrownBy(() -> moduleNode.removeChild(packageNode))
+                .withMessageContaining(String.format("The node %s is not a child of this node %s", packageNode, moduleNode));
+    }
+
+    @Test
+    void shouldReturnCorrectHasModifiedLines() {
+        Node packageNode = new PackageNode("package");
+        FileNode fileNode = new FileNode("file", ".");
+        packageNode.addChild(fileNode);
+
+        assertThat(packageNode).doesNotHaveModifiedLines();
+
+        fileNode.addModifiedLines(1);
+        assertThat(packageNode).hasModifiedLines();
     }
 }
