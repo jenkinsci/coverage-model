@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.LineRange;
+import edu.hm.hafner.util.LineRangeList;
 import edu.hm.hafner.util.TreeString;
 
 /**
@@ -471,8 +473,36 @@ public final class FileNode extends Node {
      *
      * @return the aggregated LineRanges that have no line coverage
      */
-    public NavigableSet<LineRange> getMissedLineRanges() {
-        return LineRange.getRangesFromSortedLines(getMissedLines());
+    public LineRangeList getMissedLineRanges() {
+        return getRangesFromSortedLines(getMissedLines());
+    }
+
+    /**
+     * Returns a set of LineRanges based on a given sorted set of line numbers.
+     *
+     * @param lines the set of line numbers to generate ranges from
+     * @return a navigable set of LineRanges
+     */
+    LineRangeList getRangesFromSortedLines(final SortedSet<Integer> lines) {
+        LineRangeList lineRanges = new LineRangeList();
+
+        if (lines.isEmpty()) {
+            return lineRanges;
+        }
+
+        int currentStart = lines.first();
+        int currentEnd = lines.first();
+
+        for (int line : lines) {
+            if (line - currentEnd > 1) {
+                lineRanges.add(new LineRange(currentStart, currentEnd));
+                currentStart = line;
+            }
+            currentEnd = line;
+        }
+        lineRanges.add(new LineRange(currentStart, currentEnd));
+
+        return lineRanges;
     }
 
     /**

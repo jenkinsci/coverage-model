@@ -1,16 +1,17 @@
 package edu.hm.hafner.coverage;
 
+import java.util.NavigableMap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
-import edu.hm.hafner.util.TreeString;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
+import edu.hm.hafner.util.LineRange;
+import edu.hm.hafner.util.TreeString;
 
 import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
-
-import java.util.NavigableMap;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
