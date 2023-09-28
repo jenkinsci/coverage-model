@@ -6,16 +6,16 @@ import org.junit.jupiter.api.Test;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class IntegerValueTest {
-
     @Test
     void shouldThrowExceptionOnInvalidDeltaParameter() {
         var linesOfCode = new LinesOfCode(20);
-        var cyclomaticComplexity = new CyclomaticComplexity(10);
-        var fractionValue = new FractionValue(Metric.LOC, Fraction.getFraction(1, 1));
 
+        var cyclomaticComplexity = new CyclomaticComplexity(10);
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> linesOfCode.delta(cyclomaticComplexity))
                 .withMessageContaining("Cannot cast incompatible types");
+
+        var fractionValue = new FractionValue(Metric.LOC, Fraction.getFraction(1, 1));
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> linesOfCode.delta(fractionValue))
                 .withMessageContaining("Cannot cast incompatible types");
