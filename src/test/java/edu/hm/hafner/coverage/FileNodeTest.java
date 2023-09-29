@@ -290,15 +290,24 @@ class FileNodeTest extends AbstractNodeTest {
     @Test
     void shouldReturnMissedLineRanges() {
         var fileNode = new FileNode("file.java", ".");
-
         assertThat(fileNode.getMissedLineRanges()).isEmpty();
 
         fileNode.addCounters(1, 1, 0);
-        fileNode.addCounters(2, 0, 1);
-        fileNode.addCounters(3, 0, 1);
-        fileNode.addCounters(5, 0, 1);
+        assertThat(fileNode.getMissedLineRanges()).isEmpty();
 
+        fileNode.addCounters(2, 0, 1);
+        assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2));
+
+        fileNode.addCounters(3, 0, 1);
+        assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2, 3));
+
+        fileNode.addCounters(5, 0, 1); // belongs to the same range
         assertThat(fileNode.getMissedLineRanges())
-                .containsExactly(new LineRange(2, 3), new LineRange(5));
+                .containsExactly(new LineRange(2, 5));
+
+        fileNode.addCounters(6, 1, 1);
+        fileNode.addCounters(7, 0, 1); // now a new range
+        assertThat(fileNode.getMissedLineRanges())
+                .containsExactly(new LineRange(2, 5), new LineRange(7));
     }
 }
