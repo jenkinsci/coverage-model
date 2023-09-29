@@ -71,7 +71,7 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Called after de-serialization to retain backward compatibility.
+     * Called after deserialization to retain backward compatibility.
      *
      * @return this
      */
@@ -456,14 +456,26 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that have no line coverage. Note that lines that have no branch coverage are not included as
-     * these are reported separately in {@link #getPartiallyCoveredLines()}.
+     * Returns all instrumented lines that are not executed during the tests.
      *
-     * @return the lines that have no line coverage
+     * @return the missed lines
      */
     public NavigableSet<Integer> getMissedLines() {
-        return getLinesWithCoverage().stream()
-                .filter(line -> getCoveredOfLine(line) == 0 && getMissedOfLine(line) == 1)
+        return filterLines(line -> getCoveredOfLine(line) == 0);
+    }
+
+    /**
+     * Returns all lines containing at least one executed instruction.
+     *
+     * @return the fully or partially covered lines
+     */
+    public NavigableSet<Integer> getCoveredLines() {
+        return filterLines(line -> getCoveredOfLine(line) != 0);
+    }
+
+    private NavigableSet<Integer> filterLines(final Predicate<Integer> predicate) {
+        return coveredPerLine.keySet().stream()
+                .filter(predicate)
                 .collect(Collectors.toCollection(TreeSet::new));
     }
 
@@ -539,7 +551,7 @@ public final class FileNode extends Node {
      */
     public NavigableMap<Integer, Integer> getPartiallyCoveredLines() {
         return getLinesWithCoverage().stream()
-                .filter(line -> getCoveredOfLine(line) + getMissedOfLine(line) > 1)
+                .filter(line -> getCoveredOfLine(line) > 0)
                 .filter(line -> getMissedOfLine(line) > 0)
                 .collect(Collectors.toMap(line -> line, missedPerLine::get, (a, b) -> a, TreeMap::new));
     }

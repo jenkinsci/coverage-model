@@ -2,6 +2,7 @@ package edu.hm.hafner.coverage.parser;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,10 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
+import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.FractionValue;
 import edu.hm.hafner.coverage.LinesOfCode;
+import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -36,6 +39,49 @@ class JacocoParserTest extends AbstractParserTest {
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
         return (Coverage) node.getValue(metric).get();
+    }
+
+    @Test
+    void shouldMergeBranches() {
+        var a = getFileNode(readReport("jacoco-merge-a.xml"));
+        assertThat(a).hasMissedLines(38, 39, 46, 47).hasCoveredLines(36, 37, 41, 42, 43, 49);
+        verifyLineCoverage(a, 4);
+
+        var b = getFileNode(readReport("jacoco-merge-b.xml"));
+        assertThat(b).hasMissedLines(38, 39, 42, 43).hasCoveredLines(36, 37, 41, 46, 47, 49);
+        verifyLineCoverage(b, 4);
+
+        var c = getFileNode(readReport("jacoco-merge-c.xml"));
+        assertThat(c).hasMissedLines(41, 42, 43, 46, 47).hasCoveredLines(36, 37, 38, 39, 49);
+        verifyLineCoverage(c, 5);
+    }
+
+    private void verifyLineCoverage(final FileNode a, final int missed) {
+        var lineCoverage = new CoverageBuilder().setMetric(LINE).setCovered(10 - missed).setMissed(missed).build();
+
+        var children = a.getAll(METHOD).stream()
+                .filter(m -> "<init>(II)V".equals(m.getName()))
+                .collect(Collectors.toList());
+
+        assertThat(children).hasSize(1)
+                .element(0)
+                .isInstanceOfSatisfying(MethodNode.class,
+                        m -> assertThat(m)
+                                .hasName("<init>(II)V")
+                                .hasSignature("(II)V")
+                                .hasValues(lineCoverage));
+    }
+
+    private FileNode getFileNode(final ModuleNode a) {
+        var fileNodes = a.getAllFileNodes();
+        assertThat(fileNodes).hasSize(1);
+
+        var lineRange = fileNodes.get(0);
+        assertThat(lineRange)
+                .hasName("LineRange.java")
+                .hasRelativePath("edu/hm/hafner/util/LineRange.java");
+
+        return lineRange;
     }
 
     @ParameterizedTest(name = "[{index}] Split packages after read: {0}")

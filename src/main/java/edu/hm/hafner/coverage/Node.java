@@ -37,7 +37,8 @@ public abstract class Node implements Serializable {
     static final String ROOT = "^";
 
     private final Metric metric;
-    private final String name;
+
+    private /* almost final */ String name;
     private final List<Node> children = new ArrayList<>();
     private final List<Value> values = new ArrayList<>();
 
@@ -61,6 +62,10 @@ public abstract class Node implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    void setName(final String name) { // Might be used during the deserialization of old reports
+        this.name = name;
     }
 
     /**
@@ -155,6 +160,11 @@ public abstract class Node implements Serializable {
      *         the child to add
      */
     public void addChild(final Node child) {
+        if (children.stream().anyMatch(node -> node.getName().equals(child.getName()))) {
+            throw new IllegalArgumentException(
+                    String.format("There is already a child %s with the name %s in %s", child, child.getName(), this));
+        }
+
         children.add(child);
         child.setParent(this);
     }
@@ -435,7 +445,7 @@ public abstract class Node implements Serializable {
     public Optional<MethodNode> findMethod(final String searchName, final String searchSignature) {
         return getAll(Metric.METHOD).stream()
                 .map(MethodNode.class::cast)
-                .filter(node -> node.getName().equals(searchName)
+                .filter(node -> node.getMethodName().equals(searchName)
                         && node.getSignature().equals(searchSignature))
                 .findAny();
     }
@@ -614,14 +624,11 @@ public abstract class Node implements Serializable {
             return this; // nothing to do
         }
 
-        if (getMetric() != other.getMetric()) {
-            throw new IllegalArgumentException(
-                    String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
-        }
+        ensureSameMetric(other);
 
         if (getName().equals(other.getName())) {
             Node combinedReport = copyTree();
-            combinedReport.mergeChildren(other);
+            combinedReport.mergeNode(other);
             return combinedReport;
         }
         else {
@@ -630,13 +637,21 @@ public abstract class Node implements Serializable {
         }
     }
 
-    private void mergeChildren(final Node other) {
+    private void ensureSameMetric(final Node other) {
+        if (getMetric() != other.getMetric()) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
+        }
+    }
+
+    private void mergeNode(final Node other) {
+        ensureSameMetric(other);
         other.values.forEach(this::mergeValues);
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
                     .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
             if (existingChild.isPresent()) {
-                existingChild.get().mergeChildren(otherChild);
+                existingChild.get().mergeNode(otherChild);
             }
             else {
                 addChild(otherChild.copyTree());

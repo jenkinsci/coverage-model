@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -11,7 +12,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 class MethodNodeTest extends AbstractNodeTest {
     @Override
     Node createNode(final String name) {
-        return new MethodNode(name, "(Ljava/util/Map;)V", 1234);
+        return new MethodNode(name, StringUtils.EMPTY, 1234);
     }
 
     @Override
@@ -23,7 +24,8 @@ class MethodNodeTest extends AbstractNodeTest {
     void shouldCreateMethodCoverageNode() {
         assertThat(new MethodNode("shouldCreateMethodCoverageNode()", "(Ljava/util/Map;)V", 16))
                 .hasMetric(Metric.METHOD)
-                .hasName("shouldCreateMethodCoverageNode()")
+                .hasName("shouldCreateMethodCoverageNode()(Ljava/util/Map;)V")
+                .hasMethodName("shouldCreateMethodCoverageNode()")
                 .hasSignature("(Ljava/util/Map;)V")
                 .hasLineNumber(16)
                 .hasValidLineNumber();
