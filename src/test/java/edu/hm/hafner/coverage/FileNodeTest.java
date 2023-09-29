@@ -309,5 +309,9 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addCounters(7, 0, 1); // now a new range
         assertThat(fileNode.getMissedLineRanges())
                 .containsExactly(new LineRange(2, 5), new LineRange(7));
+
+        fileNode.addCounters(8, 1, 1);
+        assertThat(fileNode.getMissedLineRanges())
+                .containsExactly(new LineRange(2, 5), new LineRange(7));
     }
 }

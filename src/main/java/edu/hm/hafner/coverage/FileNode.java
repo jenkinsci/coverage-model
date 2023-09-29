@@ -527,10 +527,10 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and a
+     * Returns all lines that contain survived mutations. The returned map contains the line number as the key and a
      * list of survived mutations as value.
      *
-     * @return the lines that have no line coverage
+     * @return the lines that have survived mutations
      */
     public NavigableMap<Integer, List<Mutation>> getSurvivedMutationsPerLine() {
         return createMapOfMutations(Mutation::hasSurvived);
