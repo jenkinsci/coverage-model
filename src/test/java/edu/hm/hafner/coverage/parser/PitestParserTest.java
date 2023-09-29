@@ -173,7 +173,7 @@ class PitestParserTest extends AbstractParserTest {
         assertThat(tree.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
                 coverage -> assertThat(coverage).hasCovered(222).hasTotal(246));
 
-        assertThat(tree.find(METHOD, "endElement")).isPresent().hasValueSatisfying(
+        assertThat(tree.find(METHOD, "endElement(Ljavax/xml/stream/events/EndElement;)V")).isPresent().hasValueSatisfying(
                 node -> assertThat(node.getValue(MUTATION))
                         .isNotEmpty().get()
                         .isInstanceOfSatisfying(Coverage.class, m -> assertThat(m).hasCovered(3).hasMissed(2)));

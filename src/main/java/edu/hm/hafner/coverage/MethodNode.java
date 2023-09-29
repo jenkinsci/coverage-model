@@ -11,6 +11,7 @@ public final class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
     private final String signature;
+    private String methodName;
     /** The line number where the code of method begins (not including the method head). */
     private final int lineNumber;
 
@@ -37,15 +38,26 @@ public final class MethodNode extends Node {
      *         The line number where the method begins (not including the method head)
      */
     public MethodNode(final String name, final String signature, final int lineNumber) {
-        super(Metric.METHOD, name);
+        super(Metric.METHOD, name + signature);
 
         this.signature = signature;
+        this.methodName = name;
         this.lineNumber = lineNumber;
+    }
+
+    private Object readResolve() {
+        if (methodName == null) { // serialization of old versions
+            methodName = getName();
+            setName(methodName + signature);
+        }
+
+        return this;
+
     }
 
     @Override
     public Node copy() {
-        return new MethodNode(getName(), getSignature(), getLineNumber());
+        return new MethodNode(getMethodName(), getSignature(), getLineNumber());
     }
 
     /**
@@ -65,6 +77,10 @@ public final class MethodNode extends Node {
         return signature;
     }
 
+    public String getMethodName() {
+        return methodName;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -78,16 +94,17 @@ public final class MethodNode extends Node {
         }
         MethodNode that = (MethodNode) o;
         return lineNumber == that.lineNumber
-                && Objects.equals(signature, that.signature);
+                && Objects.equals(signature, that.signature)
+                && Objects.equals(methodName, that.methodName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), signature, lineNumber);
+        return Objects.hash(super.hashCode(), signature, methodName, lineNumber);
     }
 
     @Override
     public String toString() {
-        return String.format("[%s] %s(%d) <%s>", getMetric(), getName(), getLineNumber(), getSignature());
+        return String.format("[%s] %s <%s>", getMetric(), getName(), getLineNumber());
     }
 }

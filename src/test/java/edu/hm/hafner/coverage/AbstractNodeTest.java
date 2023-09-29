@@ -8,6 +8,7 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.SerializableTest;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
 import nl.jqno.equalsverifier.api.SingleTypeEqualsVerifierApi;
 
@@ -51,10 +52,8 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
         child.addValue(MUTATION_COVERAGE);
         parent.addChild(child);
 
-        assertThat(parent)
-                .hasChildren(child);
-        assertThat(parent.aggregateValues()).containsExactlyElementsOf(
-                createMetricDistributionWithMissed(2));
+        assertThat(parent).hasChildren(child);
+        assertThat(parent.aggregateValues()).containsExactlyElementsOf(createMetricDistributionWithMissed(2));
         assertThat(parent.getAll(getMetric())).containsOnly(parent, child);
 
         assertThat(parent.find(getMetric(), NAME)).contains(parent);
@@ -100,12 +99,13 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
                         createNode(NAME).getClass())
                 .withPrefabValues(Node.class, new PackageNode("src"), new PackageNode("test"))
                 .withIgnoredFields("parent")
-                .withRedefinedSuperclass();
+                .withRedefinedSuperclass()
+                .suppress(Warning.NONFINAL_FIELDS);
         configureEqualsVerifier(equalsVerifier);
         equalsVerifier.verify();
     }
 
     void configureEqualsVerifier(final EqualsVerifierApi<? extends Node> verifier) {
-        // no additional configuration
+        // no additional configuration in parent class
     }
 }

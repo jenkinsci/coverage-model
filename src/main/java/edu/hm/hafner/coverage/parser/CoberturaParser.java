@@ -3,12 +3,15 @@ package edu.hm.hafner.coverage.parser;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -176,6 +179,9 @@ public class CoberturaParser extends CoverageParser {
 
     private Node createNode(final FileNode file, final StartElement parentElement) {
         var name = getValueOf(parentElement, NAME);
+        if (StringUtils.isBlank(name)) { // each node must have a unique name
+            name = UUID.randomUUID().toString();
+        }
         if (CLASS.equals(parentElement.getName())) {
             return file.createClassNode(name); // connect the class with the file
         }

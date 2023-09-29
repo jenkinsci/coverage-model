@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN"
+        "report.dtd">
+<report name="Java coding style">
+  <sessioninfo id="Ullis-MBP.fritz.box-703a30cd" start="1695909215408" dump="1695909216706"/>
+  <package name="edu/hm/hafner/util">
+    <class name="edu/hm/hafner/util/LineRange" sourcefilename="LineRange.java">
+      <method name="&lt;init&gt;" desc="(I)V" line="25">
+        <counter type="INSTRUCTION" missed="5" covered="0"/>
+        <counter type="LINE" missed="2" covered="0"/>
+        <counter type="COMPLEXITY" missed="1" covered="0"/>
+        <counter type="METHOD" missed="1" covered="0"/>
+      </method>
+      <method name="&lt;init&gt;" desc="(II)V" line="36">
+        <counter type="INSTRUCTION" missed="14" covered="14"/>
+        <counter type="BRANCH" missed="2" covered="2"/>
+        <counter type="LINE" missed="4" covered="6"/>
+        <counter type="COMPLEXITY" missed="2" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getStart" desc="()I" line="57">
+        <counter type="INSTRUCTION" missed="0" covered="3"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="getEnd" desc="()I" line="66">
+        <counter type="INSTRUCTION" missed="0" covered="3"/>
+        <counter type="LINE" missed="0" covered="1"/>
+        <counter type="COMPLEXITY" missed="0" covered="1"/>
+        <counter type="METHOD" missed="0" covered="1"/>
+      </method>
+      <method name="equals" desc="(Ljava/lang/Object;)Z" line="71">
+        <counter type="INSTRUCTION" missed="33" covered="0"/>
+        <counter type="BRANCH" missed="10" covered="0"/>
+        <counter type="LINE" missed="8" covered="0"/>
+        <counter type="COMPLEXITY" missed="6" covered="0"/>
+        <counter type="METHOD" missed="1" covered="0"/>
+      </method>
+      <method name="hashCode" desc="()I" line="88">
+        <counter type="INSTRUCTION" missed="12" covered="0"/>
+        <counter type="LINE" missed="3" covered="0"/>
+        <counter type="COMPLEXITY" missed="1" covered="0"/>
+        <counter type="METHOD" missed="1" covered="0"/>
+      </method>
+      <method name="toString" desc="()Ljava/lang/String;" line="95">
+        <counter type="INSTRUCTION" missed="17" covered="0"/>
+        <counter type="LINE" missed="1" covered="0"/>
+        <counter type="COMPLEXITY" missed="1" covered="0"/>
+        <counter type="METHOD" missed="1" covered="0"/>
+      </method>
+      <counter type="INSTRUCTION" missed="81" covered="20"/>
+      <counter type="BRANCH" missed="12" covered="2"/>
+      <counter type="LINE" missed="18" covered="8"/>
+      <counter type="COMPLEXITY" missed="11" covered="3"/>
+      <counter type="METHOD" missed="4" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </class>
+    <sourcefile name="LineRange.java">
+      <line nr="25" mi="4" ci="0" mb="0" cb="0"/>
+      <line nr="26" mi="1" ci="0" mb="0" cb="0"/>
+      <line nr="36" mi="0" ci="2" mb="0" cb="0"/>
+      <line nr="37" mi="0" ci="2" mb="1" cb="1"/>
+      <line nr="38" mi="3" ci="0" mb="0" cb="0"/>
+      <line nr="39" mi="4" ci="0" mb="0" cb="0"/>
+      <line nr="41" mi="0" ci="3" mb="1" cb="1"/>
+      <line nr="42" mi="3" ci="0" mb="0" cb="0"/>
+      <line nr="43" mi="4" ci="0" mb="0" cb="0"/>
+      <line nr="46" mi="0" ci="3" mb="0" cb="0"/>
+      <line nr="47" mi="0" ci="3" mb="0" cb="0"/>
+      <line nr="49" mi="0" ci="1" mb="0" cb="0"/>
+      <line nr="57" mi="0" ci="3" mb="0" cb="0"/>
+      <line nr="66" mi="0" ci="3" mb="0" cb="0"/>
+      <line nr="71" mi="3" ci="0" mb="2" cb="0"/>
+      <line nr="72" mi="2" ci="0" mb="0" cb="0"/>
+      <line nr="74" mi="7" ci="0" mb="4" cb="0"/>
+      <line nr="75" mi="2" ci="0" mb="0" cb="0"/>
+      <line nr="78" mi="3" ci="0" mb="0" cb="0"/>
+      <line nr="80" mi="5" ci="0" mb="2" cb="0"/>
+      <line nr="81" mi="2" ci="0" mb="0" cb="0"/>
+      <line nr="83" mi="9" ci="0" mb="2" cb="0"/>
+      <line nr="88" mi="3" ci="0" mb="0" cb="0"/>
+      <line nr="89" mi="7" ci="0" mb="0" cb="0"/>
+      <line nr="90" mi="2" ci="0" mb="0" cb="0"/>
+      <line nr="95" mi="17" ci="0" mb="0" cb="0"/>
+      <counter type="INSTRUCTION" missed="81" covered="20"/>
+      <counter type="BRANCH" missed="12" covered="2"/>
+      <counter type="LINE" missed="18" covered="8"/>
+      <counter type="COMPLEXITY" missed="11" covered="3"/>
+      <counter type="METHOD" missed="4" covered="3"/>
+      <counter type="CLASS" missed="0" covered="1"/>
+    </sourcefile>
+    <counter type="INSTRUCTION" missed="81" covered="20"/>
+    <counter type="BRANCH" missed="12" covered="2"/>
+    <counter type="LINE" missed="18" covered="8"/>
+    <counter type="COMPLEXITY" missed="11" covered="3"/>
+    <counter type="METHOD" missed="4" covered="3"/>
+    <counter type="CLASS" missed="0" covered="1"/>
+  </package>
+  <counter type="INSTRUCTION" missed="81" covered="20"/>
+  <counter type="BRANCH" missed="12" covered="2"/>
+  <counter type="LINE" missed="18" covered="8"/>
+  <counter type="COMPLEXITY" missed="11" covered="3"/>
+  <counter type="METHOD" missed="4" covered="3"/>
+  <counter type="CLASS" missed="0" covered="1"/>
+</report>

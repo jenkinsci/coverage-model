@@ -580,10 +580,10 @@ class NodeTest {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2);
-            assertThat(file.getMissedLines()).containsExactly(11, 13);
-            assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(14, 4), entry(16, 2));
-            assertThat(file.getMutations()).hasSize(3)
-                    .extracting(Mutation::getLine).containsExactlyInAnyOrder(17, 18, 19);
+            assertThat(file.getMissedLines()).containsExactly(11, 13, 14);
+            assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2));
+            assertThat(file.getMutations()).extracting(Mutation::getLine)
+                    .containsExactlyInAnyOrder(17, 18, 19);
         });
     }
 
@@ -643,10 +643,10 @@ class NodeTest {
             verifyCountersOfCoveredClass(file);
             assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2, 1, 0, 1, 0, 0, 4, 2);
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2, 0, 1, 0, 1, 4, 0, 2);
-            assertThat(file.getMissedLines()).containsExactly(11, 13, 21, 23);
-            assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(14, 4), entry(16, 2), entry(24, 4), entry(26, 2));
-            assertThat(file.getMutations()).hasSize(6)
-                    .extracting(Mutation::getLine).containsExactlyInAnyOrder(17, 18, 19, 27, 28, 29);
+            assertThat(file.getMissedLines()).containsExactly(11, 13, 14, 21, 23, 24);
+            assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2), entry(26, 2));
+            assertThat(file.getMutations()).extracting(Mutation::getLine)
+                    .containsExactlyInAnyOrder(17, 18, 19, 27, 28, 29);
         });
     }
 
@@ -827,9 +827,9 @@ class NodeTest {
 
     @Test
     void shouldMergeMultipleNodesWithDifferentMetricInList() {
-        Node parentA = new ModuleNode("NodeA");
-        Node parentB = new PackageNode("NodeA");
-        Node parentC = new FileNode("NodeA", ".");
+        Node parentA = new ModuleNode("M");
+        Node parentB = new PackageNode("P");
+        Node parentC = new FileNode("F", ".");
 
         Node merged = Node.merge(List.of(parentA, parentB, parentC));
 
