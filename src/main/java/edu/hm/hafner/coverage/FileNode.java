@@ -613,12 +613,12 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the relative path of the file. If no relative path is set then the name of this node is returned.
+     * Returns the relative path of the file. If no relative path is set, then the name of this node is returned.
      *
      * @return the relative path of the file
      */
     public String getRelativePath() {
-        return StringUtils.defaultString(relativePath.toString(), getName());
+        return StringUtils.defaultIfBlank(relativePath.toString(), getName());
     }
 
     /**
