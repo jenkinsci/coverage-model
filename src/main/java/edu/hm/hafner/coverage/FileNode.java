@@ -32,6 +32,7 @@ import edu.hm.hafner.util.TreeString;
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
+    private static final int UNSET = -1;
 
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
@@ -481,47 +482,55 @@ public final class FileNode extends Node {
 
     /**
      * Returns the lines that have no line coverage grouped in LineRanges.
-     * E.g., the lines 1, 2, 3 will be grouped in one {@link LineRange} instance.
+     * E.g., the lines [1, 2, 3] will be grouped in one {@link LineRange} instance.
      *
      * @return the aggregated LineRanges that have no line coverage
      */
     public LineRangeList getMissedLineRanges() {
-        return getRangesFromSortedLines(getMissedLines());
-    }
-
-    /**
-     * Returns a set of LineRanges based on a given sorted set of line numbers.
-     *
-     * @param lines the set of line numbers to generate ranges from
-     * @return a navigable set of LineRanges
-     */
-    LineRangeList getRangesFromSortedLines(final SortedSet<Integer> lines) {
         LineRangeList lineRanges = new LineRangeList();
 
-        if (lines.isEmpty()) {
+        var missedLines = getMissedLines();
+        if (missedLines.isEmpty()) {
             return lineRanges;
         }
 
-        int currentStart = lines.first();
-        int currentEnd = lines.first();
+        if (missedLines.size() == 1) {
+            lineRanges.add(new LineRange(missedLines.first()));
+
+            return lineRanges;
+        }
+
+        var lines = List.copyOf(getLinesWithCoverage());
+
+        int start = UNSET;
+        int end = UNSET;
 
         for (int line : lines) {
-            if (line - currentEnd > 1) {
-                lineRanges.add(new LineRange(currentStart, currentEnd));
-                currentStart = line;
+            if (getCoveredOfLine(line) == 0) {
+                if (start == UNSET) {
+                    start = line;
+                }
+                end = line;
             }
-            currentEnd = line;
+            else {
+                if (start != UNSET) {
+                    lineRanges.add(new LineRange(start, end));
+                    start = UNSET;
+                }
+            }
         }
-        lineRanges.add(new LineRange(currentStart, currentEnd));
+        if (start != UNSET) {
+            lineRanges.add(new LineRange(start, end));
+        }
 
         return lineRanges;
     }
 
     /**
-     * Returns the lines that contain survived mutations. The returned map contains the line number as the key and a
+     * Returns all lines that contain survived mutations. The returned map contains the line number as the key and a
      * list of survived mutations as value.
      *
-     * @return the lines that have no line coverage
+     * @return the lines that have survived mutations
      */
     public NavigableMap<Integer, List<Mutation>> getSurvivedMutationsPerLine() {
         return createMapOfMutations(Mutation::hasSurvived);
@@ -604,12 +613,12 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the relative path of the file. If no relative path is set then the name of this node is returned.
+     * Returns the relative path of the file. If no relative path is set, then the name of this node is returned.
      *
      * @return the relative path of the file
      */
     public String getRelativePath() {
-        return StringUtils.defaultString(relativePath.toString(), getName());
+        return StringUtils.defaultIfBlank(relativePath.toString(), getName());
     }
 
     /**
