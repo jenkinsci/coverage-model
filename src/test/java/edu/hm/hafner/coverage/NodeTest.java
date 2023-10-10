@@ -235,10 +235,10 @@ class NodeTest {
         node.addChild(childNode);
 
         assertThat(node.find(BRANCH, "NotExisting")).isNotPresent();
-        assertThat(node.find(FILE, childNode.getName())).isPresent().get().isEqualTo(childNode);
+        assertThat(node.find(FILE, childNode.getName())).isPresent().contains(childNode);
 
         assertThat(node.findByHashCode(BRANCH, "NotExisting".hashCode())).isNotPresent();
-        assertThat(node.findByHashCode(FILE, childNode.getName().hashCode())).isPresent().get().isEqualTo(childNode);
+        assertThat(node.findByHashCode(FILE, childNode.getName().hashCode())).isPresent().contains(childNode);
     }
 
     @Test
@@ -328,160 +328,6 @@ class NodeTest {
     }
 
     @Test
-    void shouldKeepChildNodesAfterCombiningMoreComplexReportWithDifferencesOnClassLevel() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node sameModule = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node samePackage = new PackageNode("coverage");
-        Node fileToKeep = new FileNode("KeepMe", "path");
-        Node sameFileToKeep = new FileNode("KeepMe", "path");
-        Node classA = new ClassNode("ClassA");
-        Node classB = new ClassNode("ClassB");
-
-        module.addChild(pkg);
-        pkg.addChild(fileToKeep);
-        fileToKeep.addChild(classA);
-
-        sameModule.addChild(samePackage);
-        samePackage.addChild(sameFileToKeep);
-        sameFileToKeep.addChild(classA);
-
-        Node combinedReport = module.merge(sameModule);
-        assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep);
-        assertThat(combinedReport.getAll(CLASS)).hasSize(1);
-
-        sameFileToKeep.addChild(classB);
-        Node combinedReport2Classes = module.merge(sameModule);
-        assertThat(combinedReport2Classes.getAll(CLASS)).hasSize(2);
-        assertThat(combinedReport2Classes.getChildren().get(0).getChildren().get(0)).hasOnlyChildren(classA, classB);
-    }
-
-    private static Node setUpNodeTree() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java", "path");
-        Node covNodeClass = new ClassNode("Node.class");
-        Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
-
-        module.addChild(pkg);
-        pkg.addChild(file);
-        file.addChild(covNodeClass);
-        covNodeClass.addChild(combineWithMethod);
-
-        return module;
-    }
-
-    @Test
-    void shouldComputeCorrectCoverageAfterCombiningMethods() {
-        Node module = new ModuleNode("edu.hm.hafner.module");
-        Node pkg = new PackageNode("edu.hm.hafner.package");
-        Node file = new FileNode("Node.java", "path");
-        Node covNodeClass = new ClassNode("Node.class");
-        Node combineWithMethod = new MethodNode("combineWith", "(Ljava/util/Map;)V", 10);
-
-        module.addChild(pkg);
-        pkg.addChild(file);
-        file.addChild(covNodeClass);
-        covNodeClass.addChild(combineWithMethod);
-        combineWithMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build());
-
-        Node otherNode = module.copyTree();
-        Node addMethod = new MethodNode("add", "(Ljava/util/Map;)V", 1);
-        otherNode.getAll(CLASS).get(0).addChild(addMethod); // the same class node in the copied tree
-        addMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build());
-
-        Node combinedReport = module.merge(otherNode);
-        assertThat(combinedReport.getAll(METHOD)).hasSize(2);
-        assertThat(getCoverage(combinedReport, LINE)).hasCovered(1).hasMissed(1);
-    }
-
-    @Test
-    void shouldTakeMaxCoverageIfTwoLineCoverageValuesForSameMethodExist() {
-        Node module = setUpNodeTree();
-        Node sameProject = setUpNodeTree();
-        Node method = module.getAll(METHOD).get(0);
-        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
-
-        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(8).build());
-        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
-
-        Node combinedReport = module.merge(sameProject);
-        assertThat(combinedReport.getAll(METHOD)).hasSize(1);
-        assertThat(getCoverage(combinedReport, LINE)).hasCovered(5).hasMissed(5);
-    }
-
-    @Test
-    void shouldThrowErrorIfCoveredPlusMissedLinesDifferInReports() {
-        Node module = setUpNodeTree();
-        Node method = module.getAll(METHOD).get(0);
-
-        Node sameProject = setUpNodeTree();
-        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
-
-        assertThat(module.merge(sameProject)).isEqualTo(
-                module); // should not throw error if no line coverage exists for method
-
-        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
-        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(7).build());
-        assertThatExceptionOfType(IllegalStateException.class)
-                .isThrownBy(() -> module.merge(sameProject))
-                .withMessageContaining("Cannot compute maximum of coverages", "(5/10)", "(2/9)");
-    }
-
-    @Test
-    void shouldTakeMaxCoverageIfDifferentCoverageValuesOfDifferentMetricsExistForSameMethod() {
-        Node module = setUpNodeTree();
-        Node sameProject = setUpNodeTree();
-        Node method = module.getAll(METHOD).get(0);
-        Node methodOtherCov = sameProject.getAll(METHOD).get(0);
-
-        method.addValue(new CoverageBuilder().setMetric(LINE).setCovered(2).setMissed(8).build());
-        methodOtherCov.addValue(new CoverageBuilder().setMetric(LINE).setCovered(5).setMissed(5).build());
-        method.addValue(new CoverageBuilder().setMetric(BRANCH).setCovered(10).setMissed(5).build());
-        methodOtherCov.addValue(new CoverageBuilder().setMetric(BRANCH).setCovered(12).setMissed(3).build());
-        method.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(7).setMissed(8).build());
-        methodOtherCov.addValue(new CoverageBuilder().setMetric(INSTRUCTION).setCovered(5).setMissed(10).build());
-
-        Node combinedReport = module.merge(sameProject);
-        assertThat(getCoverage(combinedReport, LINE)).hasCovered(5).hasMissed(5);
-        assertThat(getCoverage(combinedReport, BRANCH)).hasCovered(12).hasMissed(3);
-        assertThat(getCoverage(combinedReport, INSTRUCTION)).hasCovered(7).hasMissed(8);
-    }
-
-    @Test
-    void shouldCorrectlyCombineTwoComplexReports() {
-        var report = setUpNodeTree();
-        var otherReport = setUpNodeTree();
-
-        // Difference on package level
-        var autograding = new PackageNode("autograding");
-        var file = new FileNode("Main.java", "path");
-        var mainClass = new ClassNode("Main.class");
-        var mainMethod = new MethodNode("main", "(Ljava/util/Map;)V", 10);
-
-        otherReport.addChild(autograding);
-        autograding.addChild(file);
-        file.addChild(mainClass);
-        mainClass.addChild(mainMethod);
-        mainMethod.addValue(new CoverageBuilder().setMetric(LINE).setCovered(8).setMissed(2).build());
-
-        // Difference on file level
-        var leaf = new FileNode("Leaf", "path");
-        var pkgCovFile = new FileNode("HelloWorld", "path");
-        leaf.addChild(mainClass.copyTree());
-
-        report.getAll(PACKAGE).get(0).addChild(pkgCovFile);
-        otherReport.getAll(PACKAGE).get(0).addChild(leaf);
-
-        var combinedReport = report.merge(otherReport);
-        assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
-        assertThat(combinedReport.getAll(FILE)).hasSize(4);
-        assertThat(combinedReport.getAll(CLASS)).hasSize(3);
-        assertThat(getCoverage(combinedReport, LINE)).hasCovered(16).hasMissed(4);
-        assertThat(combinedReport.getValue(BRANCH)).isEmpty();
-    }
-
-    @Test
     void shouldUseDeepCopiedNodesInCombineWithInRelatedProjects() {
         var project = new ModuleNode("edu.hm.hafner.module1");
         var sameProject = project.copyTree();
@@ -499,25 +345,6 @@ class NodeTest {
     }
 
     @Test
-    void shouldAlsoHandleReportsThatStopAtHigherLevelThanMethod() {
-        Node report = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java", "path");
-
-        report.addChild(pkg);
-        pkg.addChild(file);
-        Node otherReport = report.copyTree();
-
-        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
-                new CoverageBuilder().setMetric(LINE).setCovered(90).setMissed(10).build());
-        report.find(FILE, file.getName()).orElseThrow().addValue(
-                new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
-
-        Node combined = report.merge(otherReport);
-        assertThat(getCoverage(combined, LINE)).hasMissed(10).hasCovered(90);
-    }
-
-    @Test
     void shouldAlsoHandleReportsThatStopAtHigherLevelAndOtherReportHasHigherCoverage() {
         Node report = new ModuleNode("edu.hm.hafner.module1");
         Node pkg = new PackageNode("coverage");
@@ -526,13 +353,18 @@ class NodeTest {
         report.addChild(pkg);
         pkg.addChild(file);
         Node otherReport = report.copyTree();
-        otherReport.find(FILE, file.getName()).orElseThrow().addValue(
-                new CoverageBuilder().setMetric(LINE).setCovered(70).setMissed(30).build());
-        report.find(FILE, file.getName()).orElseThrow().addValue(
-                new CoverageBuilder().setMetric(LINE).setCovered(80).setMissed(20).build());
+
+        otherReport.getAllFileNodes().get(0)
+                .addCounters(1, 1, 0)
+                .addCounters(2, 1, 0)
+                .addCounters(3, 0, 1);
+        report.getAllFileNodes().get(0)
+                .addCounters(1, 1, 0)
+                .addCounters(2, 0, 1)
+                .addCounters(3, 1, 0);
 
         Node combined = report.merge(otherReport);
-        assertThat(getCoverage(combined, LINE)).hasMissed(20).hasCovered(80);
+        assertThat(getCoverage(combined, LINE)).hasMissed(0).hasCovered(3);
     }
 
     @Test
@@ -837,25 +669,6 @@ class NodeTest {
                 .hasName("Container")
                 .hasMetric(CONTAINER)
                 .hasOnlyChildren(parentA, parentB, parentC);
-    }
-
-    @Test
-    void shouldMergeNodesWithValues() {
-        var coverageBuilder = new CoverageBuilder();
-        Node parentA = new PackageNode("package");
-        parentA.addValue(coverageBuilder.setMetric(LINE).setCovered(0).setMissed(10).build());
-        Node parentB = new PackageNode("package");
-        parentB.addValue(coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build());
-        parentB.addValue(coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build());
-
-        Node merged = Node.merge(List.of(parentA, parentB));
-
-        assertThat(merged)
-                .hasName("package")
-                .hasOnlyValueMetrics(LINE);
-        assertThat((Coverage) merged.getValue(LINE).orElseThrow())
-                .hasCovered(10)
-                .hasMissed(0);
     }
 
     @Test

@@ -143,15 +143,19 @@ public class CoberturaParser extends CoverageParser {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
                     Coverage coverage;
+                    Coverage currentLineCoverage;
                     if (isBranchCoverage(nextElement)) {
                         coverage = readBranchCoverage(nextElement);
+                        currentLineCoverage = computeLineCoverage(coverage.getCovered());
+
                         branchCoverage = branchCoverage.add(coverage);
                     }
                     else {
                         int lineHits = getIntegerValueOf(nextElement, HITS);
-                        coverage = lineHits > 0 ? LINE_COVERED : LINE_MISSED;
-                        lineCoverage = lineCoverage.add(coverage);
+                        currentLineCoverage = computeLineCoverage(lineHits);
+                        coverage = currentLineCoverage;
                     }
+                    lineCoverage = lineCoverage.add(currentLineCoverage);
 
                     if (CLASS.equals(parentElement.getName())) { // Counters are stored at file level
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
@@ -175,6 +179,10 @@ public class CoberturaParser extends CoverageParser {
             }
         }
         throw createEofException();
+    }
+
+    private Coverage computeLineCoverage(final int coverage) {
+        return coverage > 0 ? LINE_COVERED : LINE_MISSED;
     }
 
     private Node createNode(final FileNode file, final StartElement parentElement) {

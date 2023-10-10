@@ -450,14 +450,34 @@ public final class Coverage extends Value {
          * Increments the number of covered items by 1.
          */
         public void incrementCovered() {
-            setCovered(covered + 1);
+            incrementCovered(1);
+        }
+
+        /**
+         * Increments the number of covered items by the specified amount.
+         *
+         * @param amount
+         *         the amount to increment
+         */
+        public void incrementCovered(final int amount) {
+            setCovered(covered + amount);
         }
 
         /**
          * Increments the number of missed items by 1.
          */
         public void incrementMissed() {
-            setMissed(missed + 1);
+            incrementMissed(1);
+        }
+
+        /**
+         * Increments the number of missed items by the specified amount.
+         *
+         * @param amount
+         *         the amount to increment
+         */
+        public void incrementMissed(final int amount) {
+            setMissed(missed + amount);
         }
     }
 }

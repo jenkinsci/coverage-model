@@ -16,10 +16,14 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
 import edu.hm.hafner.util.TreeString;
@@ -114,6 +118,84 @@ public final class FileNode extends Node {
             return true;
         }
         return getRelativePath().hashCode() == searchNameHashCode;
+    }
+
+    @Override
+    protected void mergeNode(final Node other) {
+        Ensure.that(other).isInstanceOf(FileNode.class);
+
+        removeValues();
+        removeChildren();
+
+        mergeCounters((FileNode) other);
+    }
+
+    private void mergeCounters(final FileNode otherFile) {
+        var lines = new TreeSet<Integer>();
+
+        lines.addAll(coveredPerLine.keySet());
+        lines.addAll(otherFile.coveredPerLine.keySet());
+
+        var lineCoverage = new CoverageBuilder().setMetric(Metric.LINE).setCovered(0).setMissed(0);
+        var branchCoverage = new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(0).setMissed(0);
+        for (int line : lines) {
+            int leftCovered = coveredPerLine.get(line);
+            int leftMissed = missedPerLine.get(line);
+            int leftTotal = leftCovered + leftMissed;
+            int rightCovered = otherFile.coveredPerLine.get(line);
+            int rightMissed = otherFile.missedPerLine.get(line);
+            int rightTotal = rightCovered + rightMissed;
+
+            if (leftTotal != rightTotal) {
+                throw new IllegalArgumentException(String.format("Cannot merge coverage information for line %d in %s",
+                        line, this));
+            }
+            if (leftTotal > 1) {
+                if (leftCovered > rightCovered) { // exact branch coverage cannot be computed
+                    coveredPerLine.put(line, leftCovered);
+                    missedPerLine.put(line, leftMissed);
+                }
+                else {
+                    coveredPerLine.put(line, rightCovered);
+                    missedPerLine.put(line, rightMissed);
+                }
+                updateLineCoverage(line, lineCoverage);
+                updateBranchCoverage(line, branchCoverage);
+            }
+            else {
+                coveredPerLine.put(line, Math.max(leftCovered, rightCovered));
+                missedPerLine.put(line, Math.min(leftMissed, rightMissed));
+
+                updateLineCoverage(line, lineCoverage);
+            }
+        }
+
+        var lineValue = lineCoverage.build();
+        if (lineValue.isSet()) {
+            addValue(lineValue);
+        }
+        var branchValue = branchCoverage.build();
+        if (branchValue.isSet()) {
+            addValue(branchValue);
+        }
+
+        otherFile.getValues().stream()
+                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
+                .forEach(this::addValue);
+    }
+
+    private void updateBranchCoverage(final int line, final CoverageBuilder branchCoverage) {
+        branchCoverage.incrementCovered(getCoveredOfLine(line));
+        branchCoverage.incrementMissed(getMissedOfLine(line));
+    }
+
+    private void updateLineCoverage(final int line, final CoverageBuilder lineCoverage) {
+        if (getCoveredOfLine(line) > 0) {
+            lineCoverage.incrementCovered();
+        }
+        else {
+            lineCoverage.incrementMissed();
+        }
     }
 
     public SortedSet<Integer> getModifiedLines() {
@@ -414,10 +496,15 @@ public final class FileNode extends Node {
      *         the number of covered items
      * @param missed
      *         the number of missed items
+     *
+     * @return this instance
      */
-    public void addCounters(final int lineNumber, final int covered, final int missed) {
+    @CanIgnoreReturnValue
+    public FileNode addCounters(final int lineNumber, final int covered, final int missed) {
         coveredPerLine.put(lineNumber, covered);
         missedPerLine.put(lineNumber, missed);
+
+        return this;
     }
 
     public int[] getCoveredCounters() {
@@ -619,6 +706,10 @@ public final class FileNode extends Node {
      */
     public String getRelativePath() {
         return StringUtils.defaultIfBlank(relativePath.toString(), getName());
+    }
+
+    public String getFileName() {
+        return FilenameUtils.getName(getRelativePath());
     }
 
     /**
