@@ -33,7 +33,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
  * @author Melissa Bauer
  * @author Ullrich Hafner
  */
-@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class CoberturaParser extends CoverageParser {
     private static final long serialVersionUID = -3625341318291829577L;
 
