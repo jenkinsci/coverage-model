@@ -26,9 +26,15 @@ abstract class AbstractParserTest {
     private final FilteredLog log = new FilteredLog("Errors");
 
     ModuleNode readReport(final String fileName) {
+        var parser = createParser();
+
+        return readReport(fileName, parser);
+    }
+
+    ModuleNode readReport(final String fileName, final CoverageParser parser) {
         try (InputStream stream = AbstractParserTest.class.getResourceAsStream(fileName);
                 Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
-            return createParser().parse(reader, log);
+            return parser.parse(reader, log);
         }
         catch (IOException e) {
             throw new AssertionError(e);

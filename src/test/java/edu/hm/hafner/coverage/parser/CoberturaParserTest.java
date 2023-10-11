@@ -8,6 +8,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.FractionValue;
@@ -32,6 +33,47 @@ class CoberturaParserTest extends AbstractParserTest {
     @Override
     CoberturaParser createParser() {
         return new CoberturaParser();
+    }
+
+    @Test
+    void shouldIgnoreMissingConditionAttribute() {
+        Node duplicateMethods = readReport("cobertura-missing-condition-coverage.xml");
+
+        verifySmallTree(duplicateMethods);
+        assertThat(getLog().hasErrors()).isFalse();
+
+        verifyBranchCoverageOfLine61(duplicateMethods);
+    }
+
+    private void verifyBranchCoverageOfLine61(final Node duplicateMethods) {
+        var file = duplicateMethods.getAllFileNodes().get(0);
+        assertThat(file.getCoveredOfLine(61)).isEqualTo(2);
+        assertThat(file.getMissedOfLine(61)).isEqualTo(0);
+    }
+
+    @Test
+    void shouldIgnoreDuplicateMethods() {
+        Node duplicateMethods = readReport("cobertura-duplicate-methods.xml",
+                new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
+
+        verifySmallTree(duplicateMethods);
+        assertThat(getLog().hasErrors()).isTrue();
+        assertThat(getLog().getErrorMessages())
+                .contains("Skipping duplicate method 'VisualOn.Data.DataSourceProvider' for class 'Enumerate()'");
+
+        verifyBranchCoverageOfLine61(duplicateMethods);
+
+        assertThatIllegalArgumentException().isThrownBy(
+                () -> readReport("cobertura-duplicate-methods.xml", new CoberturaParser()));
+    }
+
+    private void verifySmallTree(final Node duplicateMethods) {
+        assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(duplicateMethods.getAll(CLASS)).extracting(Node::getName)
+                .containsExactly("VisualOn.Data.DataSourceProvider");
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
+                .containsExactly("Enumerate()");
     }
 
     @Test

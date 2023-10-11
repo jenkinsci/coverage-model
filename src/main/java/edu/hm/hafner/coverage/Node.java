@@ -178,6 +178,17 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Returns whether this node has a child with the specified name.
+     *
+     * @param childName
+     *         the name of the child to look for
+     * @return {@code true} if this node has a child with the specified name, {@code false} otherwise
+     */
+    public boolean hasChild(final String childName) {
+        return children.stream().map(Node::getName).anyMatch(childName::equals);
+    }
+
+    /**
      * Adds alls given nodes as children to the current node.
      *
      * @param nodes
@@ -186,7 +197,6 @@ public abstract class Node implements Serializable {
     public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
     }
-
 
     /**
      * Returns the parent node.
@@ -769,4 +779,5 @@ public abstract class Node implements Serializable {
         copy.addAllChildren(prunedChildren);
         return Optional.of(copy);
     }
+
 }

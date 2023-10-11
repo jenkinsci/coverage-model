@@ -40,6 +40,7 @@ public class CoberturaParser extends CoverageParser {
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
     private static final PathUtil PATH_UTIL = new PathUtil();
 
+    private static final Coverage DEFAULT_BRANCH_COVERAGE = new CoverageBuilder(Metric.BRANCH).setCovered(2).setMissed(0).build();
     private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
     private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
 
@@ -62,6 +63,23 @@ public class CoberturaParser extends CoverageParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
+    /**
+     * Creates a new instance of {@link CoberturaParser}.
+     */
+    public CoberturaParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Creates a new instance of {@link CoberturaParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    public CoberturaParser(final ProcessingMode processingMode) {
+        super(processingMode);
+    }
+
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
@@ -80,7 +98,7 @@ public class CoberturaParser extends CoverageParser {
                         readSource(eventReader, root);
                     }
                     else if (PACKAGE.equals(tagName)) {
-                        readPackage(eventReader, root, startElement);
+                        readPackage(eventReader, root, startElement, log);
                         isEmpty = false;
                     }
                 }
@@ -96,7 +114,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
-            final StartElement currentStartElement) throws XMLStreamException {
+            final StartElement currentStartElement, final FilteredLog log) throws XMLStreamException {
         var packageNode = root.findOrCreatePackageNode(getValueOf(currentStartElement, NAME));
 
         while (reader.hasNext()) {
@@ -109,7 +127,7 @@ public class CoberturaParser extends CoverageParser {
                     var relativePath = PATH_UTIL.getRelativePath(fileName);
                     var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
                             getTreeStringBuilder().intern(relativePath));
-                    readClassOrMethod(reader, fileNode, nextElement);
+                    readClassOrMethod(reader, fileNode, nextElement, log);
                 }
             }
             else if (event.isEndElement()) {
@@ -128,7 +146,7 @@ public class CoberturaParser extends CoverageParser {
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private Node readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
-            final StartElement parentElement) throws XMLStreamException {
+            final StartElement parentElement, final FilteredLog log) throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
@@ -163,8 +181,13 @@ public class CoberturaParser extends CoverageParser {
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
-                    Node methodNode = readClassOrMethod(reader, fileNode, nextElement);
-                    node.addChild(methodNode);
+                    Node methodNode = readClassOrMethod(reader, fileNode, nextElement, log);
+                    if (node.hasChild(methodNode.getName()) && ignoreErrors()) {
+                        log.logError("Skipping duplicate method '%s' for class '%s'", node.getName(), methodNode.getName());
+                    }
+                    else {
+                        node.addChild(methodNode);
+                    }
                 }
             }
             else if (event.isEndElement()) {
@@ -230,11 +253,13 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private Coverage readBranchCoverage(final StartElement line) {
-        String conditionCoverageAttribute = getValueOf(line, CONDITION_COVERAGE);
+        return getOptionalValueOf(line, CONDITION_COVERAGE).map(this::fromConditionCoverage).orElse(DEFAULT_BRANCH_COVERAGE);
+    }
+
+    private Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
         var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
         if (matcher.matches()) {
-            var builder = new CoverageBuilder();
-            return builder.setMetric(Metric.BRANCH)
+            return new CoverageBuilder().setMetric(Metric.BRANCH)
                     .setCovered(matcher.group("covered"))
                     .setTotal(matcher.group("total"))
                     .build();

@@ -18,8 +18,46 @@ import edu.hm.hafner.util.TreeStringBuilder;
  * @author Ullrich Hafner
  */
 public abstract class CoverageParser implements Serializable {
+    /**
+     * Defines how to handle fatal errors during parsing.
+     */
+    public enum ProcessingMode {
+        /** All fatal errors will be ignored and logged. */
+        IGNORE_ERRORS,
+        /** An exception will be thrown if a fatal error is detected. */
+        FAIL_FAST
+    }
+
     private static final long serialVersionUID = 3941742254762282096L;
     private transient TreeStringBuilder treeStringBuilder = new TreeStringBuilder();
+
+    private final ProcessingMode processingMode; // since 0.26.0
+
+    /**
+     * Creates a new instance of {@link CoverageParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    protected CoverageParser(final ProcessingMode processingMode) {
+        this.processingMode = processingMode;
+    }
+
+    /**
+     * Creates a new instance of {@link CoverageParser} that will fail on all errors.
+     */
+    protected CoverageParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Returns whether to ignore errors or to fail fast.
+     *
+     * @return true if errors should be ignored, false if an exception should be thrown on errors
+     */
+    protected boolean ignoreErrors() {
+        return processingMode == ProcessingMode.IGNORE_ERRORS;
+    }
 
     /**
      * Parses a report provided by the given reader.
