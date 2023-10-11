@@ -7,6 +7,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.FractionValue;
@@ -46,7 +47,8 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldIgnoreDuplicateMethods() {
-        Node duplicateMethods = readReport("cobertura-duplicate-methods.xml", new CoberturaParser(true));
+        Node duplicateMethods = readReport("cobertura-duplicate-methods.xml",
+                new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
 
         verifySmallTree(duplicateMethods);
         assertThat(getLog().hasErrors()).isTrue();

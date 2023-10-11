@@ -63,25 +63,21 @@ public class CoberturaParser extends CoverageParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-    private final boolean ignoreErrors; // since 0.26.0
-
     /**
      * Creates a new instance of {@link CoberturaParser}.
      */
     public CoberturaParser() {
-        this(false);
+        this(ProcessingMode.FAIL_FAST);
     }
 
     /**
      * Creates a new instance of {@link CoberturaParser}.
      *
-     * @param ignoreErrors
+     * @param processingMode
      *         determines whether to ignore errors
      */
-    public CoberturaParser(final boolean ignoreErrors) {
-        super();
-
-        this.ignoreErrors = ignoreErrors;
+    public CoberturaParser(final ProcessingMode processingMode) {
+        super(processingMode);
     }
 
     @Override
@@ -182,7 +178,7 @@ public class CoberturaParser extends CoverageParser {
                 }
                 else if (METHOD.equals(nextElement.getName())) {
                     Node methodNode = readClassOrMethod(reader, fileNode, nextElement, log);
-                    if (node.hasChild(methodNode.getName()) && ignoreErrors) {
+                    if (node.hasChild(methodNode.getName()) && ignoreErrors()) {
                         log.logError("Skipping duplicate method '%s' for class '%s'", node.getName(), methodNode.getName());
                     }
                     else {
