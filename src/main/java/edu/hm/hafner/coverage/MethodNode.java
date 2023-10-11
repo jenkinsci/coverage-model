@@ -11,7 +11,7 @@ public final class MethodNode extends Node {
     private static final long serialVersionUID = -5765205034179396434L;
 
     private final String signature;
-    private String methodName;
+    private /* almost final */ String methodName; // @since 0.25.0
     /** The line number where the code of method begins (not including the method head). */
     private final int lineNumber;
 
@@ -52,7 +52,6 @@ public final class MethodNode extends Node {
         }
 
         return this;
-
     }
 
     @Override

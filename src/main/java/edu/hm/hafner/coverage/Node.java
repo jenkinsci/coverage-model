@@ -286,11 +286,6 @@ public abstract class Node implements Serializable {
                 .collect(Collectors.toMap(Value::getMetric, Function.identity())));
     }
 
-    private Value getValueOf(final Metric searchMetric) {
-        return getValue(searchMetric).orElseThrow(() ->
-                new NoSuchElementException(String.format("Node %s has no metric %s", this, searchMetric)));
-    }
-
     /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of.
@@ -644,9 +639,11 @@ public abstract class Node implements Serializable {
         }
     }
 
-    private void mergeNode(final Node other) {
+    protected void mergeNode(final Node other) {
         ensureSameMetric(other);
-        other.values.forEach(this::mergeValues);
+
+        removeValues(); // clear all values
+
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
                     .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
@@ -659,19 +656,12 @@ public abstract class Node implements Serializable {
         });
     }
 
-    private void mergeValues(final Value otherValue) {
-        if (getMetricsOfValues().anyMatch(v -> v.equals(otherValue.getMetric()))) {
-            var old = getValueOf(otherValue.getMetric());
-            try {
-                var max = old.max(otherValue);
+    void removeValues() {
+        values.clear();
+    }
 
-                replaceValue(max);
-            }
-            catch (AssertionError exception) {
-                throw new IllegalStateException(String.format("Cannot merge coverage of %s because of: %s",
-                        this, exception.getMessage()), exception);
-            }
-        }
+    void removeChildren() {
+        children.clear();
     }
 
     @Override

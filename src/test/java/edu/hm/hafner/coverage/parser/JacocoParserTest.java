@@ -54,11 +54,27 @@ class JacocoParserTest extends AbstractParserTest {
         var c = getFileNode(readReport("jacoco-merge-c.xml"));
         assertThat(c).hasMissedLines(41, 42, 43, 46, 47).hasCoveredLines(36, 37, 38, 39, 49);
         verifyLineCoverage(c, 5);
+
+        var ab = (FileNode)a.merge(b);
+        assertThat(ab)
+                .hasMissedLines(38, 39)
+                .doesNotHaveMissedLines(36, 37, 41, 42, 43, 46, 47, 49)
+                .hasCoveredLines(36, 37, 41, 42, 43, 46, 47, 49)
+                .hasValues(
+                        createFileCoverageForFile(2),
+                        createBranchCoverage(2, 12));
+
+        var abc = (FileNode)ab.merge(c);
+        assertThat(abc)
+                .doesNotHaveMissedLines(36, 37, 38, 39, 41, 42, 43, 46, 47, 49)
+                .hasCoveredLines(36, 37, 38, 39, 41, 42, 43, 46, 47, 49)
+                .hasValues(
+                        createFileCoverageForFile(0),
+                        createBranchCoverage(2, 12),
+                        new CyclomaticComplexity(14));
     }
 
     private void verifyLineCoverage(final FileNode a, final int missed) {
-        var lineCoverage = new CoverageBuilder().setMetric(LINE).setCovered(10 - missed).setMissed(missed).build();
-
         var children = a.getAll(METHOD).stream()
                 .filter(m -> "<init>(II)V".equals(m.getName()))
                 .collect(Collectors.toList());
@@ -69,7 +85,26 @@ class JacocoParserTest extends AbstractParserTest {
                         m -> assertThat(m)
                                 .hasName("<init>(II)V")
                                 .hasSignature("(II)V")
-                                .hasValues(lineCoverage));
+                                .hasValues(
+                                        createLineCoverage(10 - missed, missed),
+                                        createBranchCoverage(2 + 4 - missed, 2 - (4 - missed)),
+                                        new CyclomaticComplexity(3)));
+
+        assertThat(a).hasValues(createFileCoverageForFile(missed),
+                createBranchCoverage(2 + 4 - missed, 2 - (4 - missed) + 10),
+                new CyclomaticComplexity(14));
+    }
+
+    private Coverage createFileCoverageForFile(final int missed) {
+        return createLineCoverage(12 - missed, missed + 14);
+    }
+
+    private Coverage createLineCoverage(final int covered, final int missed) {
+        return new CoverageBuilder().setMetric(LINE).setCovered(covered).setMissed(missed).build();
+    }
+
+    private Coverage createBranchCoverage(final int covered, final int missed) {
+        return new CoverageBuilder().setMetric(BRANCH).setCovered(covered).setMissed(missed).build();
     }
 
     private FileNode getFileNode(final ModuleNode a) {
