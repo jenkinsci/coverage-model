@@ -29,6 +29,42 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldIgnoreMissingConditionAttribute() {
+        Node duplicateMethods = readReport("cobertura-missing-condition-coverage.xml");
+
+        assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(duplicateMethods.getAll(CLASS)).extracting(Node::getName)
+                .containsExactly("VisualOn.Data.DataSourceProvider");
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
+                .containsExactly("Enumerate()");
+        assertThat(getLog().hasErrors()).isFalse();
+
+        var file = duplicateMethods.getAllFileNodes().get(0);
+        assertThat(file.getCoveredOfLine(61)).isEqualTo(2);
+        assertThat(file.getMissedOfLine(61)).isEqualTo(0);
+    }
+
+    @Test
+    void shouldIgnoreDuplicateMethods() {
+        Node duplicateMethods = readReport("cobertura-duplicate-methods.xml", new CoberturaParser(true));
+
+        assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(duplicateMethods.getAll(CLASS)).extracting(Node::getName)
+                .containsExactly("VisualOn.Data.DataSourceProvider");
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
+                .containsExactly("Enumerate()");
+        assertThat(getLog().hasErrors()).isTrue();
+        assertThat(getLog().getErrorMessages())
+                .contains("Skipping duplicate method 'VisualOn.Data.DataSourceProvider' for class 'Enumerate()'");
+
+        var file = duplicateMethods.getAllFileNodes().get(0);
+        assertThat(file.getCoveredOfLine(61)).isEqualTo(2);
+        assertThat(file.getMissedOfLine(61)).isEqualTo(0);
+    }
+
+    @Test
     void shouldMergeCorrectly729() {
         var builder = new CoverageBuilder();
 
