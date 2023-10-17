@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
@@ -76,8 +77,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 .containsExactly("Enumerate()");
     }
 
-    @Test
-    void shouldMergeCorrectly729() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#729")
+    void shouldMergeCorrectly() {
         var builder = new CoverageBuilder();
 
         Node a = readReport("cobertura-merge-a.xml");
@@ -135,16 +136,16 @@ class CoberturaParserTest extends AbstractParserTest {
                                         35, 36, 37, 38, 40, 41, 42, 45, 54, 60, 66, 71, 72));
     }
 
-    @Test
-    void shouldCountCorrectly625() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#625")
+    void shouldCountCorrectly() {
         Node tree = readReport("cobertura-counter-aggregation.xml");
 
         var expectedValue = new CoverageBuilder().setCovered(31).setMissed(1).setMetric(BRANCH).build();
         assertThat(tree.getValue(BRANCH)).isPresent().contains(expectedValue);
     }
 
-    @Test
-    void shouldReadCoberturaIssue610() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#610")
+    void shouldReadCoberturaWithMissingSources() {
         Node tree = readReport("coverage-missing-sources.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
@@ -154,8 +155,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 "src/args.ts", "src/badge-result.ts", "src/colors.ts", "src/index.ts");
     }
 
-    @Test
-    void shouldReadCoberturaIssue599() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#599")
+    void shouldReadCoberturaAggregation() {
         Node tree = readReport("cobertura-ts.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
@@ -227,8 +228,8 @@ class CoberturaParserTest extends AbstractParserTest {
 
     }
 
-    @Test
-    void shouldReadCoberturaIssue473() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#473")
+    void shouldReadCoberturaNpe() {
         Node tree = readReport("cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
@@ -256,8 +257,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 new LinesOfCode(44 + 9));
     }
 
-    @Test
-    void shouldReadCoberturaIssue551() {
+    @Test @Issue("jenkinsci/code-coverage-api-plugin#551")
+    void shouldReadCoberturaAbsolutePath() {
         Node tree = readReport("cobertura-absolute-path.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
