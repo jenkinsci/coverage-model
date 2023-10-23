@@ -6,22 +6,21 @@ skinparam rectangle {
   BackgroundColor<<runtime>> lightBlue
   BackgroundColor<<provided>> lightGray
 }
+rectangle "coverage-model\n\n0.28.0" as edu_hm_hafner_coverage_model_jar
 rectangle "spotbugs-annotations\n\n4.7.3" as com_github_spotbugs_spotbugs_annotations_jar
-rectangle "jsr305\n\n3.0.2" as com_google_code_findbugs_jsr305_jar
-rectangle "coverage-model\n\n0.28.0-SNAPSHOT" as edu_hm_hafner_coverage_model_jar
-rectangle "error_prone_annotations\n\n2.22.0" as com_google_errorprone_error_prone_annotations_jar
+rectangle "error_prone_annotations\n\n2.23.0" as com_google_errorprone_error_prone_annotations_jar
 rectangle "streamex\n\n0.8.2" as one_util_streamex_jar
-rectangle "codingstyle\n\n3.24.0" as edu_hm_hafner_codingstyle_jar
+rectangle "codingstyle\n\n3.25.0" as edu_hm_hafner_codingstyle_jar
 rectangle "commons-lang3\n\n3.13.0" as org_apache_commons_commons_lang3_jar
 rectangle "commons-io\n\n2.11.0" as commons_io_commons_io_jar
-com_github_spotbugs_spotbugs_annotations_jar -[#000000]-> com_google_code_findbugs_jsr305_jar
 edu_hm_hafner_coverage_model_jar -[#000000]-> com_github_spotbugs_spotbugs_annotations_jar
 edu_hm_hafner_coverage_model_jar -[#000000]-> com_google_errorprone_error_prone_annotations_jar
 edu_hm_hafner_coverage_model_jar -[#000000]-> one_util_streamex_jar
 edu_hm_hafner_codingstyle_jar .[#D3D3D3].> com_github_spotbugs_spotbugs_annotations_jar
 edu_hm_hafner_codingstyle_jar .[#D3D3D3].> com_google_errorprone_error_prone_annotations_jar
 edu_hm_hafner_codingstyle_jar .[#D3D3D3].> org_apache_commons_commons_lang3_jar
-edu_hm_hafner_codingstyle_jar -[#000000]-> commons_io_commons_io_jar
+edu_hm_hafner_codingstyle_jar .[#D3D3D3].> commons_io_commons_io_jar
 edu_hm_hafner_coverage_model_jar -[#000000]-> edu_hm_hafner_codingstyle_jar
 edu_hm_hafner_coverage_model_jar -[#000000]-> org_apache_commons_commons_lang3_jar
+edu_hm_hafner_coverage_model_jar -[#000000]-> commons_io_commons_io_jar
 @enduml
