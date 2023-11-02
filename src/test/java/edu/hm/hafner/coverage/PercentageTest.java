@@ -20,6 +20,7 @@ class PercentageTest {
         Fraction fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
         Percentage percentage = Percentage.valueOf(fraction);
         assertThat(percentage.toDouble()).isEqualTo(100);
+        assertThat(percentage.toInt()).isEqualTo(100);
     }
 
     @Test

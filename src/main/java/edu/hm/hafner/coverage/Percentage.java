@@ -118,6 +118,15 @@ public final class Percentage implements Serializable {
     }
 
     /**
+     * Returns this percentage as an int value in the interval [0, 100].
+     *
+     * @return the coverage percentage
+     */
+    public int toInt() {
+        return Math.round(items * 100.0f / total);
+    }
+
+    /**
      * Formats a percentage to plain text and rounds the value to two decimals.
      *
      * @param locale
