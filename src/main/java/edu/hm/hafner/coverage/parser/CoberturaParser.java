@@ -217,7 +217,7 @@ public class CoberturaParser extends CoverageParser {
         }
         var signature = getValueOf(element, SIGNATURE);
         var classNode = (ClassNode) parentNode;
-        if (classNode.hasMethod(name, signature) && ignoreErrors()) {
+        if (classNode.findMethod(name, signature).isPresent() && ignoreErrors()) {
             log.logError("Found a duplicate method '%s' with signature '%s' in '%s'", name, signature, parentNode.getName());
             name = name + "-" + createId();
         }
