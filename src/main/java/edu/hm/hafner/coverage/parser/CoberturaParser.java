@@ -13,12 +13,12 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -127,7 +127,7 @@ public class CoberturaParser extends CoverageParser {
                     var relativePath = PATH_UTIL.getRelativePath(fileName);
                     var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
                             getTreeStringBuilder().intern(relativePath));
-                    readClassOrMethod(reader, fileNode, nextElement, log);
+                    readClassOrMethod(reader, fileNode, fileNode, nextElement, log);
                 }
             }
             else if (event.isEndElement()) {
@@ -145,13 +145,14 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    private Node readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
-            final StartElement parentElement, final FilteredLog log) throws XMLStreamException {
+    private void readClassOrMethod(final XMLEventReader reader,
+            final FileNode fileNode, final Node parentNode,
+            final StartElement element, final FilteredLog log) throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
-        Node node = createNode(fileNode, parentElement);
-        getOptionalValueOf(parentElement, COMPLEXITY)
+        Node node = createNode(parentNode, element, log);
+        getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
         while (reader.hasNext()) {
@@ -175,19 +176,13 @@ public class CoberturaParser extends CoverageParser {
                     }
                     lineCoverage = lineCoverage.add(currentLineCoverage);
 
-                    if (CLASS.equals(parentElement.getName())) { // Counters are stored at file level
+                    if (CLASS.equals(element.getName())) { // Counters are stored at file level
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                         fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
-                    Node methodNode = readClassOrMethod(reader, fileNode, nextElement, log);
-                    if (node.hasChild(methodNode.getName()) && ignoreErrors()) {
-                        log.logError("Skipping duplicate method '%s' for class '%s'", node.getName(), methodNode.getName());
-                    }
-                    else {
-                        node.addChild(methodNode);
-                    }
+                    readClassOrMethod(reader, fileNode, node, nextElement, log); // recursive call
                 }
             }
             else if (event.isEndElement()) {
@@ -197,7 +192,7 @@ public class CoberturaParser extends CoverageParser {
                     if (branchCoverage.isSet()) {
                         node.addValue(branchCoverage);
                     }
-                    return node;
+                    return;
                 }
             }
         }
@@ -208,17 +203,29 @@ public class CoberturaParser extends CoverageParser {
         return coverage > 0 ? LINE_COVERED : LINE_MISSED;
     }
 
-    private Node createNode(final FileNode file, final StartElement parentElement) {
-        var name = getValueOf(parentElement, NAME);
+    private Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
+        var name = getValueOf(element, NAME);
         if (StringUtils.isBlank(name)) { // each node must have a unique name
-            name = UUID.randomUUID().toString();
+            name = createId();
         }
-        if (CLASS.equals(parentElement.getName())) {
-            return file.createClassNode(name); // connect the class with the file
+        if (CLASS.equals(element.getName())) {
+            if (parentNode.hasChild(name) && ignoreErrors()) {
+                log.logError("Found a duplicate class '%s' in '%s'", name, parentNode.getName());
+                name = name + "-" + createId();
+            }
+            return ((FileNode)parentNode).createClassNode(name);
         }
-        else {
-            return new MethodNode(name, getValueOf(parentElement, SIGNATURE));
+        var signature = getValueOf(element, SIGNATURE);
+        var classNode = (ClassNode) parentNode;
+        if (classNode.hasMethod(name, signature) && ignoreErrors()) {
+            log.logError("Found a duplicate method '%s' with signature '%s' in '%s'", name, signature, parentNode.getName());
+            name = name + "-" + createId();
         }
+        return classNode.createMethodNode(name, signature);
+    }
+
+    private String createId() {
+        return UUID.randomUUID().toString();
     }
 
     private int readComplexity(final String c) {

@@ -38,12 +38,18 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldIgnoreMissingConditionAttribute() {
-        Node duplicateMethods = readReport("cobertura-missing-condition-coverage.xml");
+        Node missingCondition = readReport("cobertura-missing-condition-coverage.xml");
 
-        verifySmallTree(duplicateMethods);
+        assertThat(missingCondition.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(missingCondition.getAll(CLASS)).extracting(Node::getName)
+                .containsExactly("VisualOn.Data.DataSourceProvider");
+        assertThat(missingCondition.getAll(METHOD)).extracting(Node::getName)
+                .containsExactly("Enumerate()");
+
         assertThat(getLog().hasErrors()).isFalse();
 
-        verifyBranchCoverageOfLine61(duplicateMethods);
+        verifyBranchCoverageOfLine61(missingCondition);
     }
 
     private void verifyBranchCoverageOfLine61(final Node duplicateMethods) {
@@ -53,28 +59,47 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldIgnoreDuplicateClasses() {
+        Node duplicateClasses = readReport("cobertura-duplicate-classes.xml",
+                new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
+
+        assertThat(duplicateClasses.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(duplicateClasses.getAll(CLASS)).extracting(Node::getName).hasSize(2)
+                .contains("VisualOn.Data.DataSourceProvider")
+                .element(1).asString().startsWith("VisualOn.Data.DataSourceProvider-");
+
+        assertThat(getLog().hasErrors()).isTrue();
+        assertThat(getLog().getErrorMessages())
+                .contains("Found a duplicate class 'VisualOn.Data.DataSourceProvider' in 'DataSourceProvider.cs'");
+
+        verifyBranchCoverageOfLine61(duplicateClasses);
+
+        assertThatIllegalArgumentException().isThrownBy(
+                () -> readReport("cobertura-duplicate-classes.xml", new CoberturaParser()));
+    }
+
+    @Test
     void shouldIgnoreDuplicateMethods() {
         Node duplicateMethods = readReport("cobertura-duplicate-methods.xml",
                 new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
 
-        verifySmallTree(duplicateMethods);
+        assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
+                .containsExactly("DataSourceProvider.cs");
+        assertThat(duplicateMethods.getAll(CLASS)).extracting(Node::getName)
+                .containsExactly("VisualOn.Data.DataSourceProvider");
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName).hasSize(2)
+                .contains("Enumerate()")
+                .element(1).asString().startsWith("Enumerate-");
+
         assertThat(getLog().hasErrors()).isTrue();
         assertThat(getLog().getErrorMessages())
-                .contains("Skipping duplicate method 'VisualOn.Data.DataSourceProvider' for class 'Enumerate()'");
+                .contains("Found a duplicate method 'Enumerate' with signature '()' in 'VisualOn.Data.DataSourceProvider'");
 
         verifyBranchCoverageOfLine61(duplicateMethods);
 
         assertThatIllegalArgumentException().isThrownBy(
                 () -> readReport("cobertura-duplicate-methods.xml", new CoberturaParser()));
-    }
-
-    private void verifySmallTree(final Node duplicateMethods) {
-        assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
-                .containsExactly("DataSourceProvider.cs");
-        assertThat(duplicateMethods.getAll(CLASS)).extracting(Node::getName)
-                .containsExactly("VisualOn.Data.DataSourceProvider");
-        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
-                .containsExactly("Enumerate()");
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#729")

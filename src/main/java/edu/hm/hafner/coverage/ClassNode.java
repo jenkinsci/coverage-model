@@ -36,4 +36,19 @@ public final class ClassNode extends Node {
         addChild(fileNode);
         return fileNode;
     }
+
+    /**
+     * Returns whether this node contains a method with the specified name and signature.
+     *
+     * @param methodName
+     *         the name of the method
+     * @param signature
+     *         the signature of the method
+     *
+     * @return {@code true} if this node has a child with the specified name and signature, {@code false} otherwise
+     */
+    public boolean hasMethod(final String methodName, final String signature) {
+        return getAllMethodNodes().stream()
+                .anyMatch(m -> m.getMethodName().equals(methodName) && m.getSignature().equals(signature));
+    }
 }
