@@ -25,8 +25,6 @@ import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static java.util.stream.Collectors.*;
-
 /**
  * A hierarchical decomposition of coverage results.
  *
@@ -581,11 +579,6 @@ public abstract class Node implements Serializable {
      */
     public abstract Node copy();
 
-    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
-        return nodes.stream().map(Node::getName).distinct().count() == 1
-                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
-    }
-
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
      * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
@@ -604,7 +597,7 @@ public abstract class Node implements Serializable {
         }
 
         Map<ImmutablePair<String, Metric>, ? extends List<? extends Node>> grouped = nodes.stream()
-                .collect(groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
+                .collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
 
         if (grouped.size() == 1) {
             return nodes.stream()
