@@ -9,6 +9,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
@@ -657,7 +658,7 @@ class NodeTest {
                 .hasOnlyChildren(parentA, parentB, parentC);
     }
 
-    @Test
+    @Test @Issue("JENKINS-72310")
     void shouldMergeWithDuplicateAndDifferentNames() {
         Node parentA = new PackageNode("packageA");
         Node childA = new FileNode("fileA", ".");
