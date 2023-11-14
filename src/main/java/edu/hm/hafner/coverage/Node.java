@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.math.Fraction;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
@@ -577,11 +579,6 @@ public abstract class Node implements Serializable {
      */
     public abstract Node copy();
 
-    private static boolean haveSameNameAndMetric(final List<? extends Node> nodes) {
-        return nodes.stream().map(Node::getName).distinct().count() == 1
-                && nodes.stream().map(Node::getMetric).distinct().count() == 1;
-    }
-
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
      * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
@@ -599,21 +596,26 @@ public abstract class Node implements Serializable {
             return nodes.get(0); // No merge required
         }
 
-        if (haveSameNameAndMetric(nodes)) {
+        Map<ImmutablePair<String, Metric>, ? extends List<? extends Node>> grouped = nodes.stream()
+                .collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
+
+        if (grouped.size() == 1) {
             return nodes.stream()
                     .map(t -> (Node) t)
                     .reduce(Node::merge)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
-        var container = new ContainerNode("Container");
-        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
+        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
+        for (List<? extends Node> matching : grouped.values()) {
+            container.addChild(merge(matching));
+        }
         return container;
     }
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at
-     * this and the specified {@link Node}. In order to merge these two trees, this node and the specified {@code other}
+     * this and the specified {@link Node}. To merge these two trees, this node and the specified {@code other}
      * root node have to use the same {@link Metric} and name.
      *
      * @param other

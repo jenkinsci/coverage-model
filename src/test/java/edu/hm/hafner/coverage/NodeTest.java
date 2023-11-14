@@ -658,6 +658,31 @@ class NodeTest {
     }
 
     @Test
+    void shouldMergeWithDuplicateAndDifferentNames() {
+        Node parentA = new PackageNode("packageA");
+        Node childA = new FileNode("fileA", ".");
+        parentA.addChild(childA);
+        Node parentB = new PackageNode("packageA");
+        Node childB = new FileNode("fileB", ".");
+        parentB.addChild(childB);
+        Node parentC = new PackageNode("packageC");
+        Node childC = new FileNode("fileC", ".");
+        parentC.addChild(childC);
+        Node parentD = new PackageNode("packageC");
+        Node childD = new FileNode("fileD", ".");
+        parentD.addChild(childD);
+
+        Node merged = Node.merge(List.of(parentA, parentB, parentC, parentD));
+
+        assertThat(merged)
+                .hasName("Container")
+                .hasMetric(CONTAINER);
+
+        assertThat(merged.getChildren()).hasSize(2);
+
+    }
+
+    @Test
     void shouldMergeMultipleNodesWithDifferentMetricInList() {
         Node parentA = new ModuleNode("M");
         Node parentB = new PackageNode("P");
