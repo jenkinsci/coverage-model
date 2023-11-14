@@ -622,7 +622,7 @@ public abstract class Node implements Serializable {
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at
-     * this and the specified {@link Node}. In order to merge these two trees, this node and the specified {@code other}
+     * this and the specified {@link Node}. To merge these two trees, this node and the specified {@code other}
      * root node have to use the same {@link Metric} and name.
      *
      * @param other
