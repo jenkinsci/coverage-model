@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -18,10 +19,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.math.Fraction;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import edu.hm.hafner.util.Ensure;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * A hierarchical decomposition of coverage results.
@@ -599,15 +603,20 @@ public abstract class Node implements Serializable {
             return nodes.get(0); // No merge required
         }
 
-        if (haveSameNameAndMetric(nodes)) {
+        Map<ImmutablePair<String, Metric>, ? extends List<? extends Node>> grouped = nodes.stream()
+                .collect(groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
+
+        if (grouped.size() == 1) {
             return nodes.stream()
                     .map(t -> (Node) t)
                     .reduce(Node::merge)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
-        var container = new ContainerNode("Container");
-        container.addAllChildren(nodes); // non-compatible nodes will be added to a new container node
+        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
+        for (List<? extends Node> matching : grouped.values()) {
+            container.addChild(merge(matching));
+        }
         return container;
     }
 
