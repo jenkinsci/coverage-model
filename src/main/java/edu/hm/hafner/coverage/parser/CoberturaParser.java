@@ -86,36 +86,45 @@ public class CoberturaParser extends CoverageParser {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
-            var root = new ModuleNode("-");
-            boolean isEmpty = true;
-
-            while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
-
-                if (event.isStartElement()) {
-                    var startElement = event.asStartElement();
-                    var tagName = startElement.getName();
-                    if (SOURCE.equals(tagName)) {
-                        readSource(eventReader, root);
-                    }
-                    else if (PACKAGE.equals(tagName)) {
-                        readPackage(eventReader, root, readName(startElement), log);
-                        isEmpty = false;
-                    }
-                }
-            }
-            if (isEmpty) {
-                if (ignoreErrors()) {
-                    log.logError("No coverage information found in the specified file.");
-                }
-                else {
-                    throw new NoSuchElementException("No coverage information found in the specified file.");
-                }
-            }
+            var root = new ModuleNode("-"); // Cobertura has no support for module names
+            handleEmptyResult(log, readModule(log, eventReader, root));
             return root;
         }
         catch (XMLStreamException exception) {
             throw new ParsingException(exception);
+        }
+    }
+
+    private boolean readModule(final FilteredLog log, final XMLEventReader eventReader, final ModuleNode root)
+            throws XMLStreamException {
+        boolean isEmpty = true;
+
+        while (eventReader.hasNext()) {
+            XMLEvent event = eventReader.nextEvent();
+
+            if (event.isStartElement()) {
+                var startElement = event.asStartElement();
+                var tagName = startElement.getName();
+                if (SOURCE.equals(tagName)) {
+                    readSource(eventReader, root);
+                }
+                else if (PACKAGE.equals(tagName)) {
+                    readPackage(eventReader, root, readName(startElement), log);
+                    isEmpty = false;
+                }
+            }
+        }
+        return isEmpty;
+    }
+
+    private void handleEmptyResult(final FilteredLog log, final boolean isEmpty) {
+        if (isEmpty) {
+            if (ignoreErrors()) {
+                log.logError("No coverage information found in the specified file.");
+            }
+            else {
+                throw new NoSuchElementException("No coverage information found in the specified file.");
+            }
         }
     }
 
