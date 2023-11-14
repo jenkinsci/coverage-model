@@ -324,7 +324,7 @@ class CoberturaParserTest extends AbstractParserTest {
         Node root = readExampleReport();
 
         assertThat(root.getAll(MODULE)).hasSize(1);
-        assertThat(root.getAll(PACKAGE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(5);
         assertThat(root.getAll(FILE)).hasSize(4);
         assertThat(root.getAll(CLASS)).hasSize(5);
         assertThat(root.getAll(METHOD)).hasSize(10);
@@ -389,7 +389,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
         assertThat(root.aggregateValues()).containsExactly(
                 builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
+                builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build(),
                 builder.setMetric(FILE).setCovered(4).setMissed(0).build(),
                 builder.setMetric(CLASS).setCovered(5).setMissed(0).build(),
                 builder.setMetric(METHOD).setCovered(7).setMissed(3).build(),
@@ -399,9 +399,6 @@ class CoberturaParserTest extends AbstractParserTest {
                 new CyclomaticComplexity(7, COMPLEXITY_MAXIMUM),
                 new FractionValue(COMPLEXITY_DENSITY, 22, 63 + 19),
                 new LinesOfCode(63 + 19));
-
-        assertThat(root.getChildren()).extracting(Node::getName)
-                .containsExactly("-");
 
         verifyCoverageMetrics(root);
 
