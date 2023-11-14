@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage.registry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
@@ -31,7 +33,7 @@ public class ParserRegistry {
      */
     public CoverageParser getParser(final String parserName, final ProcessingMode processingMode) {
         try {
-            return getParser(CoverageParserType.valueOf(parserName), processingMode);
+            return getParser(CoverageParserType.valueOf(StringUtils.upperCase(parserName)), processingMode);
         }
         catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Unknown parser name: " + parserName, exception);

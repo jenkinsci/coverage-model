@@ -19,6 +19,7 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -85,27 +86,8 @@ public class CoberturaParser extends CoverageParser {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
-            var root = new ModuleNode("-");
-            boolean isEmpty = true;
-
-            while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
-
-                if (event.isStartElement()) {
-                    var startElement = event.asStartElement();
-                    var tagName = startElement.getName();
-                    if (SOURCE.equals(tagName)) {
-                        readSource(eventReader, root);
-                    }
-                    else if (PACKAGE.equals(tagName)) {
-                        readPackage(eventReader, root, startElement, log);
-                        isEmpty = false;
-                    }
-                }
-            }
-            if (isEmpty) {
-                throw new NoSuchElementException("No coverage information found in the specified file.");
-            }
+            var root = new ModuleNode("-"); // Cobertura has no support for module names
+            handleEmptyResult(log, readModule(log, eventReader, root));
             return root;
         }
         catch (XMLStreamException exception) {
@@ -113,21 +95,54 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
+    private boolean readModule(final FilteredLog log, final XMLEventReader eventReader, final ModuleNode root)
+            throws XMLStreamException {
+        boolean isEmpty = true;
+
+        while (eventReader.hasNext()) {
+            XMLEvent event = eventReader.nextEvent();
+
+            if (event.isStartElement()) {
+                var startElement = event.asStartElement();
+                var tagName = startElement.getName();
+                if (SOURCE.equals(tagName)) {
+                    readSource(eventReader, root);
+                }
+                else if (PACKAGE.equals(tagName)) {
+                    readPackage(eventReader, root, readName(startElement), log);
+                    isEmpty = false;
+                }
+            }
+        }
+        return isEmpty;
+    }
+
+    private void handleEmptyResult(final FilteredLog log, final boolean isEmpty) {
+        if (isEmpty) {
+            if (ignoreErrors()) {
+                log.logError("No coverage information found in the specified file.");
+            }
+            else {
+                throw new NoSuchElementException("No coverage information found in the specified file.");
+            }
+        }
+    }
+
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
-            final StartElement currentStartElement, final FilteredLog log) throws XMLStreamException {
-        var packageNode = root.findOrCreatePackageNode(getValueOf(currentStartElement, NAME));
+            final String packageName, final FilteredLog log) throws XMLStreamException {
+        var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                var nextElement = event.asStartElement();
-                if (CLASS.equals(nextElement.getName())) {
-                    var fileName = getValueOf(nextElement, FILE_NAME);
+                var element = event.asStartElement();
+                if (CLASS.equals(element.getName())) {
+                    var fileName = getValueOf(element, FILE_NAME);
                     var relativePath = PATH_UTIL.getRelativePath(fileName);
                     var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
                             getTreeStringBuilder().intern(relativePath));
-                    readClassOrMethod(reader, fileNode, fileNode, nextElement, log);
+                    readClassOrMethod(reader, fileNode, fileNode, element, log);
                 }
             }
             else if (event.isEndElement()) {
@@ -176,7 +191,7 @@ public class CoberturaParser extends CoverageParser {
                     }
                     lineCoverage = lineCoverage.add(currentLineCoverage);
 
-                    if (CLASS.equals(element.getName())) { // Counters are stored at file level
+                    if (CLASS.equals(element.getName())) { // Counters are stored at file level only
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                         fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
                     }
@@ -204,24 +219,37 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
-        var name = getValueOf(element, NAME);
-        if (StringUtils.isBlank(name)) { // each node must have a unique name
-            name = createId();
-        }
+        var name = readName(element);
         if (CLASS.equals(element.getName())) {
-            if (parentNode.hasChild(name) && ignoreErrors()) {
-                log.logError("Found a duplicate class '%s' in '%s'", name, parentNode.getName());
-                name = name + "-" + createId();
-            }
-            return ((FileNode)parentNode).createClassNode(name);
+            return createClassNode(parentNode, log, name);
         }
+        return createMethodNode(parentNode, element, log, name);
+    }
+
+    private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
+            final String name) {
+        String className = name;
         var signature = getValueOf(element, SIGNATURE);
         var classNode = (ClassNode) parentNode;
-        if (classNode.findMethod(name, signature).isPresent() && ignoreErrors()) {
-            log.logError("Found a duplicate method '%s' with signature '%s' in '%s'", name, signature, parentNode.getName());
-            name = name + "-" + createId();
+        if (classNode.findMethod(className, signature).isPresent() && ignoreErrors()) {
+            log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
+                    className, signature, parentNode.getName());
+            className = name + "-" + createId();
         }
-        return classNode.createMethodNode(name, signature);
+        return classNode.createMethodNode(className, signature);
+    }
+
+    private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
+        String className = name;
+        if (parentNode.hasChild(className) && ignoreErrors()) {
+            log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
+            className = name + "-" + createId();
+        }
+        return ((FileNode) parentNode).createClassNode(className);
+    }
+
+    private String readName(final StartElement element) {
+        return StringUtils.defaultIfBlank(getValueOf(element, NAME), createId());
     }
 
     private String createId() {
