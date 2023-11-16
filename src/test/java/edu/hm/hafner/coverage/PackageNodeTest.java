@@ -21,20 +21,18 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldCopyEmpty() {
-        // Given
         String parentName = ".ui.home.model";
         var parent = new PackageNode(parentName);
         var child = new PackageNode("data");
         parent.addChild(child);
 
-        // When
         Node actualEmptyCopy = parent.copy();
 
-        // Then
         assertThat(actualEmptyCopy)
                 .hasName(parentName)
                 .hasNoChildren()
-                .isEqualTo(new PackageNode(parentName));
+                .isEqualTo(new PackageNode(parentName))
+                .isAggregation();
     }
 
     /**
@@ -42,11 +40,9 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldMatchPath() {
-        // Given
         String pkgName = "ui.home.model";
         var pkg = new PackageNode(pkgName);
 
-        // When & Then
         assertThat(pkg.matches(PACKAGE, "ui.home.model".hashCode())).isTrue();
         assertThat(pkg.matches(PACKAGE, "test.path".hashCode())).isFalse();
     }

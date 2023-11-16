@@ -28,7 +28,8 @@ class MethodNodeTest extends AbstractNodeTest {
                 .hasMethodName("shouldCreateMethodCoverageNode()")
                 .hasSignature("(Ljava/util/Map;)V")
                 .hasLineNumber(16)
-                .hasValidLineNumber();
+                .hasValidLineNumber()
+                .isNotAggregation();
     }
 
     @Test

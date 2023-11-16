@@ -17,17 +17,16 @@ class ContainerNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldAggregateSourceFolders() {
-        var root = new ContainerNode("root");
+        var containerNode = new ContainerNode("root");
         var left = new ModuleNode("left");
-        root.addChild(left);
+        containerNode.addChild(left);
         var right = new ModuleNode("right");
-        root.addChild(right);
+        containerNode.addChild(right);
 
-        assertThat(root.getSourceFolders()).isEmpty();
-        assertThat(root.getChildren()).containsExactly(left, right);
+        assertThat(containerNode).hasNoSourceFolders().hasOnlyChildren(left, right).isAggregation();
 
         left.addSource("left/path");
         right.addSource("right/path");
-        assertThat(root.getSourceFolders()).containsExactly("left/path", "right/path");
+        assertThat(containerNode).hasSourceFolders("left/path", "right/path");
     }
 }

@@ -49,7 +49,7 @@ class FileNodeTest extends AbstractNodeTest {
         folder.addChild(file);
         module.addChild(folder);
 
-        assertThat(file.getRelativePath()).isEqualTo(relativePath);
+        assertThat(file).hasRelativePath(relativePath).isNotAggregation();
         var otherPath = "other";
 
         assertThat(file.getFiles()).containsExactly(relativePath);
