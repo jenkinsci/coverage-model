@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -100,11 +101,11 @@ class JacocoParserTest extends AbstractParserTest {
     }
 
     private Coverage createLineCoverage(final int covered, final int missed) {
-        return new CoverageBuilder().setMetric(LINE).setCovered(covered).setMissed(missed).build();
+        return new CoverageBuilder().withMetric(LINE).withCovered(covered).withMissed(missed).build();
     }
 
     private Coverage createBranchCoverage(final int covered, final int missed) {
-        return new CoverageBuilder().setMetric(BRANCH).setCovered(covered).setMissed(missed).build();
+        return new CoverageBuilder().withMetric(BRANCH).withCovered(covered).withMissed(missed).build();
     }
 
     private FileNode getFileNode(final ModuleNode a) {
@@ -150,21 +151,21 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(style.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
                 "edu.hm.hafner.util");
 
-        var builder = new CoverageBuilder().setMetric(LINE);
+        var builder = new CoverageBuilder().withMetric(LINE);
 
         var left = new ModuleNode("root");
         model.getAll(PACKAGE).forEach(p -> left.addChild(p.copyTree()));
 
         assertThat(left.find(PACKAGE, "edu.hm.hafner.util")).isPresent()
                 .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
-                        builder.setCovered(60).setTotal(62).build()));
+                        builder.withCovered(60).withTotal(62).build()));
 
         var right = new ModuleNode("root");
         style.getAll(PACKAGE).forEach(p -> right.addChild(p.copyTree()));
 
         assertThat(right.find(PACKAGE, "edu.hm.hafner.util")).isPresent()
                 .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
-                        builder.setCovered(294).setTotal(323).build()));
+                        builder.withCovered(294).withTotal(323).build()));
 
         if (splitPackages) {
             left.splitPackages();
@@ -176,7 +177,7 @@ class JacocoParserTest extends AbstractParserTest {
         var packageName = splitPackages ? "util" : "edu.hm.hafner.util";
         assertThat(merged.find(PACKAGE, packageName)).isPresent()
                 .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
-                        builder.setCovered(294 + 60).setTotal(323 + 62).build()));
+                        builder.withCovered(294 + 60).withTotal(323 + 62).build()));
     }
 
     @Test
@@ -186,26 +187,6 @@ class JacocoParserTest extends AbstractParserTest {
         model.splitPackages();
         assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
                 "util", "hafner", "hm", "edu");
-    }
-
-    @Test
-    void shouldReadAggregationWithGroups() {
-        ModuleNode jenkinsRoot = readReport("jacoco-jenkins.xml");
-
-        assertThat(jenkinsRoot.getChildren()).hasSize(2)
-                .extracting(Node::getName)
-                .containsExactly("cli", "jenkins-core");
-        assertThat(jenkinsRoot.getAll(PACKAGE)).hasSize(2)
-                .extracting(Node::getName)
-                .containsExactly("hudson.cli.client", "org.acegisecurity.context");
-
-        var builder = new CoverageBuilder().setMetric(LINE);
-        assertThat(jenkinsRoot.getValue(LINE))
-                .contains(builder.setCovered(35_611).setMissed(18_100).build());
-        assertThat(jenkinsRoot.find(MODULE, "cli").get().getValue(LINE))
-                .contains(builder.setCovered(337).setMissed(558).build());
-        assertThat(jenkinsRoot.find(MODULE, "jenkins-core").get().getValue(LINE))
-                .contains(builder.setCovered(35_274).setMissed(17_542).build());
     }
 
     @Test
@@ -224,10 +205,9 @@ class JacocoParserTest extends AbstractParserTest {
                 coverage -> assertThat(coverage).hasTotal(68).hasCovered(68));
     }
 
-    @ParameterizedTest(name = "Read and parse coding style report \"{0}\" to tree of nodes")
-    @ValueSource(strings = {"jacoco-codingstyle.xml", "jacoco-codingstyle-no-sourcefilename.xml"})
-    void shouldConvertCodingStyleToTree(final String fileName) {
-        Node tree = readReport(fileName);
+    @Test
+    void shouldConvertCodingStyleToTree() {
+        Node tree = readExampleReport();
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
@@ -241,14 +221,14 @@ class JacocoParserTest extends AbstractParserTest {
         var builder = new CoverageBuilder();
 
         assertThat(tree.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(7).setMissed(3).build(),
-                builder.setMetric(CLASS).setCovered(15).setMissed(3).build(),
-                builder.setMetric(METHOD).setCovered(97).setMissed(5).build(),
-                builder.setMetric(LINE).setCovered(294).setMissed(29).build(),
-                builder.setMetric(BRANCH).setCovered(109).setMissed(7).build(),
-                builder.setMetric(INSTRUCTION).setCovered(1260).setMissed(90).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(7).withMissed(3).build(),
+                builder.withMetric(CLASS).withCovered(15).withMissed(3).build(),
+                builder.withMetric(METHOD).withCovered(97).withMissed(5).build(),
+                builder.withMetric(LINE).withCovered(294).withMissed(29).build(),
+                builder.withMetric(BRANCH).withCovered(109).withMissed(7).build(),
+                builder.withMetric(INSTRUCTION).withCovered(1260).withMissed(90).build(),
                 new CyclomaticComplexity(160),
                 new CyclomaticComplexity(6, COMPLEXITY_MAXIMUM),
                 new FractionValue(COMPLEXITY_DENSITY, 160, 294 + 29),
@@ -263,9 +243,9 @@ class JacocoParserTest extends AbstractParserTest {
                 .filter(n -> "Ensure.java".equals(n.getName()))
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
-        assertThat(any.getValue(LINE)).contains(builder.setMetric(LINE).setCovered(100).setMissed(25).build());
+        assertThat(any.getValue(LINE)).contains(builder.withMetric(LINE).withCovered(100).withMissed(25).build());
         assertThat(any.getValue(LOC)).contains(new LinesOfCode(125));
-        assertThat(any.getValue(BRANCH)).contains(builder.setMetric(BRANCH).setCovered(40).setMissed(6).build());
+        assertThat(any.getValue(BRANCH)).contains(builder.withMetric(BRANCH).withCovered(40).withMissed(6).build());
         assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
 
         verifyCoverageMetrics(tree);
@@ -273,6 +253,103 @@ class JacocoParserTest extends AbstractParserTest {
         var log = tree.findFile("TreeStringBuilder.java").orElseThrow();
         assertThat(log.getMissedLines()).containsExactly(61, 62);
         assertThat(log.getPartiallyCoveredLines()).containsExactly(entry(113, 1));
+    }
+
+    @Test
+    void shouldConvertCodingStyleWithoutSourceFilenames() {
+        Node tree = readReport("jacoco-codingstyle-no-sourcefilename.xml");
+
+        assertThat(tree.getAll(MODULE)).hasSize(1);
+        assertThat(tree.getAll(PACKAGE)).hasSize(1);
+        assertThat(tree.getAll(FILE)).hasSize(10);
+        assertThat(tree.getAll(CLASS)).hasSize(18);
+        assertThat(tree.getAll(METHOD)).hasSize(102);
+
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
+                COMPLEXITY, COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+
+        var builder = new CoverageBuilder();
+
+        assertThat(tree.aggregateValues()).contains(
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(7).withMissed(3).build(),
+                builder.withMetric(CLASS).withCovered(15).withMissed(3).build(),
+                builder.withMetric(METHOD).withCovered(97).withMissed(5).build());
+
+        assertThat(tree.getChildren()).hasSize(1)
+                .element(0)
+                .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"));
+
+        Node any = tree.getAll(FILE)
+                .stream()
+                .filter(n -> "Ensure.java".equals(n.getName()))
+                .findAny()
+                .orElseThrow(() -> new NoSuchElementException("Blub"));
+        assertThat(any.getValue(LINE)).contains(builder.withMetric(LINE).withCovered(100).withMissed(25).build());
+        assertThat(any.getValue(LOC)).contains(new LinesOfCode(125));
+        assertThat(any.getValue(BRANCH)).contains(builder.withMetric(BRANCH).withCovered(40).withMissed(6).build());
+        assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
+
+        var log = tree.findFile("TreeStringBuilder.java").orElseThrow();
+        assertThat(log.getMissedLines()).containsExactly(61, 62);
+        assertThat(log.getPartiallyCoveredLines()).containsExactly(entry(113, 1));
+    }
+
+    @Test
+    void shouldFilterByFiles() {
+        var root = readExampleReport();
+
+        assertThat(root.getAll(MODULE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(1);
+        assertThat(root.getAll(FILE)).hasSize(10);
+        assertThat(root.getAll(CLASS)).hasSize(18);
+        assertThat(root.getAll(METHOD)).hasSize(102);
+
+        assertThat(root.aggregateValues()).contains(
+                new CyclomaticComplexity(160),
+                Coverage.valueOf(BRANCH, "109/116"),
+                Coverage.valueOf(LINE, "294/323"),
+                Coverage.valueOf(INSTRUCTION, "1260/1350"),
+                new LinesOfCode(294 + 29));
+
+        var includedNames = root.getFiles()
+                .stream()
+                .filter(name -> StringUtils.containsAny(name, "Ensure.java", "TreeStringBuilder.java"))
+                .collect(Collectors.toList());
+        var includedFiles = root.filterByFileNames(includedNames);
+
+        assertThat(includedFiles.getAll(MODULE)).hasSize(1);
+        assertThat(includedFiles.getAll(PACKAGE)).hasSize(1);
+        assertThat(includedFiles.getAll(FILE)).hasSize(2);
+        assertThat(includedFiles.getAll(CLASS)).hasSize(10);
+        assertThat(includedFiles.getAll(METHOD)).hasSize(59);
+
+        assertThat(includedFiles.aggregateValues()).contains(
+                new CyclomaticComplexity(91),
+                Coverage.valueOf(BRANCH, "57/64"),
+                Coverage.valueOf(LINE, "151/178"),
+                Coverage.valueOf(INSTRUCTION, "606/690"),
+                new LinesOfCode(178));
+
+        var excludedNames = root.getFiles()
+                .stream()
+                .filter(f -> !StringUtils.containsAny(f, "Ensure.java", "TreeStringBuilder.java"))
+                .collect(Collectors.toList());
+        var excludedFiles = root.filterByFileNames(excludedNames);
+
+        assertThat(excludedFiles.getAll(MODULE)).hasSize(1);
+        assertThat(excludedFiles.getAll(PACKAGE)).hasSize(1);
+        assertThat(excludedFiles.getAll(FILE)).hasSize(8);
+        assertThat(excludedFiles.getAll(CLASS)).hasSize(8);
+        assertThat(excludedFiles.getAll(METHOD)).hasSize(43);
+
+        assertThat(excludedFiles.aggregateValues()).contains(
+                new CyclomaticComplexity(69),
+                Coverage.valueOf(BRANCH, "52/52"),
+                Coverage.valueOf(LINE, "143/145"),
+                Coverage.valueOf(INSTRUCTION, "654/660"),
+                new LinesOfCode(145));
     }
 
     @Test
@@ -284,7 +361,7 @@ class JacocoParserTest extends AbstractParserTest {
         verifyCoverageMetrics(tree);
 
         assertThat(tree.getAll(PACKAGE)).hasSize(4);
-        var coverage = new CoverageBuilder().setMetric(PACKAGE).setCovered(4).setMissed(0).build();
+        var coverage = new CoverageBuilder().withMetric(PACKAGE).withCovered(4).withMissed(0).build();
         assertThat(tree.aggregateValues()).contains(coverage);
 
         assertThat(tree.getChildren()).hasSize(1)

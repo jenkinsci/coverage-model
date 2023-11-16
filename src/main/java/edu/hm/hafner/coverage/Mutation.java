@@ -152,7 +152,7 @@ public final class Mutation implements Serializable {
     /**
      * Builder to create new {@link Mutation} instances.
      */
-    @SuppressWarnings({"checkstyle:MissingJavadocMethod", "UnusedReturnValue"})
+    @SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class MutationBuilder {
         private boolean isDetected;
         private MutationStatus status = MutationStatus.NO_COVERAGE;
@@ -166,77 +166,77 @@ public final class Mutation implements Serializable {
         private String mutatedMethodSignature = StringUtils.EMPTY;
 
         @CanIgnoreReturnValue
-        public MutationBuilder setIsDetected(final boolean isDetected) {
+        public MutationBuilder withIsDetected(final boolean isDetected) {
             this.isDetected = isDetected;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setStatus(final MutationStatus status) {
+        public MutationBuilder withStatus(final MutationStatus status) {
             this.status = status;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setLine(final String line) {
+        public MutationBuilder withLine(final String line) {
             this.line = CoverageParser.parseInteger(line);
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setLine(final int line) {
+        public MutationBuilder withLine(final int line) {
             this.line = line;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setMutator(final String mutator) {
+        public MutationBuilder withMutator(final String mutator) {
             this.mutator = mutator;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setKillingTest(final String killingTest) {
+        public MutationBuilder withKillingTest(final String killingTest) {
             this.killingTest = killingTest;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setDescription(final String description) {
+        public MutationBuilder withDescription(final String description) {
             this.description = description;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setSourceFile(final String sourceFile) {
+        public MutationBuilder withSourceFile(final String sourceFile) {
             this.sourceFile = sourceFile;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setMutatedClass(final String mutatedClass) {
+        public MutationBuilder withMutatedClass(final String mutatedClass) {
             this.mutatedClass = mutatedClass;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setMutatedMethod(final String mutatedMethod) {
+        public MutationBuilder withMutatedMethod(final String mutatedMethod) {
             this.mutatedMethod = mutatedMethod;
 
             return this;
         }
 
         @CanIgnoreReturnValue
-        public MutationBuilder setMutatedMethodSignature(final String mutatedMethodSignature) {
+        public MutationBuilder withMutatedMethodSignature(final String mutatedMethodSignature) {
             this.mutatedMethodSignature = mutatedMethodSignature;
 
             return this;

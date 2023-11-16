@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NavigableMap;
@@ -32,6 +33,8 @@ class NodeTest {
     private static final String MISSED_FILE = "Missed.java";
     private static final String CLASS_WITH_MODIFICATIONS = "classWithModifications";
     private static final String CLASS_WITHOUT_MODIFICATION = "classWithoutModification";
+    private static final String COVERED_CLASS = "CoveredClass.class";
+    private static final String MISSED_CLASS = "MissedClass.class";
 
     @Test
     void shouldHandleNonExistingParent() {
@@ -100,13 +103,13 @@ class NodeTest {
 
         var node = new ModuleNode("Node");
 
-        var valueOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
+        var valueOne = builder.withMetric(LINE).withCovered(1).withMissed(0).build();
         node.addValue(valueOne);
-        var valueTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
+        var valueTwo = builder.withMetric(BRANCH).withCovered(0).withMissed(1).build();
         node.addValue(valueTwo);
 
         assertThat(node.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 valueOne,
                 valueTwo,
                 new LinesOfCode(1));
@@ -119,11 +122,11 @@ class NodeTest {
         assertThat(node).hasNoValues();
 
         var builder = new CoverageBuilder();
-        var leafOne = builder.setMetric(LINE).setCovered(1).setMissed(0).build();
+        var leafOne = builder.withMetric(LINE).withCovered(1).withMissed(0).build();
         node.addValue(leafOne);
         assertThat(node).hasOnlyValues(leafOne);
 
-        var leafTwo = builder.setMetric(BRANCH).setCovered(0).setMissed(1).build();
+        var leafTwo = builder.withMetric(BRANCH).withCovered(0).withMissed(1).build();
         node.addValue(leafTwo);
         assertThat(node).hasOnlyValues(leafOne, leafTwo);
 
@@ -160,7 +163,7 @@ class NodeTest {
     @Test
     void shouldCalculateCorrectCoverageForModule() {
         Node node = new ModuleNode("Node");
-        Value valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
+        Value valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
 
         node.addValue(valueOne);
 
@@ -172,8 +175,8 @@ class NodeTest {
         var node = new ModuleNode("Node");
         var missedFile = new FileNode("fileMissed", "path");
         var coveredFile = new FileNode("fileCovered", "path");
-        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var valueOne = Coverage.valueOf(LINE, "1/1");
+        var valueTwo = Coverage.valueOf(LINE, "0/1");
 
         node.addChild(missedFile);
         node.addChild(coveredFile);
@@ -189,8 +192,8 @@ class NodeTest {
     void shouldDeepCopyNodeTree() {
         var node = new ModuleNode("Node");
         var childNode = new FileNode("childNode", "path");
-        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
+        var valueTwo = new CoverageBuilder().withMetric(LINE).withCovered(0).withMissed(1).build();
 
         node.addValue(valueOne);
         node.addChild(childNode);
@@ -205,8 +208,8 @@ class NodeTest {
     void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
         var node = new ModuleNode("Node");
         var childNode = new FileNode("childNode", "path");
-        var valueOne = new CoverageBuilder().setMetric(LINE).setCovered(1).setMissed(0).build();
-        var valueTwo = new CoverageBuilder().setMetric(LINE).setCovered(0).setMissed(1).build();
+        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
+        var valueTwo = new CoverageBuilder().withMetric(LINE).withCovered(0).withMissed(1).build();
         var newParent = new ModuleNode("parent");
 
         node.addValue(valueOne);
@@ -369,6 +372,30 @@ class NodeTest {
     }
 
     @Test
+    void shouldFilterByFileName() {
+        Node tree = createTreeWithoutCoverage();
+
+        var files = tree.getFiles();
+        var single = List.of(new ArrayList<>(files).get(0));
+        var filtered = tree.filterByFileNames(single);
+
+        assertThat(filtered.getFiles()).hasSize(1).first().asString().contains(COVERED_FILE);
+    }
+
+    @Test
+    void shouldFilterByFile() {
+        Node tree = createTreeWithoutCoverage();
+
+        var filtered = tree.copyTree(null, this::file);
+
+        assertThat(filtered.getFiles()).hasSize(1).first().asString().contains(COVERED_FILE);
+    }
+
+    private boolean file(final Node node) {
+        return node.getMetric() != FILE || node.getName().contains(COVERED_FILE);
+    }
+
+    @Test
     void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
         Node tree = createTreeWithoutCoverage();
 
@@ -403,11 +430,11 @@ class NodeTest {
 
         var builder = new CoverageBuilder();
         assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.setMetric(LINE).setCovered(4).setMissed(3).build());
+                builder.withMetric(LINE).withCovered(4).withMissed(3).build());
         assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.setMetric(BRANCH).setCovered(6).setMissed(6).build());
+                builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
         assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
-                builder.setMetric(MUTATION).setCovered(1).setMissed(2).build());
+                builder.withMetric(MUTATION).withCovered(1).withMissed(2).build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
@@ -466,11 +493,11 @@ class NodeTest {
 
         var builder = new CoverageBuilder();
         assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.setMetric(LINE).setCovered(8).setMissed(6).build());
+                builder.withMetric(LINE).withCovered(8).withMissed(6).build());
         assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.setMetric(BRANCH).setCovered(12).setMissed(12).build());
+                builder.withMetric(BRANCH).withCovered(12).withMissed(12).build());
         assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
-                builder.setMetric(MUTATION).setCovered(2).setMissed(4).build());
+                builder.withMetric(MUTATION).withCovered(2).withMissed(4).build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
@@ -510,9 +537,9 @@ class NodeTest {
 
         var builder = new CoverageBuilder();
         assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.setMetric(LINE).setCovered(2).setMissed(2).build());
+                builder.withMetric(LINE).withCovered(2).withMissed(2).build());
         assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.setMetric(BRANCH).setCovered(4).setMissed(4).build());
+                builder.withMetric(BRANCH).withCovered(4).withMissed(4).build());
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {
@@ -526,9 +553,9 @@ class NodeTest {
         addCounters(file, classNode, 0);
 
         var builder = new CoverageBuilder();
-        classNode.addValue(builder.setMetric(LINE).setCovered(4).setMissed(3).build());
-        classNode.addValue(builder.setMetric(BRANCH).setCovered(6).setMissed(6).build());
-        classNode.addValue(builder.setMetric(MUTATION).setCovered(2).setMissed(4).build());
+        classNode.addValue(builder.withMetric(LINE).withCovered(4).withMissed(3).build());
+        classNode.addValue(builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
+        classNode.addValue(builder.withMetric(MUTATION).withCovered(2).withMissed(4).build());
     }
 
     private void addCounters(final FileNode fileNode, final ClassNode classNode, final int offset) {
@@ -541,11 +568,11 @@ class NodeTest {
         fileNode.addCounters(15 + offset, 4, 0);
         fileNode.addCounters(16 + offset, 2, 2);
 
-        MutationBuilder builder = new MutationBuilder().setMutatedClass(classNode.getName()).setMutatedMethod("method");
+        MutationBuilder builder = new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
 
-        fileNode.addMutation(builder.setLine(17 + offset).setStatus(MutationStatus.KILLED).setIsDetected(true).build());
-        fileNode.addMutation(builder.setLine(18 + offset).setStatus(MutationStatus.SURVIVED).setIsDetected(false).build());
-        fileNode.addMutation(builder.setLine(19 + offset).setStatus(MutationStatus.NO_COVERAGE).setIsDetected(false).build());
+        fileNode.addMutation(builder.withLine(17 + offset).withStatus(MutationStatus.KILLED).withIsDetected(true).build());
+        fileNode.addMutation(builder.withLine(18 + offset).withStatus(MutationStatus.SURVIVED).withIsDetected(false).build());
+        fileNode.addMutation(builder.withLine(19 + offset).withStatus(MutationStatus.NO_COVERAGE).withIsDetected(false).build());
     }
 
     private void registerCoverageWithoutChange(final FileNode file) {
@@ -554,8 +581,8 @@ class NodeTest {
         addCounters(file, classNode, 10);
 
         var builder = new CoverageBuilder();
-        classNode.addValue(builder.setMetric(LINE).setCovered(4).setMissed(3).build());
-        classNode.addValue(builder.setMetric(BRANCH).setCovered(6).setMissed(6).build());
+        classNode.addValue(builder.withMetric(LINE).withCovered(4).withMissed(3).build());
+        classNode.addValue(builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
     }
 
     private void registerIndirectCoverageChanges(final FileNode file) {
@@ -579,8 +606,8 @@ class NodeTest {
         packageNode.addChild(missedFileNode);
         packageNode.addChild(coveredFileNode);
 
-        coveredFileNode.addChild(new ClassNode("CoveredClass.class"));
-        missedFileNode.addChild(new ClassNode("MissedClass.class"));
+        coveredFileNode.addChild(new ClassNode(COVERED_CLASS));
+        missedFileNode.addChild(new ClassNode(MISSED_CLASS));
 
         return moduleNode;
     }
@@ -595,7 +622,7 @@ class NodeTest {
     @Test
     void shouldCreateNonEmptyNodes() {
         Node noChildrenButValues = new PackageNode("No Children");
-        noChildrenButValues.addValue(new CoverageBuilder().setMetric(LINE).setCovered(10).setMissed(0).build());
+        noChildrenButValues.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
         Node noValuesButChildren = new PackageNode("No Values");
         noValuesButChildren.addChild(new FileNode("child", "."));
 
@@ -705,8 +732,8 @@ class NodeTest {
         MethodNode coveredMethod = new MethodNode("coveredMethod", "signature");
         MethodNode missedMethod = new MethodNode("missedMethod", "signature");
 
-        tree.findClass("CoveredClass.class").orElseThrow().addChild(coveredMethod);
-        tree.findClass("MissedClass.class").orElseThrow().addChild(missedMethod);
+        tree.findClass(COVERED_CLASS).orElseThrow().addChild(coveredMethod);
+        tree.findClass(MISSED_CLASS).orElseThrow().addChild(missedMethod);
 
         assertThat(tree.getAllMethodNodes()).containsExactlyInAnyOrder(coveredMethod, missedMethod);
         assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(coveredFile, missedFile);
@@ -717,14 +744,14 @@ class NodeTest {
         var coverageBuilder = new CoverageBuilder();
         Node fileA = new FileNode("FileA.java", ".");
         fileA.addAllValues(Arrays.asList(
-                coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build(),
-                coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build(),
-                coverageBuilder.setMetric(MUTATION).setCovered(2).setMissed(0).build()
+                coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
+                coverageBuilder.withMetric(BRANCH).withCovered(2).withMissed(0).build(),
+                coverageBuilder.withMetric(MUTATION).withCovered(2).withMissed(0).build()
         ));
         Node fileB = new FileNode("FileB.java", ".");
         fileB.addAllValues(Arrays.asList(
-                coverageBuilder.setMetric(LINE).setCovered(0).setMissed(10).build(),
-                coverageBuilder.setMetric(BRANCH).setCovered(1).setMissed(1).build()
+                coverageBuilder.withMetric(LINE).withCovered(0).withMissed(10).build(),
+                coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
         ));
 
         NavigableMap<Metric, Fraction> delta = fileA.computeDelta(fileB);
@@ -742,9 +769,9 @@ class NodeTest {
         Node fileA = new FileNode("FileA.java", ".");
         fileA.addChild(new ClassNode("ClassA.java"));
         fileA.addAllValues(Arrays.asList(
-                coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build(),
-                coverageBuilder.setMetric(BRANCH).setCovered(2).setMissed(0).build(),
-                coverageBuilder.setMetric(MUTATION).setCovered(2).setMissed(0).build()
+                coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
+                coverageBuilder.withMetric(BRANCH).withCovered(2).withMissed(0).build(),
+                coverageBuilder.withMetric(MUTATION).withCovered(2).withMissed(0).build()
         ));
         assertThat(fileA.getValueMetrics())
                 .containsExactlyInAnyOrder(LINE, BRANCH, MUTATION);
@@ -754,7 +781,7 @@ class NodeTest {
     void shouldContainMetric() {
         Node fileA = new FileNode("FileA.java", ".");
         fileA.addChild(new ClassNode("ClassA.java"));
-        fileA.addValue(new CoverageBuilder().setMetric(LINE).setCovered(10).setMissed(0).build());
+        fileA.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
 
         assertThat(fileA.containsMetric(CLASS)).isTrue();
         assertThat(fileA.containsMetric(LINE)).isTrue();
@@ -764,8 +791,8 @@ class NodeTest {
     @Test
     void shouldGetCoverageValueByMetricWithDefault() {
         CoverageBuilder coverageBuilder = new CoverageBuilder();
-        Coverage fileACoverage = coverageBuilder.setMetric(LINE).setCovered(10).setMissed(0).build();
-        Coverage defaultCoverage = coverageBuilder.setMetric(BRANCH).setCovered(1).setMissed(0).build();
+        Coverage fileACoverage = coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build();
+        Coverage defaultCoverage = coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(0).build();
         Node fileA = new FileNode("FileA.java", ".");
         fileA.addValue(fileACoverage);
 

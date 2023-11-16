@@ -17,9 +17,9 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 abstract class AbstractNodeTest extends SerializableTest<Node> {
     private static final String NAME = "Node Name";
     private static final String CHILD = "Child";
-    private static final Coverage MUTATION_COVERAGE = new CoverageBuilder().setMetric(Metric.MUTATION)
-            .setCovered(5)
-            .setMissed(10)
+    private static final Coverage MUTATION_COVERAGE = new CoverageBuilder().withMetric(Metric.MUTATION)
+            .withCovered(5)
+            .withMissed(10)
             .build();
 
     @Override
@@ -89,7 +89,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
 
     private List<? extends Value> createMetricDistributionWithMissed(final int missed) {
         var builder = new CoverageBuilder();
-        builder.setMetric(getMetric()).setCovered(0).setMissed(missed);
+        builder.withMetric(getMetric()).withCovered(0).withMissed(missed);
         return List.of(builder.build(), MUTATION_COVERAGE);
     }
 

@@ -26,7 +26,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
- * A parser which parses reports created by PITest into a Java object model.
+ * Parses reports created by PITest into a Java object model.
  *
  * @author Melissa Bauer
  * @author Ullrich Hafner
@@ -76,8 +76,8 @@ public class PitestParser extends CoverageParser {
 
     private void collectLineCoverage(final FileNode fileNode) {
         var builder = new CoverageBuilder(Metric.LINE);
-        var coveredLine = builder.setCovered(1).setMissed(0).build();
-        var uncoveredLine = builder.setCovered(0).setMissed(1).build();
+        var coveredLine = builder.withCovered(1).withMissed(0).build();
+        var uncoveredLine = builder.withCovered(0).withMissed(1).build();
 
         var lineMapping = collectLines(fileNode, Mutation::isCovered).stream()
                 .collect(Collectors.toMap(k -> k, v -> coveredLine));
@@ -87,7 +87,7 @@ public class PitestParser extends CoverageParser {
         var missed = lineMapping.size() - covered;
 
         lineMapping.forEach((line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
-        fileNode.addValue(builder.setCovered(covered).setMissed(missed).build());
+        fileNode.addValue(builder.withCovered(covered).withMissed(missed).build());
     }
 
     private static Set<Integer> collectLines(final FileNode fileNode,
@@ -102,8 +102,8 @@ public class PitestParser extends CoverageParser {
             throws XMLStreamException {
         var builder = new MutationBuilder();
 
-        builder.setStatus(MutationStatus.valueOf(getValueOf(mutationElement, STATUS)));
-        builder.setIsDetected(Boolean.parseBoolean(getValueOf(mutationElement, DETECTED)));
+        builder.withStatus(MutationStatus.valueOf(getValueOf(mutationElement, STATUS)));
+        builder.withIsDetected(Boolean.parseBoolean(getValueOf(mutationElement, DETECTED)));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -135,28 +135,28 @@ public class PitestParser extends CoverageParser {
                 var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
                 var name = event.asEndElement().getName();
                 if (name.equals(MUTATOR)) {
-                    builder.setMutator(content);
+                    builder.withMutator(content);
                 }
                 else if (name.equals(KILLING_TEST)) {
-                    builder.setKillingTest(content);
+                    builder.withKillingTest(content);
                 }
                 else if (name.equals(DESCRIPTION)) {
-                    builder.setDescription(content);
+                    builder.withDescription(content);
                 }
                 else if (name.equals(SOURCE_FILE)) {
-                    builder.setSourceFile(content);
+                    builder.withSourceFile(content);
                 }
                 else if (name.equals(MUTATED_CLASS)) {
-                    builder.setMutatedClass(content);
+                    builder.withMutatedClass(content);
                 }
                 else if (name.equals(MUTATED_METHOD)) {
-                    builder.setMutatedMethod(content);
+                    builder.withMutatedMethod(content);
                 }
                 else if (name.equals(MUTATED_METHOD_SIGNATURE)) {
-                    builder.setMutatedMethodSignature(content);
+                    builder.withMutatedMethodSignature(content);
                 }
                 else if (name.equals(LINE_NUMBER)) {
-                    builder.setLine(content);
+                    builder.withLine(content);
                 }
                 return;
             }

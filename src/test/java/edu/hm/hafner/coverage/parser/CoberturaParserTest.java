@@ -108,25 +108,25 @@ class CoberturaParserTest extends AbstractParserTest {
 
         Node a = readReport("cobertura-merge-a.xml");
         assertThat(a.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
-                builder.setMetric(METHOD).setCovered(3).setMissed(0).build(),
-                builder.setMetric(LINE).setCovered(22).setMissed(0).build(),
-                builder.setMetric(BRANCH).setCovered(2).setMissed(1).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(CLASS).withCovered(1).withMissed(0).build(),
+                builder.withMetric(METHOD).withCovered(3).withMissed(0).build(),
+                builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
+                builder.withMetric(BRANCH).withCovered(2).withMissed(1).build(),
                 new LinesOfCode(22));
         verifyMissedAndCoveredLines(a);
 
         Node b = readReport("cobertura-merge-b.xml");
         assertThat(b.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
-                builder.setMetric(METHOD).setCovered(1).setMissed(2).build(),
-                builder.setMetric(LINE).setCovered(16).setMissed(6).build(),
-                builder.setMetric(BRANCH).setCovered(0).setMissed(3).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(CLASS).withCovered(1).withMissed(0).build(),
+                builder.withMetric(METHOD).withCovered(1).withMissed(2).build(),
+                builder.withMetric(LINE).withCovered(16).withMissed(6).build(),
+                builder.withMetric(BRANCH).withCovered(0).withMissed(3).build(),
                 new LinesOfCode(22));
         assertThat(b.getAllFileNodes()).hasSize(1).element(0).satisfies(
                 fileNode -> assertThat(fileNode)
@@ -135,11 +135,11 @@ class CoberturaParserTest extends AbstractParserTest {
                         .hasCoveredLines(1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 45, 54, 60, 66, 71, 72));
 
         var expectedValuesAfterMerge = new Value[] {
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(LINE).setCovered(22).setMissed(0).build(),
-                builder.setMetric(BRANCH).setCovered(1).setMissed(1).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
+                builder.withMetric(BRANCH).withCovered(1).withMissed(1).build(),
                 new LinesOfCode(22)};
 
         var left = a.merge(b);
@@ -165,7 +165,7 @@ class CoberturaParserTest extends AbstractParserTest {
     void shouldCountCorrectly() {
         Node tree = readReport("cobertura-counter-aggregation.xml");
 
-        var expectedValue = new CoverageBuilder().setCovered(31).setMissed(1).setMetric(BRANCH).build();
+        var expectedValue = new CoverageBuilder().withCovered(31).withMissed(1).withMetric(BRANCH).build();
         assertThat(tree.getValue(BRANCH)).isPresent().contains(expectedValue);
     }
 
@@ -225,13 +225,13 @@ class CoberturaParserTest extends AbstractParserTest {
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, LOC);
         assertThat(tree.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(4).setMissed(3).build(),
-                builder.setMetric(FILE).setCovered(6).setMissed(6).build(),
-                builder.setMetric(CLASS).setCovered(6).setMissed(6).build(),
-                builder.setMetric(METHOD).setCovered(14).setMissed(24).build(),
-                builder.setMetric(LINE).setCovered(63).setMissed(93).build(),
-                builder.setMetric(BRANCH).setCovered(21).setMissed(11).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(4).withMissed(3).build(),
+                builder.withMetric(FILE).withCovered(6).withMissed(6).build(),
+                builder.withMetric(CLASS).withCovered(6).withMissed(6).build(),
+                builder.withMetric(METHOD).withCovered(14).withMissed(24).build(),
+                builder.withMetric(LINE).withCovered(63).withMissed(93).build(),
+                builder.withMetric(BRANCH).withCovered(21).withMissed(11).build(),
                 new LinesOfCode(63 + 93));
 
         assertThat(tree.findPackage("libs.env.src")).isNotEmpty().get().satisfies(
@@ -269,13 +269,13 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY,
                 COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
         assertThat(tree.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(2).setMissed(0).build(),
-                builder.setMetric(CLASS).setCovered(2).setMissed(0).build(),
-                builder.setMetric(METHOD).setCovered(4).setMissed(1).build(),
-                builder.setMetric(LINE).setCovered(44).setMissed(9).build(),
-                builder.setMetric(BRANCH).setCovered(3).setMissed(1).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(2).withMissed(0).build(),
+                builder.withMetric(CLASS).withCovered(2).withMissed(0).build(),
+                builder.withMetric(METHOD).withCovered(4).withMissed(1).build(),
+                builder.withMetric(LINE).withCovered(44).withMissed(9).build(),
+                builder.withMetric(BRANCH).withCovered(3).withMissed(1).build(),
                 new CyclomaticComplexity(8),
                 new CyclomaticComplexity(4, COMPLEXITY_MAXIMUM),
                 new FractionValue(COMPLEXITY_DENSITY, 8, 44 + 9),
@@ -306,13 +306,13 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY,
                 COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
         assertThat(tree.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(FILE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(CLASS).setCovered(1).setMissed(0).build(),
-                builder.setMetric(METHOD).setCovered(1).setMissed(0).build(),
-                builder.setMetric(LINE).setCovered(12).setMissed(0).build(),
-                builder.setMetric(BRANCH).setCovered(6).setMissed(0).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(CLASS).withCovered(1).withMissed(0).build(),
+                builder.withMetric(METHOD).withCovered(1).withMissed(0).build(),
+                builder.withMetric(LINE).withCovered(12).withMissed(0).build(),
+                builder.withMetric(BRANCH).withCovered(6).withMissed(0).build(),
                 new CyclomaticComplexity(0),
                 new CyclomaticComplexity(0, COMPLEXITY_MAXIMUM),
                 new FractionValue(COMPLEXITY_DENSITY, 0, 12),
@@ -349,7 +349,7 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Model\\Resolver\\DataProvider\\Branch")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.setMetric(LINE).setCovered(20).setMissed(0).build())));
+                                .hasValues(builder.withMetric(LINE).withCovered(20).withMissed(0).build())));
 
         assertThat(root.find(FILE, "Model/Resolver/IvcBranches.php")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -360,7 +360,7 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Model\\Resolver\\IvcBranches")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.setMetric(LINE).setCovered(17).setMissed(8).build())));
+                                .hasValues(builder.withMetric(LINE).withCovered(17).withMissed(8).build())));
 
         assertThat(root.find(FILE, "Plugin/InventoryAdminUi/SourceDataProvider/PopulateBranchExtensionAttributesPlugin.php")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -370,8 +370,8 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryAdminUi\\SourceDataProvider\\PopulateBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.setMetric(LINE).setCovered(6).setMissed(1).build(),
-                                        builder.setMetric(BRANCH).setCovered(2).setMissed(2).build())));
+                                .hasValues(builder.withMetric(LINE).withCovered(6).withMissed(1).build(),
+                                        builder.withMetric(BRANCH).withCovered(2).withMissed(2).build())));
 
         assertThat(root.find(FILE, "Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -381,20 +381,20 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryApi\\SourceRepository\\SetBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.setMetric(LINE).setCovered(12).setMissed(1).build())));
+                                .hasValues(builder.withMetric(LINE).withCovered(12).withMissed(1).build())));
         assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryApi\\SourceRepository\\SetBranchExtensionPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.setMetric(LINE).setCovered(7).setMissed(10).build())));
+                                .hasValues(builder.withMetric(LINE).withCovered(7).withMissed(10).build())));
 
         assertThat(root.aggregateValues()).containsExactly(
-                builder.setMetric(MODULE).setCovered(1).setMissed(0).build(),
-                builder.setMetric(PACKAGE).setCovered(4).setMissed(1).build(),
-                builder.setMetric(FILE).setCovered(4).setMissed(0).build(),
-                builder.setMetric(CLASS).setCovered(5).setMissed(0).build(),
-                builder.setMetric(METHOD).setCovered(7).setMissed(3).build(),
-                builder.setMetric(LINE).setCovered(COVERED_LINES).setMissed(MISSED_LINES).build(),
-                builder.setMetric(BRANCH).setCovered(2).setMissed(2).build(),
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(4).withMissed(1).build(),
+                builder.withMetric(FILE).withCovered(4).withMissed(0).build(),
+                builder.withMetric(CLASS).withCovered(5).withMissed(0).build(),
+                builder.withMetric(METHOD).withCovered(7).withMissed(3).build(),
+                builder.withMetric(LINE).withCovered(COVERED_LINES).withMissed(MISSED_LINES).build(),
+                builder.withMetric(BRANCH).withCovered(2).withMissed(2).build(),
                 new CyclomaticComplexity(22),
                 new CyclomaticComplexity(7, COMPLEXITY_MAXIMUM),
                 new FractionValue(COMPLEXITY_DENSITY, 22, 63 + 19),

@@ -31,7 +31,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.hm.hafner.util.TreeString;
 
 /**
- * A parser which parses reports made by Jacoco into a Java Object Model.
+ * Parses JaCoCo reports into a hierarchical Java Object Model.
  *
  * @author Melissa Bauer
  */
@@ -163,6 +163,7 @@ public class JacocoParser extends CoverageParser {
             classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
         else {
+            // Class nodes without files might not be inserted into the tree structure correctly
             classNode = packageNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
         while (reader.hasNext()) {
@@ -279,7 +280,9 @@ public class JacocoParser extends CoverageParser {
             var covered = getIntegerValueOf(startElement, COVERED);
             var missed = getIntegerValueOf(startElement, MISSED);
 
-            node.addValue(createValue(currentType, covered, missed));
+            if (!node.isAggregation()) {
+                node.addValue(createValue(currentType, covered, missed));
+            }
         }
     }
 
@@ -289,9 +292,9 @@ public class JacocoParser extends CoverageParser {
         }
         else {
             var builder = new CoverageBuilder();
-            return builder.setMetric(Metric.valueOf(currentType))
-                        .setCovered(covered)
-                        .setMissed(missed).build();
+            return builder.withMetric(Metric.valueOf(currentType))
+                        .withCovered(covered)
+                        .withMissed(missed).build();
         }
     }
 }

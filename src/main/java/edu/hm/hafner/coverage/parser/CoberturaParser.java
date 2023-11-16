@@ -23,13 +23,14 @@ import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
- * Parses Cobertura report formats into a hierarchical Java Object Model.
+ * Parses Cobertura reports into a hierarchical Java Object Model.
  *
  * @author Melissa Bauer
  * @author Ullrich Hafner
@@ -41,9 +42,9 @@ public class CoberturaParser extends CoverageParser {
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
     private static final PathUtil PATH_UTIL = new PathUtil();
 
-    private static final Coverage DEFAULT_BRANCH_COVERAGE = new CoverageBuilder(Metric.BRANCH).setCovered(2).setMissed(0).build();
-    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).setCovered(1).setMissed(0).build();
-    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).setCovered(0).setMissed(1).build();
+    private static final Coverage DEFAULT_BRANCH_COVERAGE = new CoverageBuilder(Metric.BRANCH).withCovered(2).withMissed(0).build();
+    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).withCovered(1).withMissed(0).build();
+    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).withCovered(0).withMissed(1).build();
 
     /** XML elements. */
     private static final QName SOURCE = new QName("source");
@@ -87,7 +88,15 @@ public class CoberturaParser extends CoverageParser {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode("-"); // Cobertura has no support for module names
-            handleEmptyResult(log, readModule(log, eventReader, root));
+            var isEmpty = readModule(log, eventReader, root);
+            if (isEmpty) {
+                if (ignoreErrors()) {
+                    log.logError("No coverage information found in the specified file.");
+                }
+                else {
+                    throw new NoSuchElementException("No coverage information found in the specified file.");
+                }
+            }
             return root;
         }
         catch (XMLStreamException exception) {
@@ -114,18 +123,8 @@ public class CoberturaParser extends CoverageParser {
                 }
             }
         }
-        return isEmpty;
-    }
 
-    private void handleEmptyResult(final FilteredLog log, final boolean isEmpty) {
-        if (isEmpty) {
-            if (ignoreErrors()) {
-                log.logError("No coverage information found in the specified file.");
-            }
-            else {
-                throw new NoSuchElementException("No coverage information found in the specified file.");
-            }
-        }
+        return isEmpty;
     }
 
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
@@ -138,10 +137,8 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var element = event.asStartElement();
                 if (CLASS.equals(element.getName())) {
-                    var fileName = getValueOf(element, FILE_NAME);
-                    var relativePath = PATH_UTIL.getRelativePath(fileName);
-                    var fileNode = packageNode.findOrCreateFileNode(getFileName(fileName),
-                            getTreeStringBuilder().intern(relativePath));
+                    var fileNode = createFileNode(element, packageNode);
+
                     readClassOrMethod(reader, fileNode, fileNode, element, log);
                 }
             }
@@ -149,6 +146,13 @@ public class CoberturaParser extends CoverageParser {
                 return; // finish processing of package
             }
         }
+    }
+
+    private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
+        var fileName = getValueOf(element, FILE_NAME);
+        var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
+
+        return packageNode.findOrCreateFileNode(getFileName(fileName), path);
     }
 
     private String getFileName(final String relativePath) {
@@ -191,7 +195,7 @@ public class CoberturaParser extends CoverageParser {
                     }
                     lineCoverage = lineCoverage.add(currentLineCoverage);
 
-                    if (CLASS.equals(element.getName())) { // Counters are stored at file level only
+                    if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                         fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
                     }
@@ -294,9 +298,9 @@ public class CoberturaParser extends CoverageParser {
     private Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
         var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
         if (matcher.matches()) {
-            return new CoverageBuilder().setMetric(Metric.BRANCH)
-                    .setCovered(matcher.group("covered"))
-                    .setTotal(matcher.group("total"))
+            return new CoverageBuilder().withMetric(Metric.BRANCH)
+                    .withCovered(matcher.group("covered"))
+                    .withTotal(matcher.group("total"))
                     .build();
         }
         return Coverage.nullObject(Metric.BRANCH);

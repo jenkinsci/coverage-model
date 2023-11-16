@@ -14,9 +14,9 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * @author Melissa Bauer
  */
 class CyclomaticComplexityTest {
-    private static final Coverage COVERAGE = new CoverageBuilder().setMetric(Metric.LINE)
-            .setCovered(1)
-            .setMissed(1)
+    private static final Coverage COVERAGE = new CoverageBuilder().withMetric(Metric.LINE)
+            .withCovered(1)
+            .withMissed(1)
             .build();
 
     @Test

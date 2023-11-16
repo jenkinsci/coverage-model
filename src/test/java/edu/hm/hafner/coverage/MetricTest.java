@@ -1,11 +1,11 @@
 package edu.hm.hafner.coverage;
 
+import java.util.NavigableSet;
+
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-
-import java.util.NavigableSet;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -56,7 +56,7 @@ class MetricTest {
     @Test
     void shouldCorrectlyComputeDensityEvaluator() {
         var node = new PackageNode("package");
-        node.addValue(new Coverage.CoverageBuilder().setMetric(Metric.LINE).setCovered(5).setMissed(5).build());
+        node.addValue(new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build());
         node.addValue(new CyclomaticComplexity(10));
 
         Value complexityDensity = Metric.COMPLEXITY_DENSITY.getValueFor(node).get();
@@ -69,8 +69,8 @@ class MetricTest {
 
     @Test
     void shouldReturnEmptyOptionalOnComputeDensityEvaluator() {
-        Coverage zeroLines = new Coverage.CoverageBuilder().setMetric(Metric.LINE).setCovered(0).setMissed(0).build();
-        Coverage tenLines = new Coverage.CoverageBuilder().setMetric(Metric.LINE).setCovered(5).setMissed(5).build();
+        Coverage zeroLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0).build();
+        Coverage tenLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build();
         CyclomaticComplexity cyclomaticComplexity = new CyclomaticComplexity(10);
 
         var onlyLinesOfCode = new PackageNode("package");

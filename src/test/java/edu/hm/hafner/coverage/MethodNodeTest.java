@@ -52,13 +52,13 @@ class MethodNodeTest extends AbstractNodeTest {
     void shouldComputeMethodCoverage(final Metric targetMetric) {
         var node = new MethodNode("method", "signature");
 
-        var builder = new CoverageBuilder().setMetric(Metric.METHOD);
-        var notCovered = builder.setCovered(0).setMissed(1).build();
-        var covered = builder.setCovered(1).setMissed(0).build();
+        var builder = new CoverageBuilder().withMetric(Metric.METHOD);
+        var notCovered = builder.withCovered(0).withMissed(1).build();
+        var covered = builder.withCovered(1).withMissed(0).build();
 
         assertThat(node.getValue(Metric.METHOD)).isPresent().contains(notCovered);
 
-        node.addValue(builder.setMetric(targetMetric).setCovered(1).setMissed(0).build());
+        node.addValue(builder.withMetric(targetMetric).withCovered(1).withMissed(0).build());
         assertThat(node.getValue(Metric.METHOD)).isPresent().contains(covered);
     }
 

@@ -81,6 +81,11 @@ public final class MethodNode extends Node {
     }
 
     @Override
+    public boolean isAggregation() {
+        return false;
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;

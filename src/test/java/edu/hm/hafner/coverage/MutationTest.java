@@ -18,16 +18,16 @@ class MutationTest {
     private Mutation createDummyMutation(final String identifier, final boolean detected,
                                          final MutationStatus status) {
         return new Mutation.MutationBuilder()
-                .setMutatedClass(String.format("Class%s.class", identifier))
-                .setSourceFile(String.format("Class%s.java", identifier))
-                .setMutatedMethod(String.format("Method%s", identifier))
-                .setLine("1")
-                .setStatus(status)
-                .setIsDetected(detected)
-                .setMutator(String.format("Mutator%s", identifier))
-                .setKillingTest(String.format("Test%s", identifier))
-                .setMutatedMethodSignature(String.format("Signature%s", identifier))
-                .setDescription(String.format("Description%s", identifier))
+                .withMutatedClass(String.format("Class%s.class", identifier))
+                .withSourceFile(String.format("Class%s.java", identifier))
+                .withMutatedMethod(String.format("Method%s", identifier))
+                .withLine("1")
+                .withStatus(status)
+                .withIsDetected(detected)
+                .withMutator(String.format("Mutator%s", identifier))
+                .withKillingTest(String.format("Test%s", identifier))
+                .withMutatedMethodSignature(String.format("Signature%s", identifier))
+                .withDescription(String.format("Description%s", identifier))
                 .build();
     }
 
@@ -82,16 +82,16 @@ class MutationTest {
     @Test
     void shouldBuildAndAddToModule() {
         var mutationBuilder = new Mutation.MutationBuilder()
-                .setMutatedClass("module.package.file.Class")
-                .setSourceFile("Class.java")
-                .setMutatedMethod("Method")
-                .setLine("1")
-                .setStatus(MutationStatus.NO_COVERAGE)
-                .setIsDetected(false)
-                .setMutator("Mutator")
-                .setKillingTest("Test")
-                .setMutatedMethodSignature("Signature")
-                .setDescription("Description");
+                .withMutatedClass("module.package.file.Class")
+                .withSourceFile("Class.java")
+                .withMutatedMethod("Method")
+                .withLine("1")
+                .withStatus(MutationStatus.NO_COVERAGE)
+                .withIsDetected(false)
+                .withMutator("Mutator")
+                .withKillingTest("Test")
+                .withMutatedMethodSignature("Signature")
+                .withDescription("Description");
         var moduleNode = new ModuleNode("module");
 
         mutationBuilder.buildAndAddToModule(moduleNode, new TreeStringBuilder());
