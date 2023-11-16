@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +106,11 @@ public final class FileNode extends Node {
     }
 
     @Override
+    protected boolean filterByRelativePath(final Collection<String> fileNames) {
+        return fileNames.contains(getRelativePath());
+    }
+
+    @Override
     public boolean matches(final Metric searchMetric, final String searchName) {
         if (super.matches(searchMetric, searchName)) {
             return true;
@@ -136,8 +142,8 @@ public final class FileNode extends Node {
         lines.addAll(coveredPerLine.keySet());
         lines.addAll(otherFile.coveredPerLine.keySet());
 
-        var lineCoverage = new CoverageBuilder().setMetric(Metric.LINE).setCovered(0).setMissed(0);
-        var branchCoverage = new CoverageBuilder().setMetric(Metric.BRANCH).setCovered(0).setMissed(0);
+        var lineCoverage = new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
+        var branchCoverage = new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
         for (int line : lines) {
             int leftCovered = coveredPerLine.get(line);
             int leftMissed = missedPerLine.get(line);
@@ -253,9 +259,9 @@ public final class FileNode extends Node {
 
     private void filterLineAndBranchCoverage(final FileNode copy) {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
-        var lineBuilder = new CoverageBuilder().setMetric(Metric.LINE);
+        var lineBuilder = new CoverageBuilder().withMetric(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
-        var branchBuilder = new CoverageBuilder().setMetric(Metric.BRANCH);
+        var branchBuilder = new CoverageBuilder().withMetric(Metric.BRANCH);
         for (int line : getCoveredAndModifiedLines()) {
             var covered = coveredPerLine.getOrDefault(line, 0);
             var missed = missedPerLine.getOrDefault(line, 0);
@@ -265,13 +271,13 @@ public final class FileNode extends Node {
                 throw new IllegalArgumentException("No coverage for line " + line);
             }
             else if (total == 1) {
-                lineCoverage = lineCoverage.add(lineBuilder.setCovered(covered).setMissed(missed).build());
+                lineCoverage = lineCoverage.add(lineBuilder.withCovered(covered).withMissed(missed).build());
             }
             else {
                 var branchCoveredAsLine = covered > 0 ? 1 : 0;
                 lineCoverage = lineCoverage.add(
-                        lineBuilder.setCovered(branchCoveredAsLine).setMissed(1 - branchCoveredAsLine).build());
-                branchCoverage = branchCoverage.add(branchBuilder.setCovered(covered).setMissed(missed).build());
+                        lineBuilder.withCovered(branchCoveredAsLine).withMissed(1 - branchCoveredAsLine).build());
+                branchCoverage = branchCoverage.add(branchBuilder.withCovered(covered).withMissed(missed).build());
             }
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
@@ -280,7 +286,7 @@ public final class FileNode extends Node {
     private void filterMutations(final FileNode copy) {
         mutations.stream().filter(mutation -> modifiedLines.contains(mutation.getLine())).forEach(copy::addMutation);
         if (!copy.mutations.isEmpty()) {
-            var builder = new CoverageBuilder().setMetric(Metric.MUTATION).setMissed(0).setCovered(0);
+            var builder = new CoverageBuilder().withMetric(Metric.MUTATION).withMissed(0).withCovered(0);
             copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
             copy.mutations.stream()
                     .filter(Predicate.not(Mutation::isDetected))
@@ -323,26 +329,26 @@ public final class FileNode extends Node {
             }
             var builder = new CoverageBuilder();
             if (delta > 0) {
-                // the line is fully covered - even in case of branch coverage
+                // the line is fully covered - even in the case of branch coverage
                 if (delta == currentCoverage.getCovered()) {
-                    builder.setMetric(Metric.LINE).setCovered(1).setMissed(0);
+                    builder.withMetric(Metric.LINE).withCovered(1).withMissed(0);
                     lineCoverage = lineCoverage.add(builder.build());
                 }
                 // the branch coverage increased for 'delta' hits
                 if (currentCoverage.getTotal() > 1) {
-                    builder.setMetric(Metric.BRANCH).setCovered(delta).setMissed(0);
+                    builder.withMetric(Metric.BRANCH).withCovered(delta).withMissed(0);
                     branchCoverage = branchCoverage.add(builder.build());
                 }
             }
             else if (delta < 0) {
                 // the line is not covered anymore
                 if (currentCoverage.getCovered() == 0) {
-                    builder.setMetric(Metric.LINE).setCovered(0).setMissed(1);
+                    builder.withMetric(Metric.LINE).withCovered(0).withMissed(1);
                     lineCoverage = lineCoverage.add(builder.build());
                 }
                 // the branch coverage is decreased by 'delta' hits
                 if (currentCoverage.getTotal() > 1) {
-                    builder.setMetric(Metric.BRANCH).setCovered(0).setMissed(Math.abs(delta));
+                    builder.withMetric(Metric.BRANCH).withCovered(0).withMissed(Math.abs(delta));
                     branchCoverage = branchCoverage.add(builder.build());
                 }
             }
@@ -388,9 +394,9 @@ public final class FileNode extends Node {
     private Coverage getLineCoverage(final int line) {
         if (hasCoverageForLine(line)) {
             var covered = getCoveredOfLine(line) > 0 ? 1 : 0;
-            return new CoverageBuilder().setMetric(Metric.LINE)
-                    .setCovered(covered)
-                    .setMissed(1 - covered)
+            return new CoverageBuilder().withMetric(Metric.LINE)
+                    .withCovered(covered)
+                    .withMissed(1 - covered)
                     .build();
         }
         return Coverage.nullObject(Metric.LINE);
@@ -401,9 +407,9 @@ public final class FileNode extends Node {
             var covered = getCoveredOfLine(line);
             var missed = getMissedOfLine(line);
             if (covered + missed > 1) {
-                return new CoverageBuilder().setMetric(Metric.BRANCH)
-                        .setCovered(covered)
-                        .setMissed(missed)
+                return new CoverageBuilder().withMetric(Metric.BRANCH)
+                        .withCovered(covered)
+                        .withMissed(missed)
                         .build();
             }
         }
@@ -720,6 +726,11 @@ public final class FileNode extends Node {
      */
     public void setRelativePath(final TreeString relativePath) {
         this.relativePath = relativePath;
+    }
+
+    @Override
+    public boolean isAggregation() {
+        return false;
     }
 
     @Override

@@ -36,4 +36,9 @@ public final class ClassNode extends Node {
         addChild(fileNode);
         return fileNode;
     }
+
+    @Override
+    public boolean isAggregation() {
+        return false;
+    }
 }

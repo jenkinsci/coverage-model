@@ -2,7 +2,7 @@ package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ClassNodeTest extends AbstractNodeTest {
     @Override
@@ -17,15 +17,16 @@ class ClassNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldHandleUnexpectedNodes() {
-        var root = new ClassNode("Class");
+        var classNode = new ClassNode("Class");
         var main = new MethodNode("main", "String...");
-        root.addChild(main);
-        root.addChild(new ClassNode("NestedClass"));
+        classNode.addChild(main);
+        classNode.addChild(new ClassNode("NestedClass"));
 
-        assertThat(root.findMethod("main", "String..."))
+        assertThat(classNode.findMethod("main", "String..."))
                 .isPresent()
                 .containsSame(main);
-        assertThat(root.findMethod("main", "Nothing"))
+        assertThat(classNode.findMethod("main", "Nothing"))
                 .isNotPresent();
+        assertThat(classNode).isNotAggregation();
     }
 }

@@ -184,6 +184,7 @@ public abstract class Node implements Serializable {
      *
      * @param childName
      *         the name of the child to look for
+     *
      * @return {@code true} if this node has a child with the specified name, {@code false} otherwise
      */
     public boolean hasChild(final String childName) {
@@ -305,7 +306,7 @@ public abstract class Node implements Serializable {
      * @param searchMetric
      *         the metric to get the value for
      *
-     * @return coverage ratio
+     * @return the value for the specified metric or an empty result if no value has been defined
      */
     public Optional<Value> getValue(final Metric searchMetric) {
         return searchMetric.getValueFor(this);
@@ -546,16 +547,48 @@ public abstract class Node implements Serializable {
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent) {
+        return copyTree(copiedParent, f -> true);
+    }
+
+    /**
+     * Creates a deep copy of the tree with the specified {@link Node} as root.
+     *
+     * @param copiedParent
+     *         The root node
+     * @param filter
+     *         the filter to apply to the tree
+     *
+     * @return the copied tree
+     */
+    public Node copyTree(@CheckForNull final Node copiedParent, final Function<Node, Boolean> filter) {
         Node copy = copyNode();
 
         if (copiedParent != null) {
             copy.setParent(copiedParent);
         }
         getChildren().stream()
-                .map(node -> node.copyTree(this))
+                .filter(filter::apply)
+                .map(node -> node.copyTree(this, filter))
                 .forEach(copy::addChild);
 
         return copy;
+    }
+
+    /**
+     * Creates a deep copy of the tree that contains only the file nodes that have the specified file names. All other
+     * file nodes will be removed from the tree.
+     *
+     * @param fileNames
+     *         the file names of the files to copy
+     *
+     * @return the copied tree
+     */
+    public Node filterByFileNames(final Collection<String> fileNames) {
+        return copyTree(null, node -> node.filterByRelativePath(fileNames));
+    }
+
+    protected boolean filterByRelativePath(final Collection<String> fileNames) {
+        return true;
     }
 
     /**
@@ -615,8 +648,8 @@ public abstract class Node implements Serializable {
 
     /**
      * Creates a new tree of {@link Node nodes} that will contain the merged nodes of the trees that are starting at
-     * this and the specified {@link Node}. To merge these two trees, this node and the specified {@code other}
-     * root node have to use the same {@link Metric} and name.
+     * this and the specified {@link Node}. To merge these two trees, this node and the specified {@code other} root
+     * node have to use the same {@link Metric} and name.
      *
      * @param other
      *         the other tree to merge (represented by the root node)
@@ -732,8 +765,8 @@ public abstract class Node implements Serializable {
     /**
      * Creates a new coverage tree that represents the modified files coverage. This new tree will contain only those
      * elements that have modified files. The difference against the modified line coverage is that the modified files
-     * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage
-     * of the modified lines.
+     * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage of
+     * the modified lines.
      *
      * @return the filtered tree
      */
@@ -782,4 +815,11 @@ public abstract class Node implements Serializable {
         return Optional.of(copy);
     }
 
+    /**
+     * Returns whether this node is an aggregation of other nodes. Aggregation nodes do not store values, they rather
+     * aggregate the values of their children.
+     *
+     * @return {@code true} if this node is an aggregation node, {@code false} otherwise
+     */
+    public abstract boolean isAggregation();
 }

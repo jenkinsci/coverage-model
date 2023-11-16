@@ -49,7 +49,7 @@ class FileNodeTest extends AbstractNodeTest {
         folder.addChild(file);
         module.addChild(folder);
 
-        assertThat(file.getRelativePath()).isEqualTo(relativePath);
+        assertThat(file).hasRelativePath(relativePath).isNotAggregation();
         var otherPath = "other";
 
         assertThat(file.getFiles()).containsExactly(relativePath);
@@ -86,12 +86,12 @@ class FileNodeTest extends AbstractNodeTest {
         var builder = new Coverage.CoverageBuilder();
 
         var fileA = new FileNode("FileA.java", ".");
-        var fileALineCoverage = builder.setMetric(Metric.LINE).setCovered(10).setMissed(10).build();
+        var fileALineCoverage = builder.withMetric(Metric.LINE).withCovered(10).withMissed(10).build();
         fileA.addValue(fileALineCoverage);
 
         var fileB = new FileNode("FileB.java", ".");
-        var fileBLineCoverage = builder.setMetric(Metric.LINE).setCovered(20).setMissed(0).build();
-        var fileABranchCoverage = builder.setMetric(Metric.BRANCH).setCovered(10).setMissed(5).build();
+        var fileBLineCoverage = builder.withMetric(Metric.LINE).withCovered(20).withMissed(0).build();
+        var fileABranchCoverage = builder.withMetric(Metric.BRANCH).withCovered(10).withMissed(5).build();
         fileB.addValue(fileBLineCoverage);
         fileB.addValue(fileABranchCoverage);
 
@@ -163,8 +163,8 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldFilterTreeByModifiedLinesWithMutation() {
         var mutationBuilder = new MutationBuilder();
         var fileNode = new FileNode("file.java", ".");
-        var mutation = mutationBuilder.setLine(2).build();
-        var otherMutation = mutationBuilder.setLine(3).build();
+        var mutation = mutationBuilder.withLine(2).build();
+        var otherMutation = mutationBuilder.withLine(3).build();
 
         fileNode.addCounters(2, 1, 0);
         fileNode.addModifiedLines(2);

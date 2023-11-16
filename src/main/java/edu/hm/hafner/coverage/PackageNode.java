@@ -110,4 +110,9 @@ public final class PackageNode extends Node {
         addChild(classNode);
         return classNode;
     }
+
+    @Override
+    public boolean isAggregation() {
+        return true;
+    }
 }

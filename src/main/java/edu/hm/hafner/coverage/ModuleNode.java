@@ -98,7 +98,7 @@ public final class ModuleNode extends Node {
     private void mergeSinglePackage(final Node packageNode) {
         for (Node existing : getChildren()) {
             if (isEqual(packageNode, existing)) {
-                // replace existing with merged two nodes
+                // replace the existing node with the merged nodes
                 removeChild(existing);
                 Node merged = existing.merge(packageNode);
                 addChild(merged);
@@ -148,6 +148,11 @@ public final class ModuleNode extends Node {
     public PackageNode findOrCreatePackageNode(final String packageName) {
         var normalizedPackageName = PackageNode.normalizePackageName(packageName);
         return findPackage(normalizedPackageName).orElseGet(() -> createPackageNode(normalizedPackageName));
+    }
+
+    @Override
+    public boolean isAggregation() {
+        return true;
     }
 
     @Override

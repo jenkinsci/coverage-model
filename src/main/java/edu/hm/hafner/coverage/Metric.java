@@ -139,12 +139,12 @@ public enum Metric {
 
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
-                var builder = new CoverageBuilder().setMetric(searchMetric);
+                var builder = new CoverageBuilder().withMetric(searchMetric);
                 if (hasCoverage(node)) {
-                    builder.setCovered(1).setMissed(0);
+                    builder.withCovered(1).withMissed(0);
                 }
                 else {
-                    builder.setCovered(0).setMissed(1);
+                    builder.withCovered(0).withMissed(1);
                 }
                 return Optional.of(builder.build());
             }

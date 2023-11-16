@@ -16,6 +16,7 @@ class ModuleNodeTest extends AbstractNodeTest {
     Node createNode(final String name) {
         var moduleNode = new ModuleNode(name);
         moduleNode.addSource("/path/to/sources");
+        assertThat(moduleNode).hasSourceFolders("/path/to/sources").isAggregation();
         return moduleNode;
     }
 

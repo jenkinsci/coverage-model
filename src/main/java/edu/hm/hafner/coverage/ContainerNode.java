@@ -23,4 +23,9 @@ public final class ContainerNode extends Node {
     public ContainerNode copy() {
         return new ContainerNode(getName());
     }
+
+    @Override
+    public boolean isAggregation() {
+        return true;
+    }
 }
