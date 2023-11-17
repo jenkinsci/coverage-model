@@ -20,7 +20,7 @@ categories:
     label: dependencies
   - title: 🔧 Internal Changes
     label: internal
-  - title: 🚦 TestCount
+  - title: 🚦 Tests
     label: tests
 
 version-resolver:

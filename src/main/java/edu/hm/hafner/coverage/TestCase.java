@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
- * Class which represents a test case.
+ * Represents a test case that has been executed.
  *
  * @author Ullrich Hafner
  */
