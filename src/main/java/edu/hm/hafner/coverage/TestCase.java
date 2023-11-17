@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
+import edu.hm.hafner.util.Generated;
+
 /**
  * Represents a test case that has been executed.
  *
@@ -84,7 +86,7 @@ public final class TestCase implements Serializable {
         return description.equals(testCase.description);
     }
 
-    @Override
+    @Override @Generated
     public String toString() {
         return "TestCase{testName='" + testName + '\'' + ", className='" + className + '\'' + ", status=" + status
                 + ", type='" + type + '\'' + ", message='" + message + '\'' + ", description='" + description + '\''

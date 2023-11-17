@@ -11,7 +11,6 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ValueTest {
-
     @Test
     void shouldReturnCorrectValueOfCoverage() {
         Value container = Value.valueOf("CONTAINER: 1/1");
@@ -53,13 +52,13 @@ class ValueTest {
     }
 
     @Test
-    void shouldReturnCorrectValueOfCyclomaticComplexity() {
-        Value cyclomaticComplexity = Value.valueOf("COMPLEXITY: 1");
-
-        assertThat(cyclomaticComplexity)
-                .isInstanceOf(CyclomaticComplexity.class);
-        assertThat((CyclomaticComplexity) cyclomaticComplexity)
-                .hasValue(1);
+    void shouldReturnCorrectValueOfIntegerValues() {
+        assertThat(Value.valueOf("COMPLEXITY: 1"))
+                .isInstanceOfSatisfying(CyclomaticComplexity.class, value -> assertThat(value).hasValue(1));
+        assertThat(Value.valueOf("LOC: 2"))
+                .isInstanceOfSatisfying(LinesOfCode.class, value -> assertThat(value).hasValue(2));
+        assertThat(Value.valueOf("TESTS: 3"))
+                .isInstanceOfSatisfying(TestCount.class, value -> assertThat(value).hasValue(3));
     }
 
     @Test
