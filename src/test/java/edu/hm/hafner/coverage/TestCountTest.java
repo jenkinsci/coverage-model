@@ -1,8 +1,8 @@
 package edu.hm.hafner.coverage;
 
-class LinesOfCodeTest extends IntegerValueTest {
+class TestCountTest extends IntegerValueTest {
     @Override
     IntegerValue createValue(final int value) {
-        return new LinesOfCode(value);
+        return new TestCount(value);
     }
 }
