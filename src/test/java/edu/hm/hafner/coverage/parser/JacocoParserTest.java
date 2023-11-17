@@ -38,6 +38,11 @@ class JacocoParserTest extends AbstractParserTest {
         return new JacocoParser();
     }
 
+    @Override
+    protected String getFolder() {
+        return "jacoco";
+    }
+
     private static Coverage getCoverage(final Node node, final Metric metric) {
         return (Coverage) node.getValue(metric).get();
     }

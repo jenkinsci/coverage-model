@@ -8,7 +8,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link FractionValue}.
+ * TestCount the class {@link FractionValue}.
  *
  * @author Ullrich Hafner
  */

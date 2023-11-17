@@ -9,7 +9,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link CyclomaticComplexity}.
+ * TestCount the class {@link CyclomaticComplexity}.
  *
  * @author Melissa Bauer
  */

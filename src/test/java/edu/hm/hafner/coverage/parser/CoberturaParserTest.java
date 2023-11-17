@@ -36,6 +36,11 @@ class CoberturaParserTest extends AbstractParserTest {
         return new CoberturaParser();
     }
 
+    @Override
+    protected String getFolder() {
+        return "cobertura";
+    }
+
     @Test
     void shouldIgnoreMissingConditionAttribute() {
         Node missingCondition = readReport("cobertura-missing-condition-coverage.xml");

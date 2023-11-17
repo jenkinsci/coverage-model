@@ -15,7 +15,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link Coverage}.
+ * TestCount the class {@link Coverage}.
  *
  * @author Ullrich Hafner
  * @author Jannik Treichel

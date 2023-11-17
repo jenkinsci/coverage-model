@@ -21,7 +21,7 @@ import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link Node}.
+ * TestCount the class {@link Node}.
  *
  * @author Ullrich Hafner
  */

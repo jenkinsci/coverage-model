@@ -25,6 +25,11 @@ class PitestParserTest extends AbstractParserTest {
         return new PitestParser();
     }
 
+    @Override
+    protected String getFolder() {
+        return "pit";
+    }
+
     @Test
     void shouldReadAllMutationProperties() {
         ModuleNode tree = readReport("mutation.xml");

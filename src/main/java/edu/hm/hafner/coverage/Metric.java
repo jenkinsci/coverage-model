@@ -13,7 +13,7 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * A coverage metric to identify the coverage result type. Note the enum order since the ordinal is used to sort the
+ * A metric to identify the type of the results. The enum order will be used to sort the
  * values for display purposes.
  *
  * @author Ullrich Hafner
@@ -37,7 +37,8 @@ public enum Metric {
     COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
     COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
     COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),
-    LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER);
+    LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER),
+    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER);
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -218,10 +219,10 @@ public enum Metric {
 
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
-            if (node.getMetric() == Metric.METHOD) {
+            if (node.getMetric() == METHOD) {
                 return COMPLEXITY.getValueFor(node)
                         .map(c -> new CyclomaticComplexity(((CyclomaticComplexity)c).getValue(),
-                                Metric.COMPLEXITY_MAXIMUM));
+                                COMPLEXITY_MAXIMUM));
             }
             return node.getChildren().stream()
                     .map(c -> compute(c, searchMetric))

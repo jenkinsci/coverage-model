@@ -32,7 +32,7 @@ abstract class AbstractParserTest {
     }
 
     ModuleNode readReport(final String fileName, final CoverageParser parser) {
-        try (InputStream stream = AbstractParserTest.class.getResourceAsStream(fileName);
+        try (InputStream stream = createFile(fileName);
                 Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             return parser.parse(reader, log);
         }
@@ -40,6 +40,17 @@ abstract class AbstractParserTest {
             throw new AssertionError(e);
         }
     }
+
+    @SuppressWarnings("resource")
+    private InputStream createFile(final String fileName) {
+        var file = AbstractParserTest.class.getResourceAsStream(fileName);
+        if (file == null) {
+            file = AbstractParserTest.class.getResourceAsStream(getFolder() + "/" + fileName);
+        }
+        return Objects.requireNonNull(file, "File not found: " + fileName);
+    }
+
+    protected abstract String getFolder();
 
     abstract CoverageParser createParser();
 

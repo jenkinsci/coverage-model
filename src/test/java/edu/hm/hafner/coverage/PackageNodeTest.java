@@ -17,7 +17,7 @@ class PackageNodeTest extends AbstractNodeTest {
     }
 
     /**
-     * Tests the copy functionality with a child.
+     * TestCount the copy functionality with a child.
      */
     @Test
     void shouldCopyEmpty() {
@@ -36,7 +36,7 @@ class PackageNodeTest extends AbstractNodeTest {
     }
 
     /**
-     * Tests the match functionality using a path hashcode.
+     * TestCount the match functionality using a path hashcode.
      */
     @Test
     void shouldMatchPath() {
