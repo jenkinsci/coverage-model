@@ -99,6 +99,8 @@ public abstract class Value implements Serializable {
                         return new CyclomaticComplexity(Integer.parseInt(value), Metric.COMPLEXITY_MAXIMUM);
                     case LOC:
                         return new LinesOfCode(Integer.parseInt(value));
+                    case TESTS:
+                        return new TestCount(Integer.parseInt(value));
                 }
             }
         }

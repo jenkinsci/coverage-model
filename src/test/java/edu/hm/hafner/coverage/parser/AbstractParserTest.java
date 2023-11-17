@@ -10,10 +10,13 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
+import com.google.errorprone.annotations.MustBeClosed;
+
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -41,7 +44,9 @@ abstract class AbstractParserTest {
         }
     }
 
+    @MustBeClosed
     @SuppressWarnings("resource")
+    @SuppressFBWarnings("OBL")
     private InputStream createFile(final String fileName) {
         var file = AbstractParserTest.class.getResourceAsStream(fileName);
         if (file == null) {
