@@ -25,6 +25,11 @@ class PitestParserTest extends AbstractParserTest {
         return new PitestParser();
     }
 
+    @Override
+    protected String getFolder() {
+        return "pit";
+    }
+
     @Test
     void shouldReadAllMutationProperties() {
         ModuleNode tree = readReport("mutation.xml");
@@ -39,6 +44,8 @@ class PitestParserTest extends AbstractParserTest {
                                         .hasKillingTest("edu.hm.hafner.coverage.CoverageNodeTest.[engine:junit-jupiter]/[class:edu.hm.hafner.coverage.CoverageNodeTest]/[method:shouldAddChildren()]")
                                         .hasDescription("removed call to edu/hm/hafner/coverage/CoverageNode::setParent")
                         ));
+
+        assertThat(tree.getMutations()).hasSize(1);
     }
 
     @Test
@@ -73,6 +80,7 @@ class PitestParserTest extends AbstractParserTest {
         assertThat(tree.findFile(LOOKAHEAD_STREAM)).isPresent().get().satisfies(this::verifyLookaheadStream);
         assertThat(tree.findFile(FILTERED_LOG)).isPresent().get().satisfies(this::verifyFilteredLog);
         assertThat(tree.findFile(ENSURE)).isPresent().get().satisfies(this::verifyEnsure);
+        assertThat(tree.getMutations()).hasSize(234);
     }
 
     private void verifyEnsure(final FileNode file) {

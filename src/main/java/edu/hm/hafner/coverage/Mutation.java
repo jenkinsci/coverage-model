@@ -11,7 +11,7 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.TreeStringBuilder;
 
 /**
- * Class which represents a mutation of the PIT Mutation Testing tool.
+ * Represents a mutation of the PIT Mutation Testing tool.
  *
  * @author Melissa Bauer
  */

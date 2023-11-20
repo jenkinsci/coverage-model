@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Tests the class {@link SafeFraction}.
+ * TestCount the class {@link SafeFraction}.
  *
  * @author Ullrich Hafner
  */

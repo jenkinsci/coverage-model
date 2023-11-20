@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * Tests the class {@link Metric}.
+ * TestCount the class {@link Metric}.
  *
  * @author Ullrich Hafner
  */
@@ -42,7 +42,7 @@ class MetricTest {
     }
 
     /**
-     * Tests if the object in the evaluator-attribute of class {@link Metric}
+     * TestCount if the object in the evaluator-attribute of class {@link Metric}
      * correctly overrides its isAggregatingChildren-method.
      */
     @Test

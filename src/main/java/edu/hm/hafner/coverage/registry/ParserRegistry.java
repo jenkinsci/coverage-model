@@ -6,6 +6,7 @@ import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
+import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
 
 /**
@@ -18,7 +19,8 @@ public class ParserRegistry {
     public enum CoverageParserType {
         COBERTURA,
         JACOCO,
-        PIT
+        PIT,
+        JUNIT
     }
 
     /**
@@ -58,6 +60,8 @@ public class ParserRegistry {
                 return new JacocoParser();
             case PIT:
                 return new PitestParser();
+            case JUNIT:
+                return new JunitParser();
         }
         throw new IllegalArgumentException("Unknown parser type: " + parser);
     }

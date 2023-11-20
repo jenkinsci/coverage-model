@@ -458,6 +458,20 @@ public abstract class Node implements Serializable {
                 .findAny();
     }
 
+    public List<Mutation> getMutations() {
+        return getChildren().stream()
+                .map(Node::getMutations)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    public List<TestCase> getTestCases() {
+        return getChildren().stream()
+                .map(Node::getTestCases)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
     /**
      * Returns the file names that are contained within the subtree of this node.
      *
@@ -468,11 +482,19 @@ public abstract class Node implements Serializable {
     }
 
     public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE).stream().map(FileNode.class::cast).collect(Collectors.toList());
+        return getAll(Metric.FILE, FileNode.class::cast);
+    }
+
+    public List<ClassNode> getAllClassNodes() {
+        return getAll(Metric.CLASS, ClassNode.class::cast);
     }
 
     public List<MethodNode> getAllMethodNodes() {
-        return getAll(Metric.METHOD).stream().map(MethodNode.class::cast).collect(Collectors.toList());
+        return getAll(Metric.METHOD, MethodNode.class::cast);
+    }
+
+    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
+        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
     }
 
     /**
