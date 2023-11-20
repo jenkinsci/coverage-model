@@ -59,11 +59,8 @@ class NodeTest {
 
         assertThat(child.getParent()).isEqualTo(parent);
 
-        //boundary-interior demonstration (Path "Don't enter loop" is impossible in this case)
-        assertThat(child.getParentName()).isEqualTo("Parent"); // boundary -> Enter only once and cover all branches
-        assertThat(subSubPackage.getParentName()).isEqualTo(
-                "Child.SubPackage"); // interior -> Enter twice and cover all branches
-
+        assertThat(child.getParentName()).isEqualTo("Parent");
+        assertThat(subSubPackage.getParentName()).isEqualTo("Child.SubPackage");
     }
 
     @Test
@@ -727,8 +724,6 @@ class NodeTest {
     @Test
     void shouldGetAllNodesOfTypeInTree() {
         Node tree = createTreeWithoutCoverage();
-        FileNode coveredFile = tree.findFile("Covered.java").orElseThrow();
-        FileNode missedFile = tree.findFile("Missed.java").orElseThrow();
         MethodNode coveredMethod = new MethodNode("coveredMethod", "signature");
         MethodNode missedMethod = new MethodNode("missedMethod", "signature");
 
@@ -736,7 +731,12 @@ class NodeTest {
         tree.findClass(MISSED_CLASS).orElseThrow().addChild(missedMethod);
 
         assertThat(tree.getAllMethodNodes()).containsExactlyInAnyOrder(coveredMethod, missedMethod);
-        assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(coveredFile, missedFile);
+        assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(
+                tree.findFile("Covered.java").orElseThrow(),
+                tree.findFile("Missed.java").orElseThrow());
+        assertThat(tree.getAllClassNodes()).containsExactlyInAnyOrder(
+                tree.findClass("CoveredClass.class").orElseThrow(),
+                tree.findClass("MissedClass.class").orElseThrow());
     }
 
     @Test

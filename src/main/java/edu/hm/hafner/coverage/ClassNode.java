@@ -71,6 +71,7 @@ public final class ClassNode extends Node {
         replaceValue(new TestCount(testCases.size()));
     }
 
+    @Override
     public List<TestCase> getTestCases() {
         return testCases;
     }

@@ -72,12 +72,8 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("CloudFormation Lint");
 
         assertThat(tree.aggregateValues()).contains(new TestCount(141));
-        assertThat(tree.getAll(Metric.CLASS).stream()
-                .map(ClassNode.class::cast)
-                .map(ClassNode::getTestCases)
-                .flatMap(Collection::stream)
-                .filter(test -> test.getStatus() == TestResult.SKIPPED)
-                .count()).isEqualTo(19);
+        assertThat(tree.getTestCases()).hasSize(141)
+                .filteredOn(test -> test.getStatus() == TestResult.SKIPPED).hasSize(19);
     }
 
     @Test
