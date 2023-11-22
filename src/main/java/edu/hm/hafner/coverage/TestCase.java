@@ -18,16 +18,16 @@ public final class TestCase implements Serializable {
 
     private final String testName;
     private final String className;
-    private final TestResult status;
+    private final TestResult result;
     private final String type;
     private final String message;
     private final String description;
 
-    private TestCase(final String testName, final String className, final TestResult status,
+    private TestCase(final String testName, final String className, final TestResult result,
             final String type, final String message, final String description) {
         this.testName = testName;
         this.className = className.intern();
-        this.status = status;
+        this.result = result;
         this.type = type;
         this.message = message;
         this.description = description;
@@ -41,8 +41,8 @@ public final class TestCase implements Serializable {
         return className;
     }
 
-    public TestResult getStatus() {
-        return status;
+    public TestResult getResult() {
+        return result;
     }
 
     public String getType() {
@@ -74,7 +74,7 @@ public final class TestCase implements Serializable {
         if (!className.equals(testCase.className)) {
             return false;
         }
-        if (status != testCase.status) {
+        if (result != testCase.result) {
             return false;
         }
         if (!type.equals(testCase.type)) {
@@ -88,20 +88,20 @@ public final class TestCase implements Serializable {
 
     @Override @Generated
     public String toString() {
-        return "TestCase{testName='" + testName + '\'' + ", className='" + className + '\'' + ", status=" + status
+        return "TestCase{testName='" + testName + '\'' + ", className='" + className + '\'' + ", status=" + result
                 + ", type='" + type + '\'' + ", message='" + message + '\'' + ", description='" + description + '\''
                 + '}';
     }
 
     @Override
     public int hashCode() {
-        int result = testName.hashCode();
-        result = 31 * result + className.hashCode();
-        result = 31 * result + status.hashCode();
-        result = 31 * result + type.hashCode();
-        result = 31 * result + message.hashCode();
-        result = 31 * result + description.hashCode();
-        return result;
+        int value = testName.hashCode();
+        value = 31 * value + className.hashCode();
+        value = 31 * value + this.result.hashCode();
+        value = 31 * value + type.hashCode();
+        value = 31 * value + message.hashCode();
+        value = 31 * value + description.hashCode();
+        return value;
     }
 
     /**
