@@ -23,7 +23,9 @@ public final class ClassNode extends Node {
 
     @Override
     public ClassNode copy() {
-        return new ClassNode(getName());
+        var copy = new ClassNode(getName());
+        copy.testCases.addAll(testCases);
+        return copy;
     }
 
     /**

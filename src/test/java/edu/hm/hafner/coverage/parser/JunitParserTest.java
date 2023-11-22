@@ -73,7 +73,7 @@ class JunitParserTest extends AbstractParserTest {
 
         assertThat(tree.aggregateValues()).contains(new TestCount(141));
         assertThat(tree.getTestCases()).hasSize(141)
-                .filteredOn(test -> test.getStatus() == TestResult.SKIPPED).hasSize(19);
+                .filteredOn(test -> test.getResult() == TestResult.SKIPPED).hasSize(19);
     }
 
     @Test
@@ -206,7 +206,7 @@ class JunitParserTest extends AbstractParserTest {
                 .map(ClassNode.class::cast)
                 .map(ClassNode::getTestCases)
                 .flatMap(Collection::stream)
-                .filter(test -> test.getStatus() == TestResult.FAILED)
+                .filter(test -> test.getResult() == TestResult.FAILED)
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No failed test found"));
     }

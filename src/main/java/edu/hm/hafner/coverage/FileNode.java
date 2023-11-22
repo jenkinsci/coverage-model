@@ -90,19 +90,19 @@ public final class FileNode extends Node {
 
     @Override
     public FileNode copy() {
-        var file = new FileNode(getName(), relativePath);
+        var copy = new FileNode(getName(), relativePath);
 
-        file.coveredPerLine.putAll(coveredPerLine);
-        file.missedPerLine.putAll(missedPerLine);
+        copy.coveredPerLine.putAll(coveredPerLine);
+        copy.missedPerLine.putAll(missedPerLine);
 
-        file.modifiedLines.addAll(modifiedLines);
+        copy.modifiedLines.addAll(modifiedLines);
 
-        file.mutations.addAll(mutations);
+        copy.mutations.addAll(mutations);
 
-        file.indirectCoverageChanges.putAll(indirectCoverageChanges);
-        file.coverageDelta.putAll(coverageDelta);
+        copy.indirectCoverageChanges.putAll(indirectCoverageChanges);
+        copy.coverageDelta.putAll(coverageDelta);
 
-        return file;
+        return copy;
     }
 
     @Override
