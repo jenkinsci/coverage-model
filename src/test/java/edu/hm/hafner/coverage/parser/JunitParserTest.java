@@ -49,7 +49,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(testClass.getTestCases()).hasSize(1);
 
         var testCase = getFirstTest(tree);
-        assertThat(testCase).hasStatus(TestResult.FAILED)
+        assertThat(testCase).hasResult(TestResult.FAILED)
                 .hasClassName("Aufgabe3Test")
                 .hasTestName("shouldSplitToEmptyRight(int)[1]")
                 .hasType("org.opentest4j.AssertionFailedError");
