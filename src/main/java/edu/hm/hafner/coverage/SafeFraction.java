@@ -2,8 +2,6 @@ package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.math.Fraction;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import static edu.hm.hafner.coverage.Percentage.*;
 
 /**
@@ -33,7 +31,6 @@ public class SafeFraction {
      * @param denominator
      *         the denominator of the fraction
      */
-    @SuppressFBWarnings("CT_CONSTRUCTOR_THROW")
     public SafeFraction(final int numerator, final int denominator) {
         if (denominator == 0) {
             throw new IllegalArgumentException(TOTALS_ZERO_MESSAGE);
