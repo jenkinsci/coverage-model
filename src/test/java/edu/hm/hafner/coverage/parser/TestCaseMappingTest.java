@@ -13,6 +13,7 @@ import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.util.FilteredLog;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -39,6 +40,7 @@ class TestCaseMappingTest {
                 .containsOnly("ArchitectureTest", "PackageArchitectureTest");
     }
 
+    @SuppressFBWarnings("OBL")
     private ModuleNode readReport(final String fileName, final CoverageParser parser) {
         try {
             try (InputStream stream = Objects.requireNonNull(TestCaseMappingTest.class.getResourceAsStream(fileName),

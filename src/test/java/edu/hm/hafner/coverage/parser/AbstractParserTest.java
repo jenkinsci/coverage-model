@@ -45,7 +45,6 @@ abstract class AbstractParserTest {
     }
 
     @MustBeClosed
-    @SuppressWarnings("resource")
     @SuppressFBWarnings("OBL")
     private InputStream createFile(final String fileName) {
         String name;
