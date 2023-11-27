@@ -1,7 +1,10 @@
 package edu.hm.hafner.coverage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A {@link Node} for a specific class.
@@ -18,7 +21,23 @@ public final class ClassNode extends Node {
      *         the name of the class
      */
     public ClassNode(final String name) {
-        super(Metric.CLASS, name);
+        super(Metric.CLASS, PackageNode.normalizePackageName(name));
+    }
+
+    /**
+     * Returns the package name of this class. The package name is either the name of the parent package node or the
+     * package part of this class' name.
+     *
+     * @return the package name
+     */
+    public String getPackageName() {
+        if (getName().contains(".")) {
+            return StringUtils.substringBeforeLast(getName(), ".");
+        }
+        if (hasParent() && getParent().getMetric() == Metric.PACKAGE) {
+            return getParentName();
+        }
+        return EMPTY_NAME;
     }
 
     @Override
@@ -68,8 +87,22 @@ public final class ClassNode extends Node {
      *         the test case to add
      */
     public void addTestCase(final TestCase testCase) {
-        testCases.add(testCase);
+        addTestCases(List.of(testCase));
+    }
 
+    /**
+     * Adds all given test cases to this class.
+     *
+     * @param additionalTestCases
+     *         the test cases to add
+     */
+    public void addTestCases(final Collection<TestCase> additionalTestCases) {
+        this.testCases.addAll(additionalTestCases);
+
+        updateTestCount();
+    }
+
+    private void updateTestCount() {
         replaceValue(new TestCount(testCases.size()));
     }
 

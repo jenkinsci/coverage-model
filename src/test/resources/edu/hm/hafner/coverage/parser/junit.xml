@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.ArchitectureTest" time="1.751" tests="9" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR" classname="ArchitectureTest" time="1.364"/>
+    <testcase name="NO_PUBLIC_TEST_CLASSES" classname="ArchitectureTest" time="0.001"/>
+    <testcase name="ONLY_PACKAGE_PRIVATE_TEST_METHODS" classname="ArchitectureTest" time="0.023"/>
+    <testcase name="ONLY_PACKAGE_PRIVATE_ARCHITECTURE_TESTS" classname="ArchitectureTest" time="0.001"/>
+    <testcase name="NO_TEST_API_CALLED" classname="ArchitectureTest" time="0.173"/>
+    <testcase name="NO_FORBIDDEN_PACKAGE_ACCESSED" classname="ArchitectureTest" time="0.128"/>
+    <testcase name="NO_FORBIDDEN_ANNOTATION_USED" classname="ArchitectureTest" time="0.039"/>
+    <testcase name="NO_FORBIDDEN_CLASSES_CALLED" classname="ArchitectureTest" time="0.02"/>
+    <testcase name="READ_RESOLVE_SHOULD_BE_PROTECTED" classname="ArchitectureTest" time="0.002"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.ClassNodeTest" time="0.052" tests="6" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.005"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.002"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.037"/>
+    <testcase name="shouldCopyTests" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.001"/>
+    <testcase name="shouldHandleUnexpectedNodes" classname="edu.hm.hafner.coverage.ClassNodeTest" time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.ContainerNodeTest" time="0.07" tests="5" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.ContainerNodeTest" time="0.006"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.ContainerNodeTest" time="0.002"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.ContainerNodeTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.ContainerNodeTest" time="0.046"/>
+    <testcase name="shouldAggregateSourceFolders" classname="edu.hm.hafner.coverage.ContainerNodeTest" time="0.009"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.CoverageParserTest" time="0.01" tests="1" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldReturnZeroOnInvalidStringParsing" classname="edu.hm.hafner.coverage.CoverageParserTest"
+              time="0.008"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.CoverageTest" time="0.143" tests="33" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldCalculateThirdValueOnBuilder" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverageBasedOnStringRepresentation" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenSettingOneOnBuilder" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.002"/>
+    <testcase name="shouldSetMetricCoveredMissedByString" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenMaximumIsInvalid(int)[1]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.004"/>
+    <testcase name="shouldThrowExceptionWhenMaximumIsInvalid(int)[2]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenMaximumIsInvalid(int)[3]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenMaximumIsInvalid(int)[4]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenMaximumIsInvalid(int)[5]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenSettingThreeOnBuilder" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.002"/>
+    <testcase name="shouldThrowExceptionOnBadStringRepresentation" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.002"/>
+    <testcase name="shouldCompareWithThreshold" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverageBasedOnFullStringRepresentation" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.002"/>
+    <testcase name="shouldCreateCoverage(int)[1]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.01"/>
+    <testcase name="shouldCreateCoverage(int)[2]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverage(int)[3]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverage(int)[4]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverage(int)[5]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverage(int)[6]" classname="edu.hm.hafner.coverage.CoverageTest" time="0.001"/>
+    <testcase name="shouldCreateCoverage(int, int, String)[1]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.005"/>
+    <testcase name="shouldCreateCoverage(int, int, String)[2]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.002"/>
+    <testcase name="shouldCreateCoverage(int, int, String)[3]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldCreateCoverage(int, int, String)[4]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldCreateCoverage(int, int, String)[5]" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenInitializationIsInvalid" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenSettingNoneOnBuilder" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.001"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.CoverageTest" time="0.0"/>
+    <testcase name="shouldProvideNullObject" classname="edu.hm.hafner.coverage.CoverageTest" time="0.0"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.CoverageTest" time="0.018"/>
+    <testcase name="shouldThrowExceptionWithIncompatibleValue" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.004"/>
+    <testcase name="shouldThrowExceptionIfNoMetricDefinedOnBuilder" classname="edu.hm.hafner.coverage.CoverageTest"
+              time="0.0"/>
+    <testcase name="shouldCreatePercentages" classname="edu.hm.hafner.coverage.CoverageTest" time="0.0"/>
+    <testcase name="shouldComputeMaximum" classname="edu.hm.hafner.coverage.CoverageTest" time="0.0"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.058" tests="7" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldAddValues" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.002"/>
+    <testcase name="shouldCompareWithThreshold" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest"
+              time="0.001"/>
+    <testcase name="shouldThrowExceptionOnInvalidDeltaParameter"
+              classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.003"/>
+    <testcase name="shouldCreateValue" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.001"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.042"/>
+    <testcase name="shouldFindMaximum" classname="edu.hm.hafner.coverage.CyclomaticComplexityTest" time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.FileNodeTest" time="0.12" tests="18" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.019"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.002"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.055"/>
+    <testcase name="shouldGetPartiallyCoveredLines" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldFilterTreeByIndirectChangesNegativeDelta" classname="edu.hm.hafner.coverage.FileNodeTest"
+              time="0.001"/>
+    <testcase name="shouldAddModifiedLines" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.0"/>
+    <testcase name="shouldFilterTreeByIndirectChangesNoDelta" classname="edu.hm.hafner.coverage.FileNodeTest"
+              time="0.0"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldReturnMissedLineRanges" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.005"/>
+    <testcase name="shouldThrowExceptionOnFilterTreeByModifiedLinesIfCoverageTotalIsZero"
+              classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldFilterTreeByIndirectChangeWhenDeltaForNonCoveredLine"
+              classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldFilterTreeByModifiedLinesWithNoMutations" classname="edu.hm.hafner.coverage.FileNodeTest"
+              time="0.0"/>
+    <testcase name="shouldGetFilePath" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+    <testcase name="shouldFilterTreeByIndirectChangesPositiveDelta" classname="edu.hm.hafner.coverage.FileNodeTest"
+              time="0.001"/>
+    <testcase name="shouldFilterTreeByModifiedLinesWithMutation" classname="edu.hm.hafner.coverage.FileNodeTest"
+              time="0.001"/>
+    <testcase name="shouldReadOldVersion" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.021"/>
+    <testcase name="shouldGetCounters" classname="edu.hm.hafner.coverage.FileNodeTest" time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.FractionValueTest" time="1.47" tests="4" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldReturnDelta" classname="edu.hm.hafner.coverage.FractionValueTest" time="0.24"/>
+    <testcase name="shouldVerifyContract" classname="edu.hm.hafner.coverage.FractionValueTest" time="0.02"/>
+    <testcase name="shouldCreateDelta" classname="edu.hm.hafner.coverage.FractionValueTest" time="0.016"/>
+    <testcase name="shouldObeyEqualsContract" classname="edu.hm.hafner.coverage.FractionValueTest" time="1.123"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.019" tests="7" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldAddValues" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.001"/>
+    <testcase name="shouldCompareWithThreshold" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.001"/>
+    <testcase name="shouldThrowExceptionOnInvalidDeltaParameter" classname="edu.hm.hafner.coverage.LinesOfCodeTest"
+              time="0.001"/>
+    <testcase name="shouldCreateValue" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.001"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.0"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.013"/>
+    <testcase name="shouldFindMaximum" classname="edu.hm.hafner.coverage.LinesOfCodeTest" time="0.0"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.MethodNodeTest" time="0.053" tests="11" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.005"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.002"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.033"/>
+    <testcase name="shouldCreateMethodCoverageNode" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.001"/>
+    <testcase name="shouldCheckInvalidLineNumber" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.0"/>
+    <testcase name="shouldCheckLineNumberZero" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.0"/>
+    <testcase name="shouldGetValidLineNumber" classname="edu.hm.hafner.coverage.MethodNodeTest" time="0.001"/>
+    <testcase name="shouldComputeMethodCoverage(Metric)[1]" classname="edu.hm.hafner.coverage.MethodNodeTest"
+              time="0.002"/>
+    <testcase name="shouldComputeMethodCoverage(Metric)[2]" classname="edu.hm.hafner.coverage.MethodNodeTest"
+              time="0.001"/>
+    <testcase name="shouldComputeMethodCoverage(Metric)[3]" classname="edu.hm.hafner.coverage.MethodNodeTest"
+              time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.MetricTest" time="0.03" tests="19" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldGetCoverageMetrics" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldCorrectlyComputeDensityEvaluator" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldCorrectlyImplementIsContainer" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[1]" classname="edu.hm.hafner.coverage.MetricTest" time="0.003"/>
+    <testcase name="shouldConvertToTags(Metric)[2]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[3]" classname="edu.hm.hafner.coverage.MetricTest" time="0.0"/>
+    <testcase name="shouldConvertToTags(Metric)[4]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[5]" classname="edu.hm.hafner.coverage.MetricTest" time="0.0"/>
+    <testcase name="shouldConvertToTags(Metric)[6]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[7]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[8]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[9]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[10]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[11]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[12]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[13]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[14]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldConvertToTags(Metric)[15]" classname="edu.hm.hafner.coverage.MetricTest" time="0.001"/>
+    <testcase name="shouldReturnEmptyOptionalOnComputeDensityEvaluator" classname="edu.hm.hafner.coverage.MetricTest"
+              time="0.0"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.ModuleNodeTest" time="0.044" tests="9" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.005"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.001"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.027"/>
+    <testcase name="shouldNotMergeWhenDifferentMetric" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.001"/>
+    <testcase name="shouldSplitPackagesWithoutPackageNodes" classname="edu.hm.hafner.coverage.ModuleNodeTest"
+              time="0.0"/>
+    <testcase name="shouldSplitPackagesWithoutName" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.0"/>
+    <testcase name="shouldKeepNodesAfterSplitting" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.001"/>
+    <testcase name="shouldSplitPackagesIntoHierarchy" classname="edu.hm.hafner.coverage.ModuleNodeTest" time="0.002"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.MutationTest" time="0.095" tests="3" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldReturnCorrectAttributeValues" classname="edu.hm.hafner.coverage.MutationTest" time="0.008"/>
+    <testcase name="shouldBuildAndAddToModule" classname="edu.hm.hafner.coverage.MutationTest" time="0.029"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.MutationTest" time="0.051"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.NodeTest" time="0.08" tests="43" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldFilterByFileName" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCombineReportsOfSameModuleContainingSameAndDifferentPackages"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.015"/>
+    <testcase name="shouldReturnCorrectChildNodes" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldGetCoverageValueByMetricWithDefault" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldGetAllNodesOfTypeInTree" classname="edu.hm.hafner.coverage.NodeTest" time="0.002"/>
+    <testcase name="shouldMergeMultipleNodesWithSameNameInList" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.003"/>
+    <testcase name="shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldPrintAllMetricsForNodeAndChildNodes" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldCalculateCorrectCoverageForModule" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldThrowExceptionWhenTryingToRemoveNodeThatIsNotAChild"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCalculateCorrectCoverageWithNestedStructure" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldCombineReportsOfSameModuleContainingSamePackage" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldFilterByFile" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldFindNodeByNameOrHashCode" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCombineReportsOfSameModuleContainingDifferentPackages"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldCreateNonEmptyNodes" classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldUseDeepCopiedNodesInCombineWithInRelatedProjects" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldMergeMultipleNodesWithDifferentMetricInList" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldContainMetric" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldReturnCorrectHasModifiedLines" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.NodeTest" time="0.002"/>
+    <testcase name="shouldReturnAllNodesOfSpecificMetricType" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldHandleNonExistingParent" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCreateModifiedLinesCoverageTree" classname="edu.hm.hafner.coverage.NodeTest" time="0.003"/>
+    <testcase name="shouldDeepCopyNodeTree" classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldThrowExceptionOnMergeWithEmptyList" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldDetectMatchingOfMetricTypeAndNameOrHashCode" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldHandleLeaves" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldKeepChildNodesAfterCombiningReportWithSamePackage" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.0"/>
+    <testcase name="shouldMergeSingleNodeInList" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldGetAllValueMetrics" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldMergeMultipleNodesWithDifferentNameInList" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldMergeWithDuplicateAndDifferentNames" classname="edu.hm.hafner.coverage.NodeTest"
+              time="0.001"/>
+    <testcase name="shouldCreateEmptyIndirectCoverageChangesTreeWithoutChanges"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldNotAcceptIncompatibleNodes" classname="edu.hm.hafner.coverage.NodeTest" time="0.002"/>
+    <testcase name="shouldCalculateDistributedMetrics" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCreateEmptyNodes" classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldReturnParentOfNodeAndItsName" classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldCreateModifiedFilesCoverageTree" classname="edu.hm.hafner.coverage.NodeTest" time="0.002"/>
+    <testcase name="shouldAlsoHandleReportsThatStopAtHigherLevelAndOtherReportHasHigherCoverage"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.0"/>
+    <testcase name="shouldCreateIndirectCoverageChangesTree" classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+    <testcase name="shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges"
+              classname="edu.hm.hafner.coverage.NodeTest" time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.PackageNodeTest" time="0.308" tests="9" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldBeSerializable" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.101"/>
+    <testcase name="shouldCopyNode" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.049"/>
+    <testcase name="shouldCreateSingleNode" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.005"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.122"/>
+    <testcase name="shouldSplitPackages" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.007"/>
+    <testcase name="shouldMatchPath" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.001"/>
+    <testcase name="shouldCopyEmpty" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.001"/>
+    <testcase name="shouldSplitReversePackages" classname="edu.hm.hafner.coverage.PackageNodeTest" time="0.002"/>
+    <testcase name="shouldNormalizePackageNameCorrectly" classname="edu.hm.hafner.coverage.PackageNodeTest"
+              time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.198" tests="14" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldFailWhenParsingInvalidFiles" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.004"/>
+    <testcase name="shouldReadCoberturaWithMissingSources" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.018"/>
+    <testcase name="shouldConvertCoberturaBigToTree" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.018"/>
+    <testcase name="shouldCountCorrectly" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.039"/>
+    <testcase name="shouldMergeCorrectly" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.013"/>
+    <testcase name="shouldReadCoberturaAbsolutePath" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.005"/>
+    <testcase name="shouldIgnoreDuplicateClasses" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.01"/>
+    <testcase name="shouldIgnoreDuplicateMethods" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.006"/>
+    <testcase name="shouldReadCoberturaAggregation" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.015"/>
+    <testcase name="shouldReturnCorrectPathsInFileCoverageNodesFromCoberturaReport"
+              classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.043"/>
+    <testcase name="shouldIgnoreMissingConditionAttribute" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest"
+              time="0.004"/>
+    <testcase name="shouldHaveOneSource" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.003"/>
+    <testcase name="shouldReturnCorrectPathsInFileCoverageNodesFromPythonCoberturaReport"
+              classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.004"/>
+    <testcase name="shouldReadCoberturaNpe" classname="edu.hm.hafner.coverage.parser.CoberturaParserTest" time="0.006"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.parser.JacocoParserTest" time="2.3" tests="11" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldFailWhenParsingInvalidFiles" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="0.013"/>
+    <testcase name="shouldSplitPackages" classname="edu.hm.hafner.coverage.parser.JacocoParserTest" time="0.079"/>
+    <testcase name="shouldFilterByFiles" classname="edu.hm.hafner.coverage.parser.JacocoParserTest" time="0.053"/>
+    <testcase name="shouldConvertCodingStyleWithoutSourceFilenames"
+              classname="edu.hm.hafner.coverage.parser.JacocoParserTest" time="0.04"/>
+    <testcase name="shouldReadAndSplitSubpackage" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="0.093"/>
+    <testcase name="shouldDetectMethodCoverage" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="0.055"/>
+    <testcase name="shouldMergeProjects(boolean)[1]" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="1.521"/>
+    <testcase name="shouldMergeProjects(boolean)[2]" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="0.354"/>
+    <testcase name="shouldCreatePackageName" classname="edu.hm.hafner.coverage.parser.JacocoParserTest" time="0.01"/>
+    <testcase name="shouldMergeBranches" classname="edu.hm.hafner.coverage.parser.JacocoParserTest" time="0.015"/>
+    <testcase name="shouldConvertCodingStyleToTree" classname="edu.hm.hafner.coverage.parser.JacocoParserTest"
+              time="0.013"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.317" tests="12" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldFailWhenParsingInvalidFiles" classname="edu.hm.hafner.coverage.parser.JunitParserTest"
+              time="0.102"/>
+    <testcase name="shouldReadFailure" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.083"/>
+    <testcase name="shouldReadJavaClassNames" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.007"/>
+    <testcase name="shouldReadBrokenClassNames" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.009"/>
+    <testcase name="shouldReadWithNameOnly" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.057"/>
+    <testcase name="shouldReadErrorWithoutSuite" classname="edu.hm.hafner.coverage.parser.JunitParserTest"
+              time="0.008"/>
+    <testcase name="shouldReadArchUnitTests" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.007"/>
+    <testcase name="shouldReadAndroidTestResults" classname="edu.hm.hafner.coverage.parser.JunitParserTest"
+              time="0.004"/>
+    <testcase name="shouldReadNoMessageAndType" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.004"/>
+    <testcase name="shouldReadPerformanceTestResults" classname="edu.hm.hafner.coverage.parser.JunitParserTest"
+              time="0.007"/>
+    <testcase name="shouldReadTestSuites" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.006"/>
+    <testcase name="shouldReadError" classname="edu.hm.hafner.coverage.parser.JunitParserTest" time="0.01"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.parser.PitestParserTest" time="0.323" tests="5" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldFailWhenParsingInvalidFiles" classname="edu.hm.hafner.coverage.parser.PitestParserTest"
+              time="0.003"/>
+    <testcase name="shouldMapLineCoveragesForPainting" classname="edu.hm.hafner.coverage.parser.PitestParserTest"
+              time="0.167"/>
+    <testcase name="shouldReadAllMutationProperties" classname="edu.hm.hafner.coverage.parser.PitestParserTest"
+              time="0.004"/>
+    <testcase name="shouldConvertMutationsToTree" classname="edu.hm.hafner.coverage.parser.PitestParserTest"
+              time="0.137"/>
+    <testcase name="shouldReadAllMutationPropertiesEvenIfXmlContainsBlocksAndIndexes"
+              classname="edu.hm.hafner.coverage.parser.PitestParserTest" time="0.006"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.PercentageTest" time="0.026" tests="7" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldCreatePercentageFromFraction" classname="edu.hm.hafner.coverage.PercentageTest" time="0.001"/>
+    <testcase name="shouldCreatePercentageFromNumeratorAndDenominator" classname="edu.hm.hafner.coverage.PercentageTest"
+              time="0.001"/>
+    <testcase name="shouldNotCreatePercentageFromNumeratorAndZeroDenominator"
+              classname="edu.hm.hafner.coverage.PercentageTest" time="0.001"/>
+    <testcase name="shouldHandleOverflow" classname="edu.hm.hafner.coverage.PercentageTest" time="0.001"/>
+    <testcase name="shouldObeyEqualsContract" classname="edu.hm.hafner.coverage.PercentageTest" time="0.017"/>
+    <testcase name="shouldNotCreatePercentageOfInvalidStringRepresentation"
+              classname="edu.hm.hafner.coverage.PercentageTest" time="0.001"/>
+    <testcase name="shouldSerializeInstance" classname="edu.hm.hafner.coverage.PercentageTest" time="0.002"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.registry.ParserRegistryTest" time="0.008" tests="2" errors="0"
+             skipped="0" failures="0">
+
+    <testcase name="shouldThrowExceptionForNotSupportedTypes"
+              classname="edu.hm.hafner.coverage.registry.ParserRegistryTest" time="0.006"/>
+    <testcase name="shouldCreateSomeParsers" classname="edu.hm.hafner.coverage.registry.ParserRegistryTest"
+              time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.SafeFractionTest" time="0.02" tests="6" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldThrowExceptionOnSubtractWithDenominatorZero"
+              classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.002"/>
+    <testcase name="shouldHandleOverflowForMultiply" classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.007"/>
+    <testcase name="shouldDelegateToFraction" classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.001"/>
+    <testcase name="shouldHandleOverflowForSubtract" classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.001"/>
+    <testcase name="shouldHandleOverflowForAdd" classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.001"/>
+    <testcase name="shouldThrowExceptionOnInstanceWithDenominatorZero"
+              classname="edu.hm.hafner.coverage.SafeFractionTest" time="0.001"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.TestCaseTest" time="0.038" tests="1" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.TestCaseTest" time="0.036"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.TestCountTest" time="0.021" tests="7" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldAddValues" classname="edu.hm.hafner.coverage.TestCountTest" time="0.0"/>
+    <testcase name="shouldCompareWithThreshold" classname="edu.hm.hafner.coverage.TestCountTest" time="0.0"/>
+    <testcase name="shouldThrowExceptionOnInvalidDeltaParameter" classname="edu.hm.hafner.coverage.TestCountTest"
+              time="0.0"/>
+    <testcase name="shouldCreateValue" classname="edu.hm.hafner.coverage.TestCountTest" time="0.0"/>
+    <testcase name="shouldComputeDelta" classname="edu.hm.hafner.coverage.TestCountTest" time="0.001"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.TestCountTest" time="0.015"/>
+    <testcase name="shouldFindMaximum" classname="edu.hm.hafner.coverage.TestCountTest" time="0.0"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.coverage.ValueTest" time="0.024" tests="7" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="shouldReturnCorrectValueOfIntegerValues" classname="edu.hm.hafner.coverage.ValueTest" time="0.004"/>
+    <testcase name="shouldReturnCorrectValueOfFractionValue" classname="edu.hm.hafner.coverage.ValueTest" time="0.0"/>
+    <testcase name="shouldReturnCorrectValueOfCoverage" classname="edu.hm.hafner.coverage.ValueTest" time="0.0"/>
+    <testcase name="shouldAdhereToEquals" classname="edu.hm.hafner.coverage.ValueTest" time="0.012"/>
+    <testcase name="shouldThrowExceptionOnInvalidStringRepresentation" classname="edu.hm.hafner.coverage.ValueTest"
+              time="0.001"/>
+    <testcase name="shouldGetValue" classname="edu.hm.hafner.coverage.ValueTest" time="0.001"/>
+    <testcase name="shouldReturnCorrectValueOfLinesOfCode" classname="edu.hm.hafner.coverage.ValueTest" time="0.0"/>
+  </testsuite>
+
+  <testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd"
+             version="3.0" name="edu.hm.hafner.PackageArchitectureTest" time="1.876" tests="1" errors="0" skipped="0"
+             failures="0">
+
+    <testcase name="ADHERES_TO_PACKAGE_DESIGN" classname="PackageArchitectureTest" time="1.876">
+      <system-err><![CDATA[[main] INFO com.tngtech.archunit.core.PluginLoader - Detected Java version 21.0.1
+]]></system-err>
+    </testcase>
+  </testsuite>
+
+</testsuites>

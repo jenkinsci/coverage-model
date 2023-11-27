@@ -41,4 +41,19 @@ class ClassNodeTest extends AbstractNodeTest {
         assertThat(original.getTestCases()).hasSize(1).contains(testCase);
         assertThat(original.copy().getTestCases()).hasSize(1).contains(testCase);
     }
+
+    @Test
+    void shouldHavePackageName() {
+        var classWithoutPackage = new ClassNode("Class");
+        assertThat(classWithoutPackage.getPackageName()).isEqualTo(Node.EMPTY_NAME);
+        var classWithPackage = new ClassNode("edu.hm.hafner.Class");
+        assertThat(classWithPackage.getPackageName()).isEqualTo("edu.hm.hafner");
+
+        var packageNode = new PackageNode("edu.hm");
+        packageNode.addChild(classWithPackage);
+        assertThat(classWithPackage.getPackageName()).isEqualTo("edu.hm.hafner");
+
+        packageNode.addChild(classWithoutPackage);
+        assertThat(classWithoutPackage.getPackageName()).isEqualTo("edu.hm");
+    }
 }

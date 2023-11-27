@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -633,6 +634,33 @@ public abstract class Node implements Serializable {
      * @return the copied node
      */
     public abstract Node copy();
+
+    /**
+     * Maps the test cases in all test classes of the specified {@link Node} to the corresponding class nodes of this
+     * tree. The mapping is done by the name of the test class. If the name of the test class can't be mapped to a
+     * target class, then the tests of this test class are ignored.
+     *
+     * @param testClassNodes
+     *         the test classes containing the test cases
+     */
+    public void mapTests(final List<ClassNode> testClassNodes) {
+        testClassNodes.forEach(this::mapTestClass);
+    }
+
+    private void mapTestClass(final ClassNode testClassNode) {
+        findPackage(testClassNode.getPackageName())
+                .ifPresent(packageNode -> packageNode.getAllClassNodes().stream()
+                        .filter(classNode -> matches(testClassNode, classNode))
+                        .forEach(classNode -> classNode.addTestCases(testClassNode.getTestCases())));
+    }
+
+    private boolean matches(final ClassNode testClassNode, final ClassNode classNode) {
+        return classNode.getName().endsWith(createTargetClassName(testClassNode));
+    }
+
+    private String createTargetClassName(final ClassNode testClassNode) {
+        return RegExUtils.removeAll(testClassNode.getName(), "I?Tests?$");
+    }
 
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have

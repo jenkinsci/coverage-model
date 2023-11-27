@@ -200,7 +200,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.findFile("CodeCoverageCategory.groovy")).isPresent().hasValueSatisfying(
-                file -> assertThat(file.findClass("org/aboe026/CodeCoverageCategory")).isPresent()
+                file -> assertThat(file.findClass("org.aboe026.CodeCoverageCategory")).isPresent()
                         .hasValueSatisfying(
                                 classNode -> assertThat(file.getAll(METHOD).size()).isEqualTo(3)));
 
