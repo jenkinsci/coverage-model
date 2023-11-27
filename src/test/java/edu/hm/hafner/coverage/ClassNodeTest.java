@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+import edu.hm.hafner.util.TreeString;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -55,5 +56,10 @@ class ClassNodeTest extends AbstractNodeTest {
 
         packageNode.addChild(classWithoutPackage);
         assertThat(classWithoutPackage.getPackageName()).isEqualTo("edu.hm");
+
+        var another = new ClassNode("Class");
+        var file = new FileNode("a.b.c.file.txt", TreeString.valueOf("/path/to/file.txt"));
+        file.addChild(another);
+        assertThat(another.getPackageName()).isEqualTo(Node.EMPTY_NAME);
     }
 }
