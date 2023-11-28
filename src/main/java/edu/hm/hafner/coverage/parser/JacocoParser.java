@@ -13,6 +13,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -90,6 +92,7 @@ public class JacocoParser extends CoverageParser {
         }
     }
 
+    @CanIgnoreReturnValue
     private ModuleNode readModule(final XMLEventReader reader, final ModuleNode module)
             throws XMLStreamException {
         while (reader.hasNext()) {
@@ -123,6 +126,7 @@ public class JacocoParser extends CoverageParser {
         return REPORT.equals(endElement.getName()) || GROUP.equals(endElement.getName());
     }
 
+    @CanIgnoreReturnValue
     private PackageNode readPackage(final XMLEventReader reader,
             final ModuleNode root, final StartElement startElement) throws XMLStreamException {
         var packageName = getValueOf(startElement, NAME);
@@ -152,6 +156,7 @@ public class JacocoParser extends CoverageParser {
         throw createEofException();
     }
 
+    @CanIgnoreReturnValue
     private Node readClass(final XMLEventReader reader, final PackageNode packageNode,
             final String packageName, final StartElement startElement) throws XMLStreamException {
         Optional<String> possibleFileName = getOptionalValueOf(startElement, SOURCE_FILE_NAME);
@@ -192,6 +197,7 @@ public class JacocoParser extends CoverageParser {
         return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Paths.get(packageName, fileName)));
     }
 
+    @CanIgnoreReturnValue
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final String packageName, final StartElement startElement) throws XMLStreamException {
         String fileName = getValueOf(startElement, NAME);
@@ -238,6 +244,7 @@ public class JacocoParser extends CoverageParser {
         fileNode.addCounters(lineNumber, covered, missed);
     }
 
+    @CanIgnoreReturnValue
     private Node readMethod(final XMLEventReader reader, final ClassNode classNode,
             final StartElement startElement) throws XMLStreamException {
         String methodName = getValueOf(startElement, NAME);

@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -30,7 +31,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-// TODO: Make sure that we do not have children with the same name in the same node
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity"})
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
@@ -384,6 +384,22 @@ public abstract class Node implements Serializable {
         return childNodes;
     }
 
+    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
+        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
+    }
+
+    public List<FileNode> getAllFileNodes() {
+        return getAll(Metric.FILE, FileNode.class::cast);
+    }
+
+    public List<ClassNode> getAllClassNodes() {
+        return getAll(Metric.CLASS, ClassNode.class::cast);
+    }
+
+    public List<MethodNode> getAllMethodNodes() {
+        return getAll(Metric.METHOD, MethodNode.class::cast);
+    }
+
     /**
      * Finds the metric with the given name starting from this node.
      *
@@ -479,22 +495,6 @@ public abstract class Node implements Serializable {
      */
     public Set<String> getFiles() {
         return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
-    }
-
-    public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE, FileNode.class::cast);
-    }
-
-    public List<ClassNode> getAllClassNodes() {
-        return getAll(Metric.CLASS, ClassNode.class::cast);
-    }
-
-    public List<MethodNode> getAllMethodNodes() {
-        return getAll(Metric.METHOD, MethodNode.class::cast);
-    }
-
-    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
-        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
     }
 
     /**
@@ -633,6 +633,33 @@ public abstract class Node implements Serializable {
      * @return the copied node
      */
     public abstract Node copy();
+
+    /**
+     * Maps the test cases in all test classes of the specified {@link Node} to the corresponding class nodes of this
+     * tree. The mapping is done by the name of the test class. If the name of the test class can't be mapped to a
+     * target class, then the tests of this test class are ignored.
+     *
+     * @param testClassNodes
+     *         the test classes containing the test cases
+     */
+    public void mapTests(final List<ClassNode> testClassNodes) {
+        testClassNodes.forEach(this::mapTestClass);
+    }
+
+    private void mapTestClass(final ClassNode testClassNode) {
+        findPackage(testClassNode.getPackageName())
+                .ifPresent(packageNode -> packageNode.getAllClassNodes().stream()
+                        .filter(classNode -> isTargetOfTest(classNode, testClassNode))
+                        .forEach(classNode -> classNode.addTestCases(testClassNode.getTestCases())));
+    }
+
+    private boolean isTargetOfTest(final ClassNode classNode, final ClassNode testClassNode) {
+        return classNode.getName().endsWith(createTargetClassName(testClassNode));
+    }
+
+    private String createTargetClassName(final ClassNode testClassNode) {
+        return RegExUtils.removeAll(testClassNode.getName(), "I?Tests?$");
+    }
 
     /**
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have

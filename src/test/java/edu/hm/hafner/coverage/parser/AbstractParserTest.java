@@ -45,14 +45,16 @@ abstract class AbstractParserTest {
     }
 
     @MustBeClosed
-    @SuppressWarnings("resource")
     @SuppressFBWarnings("OBL")
     private InputStream createFile(final String fileName) {
-        var file = AbstractParserTest.class.getResourceAsStream(fileName);
-        if (file == null) {
-            file = AbstractParserTest.class.getResourceAsStream(getFolder() + "/" + fileName);
+        String name;
+        if (fileName.startsWith("/")) {
+            name = fileName;
         }
-        return Objects.requireNonNull(file, "File not found: " + fileName);
+        else {
+            name = getFolder() + "/" + fileName;
+        }
+        return Objects.requireNonNull(AbstractParserTest.class.getResourceAsStream(name), "File not found: " + name);
     }
 
     protected abstract String getFolder();
@@ -66,6 +68,6 @@ abstract class AbstractParserTest {
     @Test
     void shouldFailWhenParsingInvalidFiles() {
         assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("../empty.xml"));
     }
 }

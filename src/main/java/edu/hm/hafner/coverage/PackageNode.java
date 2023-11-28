@@ -41,6 +41,7 @@ public final class PackageNode extends Node {
         super(Metric.PACKAGE, normalizePackageName(name));
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     static PackageNode appendPackage(final PackageNode localChild, final PackageNode localParent) {
         localParent.addChild(localChild);
         return localParent;

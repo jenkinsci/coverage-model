@@ -351,7 +351,7 @@ class CoberturaParserTest extends AbstractParserTest {
                                 .hasNoMissedLines()
                                 .hasCoveredLines(34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
                                         45, 46, 47, 49, 50, 51, 52, 53, 55)));
-        assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Model\\Resolver\\DataProvider\\Branch")).isNotEmpty()
+        assertThat(root.find(CLASS, "Invocare.InventoryBranch.Model.Resolver.DataProvider.Branch")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
                                 .hasValues(builder.withMetric(LINE).withCovered(20).withMissed(0).build())));
@@ -362,7 +362,7 @@ class CoberturaParserTest extends AbstractParserTest {
                                 .hasMissedLines(100, 101, 102, 104, 107, 108, 109, 110)
                                 .hasCoveredLines(51, 52, 53, 61, 62, 64, 65, 68, 70, 71, 72,
                                         75, 76, 79, 81, 82, 83)));
-        assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Model\\Resolver\\IvcBranches")).isNotEmpty()
+        assertThat(root.find(CLASS, "Invocare.InventoryBranch.Model.Resolver.IvcBranches")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
                                 .hasValues(builder.withMetric(LINE).withCovered(17).withMissed(8).build())));
@@ -372,7 +372,7 @@ class CoberturaParserTest extends AbstractParserTest {
                         f -> assertThat(f)
                                 .hasMissedLines(38)
                                 .hasCoveredLines(28, 29, 39, 40, 41, 45)));
-        assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryAdminUi\\SourceDataProvider\\PopulateBranchExtensionAttributesPlugin")).isNotEmpty()
+        assertThat(root.find(CLASS, "Invocare.InventoryBranch.Plugin.InventoryAdminUi.SourceDataProvider.PopulateBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
                                 .hasValues(builder.withMetric(LINE).withCovered(6).withMissed(1).build(),
@@ -383,11 +383,11 @@ class CoberturaParserTest extends AbstractParserTest {
                         f -> assertThat(f)
                                 .hasMissedLines(30, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116)
                                 .hasCoveredLines(45, 46, 61, 62, 63, 64, 65, 66, 67, 68, 69, 72, 89, 90, 92, 93, 94, 96, 97)));
-        assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryApi\\SourceRepository\\SetBranchExtensionAttributesPlugin")).isNotEmpty()
+        assertThat(root.find(CLASS, "Invocare.InventoryBranch.Plugin.InventoryApi.SourceRepository.SetBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
                                 .hasValues(builder.withMetric(LINE).withCovered(12).withMissed(1).build())));
-        assertThat(root.find(CLASS, "Invocare\\InventoryBranch\\Plugin\\InventoryApi\\SourceRepository\\SetBranchExtensionPlugin")).isNotEmpty()
+        assertThat(root.find(CLASS, "Invocare.InventoryBranch.Plugin.InventoryApi.SourceRepository.SetBranchExtensionPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
                                 .hasValues(builder.withMetric(LINE).withCovered(7).withMissed(10).build())));
