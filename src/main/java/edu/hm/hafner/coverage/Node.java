@@ -31,7 +31,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-// TODO: Make sure that we do not have children with the same name in the same node
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity"})
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;

@@ -66,6 +66,19 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <configuration>
+          <outputFormats>XML,HTML</outputFormats>
+          <exportLineCoverage>true</exportLineCoverage>
+          <excludedMethods>
+            <param>*equals</param>
+            <param>*hashCode</param>
+            <param>*toString</param>
+          </excludedMethods>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>io.jenkins.tools.incrementals</groupId>
         <artifactId>incrementals-maven-plugin</artifactId>
         <version>${incrementals-plugin.version}</version>
