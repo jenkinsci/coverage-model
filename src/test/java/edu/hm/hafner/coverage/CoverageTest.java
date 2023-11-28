@@ -233,7 +233,7 @@ class CoverageTest {
         Value value = Value.valueOf("LINE:10/20");
         assertThat(value).isInstanceOf(Coverage.class);
 
-        Coverage coverage = (Coverage) value;
+        var coverage = (Coverage) value;
         assertThat(coverage)
                 .hasMetric(Metric.LINE)
                 .hasCovered(10)

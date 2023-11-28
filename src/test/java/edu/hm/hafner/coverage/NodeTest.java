@@ -723,9 +723,9 @@ class NodeTest {
 
     @Test
     void shouldGetAllNodesOfTypeInTree() {
-        Node tree = createTreeWithoutCoverage();
-        MethodNode coveredMethod = new MethodNode("coveredMethod", "signature");
-        MethodNode missedMethod = new MethodNode("missedMethod", "signature");
+        var tree = createTreeWithoutCoverage();
+        var coveredMethod = new MethodNode("coveredMethod", "signature");
+        var missedMethod = new MethodNode("missedMethod", "signature");
 
         tree.findClass(COVERED_CLASS).orElseThrow().addChild(coveredMethod);
         tree.findClass(MISSED_CLASS).orElseThrow().addChild(missedMethod);
@@ -765,8 +765,8 @@ class NodeTest {
 
     @Test
     void shouldGetAllValueMetrics() {
-        CoverageBuilder coverageBuilder = new CoverageBuilder();
-        Node fileA = new FileNode("FileA.java", ".");
+        var coverageBuilder = new CoverageBuilder();
+        var fileA = new FileNode("FileA.java", ".");
         fileA.addChild(new ClassNode("ClassA.java"));
         fileA.addAllValues(Arrays.asList(
                 coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
@@ -779,7 +779,7 @@ class NodeTest {
 
     @Test
     void shouldContainMetric() {
-        Node fileA = new FileNode("FileA.java", ".");
+        var fileA = new FileNode("FileA.java", ".");
         fileA.addChild(new ClassNode("ClassA.java"));
         fileA.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
 
@@ -790,10 +790,10 @@ class NodeTest {
 
     @Test
     void shouldGetCoverageValueByMetricWithDefault() {
-        CoverageBuilder coverageBuilder = new CoverageBuilder();
-        Coverage fileACoverage = coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build();
-        Coverage defaultCoverage = coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(0).build();
-        Node fileA = new FileNode("FileA.java", ".");
+        var coverageBuilder = new CoverageBuilder();
+        var fileACoverage = coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build();
+        var defaultCoverage = coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(0).build();
+        var fileA = new FileNode("FileA.java", ".");
         fileA.addValue(fileACoverage);
 
         assertThat(fileA.getTypedValue(LINE, defaultCoverage)).isEqualTo(fileACoverage);
