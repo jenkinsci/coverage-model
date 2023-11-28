@@ -384,6 +384,22 @@ public abstract class Node implements Serializable {
         return childNodes;
     }
 
+    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
+        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
+    }
+
+    public List<FileNode> getAllFileNodes() {
+        return getAll(Metric.FILE, FileNode.class::cast);
+    }
+
+    public List<ClassNode> getAllClassNodes() {
+        return getAll(Metric.CLASS, ClassNode.class::cast);
+    }
+
+    public List<MethodNode> getAllMethodNodes() {
+        return getAll(Metric.METHOD, MethodNode.class::cast);
+    }
+
     /**
      * Finds the metric with the given name starting from this node.
      *
@@ -479,22 +495,6 @@ public abstract class Node implements Serializable {
      */
     public Set<String> getFiles() {
         return children.stream().map(Node::getFiles).flatMap(Collection::stream).collect(Collectors.toSet());
-    }
-
-    public List<FileNode> getAllFileNodes() {
-        return getAll(Metric.FILE, FileNode.class::cast);
-    }
-
-    public List<ClassNode> getAllClassNodes() {
-        return getAll(Metric.CLASS, ClassNode.class::cast);
-    }
-
-    public List<MethodNode> getAllMethodNodes() {
-        return getAll(Metric.METHOD, MethodNode.class::cast);
-    }
-
-    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
-        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
     }
 
     /**
@@ -649,11 +649,11 @@ public abstract class Node implements Serializable {
     private void mapTestClass(final ClassNode testClassNode) {
         findPackage(testClassNode.getPackageName())
                 .ifPresent(packageNode -> packageNode.getAllClassNodes().stream()
-                        .filter(classNode -> matches(testClassNode, classNode))
+                        .filter(classNode -> isTargetOfTest(classNode, testClassNode))
                         .forEach(classNode -> classNode.addTestCases(testClassNode.getTestCases())));
     }
 
-    private boolean matches(final ClassNode testClassNode, final ClassNode classNode) {
+    private boolean isTargetOfTest(final ClassNode classNode, final ClassNode testClassNode) {
         return classNode.getName().endsWith(createTargetClassName(testClassNode));
     }
 

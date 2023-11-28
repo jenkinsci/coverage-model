@@ -145,11 +145,11 @@ public final class FileNode extends Node {
         var lineCoverage = new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
         var branchCoverage = new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
         for (int line : lines) {
-            int leftCovered = coveredPerLine.get(line);
-            int leftMissed = missedPerLine.get(line);
+            int leftCovered = coveredPerLine.getOrDefault(line, 0);
+            int leftMissed = missedPerLine.getOrDefault(line, 0);
             int leftTotal = leftCovered + leftMissed;
-            int rightCovered = otherFile.coveredPerLine.get(line);
-            int rightMissed = otherFile.missedPerLine.get(line);
+            int rightCovered = otherFile.coveredPerLine.getOrDefault(line, 0);
+            int rightMissed = otherFile.missedPerLine.getOrDefault(line, 0);
             int rightTotal = rightCovered + rightMissed;
 
             if (leftTotal != rightTotal) {
@@ -580,7 +580,7 @@ public final class FileNode extends Node {
      * @return the aggregated LineRanges that have no line coverage
      */
     public LineRangeList getMissedLineRanges() {
-        LineRangeList lineRanges = new LineRangeList();
+        var lineRanges = new LineRangeList();
 
         var missedLines = getMissedLines();
         if (missedLines.isEmpty()) {
