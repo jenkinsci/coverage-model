@@ -79,7 +79,7 @@ jobs:
                 "normalImpact": -1,
                 "lowImpact": -1,
                 "maxScore": 100
-              }
+              },
               "coverage": [
                 {
                   "tools": [
