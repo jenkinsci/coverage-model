@@ -31,7 +31,7 @@ jobs:
         with:
           token: ${{secrets.CODECOV_TOKEN}}
       - name: Autograding
-        uses: uhafner/autograding-github-action@v2.1.0
+        uses: uhafner/autograding-github-action@v3.0.0
         with:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONFIG: >
