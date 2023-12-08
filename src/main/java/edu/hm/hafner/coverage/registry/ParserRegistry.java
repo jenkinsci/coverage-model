@@ -33,9 +33,9 @@ public class ParserRegistry {
      *
      * @return the created parser
      */
-    public CoverageParser getParser(final String parserName, final ProcessingMode processingMode) {
+    public CoverageParser get(final String parserName, final ProcessingMode processingMode) {
         try {
-            return getParser(CoverageParserType.valueOf(StringUtils.upperCase(parserName)), processingMode);
+            return get(CoverageParserType.valueOf(StringUtils.upperCase(parserName)), processingMode);
         }
         catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Unknown parser name: " + parserName, exception);
@@ -52,7 +52,7 @@ public class ParserRegistry {
      *
      * @return the created parser
      */
-    public CoverageParser getParser(final CoverageParserType parser, final ProcessingMode processingMode) {
+    public CoverageParser get(final CoverageParserType parser, final ProcessingMode processingMode) {
         switch (parser) {
             case COBERTURA:
                 return new CoberturaParser(processingMode);

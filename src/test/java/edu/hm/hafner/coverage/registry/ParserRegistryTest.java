@@ -16,20 +16,20 @@ class ParserRegistryTest {
     void shouldCreateSomeParsers() {
         var registry = new ParserRegistry();
 
-        assertThat(registry.getParser(CoverageParserType.COBERTURA.name(), ProcessingMode.FAIL_FAST))
+        assertThat(registry.get(CoverageParserType.COBERTURA.name(), ProcessingMode.FAIL_FAST))
                 .isInstanceOf(CoberturaParser.class);
-        assertThat(registry.getParser(CoverageParserType.JACOCO, ProcessingMode.IGNORE_ERRORS))
+        assertThat(registry.get(CoverageParserType.JACOCO, ProcessingMode.IGNORE_ERRORS))
                 .isInstanceOf(JacocoParser.class);
-        assertThat(registry.getParser(CoverageParserType.PIT.name(), ProcessingMode.FAIL_FAST))
+        assertThat(registry.get(CoverageParserType.PIT.name(), ProcessingMode.FAIL_FAST))
                 .isInstanceOf(PitestParser.class);
-        assertThat(registry.getParser(CoverageParserType.JUNIT, ProcessingMode.IGNORE_ERRORS))
+        assertThat(registry.get(CoverageParserType.JUNIT, ProcessingMode.IGNORE_ERRORS))
                 .isInstanceOf(JunitParser.class);
     }
 
     @Test
     void shouldThrowExceptionForNotSupportedTypes() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> new ParserRegistry().getParser("UNKNOWN", ProcessingMode.FAIL_FAST))
+                .isThrownBy(() -> new ParserRegistry().get("UNKNOWN", ProcessingMode.FAIL_FAST))
                 .withMessageContaining("Unknown parser name: UNKNOWN");
     }
 }
