@@ -101,7 +101,6 @@ class MutationTest {
         assertThat(moduleNode.getAllFileNodes().get(0))
                 .hasName("Class.java")
                 .hasMutations(mutationBuilder.build());
-
     }
 
     @Test

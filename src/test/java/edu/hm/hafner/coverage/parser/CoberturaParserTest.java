@@ -27,7 +27,6 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
 class CoberturaParserTest extends AbstractParserTest {
-
     private static final int COVERED_LINES = 20 + 17 + 6 + 12 + 7;
     private static final int MISSED_LINES = 8 + 1 + 1 + 10;
 
@@ -255,7 +254,6 @@ class CoberturaParserTest extends AbstractParserTest {
                     assertThat(p.getAll(CLASS)).extracting(Node::getName).contains("env.ts");
                 }
         );
-
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#473")
