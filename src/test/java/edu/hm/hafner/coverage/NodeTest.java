@@ -150,7 +150,6 @@ class NodeTest {
         assertThat(parent.getAll(FILE))
                 .hasSize(2)
                 .containsOnly(childOfChildOne, childOfChildTwo);
-
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
@@ -325,7 +324,6 @@ class NodeTest {
         Node combinedReport = module.merge(sameModule);
 
         assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep, otherFileToKeep);
-
     }
 
     @Test
@@ -704,7 +702,6 @@ class NodeTest {
                 .hasMetric(CONTAINER);
 
         assertThat(merged.getChildren()).hasSize(2);
-
     }
 
     @Test

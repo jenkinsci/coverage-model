@@ -106,5 +106,4 @@ class TestCaseMappingTest {
             throw new AssertionError(e);
         }
     }
-
 }

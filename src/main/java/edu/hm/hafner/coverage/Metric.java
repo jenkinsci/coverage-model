@@ -162,7 +162,6 @@ public enum Metric {
             return node.getValue(metric)
                     .filter(value -> ((Coverage) value).getCovered() > 0)
                     .isPresent();
-
         }
 
         @Override
