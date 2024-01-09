@@ -7,8 +7,6 @@
 [![Line Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/line-coverage.svg)](https://app.codecov.io/gh/jenkinsci/coverage-model)
 [![Branch Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/branch-coverage.svg)](https://app.codecov.io/gh/jenkinsci/coverage-model)
 [![Mutation Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/mutation-coverage.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor.yml)
-[![Warnings](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/style.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor.yml)
-[![Bugs](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/bugs.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor.yml)
 
 Provides a Java API to parse and collect code coverage results. This API is a companion module for the [Static Analysis Model and Parsers Library](https://github.com/jenkinsci/analysis-model) that does the same kind of thing for static analysis results. See the Jenkins [Coverage Plugin](https://github.com/jenkinsci/coverage-plugin) to see on how to use this API in practice. 
 
