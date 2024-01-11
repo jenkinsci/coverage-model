@@ -101,7 +101,7 @@ public class JacocoParser extends CoverageParser {
                     }
                 }
             }
-            handleEmptyResults(log, true);
+            handleEmptyResults(log);
 
             return new ModuleNode("empty");
         }

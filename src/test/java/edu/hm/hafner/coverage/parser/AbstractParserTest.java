@@ -66,10 +66,6 @@ abstract class AbstractParserTest {
 
     abstract CoverageParser createParser(ProcessingMode processingMode);
 
-    CoverageParser createParser() {
-        return createParser(ProcessingMode.FAIL_FAST);
-    }
-
     protected FilteredLog getLog() {
         return log;
     }
@@ -87,5 +83,6 @@ abstract class AbstractParserTest {
         var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
 
         assertThat(report).hasNoChildren().hasNoValues();
+        assertThat(getLog().getErrorMessages()).contains(CoverageParser.EMPTY_MESSAGE);
     }
 }
