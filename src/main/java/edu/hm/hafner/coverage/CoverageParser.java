@@ -78,6 +78,36 @@ public abstract class CoverageParser implements Serializable {
     }
 
     /**
+     * Handles processing of empty results.
+     *
+     * @param log
+     *         the log
+     * @param isEmpty
+     *         determines whether the results are empty
+     * @throws NoSuchElementException if the results are empty and errors should not be ignored
+     */
+    protected void handleEmptyResults(final FilteredLog log, final boolean isEmpty) {
+        if (isEmpty) {
+            if (ignoreErrors()) {
+                log.logError("No coverage information found in the specified file.");
+            }
+            else {
+                throw new NoSuchElementException("No data found in the specified file.");
+            }
+        }
+    }
+
+    /**
+     * Handles processing of empty results.
+     *
+     * @param log
+     *         the log
+     */
+    protected void handleEmptyResults(final FilteredLog log) {
+        handleEmptyResults(log, true);
+    }
+
+    /**
      * Called after de-serialization to restore transient fields.
      *
      * @return this

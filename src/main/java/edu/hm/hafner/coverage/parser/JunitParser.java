@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage.parser;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -39,6 +38,23 @@ public class JunitParser extends CoverageParser {
     private static final QName SKIPPED = new QName("skipped");
     private static final String EMPTY = "-";
 
+    /**
+     * Creates a new instance of {@link JunitParser}.
+     */
+    public JunitParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Creates a new instance of {@link JunitParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    public JunitParser(final ProcessingMode processingMode) {
+        super(processingMode);
+    }
+
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
@@ -47,9 +63,7 @@ public class JunitParser extends CoverageParser {
 
             var root = new ModuleNode(EMPTY);
             var tests = readTestCases(eventReader, root);
-            if (tests.isEmpty()) {
-                throw new NoSuchElementException("No test cases found");
-            }
+            handleEmptyResults(log, tests.isEmpty());
             return root;
         }
         catch (XMLStreamException exception) {

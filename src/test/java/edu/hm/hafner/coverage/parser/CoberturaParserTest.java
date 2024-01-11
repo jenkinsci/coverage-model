@@ -31,8 +31,8 @@ class CoberturaParserTest extends AbstractParserTest {
     private static final int MISSED_LINES = 8 + 1 + 1 + 10;
 
     @Override
-    CoberturaParser createParser() {
-        return new CoberturaParser();
+    CoberturaParser createParser(final ProcessingMode processingMode) {
+        return new CoberturaParser(processingMode);
     }
 
     @Override

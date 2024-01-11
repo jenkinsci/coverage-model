@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation;
@@ -21,8 +22,8 @@ class PitestParserTest extends AbstractParserTest {
     private static final String ENSURE = "Ensure.java";
 
     @Override
-    CoverageParser createParser() {
-        return new PitestParser();
+    CoverageParser createParser(final ProcessingMode processingMode) {
+        return new PitestParser(processingMode);
     }
 
     @Override

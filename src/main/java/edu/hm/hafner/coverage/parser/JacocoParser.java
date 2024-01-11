@@ -2,7 +2,6 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.nio.file.Paths;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -66,6 +65,23 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_BRANCHED = new QName("cb");
     private static final PathUtil PATH_UTIL = new PathUtil();
 
+    /**
+     * Creates a new instance of {@link JacocoParser}.
+     */
+    public JacocoParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Creates a new instance of {@link JacocoParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    public JacocoParser(final ProcessingMode processingMode) {
+        super(processingMode);
+    }
+
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
@@ -85,7 +101,9 @@ public class JacocoParser extends CoverageParser {
                     }
                 }
             }
-            throw new NoSuchElementException("No coverage information found in the specified file.");
+            handleEmptyResults(log, true);
+
+            return new ModuleNode("empty");
         }
         catch (XMLStreamException exception) {
             throw new ParsingException(exception);

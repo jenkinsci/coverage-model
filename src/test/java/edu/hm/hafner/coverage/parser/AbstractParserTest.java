@@ -13,12 +13,13 @@ import org.junit.jupiter.api.Test;
 import com.google.errorprone.annotations.MustBeClosed;
 
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import static org.assertj.core.api.Assertions.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
  * Baseclass for parser tests.
@@ -29,7 +30,11 @@ abstract class AbstractParserTest {
     private final FilteredLog log = new FilteredLog("Errors");
 
     ModuleNode readReport(final String fileName) {
-        var parser = createParser();
+        return readReport(fileName, ProcessingMode.FAIL_FAST);
+    }
+
+    ModuleNode readReport(final String fileName, final ProcessingMode processingMode) {
+        var parser = createParser(processingMode);
 
         return readReport(fileName, parser);
     }
@@ -59,7 +64,11 @@ abstract class AbstractParserTest {
 
     protected abstract String getFolder();
 
-    abstract CoverageParser createParser();
+    abstract CoverageParser createParser(ProcessingMode processingMode);
+
+    CoverageParser createParser() {
+        return createParser(ProcessingMode.FAIL_FAST);
+    }
 
     protected FilteredLog getLog() {
         return log;
@@ -69,5 +78,14 @@ abstract class AbstractParserTest {
     void shouldFailWhenParsingInvalidFiles() {
         assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
         assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("../empty.xml"));
+    }
+
+    @Test
+    void shouldFailWhenEmptyFilesAreNotIgnored() {
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+
+        var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
+
+        assertThat(report).hasNoChildren().hasNoValues();
     }
 }

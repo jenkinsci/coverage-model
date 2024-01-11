@@ -2,7 +2,6 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.nio.file.Paths;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -88,15 +87,7 @@ public class CoberturaParser extends CoverageParser {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode("-"); // Cobertura has no support for module names
-            var isEmpty = readModule(log, eventReader, root);
-            if (isEmpty) {
-                if (ignoreErrors()) {
-                    log.logError("No coverage information found in the specified file.");
-                }
-                else {
-                    throw new NoSuchElementException("No coverage information found in the specified file.");
-                }
-            }
+            handleEmptyResults(log, readModule(log, eventReader, root));
             return root;
         }
         catch (XMLStreamException exception) {
