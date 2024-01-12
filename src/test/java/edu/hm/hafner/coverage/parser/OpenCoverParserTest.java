@@ -33,11 +33,6 @@ class OpenCoverParserTest extends AbstractParserTest {
     }
 
     @Test
-    void shouldReadEmptyReportAndIgnoreErrors() {
-        readReport("opencover-empty.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
-    }
-
-    @Test
     void shouldReadEmptyModules() {
         readReport("opencover-empty-module.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
     }

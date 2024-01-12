@@ -101,18 +101,14 @@ public class OpenCoverParser extends CoverageParser {
                     var tagName = startElement.getName();
                     if (MODULE.equals(tagName) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
                         isEmpty = readModule(eventReader, root);
+                        if (!isEmpty) {
+                            return root;
+                        }
                     }
                 }
             }
-            if (isEmpty) { 
-                if (ignoreErrors()) { 
-                    log.logError("No coverage information found in the specified file."); 
-                } 
-                else { 
-                    throw new NoSuchElementException("No coverage information found in the specified file."); 
-                } 
-            }
-            return root;
+            handleEmptyResults(log, isEmpty);
+            return new ModuleNode("empty");
         }
         catch (XMLStreamException exception) {
             throw new ParsingException(exception);
