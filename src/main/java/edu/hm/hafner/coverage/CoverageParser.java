@@ -20,6 +20,8 @@ import edu.hm.hafner.util.TreeStringBuilder;
 public abstract class CoverageParser implements Serializable {
     /** Error message when there are no results. */
     public static final String EMPTY_MESSAGE = "No data found in the specified file.";
+    /** Toplevel module name. */
+    protected static final String EMPTY = "-";
 
     /**
      * Defines how to handle fatal errors during parsing.

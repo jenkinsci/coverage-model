@@ -36,7 +36,6 @@ public class JunitParser extends CoverageParser {
     private static final QName MESSAGE = new QName("message");
     private static final QName ERROR = new QName("error");
     private static final QName SKIPPED = new QName("skipped");
-    private static final String EMPTY = "-";
 
     /**
      * Creates a new instance of {@link JunitParser}.

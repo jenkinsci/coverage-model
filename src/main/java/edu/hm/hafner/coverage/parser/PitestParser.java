@@ -69,7 +69,7 @@ public class PitestParser extends CoverageParser {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
 
-            var root = new ModuleNode("-");
+            var root = new ModuleNode(EMPTY); // PIT has no support for module names
             boolean isEmpty = true;
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
