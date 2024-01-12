@@ -6,6 +6,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.LinesOfCode;
@@ -29,6 +30,16 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldReadReport() {
         readExampleReport();
+    }
+
+    @Test
+    void shouldReadEmptyReportAndIgnoreErrors() {
+        readReport("opencover-empty.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
+    }
+
+    @Test
+    void shouldReadEmptyModules() {
+        readReport("opencover-empty-module.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
     }
 
     @Test

@@ -31,6 +31,7 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A parser which parses reports made by OpenCover into a Java Object Model.
@@ -68,6 +69,23 @@ public class OpenCoverParser extends CoverageParser {
     private static final QName METHOD_BRANCH_COVERED = new QName("visitedBranchPoints");
     private static final QName METHOD_BRANCH_TOTAL = new QName("numBranchPoints");
     private static final QName METHOD_CYCLOMATIC_COMPLEXITY = new QName("cyclomaticComplexity");
+
+    /**
+     * Creates a new instance of {@link OpenCoverParser}.
+     */
+    public OpenCoverParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Creates a new instance of {@link OpenCoverParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    public OpenCoverParser(final ProcessingMode processingMode) {
+        super(processingMode);
+    }
 
     @Override
     @SuppressWarnings("PMD.CyclomaticComplexity")
@@ -317,12 +335,9 @@ public class OpenCoverParser extends CoverageParser {
         fileNode.addCounters(lineNumber, covered, missed);
     }
 
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     private String getFileName(final String relativePath) {
-        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
-        if (path == null) {
-            return relativePath;
-        }
-        return path.toString();
+        return Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName().toString();
     }
 
     private static class CoverageClassHolder extends MutablePair<String, List<CoverageMethod>> {
