@@ -88,7 +88,7 @@ public class OpenCoverParser extends CoverageParser {
     }
 
     @Override
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "AvoidDeeplyNestedIfStmts"})
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
