@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 @DefaultLocale("en")
 class OpenCoverParserTest extends AbstractParserTest {
     @Override
-    CoverageParser createParser() {
-        return new OpenCoverParser();
+    CoverageParser createParser(final ProcessingMode processingMode) {
+        return new OpenCoverParser(processingMode);
     }
 
     @Test
