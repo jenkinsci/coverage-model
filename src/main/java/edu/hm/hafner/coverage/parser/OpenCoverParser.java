@@ -92,7 +92,7 @@ public class OpenCoverParser extends CoverageParser {
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
-            var root = new ModuleNode("-");
+            var root = new ModuleNode(EMPTY);
             var isEmpty = true;
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
@@ -124,7 +124,7 @@ public class OpenCoverParser extends CoverageParser {
         Map<String, String> files = new LinkedHashMap<>();
         List<CoverageClassHolder> classes = new LinkedList<>();
         boolean isEmpty = true;
-        PackageNode packageNode = new PackageNode("-");
+        PackageNode packageNode = new PackageNode(EMPTY);
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isStartElement()) {
