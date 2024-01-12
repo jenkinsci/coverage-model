@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -21,8 +22,8 @@ class JunitParserTest extends AbstractParserTest {
     private static final String EMPTY = "-";
 
     @Override
-    CoverageParser createParser() {
-        return new JunitParser();
+    CoverageParser createParser(final ProcessingMode processingMode) {
+        return new JunitParser(processingMode);
     }
 
     @Override

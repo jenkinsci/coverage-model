@@ -18,6 +18,9 @@ import edu.hm.hafner.util.TreeStringBuilder;
  * @author Ullrich Hafner
  */
 public abstract class CoverageParser implements Serializable {
+    /** Error message when there are no results. */
+    public static final String EMPTY_MESSAGE = "No data found in the specified file.";
+
     /**
      * Defines how to handle fatal errors during parsing.
      */
@@ -75,6 +78,36 @@ public abstract class CoverageParser implements Serializable {
         var moduleNode = parseReport(reader, log);
         getTreeStringBuilder().dedup();
         return moduleNode;
+    }
+
+    /**
+     * Handles processing of empty results.
+     *
+     * @param log
+     *         the log
+     * @param isEmpty
+     *         determines whether the results are empty
+     * @throws NoSuchElementException if the results are empty and errors should not be ignored
+     */
+    protected void handleEmptyResults(final FilteredLog log, final boolean isEmpty) {
+        if (isEmpty) {
+            if (ignoreErrors()) {
+                log.logError(EMPTY_MESSAGE);
+            }
+            else {
+                throw new NoSuchElementException(EMPTY_MESSAGE);
+            }
+        }
+    }
+
+    /**
+     * Handles processing of empty results.
+     *
+     * @param log
+     *         the log
+     */
+    protected void handleEmptyResults(final FilteredLog log) {
+        handleEmptyResults(log, true);
     }
 
     /**

@@ -14,6 +14,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.FractionValue;
@@ -34,8 +35,8 @@ class JacocoParserTest extends AbstractParserTest {
     private static final String PROJECT_NAME = "Java coding style";
 
     @Override
-    CoverageParser createParser() {
-        return new JacocoParser();
+    CoverageParser createParser(final ProcessingMode processingMode) {
+        return new JacocoParser(processingMode);
     }
 
     @Override

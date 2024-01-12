@@ -1,7 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,6 +46,23 @@ public class PitestParser extends CoverageParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
+    /**
+     * Creates a new instance of {@link PitestParser}.
+     */
+    public PitestParser() {
+        this(ProcessingMode.FAIL_FAST);
+    }
+
+    /**
+     * Creates a new instance of {@link PitestParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
+    public PitestParser(final ProcessingMode processingMode) {
+        super(processingMode);
+    }
+
     @Override
     protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
         try {
@@ -63,9 +79,7 @@ public class PitestParser extends CoverageParser {
                     isEmpty = false;
                 }
             }
-            if (isEmpty) {
-                throw new NoSuchElementException("No mutations found in the specified file.");
-            }
+            handleEmptyResults(log, isEmpty);
             root.getAllFileNodes().forEach(this::collectLineCoverage);
             return root;
         }
