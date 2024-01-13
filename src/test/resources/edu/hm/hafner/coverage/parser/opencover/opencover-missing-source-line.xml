@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageSession>
+  <Summary numSequencePoints="138" visitedSequencePoints="122" numBranchPoints="48" visitedBranchPoints="35" sequenceCoverage="88.4" branchCoverage="72.9" maxCyclomaticComplexity="67" minCyclomaticComplexity="67" visitedClasses="3" numClasses="4" visitedMethods="19" numMethods="21" />
+  <Modules>
+    <Module hash="D581F35C-22FE-42E6-B430-ADF48F3E7D6D">
+      <ModulePath>MyLogging.dll</ModulePath>
+      <ModuleTime>2019-10-11T04:15:26</ModuleTime>
+      <ModuleName>MyLogging</ModuleName>
+      <Files>
+        <File uid="1" fullPath="C:\temp\opencovertests\MyLogging.FancyClass.cs" />
+      </Files>
+      <Classes>
+        <Class>
+          <Summary numSequencePoints="121" visitedSequencePoints="106" numBranchPoints="46" visitedBranchPoints="33" sequenceCoverage="87.6" branchCoverage="71.73" maxCyclomaticComplexity="16" minCyclomaticComplexity="1" visitedClasses="1" numClasses="1" visitedMethods="13" numMethods="14" />
+          <FullName>MyLogging.FancyClass</FullName>
+          <Methods>
+            <Method cyclomaticComplexity="2" nPathComplexity="0" sequenceCoverage="100" branchCoverage="50" isConstructor="False" isGetter="True" isSetter="False" isStatic="True">
+              <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="2" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="50" maxCyclomaticComplexity="2" minCyclomaticComplexity="2" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
+              <MetadataToken />
+              <Name>System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()</Name>
+              <FileRef uid="1" />
+              <SequencePoints>
+                <SequencePoint />
+              </SequencePoints>
+              <BranchPoints>
+                <BranchPoint />
+              </BranchPoints>
+              <MethodPoint />
+            </Method>
+          </Methods>
+        </Class>
+      </Classes>
+    </Module>
+  </Modules>
+</CoverageSession>

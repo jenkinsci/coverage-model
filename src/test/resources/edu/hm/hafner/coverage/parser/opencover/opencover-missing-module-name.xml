@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageSession>
+  <Summary numSequencePoints="138" visitedSequencePoints="122" numBranchPoints="48" visitedBranchPoints="35" sequenceCoverage="88.4" branchCoverage="72.9" maxCyclomaticComplexity="67" minCyclomaticComplexity="67" visitedClasses="3" numClasses="4" visitedMethods="19" numMethods="21" />
+  <Modules>
+    <Module hash="D581F35C-22FE-42E6-B430-ADF48F3E7D6D">
+      <ModulePath>MyLogging.dll</ModulePath>
+      <ModuleTime>2019-10-11T04:15:26</ModuleTime>
+    </Module>
+  </Modules>
+</CoverageSession>

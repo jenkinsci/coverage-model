@@ -38,6 +38,16 @@ class OpenCoverParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldReadWithMissingModuleName() {
+        readReport("opencover-missing-module-name.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
+    }
+
+    @Test
+    void shouldReadWithMissingSourceLine() {
+        readReport("opencover-missing-source-line.xml", new OpenCoverParser(ProcessingMode.IGNORE_ERRORS));
+    }
+
+    @Test
     void shouldCreatePackageName() {
         ModuleNode tree = readExampleReport();
         String fileName = "MyLogging.FancyClass.cs";

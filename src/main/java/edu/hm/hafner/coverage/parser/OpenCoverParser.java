@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -225,12 +224,12 @@ public class OpenCoverParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName())) {
-                    return new CoverageClassHolder(className, methods);
+                    break;
                 }
             }
         }
 
-        throw new NoSuchElementException("Unable to parse class " + className);
+        return new CoverageClassHolder(className, methods);
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
@@ -260,12 +259,12 @@ public class OpenCoverParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (METHOD.equals(endElement.getName())) {
-                    return coverageMethod;
+                    break;
                 }
             }
         }
 
-        throw new NoSuchElementException("Unable to parse method " + coverageMethod.getMethodName());
+        return coverageMethod;
     }
 
     private void readMethodSummary(final CoverageMethod coverageMethod, final StartElement startElement) {
