@@ -289,7 +289,7 @@ public class OpenCoverParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (SEQUENCE_POINT.equals(endElement.getName()) || SEQUENCE_POINTS.equals(endElement.getName())) {
-                    return;
+                    break;
                 }
             }
         }
@@ -310,7 +310,7 @@ public class OpenCoverParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (BRANCH_POINT.equals(endElement.getName()) || BRANCH_POINTS.equals(endElement.getName())) {
-                    return;
+                    break;
                 }
             }
         }
