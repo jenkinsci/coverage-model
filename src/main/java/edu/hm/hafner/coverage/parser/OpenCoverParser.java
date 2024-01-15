@@ -134,8 +134,10 @@ public class OpenCoverParser extends CoverageParser {
                     files.put(uid, relativePath);
                 }
                 else if (MODULE_NAME.equals(nextElement.getName())) {
-                    String packageName = reader.nextEvent().asCharacters().getData();
-                    packageNode = root.findOrCreatePackageNode(packageName);
+                    String moduleName = reader.nextEvent().asCharacters().getData();
+                    var moduleNode = new ModuleNode(moduleName);
+                    packageNode = moduleNode.findOrCreatePackageNode(EMPTY);
+                    root.addChild(moduleNode);
                     isEmpty = false;
                 }
             }

@@ -50,10 +50,15 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldCreatePackageName() {
         ModuleNode tree = readExampleReport();
+        assertThat(tree.find(PACKAGE, "-")).isNotEmpty()
+                .hasValueSatisfying(node -> assertThat(node).hasName("-")
+                        .hasParentName("-.MyLogging")
+                        .hasParent()
+                        .isNotRoot());
         String fileName = "MyLogging.FancyClass.cs";
         assertThat(tree.find(FILE, fileName)).isNotEmpty()
                 .hasValueSatisfying(node -> assertThat(node).hasName(fileName)
-                        .hasParentName("MyLogging")
+                        .hasParentName("-")
                         .hasParent()
                         .isNotRoot());
     }
@@ -61,14 +66,14 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldFilterByFiles() {
         var root = readExampleReport();
-        assertThat(root.getAll(MODULE)).hasSize(1);
+        assertThat(root.getAll(MODULE)).hasSize(2);
         assertThat(root.getAll(PACKAGE)).hasSize(1);
         assertThat(root.getAll(FILE)).hasSize(3);
         assertThat(root.getAll(CLASS)).hasSize(3);
         assertThat(root.getAll(METHOD)).hasSize(21);
 
         assertThat(root.aggregateValues()).contains(
-                Coverage.valueOf(MODULE, "1/1"),
+                Coverage.valueOf(MODULE, "2/2"),
                 Coverage.valueOf(PACKAGE, "1/1"),
                 Coverage.valueOf(METHOD, "19/21"),
                 Coverage.valueOf(BRANCH, "35/48"),
@@ -101,14 +106,14 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldReportTestSourceFiles() {
         ModuleNode module = readReport("opencover-reporttotestsourcefiles.xml");
-        assertThat(module.getAll(MODULE)).hasSize(1);
+        assertThat(module.getAll(MODULE)).hasSize(2);
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.getAll(FILE)).hasSize(1);
         assertThat(module.getAll(CLASS)).hasSize(1);
         assertThat(module.getAll(METHOD)).hasSize(1);
 
         assertThat(module.aggregateValues()).contains(
-                Coverage.valueOf(MODULE, "1/1"),
+                Coverage.valueOf(MODULE, "2/2"),
                 Coverage.valueOf(PACKAGE, "1/1"),
                 Coverage.valueOf(METHOD, "1/1"),
                 Coverage.valueOf(BRANCH, "3/6"),
@@ -121,14 +126,14 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldReportWithSkippedModules() {
         ModuleNode module = readReport("opencover-withskippedmodules.xml");
-        assertThat(module.getAll(MODULE)).hasSize(1);
+        assertThat(module.getAll(MODULE)).hasSize(2);
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.getAll(FILE)).hasSize(25);
         assertThat(module.getAll(CLASS)).hasSize(15);
         assertThat(module.getAll(METHOD)).hasSize(103);
 
         assertThat(module.aggregateValues()).contains(
-                Coverage.valueOf(MODULE, "1/1"),
+                Coverage.valueOf(MODULE, "2/2"),
                 Coverage.valueOf(PACKAGE, "1/1"),
                 Coverage.valueOf(METHOD, "90/103"),
                 Coverage.valueOf(BRANCH, "322/379"),
