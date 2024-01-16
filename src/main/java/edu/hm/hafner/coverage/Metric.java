@@ -34,6 +34,7 @@ public enum Metric {
 
     /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
+    TEST_STRENGTH(new ValuesAggregator()),
     COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
     COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
     COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),

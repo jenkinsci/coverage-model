@@ -90,6 +90,7 @@ public abstract class Value implements Serializable {
                     case INSTRUCTION:
                     case BRANCH:
                     case MUTATION:
+                    case TEST_STRENGTH:
                         return Coverage.valueOf(metric, value);
                     case COMPLEXITY_DENSITY:
                         return new FractionValue(metric, Fraction.getFraction(value));

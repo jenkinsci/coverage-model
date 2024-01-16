@@ -177,7 +177,7 @@ class PitestParserTest extends AbstractParserTest {
                         "Coverage");
         assertThat(tree.getAll(METHOD)).hasSize(99);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, MUTATION, LINE, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, MUTATION, LINE, TEST_STRENGTH, LOC);
 
         assertThat(tree.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
                 coverage -> assertThat(coverage).hasCovered(222).hasTotal(246));
@@ -186,5 +186,56 @@ class PitestParserTest extends AbstractParserTest {
                 node -> assertThat(node.getValue(MUTATION))
                         .isNotEmpty().get()
                         .isInstanceOfSatisfying(Coverage.class, m -> assertThat(m).hasCovered(3).hasMissed(2)));
+    }
+
+    @Test
+    void shouldMapTimeouts() {
+        ModuleNode tree = readReport("mutations-with-timeout.xml");
+
+        assertThat(tree.getAll(MODULE)).hasSize(1);
+        assertThat(tree.getAll(PACKAGE)).hasSize(18).extracting(Node::getName)
+                .containsExactlyInAnyOrder("edu.hm.hafner.analysis",
+                        "edu.hm.hafner.analysis.parser",
+                        "edu.hm.hafner.analysis.parser.pvsstudio",
+                        "edu.hm.hafner.analysis.parser.findbugs",
+                        "edu.hm.hafner.analysis.parser.violations",
+                        "edu.hm.hafner.analysis.parser.fxcop",
+                        "edu.hm.hafner.analysis.parser.pmd",
+                        "edu.hm.hafner.analysis.parser.ccm",
+                        "edu.hm.hafner.analysis.parser.dry.dupfinder",
+                        "edu.hm.hafner.analysis.parser.gendarme",
+                        "edu.hm.hafner.analysis.registry",
+                        "edu.hm.hafner.analysis.parser.checkstyle",
+                        "edu.hm.hafner.analysis.parser.jcreport",
+                        "edu.hm.hafner.analysis.util",
+                        "edu.hm.hafner.analysis.parser.dry.cpd",
+                        "edu.hm.hafner.analysis.parser.dry",
+                        "edu.hm.hafner.analysis.parser.dry.simian",
+                        "edu.hm.hafner.analysis.parser.pylint");
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.TIMED_OUT))
+                .hasSize(3)
+                .extracting(Mutation::isDetected)
+                .containsOnly(true);
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.KILLED))
+                .hasSize(2270)
+                .extracting(Mutation::isDetected)
+                .containsOnly(true);
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.NO_COVERAGE))
+                .hasSize(106)
+                .extracting(Mutation::isDetected)
+                .containsOnly(false);
+        assertThat(tree.getMutations())
+                .filteredOn(Mutation::isDetected)
+                .hasSize(2273);
+        assertThat(tree.getMutations())
+                .map(Mutation::getStatus)
+                .containsOnly(MutationStatus.KILLED,
+                        MutationStatus.SURVIVED,
+                        MutationStatus.TIMED_OUT,
+                        MutationStatus.NO_COVERAGE);
+        assertThat(tree.getValue(MUTATION))
+                .contains(Coverage.valueOf("MUTATION: 2273/2836"));
+        assertThat(tree.getValue(TEST_STRENGTH))
+                .contains(Coverage.valueOf("TEST_STRENGTH: 2273/2730"));
     }
 }
