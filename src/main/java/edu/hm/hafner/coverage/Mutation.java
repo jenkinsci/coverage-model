@@ -16,7 +16,6 @@ import edu.hm.hafner.util.TreeStringBuilder;
  * @author Melissa Bauer
  */
 @SuppressWarnings("PMD.DataClass")
-// TODO: intern some strings after deserialization to improve the memory footprint
 public final class Mutation implements Serializable {
     private static final long serialVersionUID = -7725185756332899065L;
 
@@ -251,19 +250,27 @@ public final class Mutation implements Serializable {
          *         the tree string builder to create the file names
          */
         public void buildAndAddToModule(final ModuleNode root, final TreeStringBuilder treeStringBuilder) {
-            String packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
-            String className = StringUtils.substringAfterLast(mutatedClass, ".");
+            var packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
             var packageNode = root.findOrCreatePackageNode(packageName);
             var relativePath = packageName.replace('.', '/') + '/' + sourceFile;
             var fileNode = packageNode.findOrCreateFileNode(sourceFile, treeStringBuilder.intern(relativePath));
+            var className = StringUtils.substringAfterLast(mutatedClass, ".");
             var classNode = fileNode.findOrCreateClassNode(className);
             var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 
-            var coverage = methodNode.getValue(Metric.MUTATION)
+            updateMetricForMethod(Metric.MUTATION, methodNode);
+            if (status != MutationStatus.NO_COVERAGE) {
+                updateMetricForMethod(Metric.TEST_STRENGTH, methodNode);
+            }
+            fileNode.addMutation(build());
+        }
+
+        private void updateMetricForMethod(final Metric metric, final MethodNode methodNode) {
+            var existingCoverage = methodNode.getValue(metric)
                     .map(Coverage.class::cast)
-                    .orElse(Coverage.nullObject(Metric.MUTATION));
-            var builder = new CoverageBuilder(coverage);
+                    .orElse(Coverage.nullObject(metric));
+            var builder = new CoverageBuilder(existingCoverage);
             if (isDetected) {
                 builder.incrementCovered();
             }
@@ -271,7 +278,6 @@ public final class Mutation implements Serializable {
                 builder.incrementMissed();
             }
             methodNode.replaceValue(builder.build());
-            fileNode.addMutation(build());
         }
 
         public Mutation build() {
