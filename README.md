@@ -23,7 +23,7 @@ on these metrics: [GitHub Autograding action](https://github.com/uhafner/autogra
 
 This library consists basically of two separate parts:
 
-1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage, number of tests, lines of code, and cyclomatic complexity.
+1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage, test strength, number of tests, lines of code, and cyclomatic complexity.
 2. Parsers for several code coverage formats:
     * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
     * [Cobertura](https://cobertura.github.io/cobertura/) code coverage results
