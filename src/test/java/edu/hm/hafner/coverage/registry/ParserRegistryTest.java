@@ -7,6 +7,7 @@ import edu.hm.hafner.coverage.parser.CoberturaParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
+import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 
 import static org.assertj.core.api.Assertions.*;
@@ -24,6 +25,7 @@ class ParserRegistryTest {
                 .isInstanceOf(PitestParser.class);
         assertThat(registry.get(CoverageParserType.JUNIT, ProcessingMode.IGNORE_ERRORS))
                 .isInstanceOf(JunitParser.class);
+        assertThat(registry.get(CoverageParserType.OPENCOVER, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(OpenCoverParser.class);
     }
 
     @Test
