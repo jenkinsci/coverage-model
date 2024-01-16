@@ -25,9 +25,10 @@ This library consists basically of two separate parts:
 
 1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage, number of tests, lines of code, and cyclomatic complexity.
 2. Parsers for several code coverage formats:
-    * JaCoCo code coverage results
-    * Cobertura code coverage results
-    * PIT Mutation coverage results
-    * JUnit test results
+    * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
+    * [Cobertura](https://cobertura.github.io/cobertura/) code coverage results
+    * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
+    * [PIT](https://pitest.org/) Mutation coverage results
+    * [JUnit](https://junit.org/junit5/) test results
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
