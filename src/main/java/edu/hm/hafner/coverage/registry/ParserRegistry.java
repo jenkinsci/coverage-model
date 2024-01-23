@@ -7,6 +7,7 @@ import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
+import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
 
@@ -19,6 +20,7 @@ public class ParserRegistry {
     /** Supported parsers. */
     public enum CoverageParserType {
         COBERTURA,
+        NUNIT,
         OPENCOVER,
         JACOCO,
         PIT,
@@ -60,6 +62,8 @@ public class ParserRegistry {
                 return new CoberturaParser(processingMode);
             case OPENCOVER:
                 return new OpenCoverParser();
+            case NUNIT:
+                return new NunitParser();
             case JACOCO:
                 return new JacocoParser();
             case PIT:
