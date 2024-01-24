@@ -1,7 +1,13 @@
 package edu.hm.hafner.coverage.parser;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -14,11 +20,10 @@ import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 
+import static edu.hm.hafner.coverage.Metric.CLASS;
+import static edu.hm.hafner.coverage.Metric.FILE;
 import static edu.hm.hafner.coverage.Metric.*;
-import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
 class OpenCoverParserTest extends AbstractParserTest {
@@ -103,9 +108,11 @@ class OpenCoverParserTest extends AbstractParserTest {
                 coverage -> assertThat(coverage).hasTotal(21).hasCovered(19));
     }
 
-    @Test
-    void shouldReportTestSourceFiles() {
-        ModuleNode module = readReport("opencover-reporttotestsourcefiles.xml");
+    @ParameterizedTest
+    @Issue("JENKINS-72595")
+    @ValueSource(strings = {"opencover-reporttotestsourcefiles.xml", "opencover-with-bom.xml"})
+    void shouldReportTestSourceFiles(final String fileName) {
+        ModuleNode module = readReport(fileName);
         assertThat(module.getAll(MODULE)).hasSize(2);
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.getAll(FILE)).hasSize(1);

@@ -37,8 +37,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class OpenCoverParser extends CoverageParser {
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = -4819428317255612971L;
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     /** XML elements. */
@@ -62,8 +61,8 @@ public class OpenCoverParser extends CoverageParser {
     private static final QName METHOD_VISITED = new QName("visited");
     private static final QName UID = new QName("uid");
     private static final QName FULL_PATH = new QName("fullPath");
-    private static final QName METHOD_INTRUCTION_COVERED = new QName("visitedSequencePoints");
-    private static final QName METHOD_INTRUCTION_TOTAL = new QName("numSequencePoints");
+    private static final QName METHOD_INSTRUCTION_COVERED = new QName("visitedSequencePoints");
+    private static final QName METHOD_INSTRUCTION_TOTAL = new QName("numSequencePoints");
     private static final QName METHOD_BRANCH_COVERED = new QName("visitedBranchPoints");
     private static final QName METHOD_BRANCH_TOTAL = new QName("numBranchPoints");
     private static final QName METHOD_CYCLOMATIC_COMPLEXITY = new QName("cyclomaticComplexity");
@@ -271,8 +270,8 @@ public class OpenCoverParser extends CoverageParser {
     private void readMethodSummary(final CoverageMethod coverageMethod, final StartElement startElement) {
         coverageMethod.setBranchCovered(getIntegerValueOf(startElement, METHOD_BRANCH_COVERED));
         coverageMethod.setBranchMissed(getIntegerValueOf(startElement, METHOD_BRANCH_TOTAL) - coverageMethod.getBranchCovered());
-        coverageMethod.setInstructionCovered(getIntegerValueOf(startElement, METHOD_INTRUCTION_COVERED));
-        coverageMethod.setInstructionMissed(getIntegerValueOf(startElement, METHOD_INTRUCTION_TOTAL) - coverageMethod.getInstructionCovered());
+        coverageMethod.setInstructionCovered(getIntegerValueOf(startElement, METHOD_INSTRUCTION_COVERED));
+        coverageMethod.setInstructionMissed(getIntegerValueOf(startElement, METHOD_INSTRUCTION_TOTAL) - coverageMethod.getInstructionCovered());
     }
 
     private void readSequencePoints(final XMLEventReader reader, final CoverageMethod coverageMethod) throws XMLStreamException {
