@@ -809,8 +809,8 @@ class NodeTest {
 
     @Test
     void shouldReturnCorrectHasModifiedLines() {
-        Node packageNode = new PackageNode("package");
-        FileNode fileNode = new FileNode("file", ".");
+        var packageNode = new PackageNode("package");
+        var fileNode = new FileNode("file", ".");
         packageNode.addChild(fileNode);
 
         assertThat(packageNode).doesNotHaveModifiedLines();

@@ -122,8 +122,8 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldAddModifiedLines() {
-        FileNode noModifiedLines = new FileNode("NoModified.java", ".");
-        FileNode modifiedLines = new FileNode("Modified.java", ".");
+        var noModifiedLines = new FileNode("NoModified.java", ".");
+        var modifiedLines = new FileNode("Modified.java", ".");
 
         modifiedLines.addModifiedLines(1, 3, 5);
 
@@ -190,9 +190,9 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldFilterTreeByIndirectChangesPositiveDelta() {
-        FileNode lineCoverage = new FileNode("lineCoverage.java", ".");
-        FileNode branchCoverage = new FileNode("branchCoverage.java", ".");
-        FileNode lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
+        var lineCoverage = new FileNode("lineCoverage.java", ".");
+        var branchCoverage = new FileNode("branchCoverage.java", ".");
+        var lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
 
         lineCoverage.addCounters(1, 1, 0);
         lineCoverage.addIndirectCoverageChange(1, 1);
@@ -228,9 +228,9 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldFilterTreeByIndirectChangesNegativeDelta() {
-        FileNode lineCoverage = new FileNode("lineCoverage.java", ".");
-        FileNode branchCoverage = new FileNode("branchCoverage.java", ".");
-        FileNode lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
+        var lineCoverage = new FileNode("lineCoverage.java", ".");
+        var branchCoverage = new FileNode("branchCoverage.java", ".");
+        var lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
 
         lineCoverage.addCounters(1, 1, 0);
         lineCoverage.addIndirectCoverageChange(1, -1);

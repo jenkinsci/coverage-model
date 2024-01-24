@@ -69,9 +69,9 @@ class MetricTest {
 
     @Test
     void shouldReturnEmptyOptionalOnComputeDensityEvaluator() {
-        Coverage zeroLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0).build();
-        Coverage tenLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build();
-        CyclomaticComplexity cyclomaticComplexity = new CyclomaticComplexity(10);
+        var zeroLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0).build();
+        var tenLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build();
+        var cyclomaticComplexity = new CyclomaticComplexity(10);
 
         var onlyLinesOfCode = new PackageNode("package");
         onlyLinesOfCode.addValue(tenLines);
