@@ -30,6 +30,6 @@ This library consists basically of two separate parts:
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [PIT](https://pitest.org/) Mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
-    * [NUnit](https://docs.nunit.org) test results
+    * [NUnit](https://nunit.org) test results
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
