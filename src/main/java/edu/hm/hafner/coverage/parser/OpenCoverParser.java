@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,21 +91,19 @@ public class OpenCoverParser extends CoverageParser {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
             var root = new ModuleNode(EMPTY);
-            var isEmpty = true;
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
-                    var tagName = startElement.getName();
-                    if (MODULE.equals(tagName) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
-                        isEmpty = readModule(eventReader, root);
-                        if (!isEmpty) {
+                    if (MODULE.equals(startElement.getName()) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
+                        var hasModule = !readModule(eventReader, root);
+                        if (hasModule) {
                             return root;
                         }
                     }
                 }
             }
-            handleEmptyResults(log, isEmpty);
+            handleEmptyResults(log);
             return new ModuleNode("empty");
         }
         catch (XMLStreamException exception) {
@@ -112,9 +111,8 @@ public class OpenCoverParser extends CoverageParser {
         }
     }
 
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private boolean readModule(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
-        Map<String, String> files = new LinkedHashMap<>();
+        Map<String, String> files = new HashMap<>();
         List<CoverageClassHolder> classes = new ArrayList<>();
         boolean isEmpty = true;
         PackageNode packageNode = new PackageNode(EMPTY);
@@ -151,21 +149,30 @@ public class OpenCoverParser extends CoverageParser {
             return true;
         }
 
-        // Creating all nodes
+        createNodes(files, packageNode, classes);
+
+        return false;
+    }
+
+    private void createNodes(final Map<String, String> files, final PackageNode packageNode,
+            final List<CoverageClassHolder> classes) {
         for (var file : files.entrySet()) {
             FileNode fileNode = packageNode.findOrCreateFileNode(getFileName(file.getValue()), getTreeStringBuilder().intern(file.getValue()));
             for (CoverageClassHolder clazz : classes) {
                 if (clazz.hasMethods() && clazz.getFileId() != null && clazz.getFileId().equals(file.getKey())) {
-                    ClassNode classNode = fileNode.createClassNode(clazz.getClassName());
-                    for (var method : clazz.getMethods()) {
-                        if (classNode.findMethod(method.getMethodName(), method.getMethodName()).isEmpty()) {
-                            createPoints(fileNode, classNode, method);
-                        }
-                    }
+                    createClassWithMethods(clazz, fileNode);
                 }
             }
         }
-        return false;
+    }
+
+    private void createClassWithMethods(final CoverageClassHolder clazz, final FileNode fileNode) {
+        ClassNode classNode = fileNode.createClassNode(clazz.getClassName());
+        for (var method : clazz.getMethods()) {
+            if (classNode.findMethod(method.getMethodName(), method.getMethodName()).isEmpty()) {
+                createPoints(fileNode, classNode, method);
+            }
+        }
     }
 
     private void createPoints(final FileNode fileNode, final ClassNode classNode, final CoverageMethod method) {
