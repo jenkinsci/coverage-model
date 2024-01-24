@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
@@ -18,6 +19,8 @@ import edu.hm.hafner.util.TreeStringBuilder;
  * @author Ullrich Hafner
  */
 public abstract class CoverageParser implements Serializable {
+    private static final long serialVersionUID = 3941742254762282096L;
+
     /** Error message when there are no results. */
     public static final String EMPTY_MESSAGE = "No data found in the specified file.";
     /** Toplevel module name. */
@@ -33,9 +36,7 @@ public abstract class CoverageParser implements Serializable {
         FAIL_FAST
     }
 
-    private static final long serialVersionUID = 3941742254762282096L;
     private transient TreeStringBuilder treeStringBuilder = new TreeStringBuilder();
-
     private final ProcessingMode processingMode; // since 0.26.0
 
     /**
@@ -80,6 +81,23 @@ public abstract class CoverageParser implements Serializable {
         var moduleNode = parseReport(reader, log);
         getTreeStringBuilder().dedup();
         return moduleNode;
+    }
+
+    /**
+     * Returns the name of the specified element.
+     *
+     * @param event the event
+     * @return the name
+     */
+    protected QName getElementName(final XMLEvent event) {
+        QName name;
+        if (event.isStartElement()) {
+            name = event.asStartElement().getName();
+        }
+        else {
+            name = event.asEndElement().getName();
+        }
+        return name;
     }
 
     /**
