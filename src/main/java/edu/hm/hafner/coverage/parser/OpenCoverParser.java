@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +38,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class OpenCoverParser extends CoverageParser {
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = -4819428317255612971L;
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     /** XML elements. */
@@ -62,8 +62,8 @@ public class OpenCoverParser extends CoverageParser {
     private static final QName METHOD_VISITED = new QName("visited");
     private static final QName UID = new QName("uid");
     private static final QName FULL_PATH = new QName("fullPath");
-    private static final QName METHOD_INTRUCTION_COVERED = new QName("visitedSequencePoints");
-    private static final QName METHOD_INTRUCTION_TOTAL = new QName("numSequencePoints");
+    private static final QName METHOD_INSTRUCTION_COVERED = new QName("visitedSequencePoints");
+    private static final QName METHOD_INSTRUCTION_TOTAL = new QName("numSequencePoints");
     private static final QName METHOD_BRANCH_COVERED = new QName("visitedBranchPoints");
     private static final QName METHOD_BRANCH_TOTAL = new QName("numBranchPoints");
     private static final QName METHOD_CYCLOMATIC_COMPLEXITY = new QName("cyclomaticComplexity");
@@ -91,21 +91,19 @@ public class OpenCoverParser extends CoverageParser {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
             var root = new ModuleNode(EMPTY);
-            var isEmpty = true;
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
-                    var tagName = startElement.getName();
-                    if (MODULE.equals(tagName) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
-                        isEmpty = readModule(eventReader, root);
-                        if (!isEmpty) {
+                    if (MODULE.equals(startElement.getName()) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
+                        var hasModule = !readModule(eventReader, root);
+                        if (hasModule) {
                             return root;
                         }
                     }
                 }
             }
-            handleEmptyResults(log, isEmpty);
+            handleEmptyResults(log);
             return new ModuleNode("empty");
         }
         catch (XMLStreamException exception) {
@@ -113,9 +111,8 @@ public class OpenCoverParser extends CoverageParser {
         }
     }
 
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private boolean readModule(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
-        Map<String, String> files = new LinkedHashMap<>();
+        Map<String, String> files = new HashMap<>();
         List<CoverageClassHolder> classes = new ArrayList<>();
         boolean isEmpty = true;
         PackageNode packageNode = new PackageNode(EMPTY);
@@ -152,21 +149,30 @@ public class OpenCoverParser extends CoverageParser {
             return true;
         }
 
-        // Creating all nodes
+        createNodes(files, packageNode, classes);
+
+        return false;
+    }
+
+    private void createNodes(final Map<String, String> files, final PackageNode packageNode,
+            final List<CoverageClassHolder> classes) {
         for (var file : files.entrySet()) {
             FileNode fileNode = packageNode.findOrCreateFileNode(getFileName(file.getValue()), getTreeStringBuilder().intern(file.getValue()));
             for (CoverageClassHolder clazz : classes) {
                 if (clazz.hasMethods() && clazz.getFileId() != null && clazz.getFileId().equals(file.getKey())) {
-                    ClassNode classNode = fileNode.createClassNode(clazz.getClassName());
-                    for (var method : clazz.getMethods()) {
-                        if (classNode.findMethod(method.getMethodName(), method.getMethodName()).isEmpty()) {
-                            createPoints(fileNode, classNode, method);
-                        }
-                    }
+                    createClassWithMethods(clazz, fileNode);
                 }
             }
         }
-        return false;
+    }
+
+    private void createClassWithMethods(final CoverageClassHolder clazz, final FileNode fileNode) {
+        ClassNode classNode = fileNode.createClassNode(clazz.getClassName());
+        for (var method : clazz.getMethods()) {
+            if (classNode.findMethod(method.getMethodName(), method.getMethodName()).isEmpty()) {
+                createPoints(fileNode, classNode, method);
+            }
+        }
     }
 
     private void createPoints(final FileNode fileNode, final ClassNode classNode, final CoverageMethod method) {
@@ -271,8 +277,8 @@ public class OpenCoverParser extends CoverageParser {
     private void readMethodSummary(final CoverageMethod coverageMethod, final StartElement startElement) {
         coverageMethod.setBranchCovered(getIntegerValueOf(startElement, METHOD_BRANCH_COVERED));
         coverageMethod.setBranchMissed(getIntegerValueOf(startElement, METHOD_BRANCH_TOTAL) - coverageMethod.getBranchCovered());
-        coverageMethod.setInstructionCovered(getIntegerValueOf(startElement, METHOD_INTRUCTION_COVERED));
-        coverageMethod.setInstructionMissed(getIntegerValueOf(startElement, METHOD_INTRUCTION_TOTAL) - coverageMethod.getInstructionCovered());
+        coverageMethod.setInstructionCovered(getIntegerValueOf(startElement, METHOD_INSTRUCTION_COVERED));
+        coverageMethod.setInstructionMissed(getIntegerValueOf(startElement, METHOD_INSTRUCTION_TOTAL) - coverageMethod.getInstructionCovered());
     }
 
     private void readSequencePoints(final XMLEventReader reader, final CoverageMethod coverageMethod) throws XMLStreamException {

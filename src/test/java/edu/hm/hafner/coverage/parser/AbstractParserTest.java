@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.junit.jupiter.api.Test;
 
 import com.google.errorprone.annotations.MustBeClosed;
@@ -51,7 +52,7 @@ abstract class AbstractParserTest {
 
     @MustBeClosed
     @SuppressFBWarnings("OBL")
-    private InputStream createFile(final String fileName) {
+    private InputStream createFile(final String fileName) throws IOException {
         String name;
         if (fileName.startsWith("/")) {
             name = fileName;
@@ -59,7 +60,10 @@ abstract class AbstractParserTest {
         else {
             name = getFolder() + "/" + fileName;
         }
-        return Objects.requireNonNull(AbstractParserTest.class.getResourceAsStream(name), "File not found: " + name);
+        var inputStream = Objects.requireNonNull(AbstractParserTest.class.getResourceAsStream(name),
+                "File not found: " + name);
+
+        return BOMInputStream.builder().setInputStream(inputStream).get();
     }
 
     protected abstract String getFolder();
