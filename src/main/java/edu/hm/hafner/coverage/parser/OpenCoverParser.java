@@ -4,7 +4,6 @@ import java.io.Reader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
@@ -117,7 +116,7 @@ public class OpenCoverParser extends CoverageParser {
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private boolean readModule(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         Map<String, String> files = new LinkedHashMap<>();
-        List<CoverageClassHolder> classes = new LinkedList<>();
+        List<CoverageClassHolder> classes = new ArrayList<>();
         boolean isEmpty = true;
         PackageNode packageNode = new PackageNode(EMPTY);
         while (reader.hasNext()) {
@@ -209,7 +208,7 @@ public class OpenCoverParser extends CoverageParser {
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private CoverageClassHolder readClass(final XMLEventReader reader) throws XMLStreamException {
         String className = StringUtils.EMPTY;
-        List<CoverageMethod> methods = new LinkedList<>();
+        List<CoverageMethod> methods = new ArrayList<>();
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isStartElement()) {
@@ -236,7 +235,7 @@ public class OpenCoverParser extends CoverageParser {
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private CoverageMethod readMethod(final XMLEventReader reader, final StartElement parentElement) throws XMLStreamException {
-        CoverageMethod coverageMethod = new CoverageMethod();
+        var coverageMethod = new CoverageMethod();
         coverageMethod.setComplexity(getIntegerValueOf(parentElement, METHOD_CYCLOMATIC_COMPLEXITY));
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -378,8 +377,8 @@ public class OpenCoverParser extends CoverageParser {
     }
 
     private static class CoverageMethod {
-        private String methodName;
-        private String fileId;
+        private String methodName = StringUtils.EMPTY;
+        private String fileId = StringUtils.EMPTY;
         private int instructionCovered;
         private int instructionMissed;
         private int branchCovered;
