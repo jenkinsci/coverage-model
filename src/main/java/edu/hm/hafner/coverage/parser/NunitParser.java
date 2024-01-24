@@ -20,7 +20,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
- * Parses reports in the NUnit format (https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html) into a Java object model.
+ * Parses reports in the <a href="https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html">NUnit format</a> into a Java object model.
  *
  * @author Valentin Delaye
  */
@@ -89,7 +89,6 @@ public class NunitParser extends CoverageParser {
         return tests;
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity")
     private TestCase readTestCase(final XMLEventReader reader, final StartElement testCaseElement,
             final String suiteName, final ModuleNode root)
             throws XMLStreamException {
@@ -98,17 +97,17 @@ public class NunitParser extends CoverageParser {
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
         
         var status = getValueOf(testCaseElement, RESULT);
-        if (status.equals(PASSED)) {
-            builder.withStatus(TestCase.TestResult.PASSED);
-        }
-        else if (status.equals(FAILED)) {
-            builder.withStatus(TestCase.TestResult.FAILED);
-        }
-        else if (status.equals(SKIPPED)) {
-            builder.withStatus(TestCase.TestResult.SKIPPED);
-        }
-        else {
-            builder.withStatus(TestCase.TestResult.SKIPPED);
+        switch (status) {
+            case PASSED:
+                builder.withStatus(TestCase.TestResult.PASSED);
+                break;
+            case FAILED:
+                builder.withStatus(TestCase.TestResult.FAILED);
+                break;
+            case SKIPPED:
+            default:
+                builder.withStatus(TestCase.TestResult.SKIPPED);
+                break;
         }
 
         while (reader.hasNext()) {
