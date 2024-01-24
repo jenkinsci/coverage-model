@@ -61,15 +61,15 @@ public class ParserRegistry {
             case COBERTURA:
                 return new CoberturaParser(processingMode);
             case OPENCOVER:
-                return new OpenCoverParser();
+                return new OpenCoverParser(processingMode);
             case NUNIT:
-                return new NunitParser();
+                return new NunitParser(processingMode);
             case JACOCO:
-                return new JacocoParser();
+                return new JacocoParser(processingMode);
             case PIT:
-                return new PitestParser();
+                return new PitestParser(processingMode);
             case JUNIT:
-                return new JunitParser();
+                return new JunitParser(processingMode);
         }
         throw new IllegalArgumentException("Unknown parser type: " + parser);
     }
