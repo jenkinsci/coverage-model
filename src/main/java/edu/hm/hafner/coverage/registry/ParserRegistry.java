@@ -10,6 +10,7 @@ import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
+import edu.hm.hafner.coverage.parser.XunitParser;
 
 /**
  * Provides a registry for all available {@link CoverageParserType parsers}.
@@ -24,7 +25,8 @@ public class ParserRegistry {
         OPENCOVER,
         JACOCO,
         PIT,
-        JUNIT
+        JUNIT,
+        XUNIT
     }
 
     /**
@@ -70,6 +72,8 @@ public class ParserRegistry {
                 return new PitestParser(processingMode);
             case JUNIT:
                 return new JunitParser(processingMode);
+            case XUNIT:
+                return new XunitParser(processingMode);
         }
         throw new IllegalArgumentException("Unknown parser type: " + parser);
     }

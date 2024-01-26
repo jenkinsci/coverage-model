@@ -8,6 +8,7 @@ import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
+import edu.hm.hafner.coverage.parser.XunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
 
@@ -28,6 +29,7 @@ class ParserRegistryTest {
                 .isInstanceOf(JunitParser.class);
         assertThat(registry.get(CoverageParserType.OPENCOVER, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(OpenCoverParser.class);
         assertThat(registry.get(CoverageParserType.NUNIT, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(NunitParser.class);
+        assertThat(registry.get(CoverageParserType.XUNIT, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(XunitParser.class);
     }
 
     @Test
