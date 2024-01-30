@@ -31,5 +31,6 @@ This library consists basically of two separate parts:
     * [PIT](https://pitest.org/) Mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results
+    * [XUnit](https://xunit.net) test results
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
