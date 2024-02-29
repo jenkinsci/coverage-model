@@ -136,6 +136,7 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
 
@@ -153,11 +154,20 @@ public final class FileNode extends Node {
             int rightTotal = rightCovered + rightMissed;
 
             if (leftTotal != rightTotal) {
-                throw new IllegalArgumentException(String.format("Cannot merge coverage information for line %d in %s",
-                        line, this));
+                if (leftTotal == leftCovered || rightTotal == rightCovered) {
+                    leftCovered = Math.max(leftTotal, rightTotal);
+                    leftMissed = 0;
+                    leftTotal = leftCovered;
+                }
+                else {
+                    throw new IllegalArgumentException(
+                            String.format("Cannot merge coverage information for line %d in %s",
+                                    line, this));
+                }
             }
             if (leftTotal > 1) {
-                if (leftCovered > rightCovered) { // exact branch coverage cannot be computed
+                // exact branch coverage cannot be computed, so choose the higher value
+                if (leftCovered > rightCovered) {
                     coveredPerLine.put(line, leftCovered);
                     missedPerLine.put(line, leftMissed);
                 }
@@ -574,8 +584,8 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that have no line coverage grouped in LineRanges.
-     * E.g., the lines [1, 2, 3] will be grouped in one {@link LineRange} instance.
+     * Returns the lines that have no line coverage grouped in LineRanges. E.g., the lines [1, 2, 3] will be grouped in
+     * one {@link LineRange} instance.
      *
      * @return the aggregated LineRanges that have no line coverage
      */
@@ -630,8 +640,8 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines that contain mutations. The returned map contains the line number as the key and a
-     * list of mutations as value.
+     * Returns the lines that contain mutations. The returned map contains the line number as the key and a list of
+     * mutations as value.
      *
      * @return the lines that have no line coverage
      */

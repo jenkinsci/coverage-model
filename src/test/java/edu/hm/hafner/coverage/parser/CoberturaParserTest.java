@@ -40,6 +40,34 @@ class CoberturaParserTest extends AbstractParserTest {
         return "cobertura";
     }
 
+    @Test @Issue("JENKINS-72757")
+    void shouldMergeIfCountersAreNotCompatible() {
+        Node left = readReport("merge-a.xml");
+        assertThat(left.getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(2);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
+                });
+
+        Node right = readReport("merge-b.xml");
+        assertThat(right.getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
+                });
+
+        assertThat(left.merge(right).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
+                });
+        assertThat(right.merge(left).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
+                });
+    }
+
     @Test
     void shouldIgnoreMissingConditionAttribute() {
         Node missingCondition = readReport("cobertura-missing-condition-coverage.xml");
