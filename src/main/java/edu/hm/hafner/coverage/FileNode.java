@@ -136,6 +136,7 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
 
@@ -165,7 +166,8 @@ public final class FileNode extends Node {
                 }
             }
             if (leftTotal > 1) {
-                if (leftCovered > rightCovered) { // exact branch coverage cannot be computed
+                // exact branch coverage cannot be computed, so choose the higher value
+                if (leftCovered > rightCovered) {
                     coveredPerLine.put(line, leftCovered);
                     missedPerLine.put(line, leftMissed);
                 }
