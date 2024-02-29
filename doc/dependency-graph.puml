@@ -6,7 +6,7 @@ skinparam rectangle {
   BackgroundColor<<runtime>> lightBlue
   BackgroundColor<<provided>> lightGray
 }
-rectangle "coverage-model\n\n0.41.0-SNAPSHOT" as edu_hm_hafner_coverage_model_jar
+rectangle "coverage-model\n\n0.42.0-SNAPSHOT" as edu_hm_hafner_coverage_model_jar
 rectangle "spotbugs-annotations\n\n4.8.3" as com_github_spotbugs_spotbugs_annotations_jar
 rectangle "error_prone_annotations\n\n2.25.0" as com_google_errorprone_error_prone_annotations_jar
 rectangle "streamex\n\n0.8.2" as one_util_streamex_jar
