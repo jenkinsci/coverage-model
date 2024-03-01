@@ -56,12 +56,12 @@ class CoberturaParserTest extends AbstractParserTest {
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
                 });
 
-        assertThat(left.merge(right).getAllFileNodes()).hasSize(1)
+        assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
                     assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
                 });
-        assertThat(right.merge(left).getAllFileNodes()).hasSize(1)
+        assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
                     assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
@@ -174,11 +174,11 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(BRANCH).withCovered(1).withMissed(1).build(),
                 new LinesOfCode(22)};
 
-        var left = a.merge(b);
+        var left = Node.merge(List.of(a, b));
         assertThat(left.aggregateValues()).containsExactly(expectedValuesAfterMerge);
         verifyMissedAndCoveredLines(left);
 
-        var right = b.merge(a);
+        var right = Node.merge(List.of(b, a));
         assertThat(right.aggregateValues()).containsExactly(expectedValuesAfterMerge);
         verifyMissedAndCoveredLines(left);
     }
@@ -203,9 +203,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#610")
     void shouldReadCoberturaWithMissingSources() {
-        Node tree = readReport("coverage-missing-sources.xml");
-
-        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
+        var tree = readCoberturaReport("coverage-missing-sources.xml");
         assertThat(tree.getAll(FILE)).extracting(Node::getName).containsExactly(
                 "args.ts", "badge-result.ts", "colors.ts", "index.ts");
         assertThat(tree.getAllFileNodes()).extracting(FileNode::getRelativePath).containsExactly(
@@ -214,9 +212,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#599")
     void shouldReadCoberturaAggregation() {
-        Node tree = readReport("cobertura-ts.xml");
-
-        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
+        var tree = readCoberturaReport("cobertura-ts.xml");
         assertThat(tree.getSourceFolders()).containsExactly(
                 "/var/jenkins_home/workspace/imdb-songs_imdb-songs_PR-14/PR-14-15");
         assertThat(tree.getAll(PACKAGE)).extracting(Node::getName).containsExactly("libs.env.src",
@@ -454,6 +450,13 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(tree.getSourceFolders())
                 .hasSize(1)
                 .containsExactly("/app/app/code/Invocare/InventoryBranch");
+    }
+
+    private Node readCoberturaReport(final String fileName) {
+        Node tree = readReport(fileName);
+
+        assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
+        return tree;
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {

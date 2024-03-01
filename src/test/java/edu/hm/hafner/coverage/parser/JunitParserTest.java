@@ -33,7 +33,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadArchUnitTests() {
-        ModuleNode tree = readReport("archunit1.xml");
+        ModuleNode tree = readJunitReport("archunit1.xml");
 
         assertThat(tree.getAll(Metric.MODULE)).hasSize(1);
         assertThat(tree.getAll(Metric.PACKAGE)).hasSize(1);
@@ -41,7 +41,6 @@ class JunitParserTest extends AbstractParserTest {
 
         assertThat(tree.aggregateValues()).contains(new TestCount(1));
 
-        assertThat(tree).hasName(EMPTY);
         assertThat(getPackage(tree)).hasName(EMPTY);
 
         var testClass = getFirstClass(tree);
@@ -66,9 +65,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadWithNameOnly() {
-        ModuleNode tree = readReport("cfn-lint.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("cfn-lint.xml");
         assertThat(getPackage(tree)).hasName(EMPTY);
         assertThat(getFirstClass(tree)).hasName("CloudFormation Lint");
 
@@ -79,9 +76,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadFailure() {
-        ModuleNode tree = readReport("issue-113.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("issue-113.xml");
         assertThat(getPackage(tree)).hasName(EMPTY);
         assertThat(getFirstClass(tree)).hasName("Assignment1Test");
         assertThat(getFirstTest(tree).getDescription()).contains("Die Welten sind nicht korrekt");
@@ -91,9 +86,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadError() {
-        ModuleNode tree = readReport("JENKINS-64117.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("JENKINS-64117.xml");
         assertThat(getPackage(tree)).hasName("eu.pinteam.kyoto.gunit.testenv.test");
         assertThat(getFirstClass(tree)).hasName("eu.pinteam.kyoto.gunit.testenv.test.CalculationUtilTest");
         assertThat(getFirstTest(tree).getMessage()).isEqualTo("The container NewcontTest0 does not allow a parameter of type f1");
@@ -104,9 +97,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadBrokenClassNames() {
-        ModuleNode tree = readReport("jest-junit.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("jest-junit.xml");
         assertThat(getPackage(tree)).hasName(EMPTY);
         assertThat(getFirstClass(tree)).hasName("snapshots should display correct snapshot");
         assertThat(getFirstTest(tree).getDescription()).contains("Error: expect.assertions(3)");
@@ -116,9 +107,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadJavaClassNames() {
-        ModuleNode tree = readReport("junit.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("junit.xml");
         assertThat(getPackage(tree)).hasName("com.example.jenkinstest");
         assertThat(getFirstClass(tree)).hasName("com.example.jenkinstest.ExampleUnitTest");
         assertThat(getFirstTest(tree).getDescription()).contains("com.example.jenkinstest.ExampleUnitTest.failTest4");
@@ -128,9 +117,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadAndroidTestResults() {
-        ModuleNode tree = readReport("junit2.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("junit2.xml");
         assertThat(getPackage(tree)).hasName("my.company");
         assertThat(getFirstClass(tree)).hasName("my.company.MainActivityTest");
         assertThat(getFirstTest(tree).getDescription()).contains("Looped for 3838 iterations over 60 SECONDS");
@@ -140,9 +127,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadNoMessageAndType() {
-        ModuleNode tree = readReport("junit-no-message-or-type.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("junit-no-message-or-type.xml");
         assertThat(getPackage(tree)).hasName("timrAPITests");
         assertThat(getFirstClass(tree)).hasName("timrAPITests.UtilTests");
         assertThat(getFirstTest(tree).getDescription()).contains("timrAPITests/Tests/Utils/UtilTests.swift:23");
@@ -152,9 +137,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadErrorWithoutSuite() {
-        ModuleNode tree = readReport("plainerror.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("plainerror.xml");
         assertThat(getPackage(tree)).hasName("edu.hm.hafner.analysis.parser");
         assertThat(getFirstClass(tree)).hasName("edu.hm.hafner.analysis.parser.SonarQubeDiffParserTest");
         assertThat(getFirstTest(tree).getDescription()).contains("org.json.JSONException: Missing value at 0");
@@ -164,9 +147,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadPerformanceTestResults() {
-        ModuleNode tree = readReport("TEST-org.jenkinsci.plugins.jvctb.perform.JvctbPerformerTest.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("TEST-org.jenkinsci.plugins.jvctb.perform.JvctbPerformerTest.xml");
         assertThat(getPackage(tree)).hasName("org.jenkinsci.plugins.jvctb.perform");
         assertThat(getFirstClass(tree)).hasName("org.jenkinsci.plugins.jvctb.perform.JvctbPerformerTest");
         assertThat(getFirstTest(tree).getDescription()).contains("org.junit.ComparisonFailure");
@@ -176,14 +157,18 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadTestSuites() {
-        ModuleNode tree = readReport("TESTS-TestSuites.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readJunitReport("TESTS-TestSuites.xml");
         assertThat(getPackage(tree)).hasName("ch.bdna.tsm.service");
         assertThat(getFirstClass(tree)).hasName("ch.bdna.tsm.service.PollingServiceTest");
         assertThat(getFirstTest(tree).getDescription()).contains("Missing CPU value");
 
         assertThat(tree.aggregateValues()).contains(new TestCount(2));
+    }
+
+    private ModuleNode readJunitReport(final String fileName) {
+        ModuleNode tree = readReport(fileName);
+        assertThat(tree).hasName(fileName);
+        return tree;
     }
 
     private PackageNode getPackage(final Node node) {

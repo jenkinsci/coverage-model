@@ -83,7 +83,7 @@ public class JacocoParser extends CoverageParser {
     }
 
     @Override
-    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
@@ -96,12 +96,12 @@ public class JacocoParser extends CoverageParser {
                     var tagName = startElement.getName();
                     if (REPORT.equals(tagName)) {
                         var root = new ModuleNode(getValueOf(startElement, NAME));
-                        readModule(eventReader, root);
+                        readModule(eventReader, root, fileName);
                         return root;
                     }
                 }
             }
-            handleEmptyResults(log);
+            handleEmptyResults(fileName, log);
 
             return new ModuleNode("empty");
         }
@@ -111,7 +111,7 @@ public class JacocoParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readModule(final XMLEventReader reader, final ModuleNode module)
+    private ModuleNode readModule(final XMLEventReader reader, final ModuleNode module, final String fileName)
             throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -119,11 +119,11 @@ public class JacocoParser extends CoverageParser {
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
                 if (PACKAGE.equals(startElement.getName())) {
-                    readPackage(reader, module, startElement);
+                    readPackage(reader, module, startElement, fileName);
                 }
                 else if (GROUP.equals(startElement.getName())) {
                     var subModule = new ModuleNode(getValueOf(startElement, NAME));
-                    readModule(reader, subModule);
+                    readModule(reader, subModule, fileName);
                     module.addChild(subModule);
                 }
                 else if (COUNTER.equals(startElement.getName())) {
@@ -137,7 +137,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private boolean isModuleEnd(final EndElement endElement) {
@@ -145,8 +145,8 @@ public class JacocoParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private PackageNode readPackage(final XMLEventReader reader,
-            final ModuleNode root, final StartElement startElement) throws XMLStreamException {
+    private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root,
+            final StartElement startElement, final String fileName) throws XMLStreamException {
         var packageName = getValueOf(startElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
@@ -155,10 +155,10 @@ public class JacocoParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
-                    readClass(reader, packageNode, packageName, nextElement);
+                    readClass(reader, packageNode, packageName, nextElement, fileName);
                 }
                 else if (SOURCE_FILE.equals(nextElement.getName())) {
-                    readSourceFile(reader, packageNode, packageName, nextElement);
+                    readSourceFile(reader, packageNode, packageName, nextElement, fileName);
                 }
                 else if (COUNTER.equals(startElement.getName())) {
                     readValueCounter(packageNode, startElement);
@@ -171,17 +171,17 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     @CanIgnoreReturnValue
     private Node readClass(final XMLEventReader reader, final PackageNode packageNode,
-            final String packageName, final StartElement startElement) throws XMLStreamException {
+            final String packageName, final StartElement startElement, final String fileName) throws XMLStreamException {
         Optional<String> possibleFileName = getOptionalValueOf(startElement, SOURCE_FILE_NAME);
         ClassNode classNode;
         if (possibleFileName.isPresent()) {
-            var fileName = possibleFileName.get();
-            var fileNode = packageNode.findOrCreateFileNode(fileName, internPath(packageName, fileName));
+            var classFileName = possibleFileName.get();
+            var fileNode = packageNode.findOrCreateFileNode(classFileName, internPath(packageName, classFileName));
 
             classNode = fileNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
@@ -195,7 +195,7 @@ public class JacocoParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (METHOD.equals(nextElement.getName())) {
-                    readMethod(reader, classNode, nextElement);
+                    readMethod(reader, classNode, nextElement, fileName);
                 }
                 else if (COUNTER.equals(nextElement.getName())) {
                     readValueCounter(classNode, nextElement);
@@ -208,7 +208,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private TreeString internPath(final String packageName, final String fileName) {
@@ -217,9 +217,9 @@ public class JacocoParser extends CoverageParser {
 
     @CanIgnoreReturnValue
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
-            final String packageName, final StartElement startElement) throws XMLStreamException {
-        String fileName = getValueOf(startElement, NAME);
-        var fileNode = packageNode.findOrCreateFileNode(fileName, internPath(packageName, fileName));
+            final String packageName, final StartElement startElement, final String fileName) throws XMLStreamException {
+        String sourceFilefileName = getValueOf(startElement, NAME);
+        var fileNode = packageNode.findOrCreateFileNode(sourceFilefileName, internPath(packageName, sourceFilefileName));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
@@ -240,7 +240,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private void readLine(final FileNode fileNode, final StartElement startElement)  {
@@ -264,7 +264,7 @@ public class JacocoParser extends CoverageParser {
 
     @CanIgnoreReturnValue
     private Node readMethod(final XMLEventReader reader, final ClassNode classNode,
-            final StartElement startElement) throws XMLStreamException {
+            final StartElement startElement, final String fileName) throws XMLStreamException {
         String methodName = getValueOf(startElement, NAME);
         String methodSignature = getValueOf(startElement, SIGNATURE);
 
@@ -287,7 +287,7 @@ public class JacocoParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private MethodNode createMethod(final StartElement startElement, final String methodName,

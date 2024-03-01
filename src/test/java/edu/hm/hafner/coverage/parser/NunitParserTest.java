@@ -33,9 +33,7 @@ class NunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReport() {
-        ModuleNode tree = readReport("nunit.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readNunitReport("nunit.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("Expected string length 4 but was 5. Strings differ at index 4");
@@ -45,9 +43,7 @@ class NunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportInV2Format() {
-        ModuleNode tree = readReport("nunit2-format.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readNunitReport("nunit2-format.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("MockTestFixture");
         assertThat(getFirstTest(tree).getDescription()).contains("Intentional failure");
@@ -57,9 +53,7 @@ class NunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportWithoutErrorMessage() {
-        ModuleNode tree = readReport("nunit-no-message.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readNunitReport("nunit-no-message.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("");
@@ -68,20 +62,22 @@ class NunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportWithoutFailure() {
-        ModuleNode tree = readReport("nunit-no-failure-block.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readNunitReport("nunit-no-failure-block.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("");
         assertThat(tree.aggregateValues()).contains(new TestCount(4));
     }
 
+    private ModuleNode readNunitReport(final String fileName) {
+        ModuleNode tree = readReport(fileName);
+        assertThat(tree).hasName(fileName);
+        return tree;
+    }
+
     @Test
     void shouldReadReportWithInvalidStatus() {
-        ModuleNode tree = readReport("nunit-invalid-status.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readNunitReport("nunit-invalid-status.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(tree.aggregateValues()).contains(new TestCount(4));

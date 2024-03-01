@@ -87,7 +87,7 @@ public class OpenCoverParser extends CoverageParser {
 
     @Override
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.AvoidDeeplyNestedIfStmts"})
-    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
             var root = new ModuleNode(EMPTY);
@@ -103,7 +103,7 @@ public class OpenCoverParser extends CoverageParser {
                     }
                 }
             }
-            handleEmptyResults(log);
+            handleEmptyResults(fileName, log);
             return new ModuleNode("empty");
         }
         catch (XMLStreamException exception) {

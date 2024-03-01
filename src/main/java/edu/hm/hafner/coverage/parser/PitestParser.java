@@ -64,7 +64,7 @@ public class PitestParser extends CoverageParser {
     }
 
     @Override
-    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
@@ -79,7 +79,7 @@ public class PitestParser extends CoverageParser {
                     isEmpty = false;
                 }
             }
-            handleEmptyResults(log, isEmpty);
+            handleEmptyResults(fileName, isEmpty, log);
             root.getAllFileNodes().forEach(this::collectLineCoverage);
             return root;
         }

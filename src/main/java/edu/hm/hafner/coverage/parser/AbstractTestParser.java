@@ -48,12 +48,12 @@ abstract class AbstractTestParser extends CoverageParser {
     }
 
     @Override
-    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
-            var root = new ModuleNode(EMPTY);
-            var tests = readTestCases(eventReader, root);
-            handleEmptyResults(log, tests.isEmpty());
+            var root = new ModuleNode(fileName);
+            var tests = readTestCases(eventReader, root, fileName);
+            handleEmptyResults(fileName, tests.isEmpty(), log);
             return root;
         }
         catch (XMLStreamException exception) {
@@ -62,7 +62,7 @@ abstract class AbstractTestParser extends CoverageParser {
     }
 
     private List<TestCase> readTestCases(final XMLEventReader eventReader,
-            final ModuleNode root) throws XMLStreamException {
+            final ModuleNode root, final String fileName) throws XMLStreamException {
         String suiteName = EMPTY;
         var tests = new ArrayList<TestCase>();
         while (eventReader.hasNext()) {
@@ -72,14 +72,14 @@ abstract class AbstractTestParser extends CoverageParser {
                 suiteName = getOptionalValueOf(event.asStartElement(), NAME).orElse(EMPTY);
             }
             else if (event.isStartElement() && getTestCase().equals(event.asStartElement().getName())) {
-                tests.add(readTestCase(eventReader, event.asStartElement(), suiteName, root));
+                tests.add(readTestCase(eventReader, event.asStartElement(), suiteName, root, fileName));
             }
         }
         return tests;
     }
 
     abstract TestCase readTestCase(XMLEventReader reader, StartElement testCaseElement,
-            String suiteName, ModuleNode root) throws XMLStreamException;
+            String suiteName, ModuleNode root, String fileName) throws XMLStreamException;
 
     protected String createId() {
         return UUID.randomUUID().toString();

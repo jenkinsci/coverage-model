@@ -82,12 +82,12 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @Override
-    protected ModuleNode parseReport(final Reader reader, final FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode(EMPTY); // Cobertura has no support for module names
-            handleEmptyResults(log, readModule(log, eventReader, root));
+            handleEmptyResults(fileName, readModule(eventReader, root, fileName, log), log);
             return root;
         }
         catch (XMLStreamException exception) {
@@ -95,8 +95,8 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private boolean readModule(final FilteredLog log, final XMLEventReader eventReader, final ModuleNode root)
-            throws XMLStreamException {
+    private boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
+            final String fileName, final FilteredLog log) throws XMLStreamException {
         boolean isEmpty = true;
 
         while (eventReader.hasNext()) {
@@ -109,7 +109,7 @@ public class CoberturaParser extends CoverageParser {
                     readSource(eventReader, root);
                 }
                 else if (PACKAGE.equals(tagName)) {
-                    readPackage(eventReader, root, readName(startElement), log);
+                    readPackage(eventReader, root, readName(startElement), fileName, log);
                     isEmpty = false;
                 }
             }
@@ -119,7 +119,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private void readPackage(final XMLEventReader reader, final ModuleNode root,
-            final String packageName, final FilteredLog log) throws XMLStreamException {
+            final String packageName, final String fileName, final FilteredLog log) throws XMLStreamException {
         var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
@@ -130,7 +130,7 @@ public class CoberturaParser extends CoverageParser {
                 if (CLASS.equals(element.getName())) {
                     var fileNode = createFileNode(element, packageNode);
 
-                    readClassOrMethod(reader, fileNode, fileNode, element, log);
+                    readClassOrMethod(reader, fileNode, fileNode, element, fileName, log);
                 }
             }
             else if (event.isEndElement()) {
@@ -155,9 +155,9 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    private void readClassOrMethod(final XMLEventReader reader,
-            final FileNode fileNode, final Node parentNode,
-            final StartElement element, final FilteredLog log) throws XMLStreamException {
+    private void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
+            final Node parentNode, final StartElement element, final String fileName, final FilteredLog log)
+            throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
@@ -192,7 +192,7 @@ public class CoberturaParser extends CoverageParser {
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
-                    readClassOrMethod(reader, fileNode, node, nextElement, log); // recursive call
+                    readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
                 }
             }
             else if (event.isEndElement()) {
@@ -206,7 +206,7 @@ public class CoberturaParser extends CoverageParser {
                 }
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private Coverage computeLineCoverage(final int coverage) {

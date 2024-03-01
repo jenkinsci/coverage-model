@@ -33,9 +33,7 @@ class XunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReport() {
-        ModuleNode tree = readReport("xunit.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readXunitReport("xunit.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("Assert.Equal() Failure");
@@ -45,9 +43,7 @@ class XunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportWithoutFailure() {
-        ModuleNode tree = readReport("xunit-no-failure-block.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readXunitReport("xunit-no-failure-block.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("");
@@ -56,9 +52,7 @@ class XunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportWithInvalidStatus() {
-        ModuleNode tree = readReport("xunit-invalid-status.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readXunitReport("xunit-invalid-status.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(tree.aggregateValues()).contains(new TestCount(3));
@@ -66,13 +60,17 @@ class XunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadReportWithoutErrorMessage() {
-        ModuleNode tree = readReport("xunit-no-message.xml");
-
-        assertThat(tree).hasName(EMPTY);
+        var tree = readXunitReport("xunit-no-message.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("");
         assertThat(tree.aggregateValues()).contains(new TestCount(3));
+    }
+
+    private ModuleNode readXunitReport(final String fileName) {
+        ModuleNode tree = readReport(fileName);
+        assertThat(tree).hasName(fileName);
+        return tree;
     }
 
     private PackageNode getPackage(final Node node) {
