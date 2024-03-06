@@ -19,8 +19,6 @@ import edu.hm.hafner.coverage.TestCount;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class NunitParserTest extends AbstractParserTest {
-    private static final String EMPTY = "-";
-
     @Override
     CoverageParser createParser(final ProcessingMode processingMode) {
         return new NunitParser(processingMode);
