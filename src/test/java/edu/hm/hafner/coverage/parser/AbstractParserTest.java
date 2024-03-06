@@ -43,7 +43,7 @@ abstract class AbstractParserTest {
     ModuleNode readReport(final String fileName, final CoverageParser parser) {
         try (InputStream stream = createFile(fileName);
                 Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
-            return parser.parse(reader, log);
+            return parser.parse(reader, fileName, log);
         }
         catch (IOException e) {
             throw new AssertionError(e);
@@ -85,8 +85,9 @@ abstract class AbstractParserTest {
         assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
 
         var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
-
         assertThat(report).hasNoChildren().hasNoValues();
-        assertThat(getLog().getErrorMessages()).contains(CoverageParser.EMPTY_MESSAGE);
+
+        var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
+        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file 'empty.xml' does not contain data.", parserName));
     }
 }

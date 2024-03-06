@@ -21,8 +21,6 @@ import edu.hm.hafner.util.TreeStringBuilder;
 public abstract class CoverageParser implements Serializable {
     private static final long serialVersionUID = 3941742254762282096L;
 
-    /** Error message when there are no results. */
-    public static final String EMPTY_MESSAGE = "No data found in the specified file.";
     /** Toplevel module name. */
     protected static final String EMPTY = "-";
 
@@ -70,6 +68,8 @@ public abstract class CoverageParser implements Serializable {
      *
      * @param reader
      *         the reader with the coverage information
+     * @param fileName
+     *         the file name of the report
      * @param log
      *         the logger to write messages to
      *
@@ -77,8 +77,8 @@ public abstract class CoverageParser implements Serializable {
      * @throws ParsingException
      *         if the XML content cannot be read
      */
-    public ModuleNode parse(final Reader reader, final FilteredLog log) {
-        var moduleNode = parseReport(reader, log);
+    public ModuleNode parse(final Reader reader, final String fileName, final FilteredLog log) {
+        var moduleNode = parseReport(reader, fileName, log);
         getTreeStringBuilder().dedup();
         return moduleNode;
     }
@@ -86,7 +86,9 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Returns the name of the specified element.
      *
-     * @param event the event
+     * @param event
+     *         the event
+     *
      * @return the name
      */
     protected QName getElementName(final XMLEvent event) {
@@ -103,19 +105,24 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Handles processing of empty results.
      *
-     * @param log
-     *         the log
+     * @param fileName
+     *         the file name of the report
      * @param isEmpty
      *         determines whether the results are empty
-     * @throws NoSuchElementException if the results are empty and errors should not be ignored
+     * @param log
+     *         the log
+     *
+     * @throws NoSuchElementException
+     *         if the results are empty and errors should not be ignored
      */
-    protected void handleEmptyResults(final FilteredLog log, final boolean isEmpty) {
+    protected void handleEmptyResults(final String fileName, final boolean isEmpty, final FilteredLog log) {
         if (isEmpty) {
+            var emptyMessage = String.format("[%s] The processed file '%s' does not contain data.", getClass().getSimpleName(), fileName);
             if (ignoreErrors()) {
-                log.logError(EMPTY_MESSAGE);
+                log.logError(emptyMessage);
             }
             else {
-                throw new NoSuchElementException(EMPTY_MESSAGE);
+                throw new NoSuchElementException(emptyMessage);
             }
         }
     }
@@ -123,11 +130,13 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Handles processing of empty results.
      *
+     * @param fileName
+     *         the file name of the report
      * @param log
      *         the log
      */
-    protected void handleEmptyResults(final FilteredLog log) {
-        handleEmptyResults(log, true);
+    protected void handleEmptyResults(final String fileName, final FilteredLog log) {
+        handleEmptyResults(fileName, true, log);
     }
 
     /**
@@ -151,6 +160,8 @@ public abstract class CoverageParser implements Serializable {
      *
      * @param reader
      *         the reader with the coverage information
+     * @param fileName
+     *         the file name of the report
      * @param log
      *         the logger to write messages to
      *
@@ -158,7 +169,7 @@ public abstract class CoverageParser implements Serializable {
      * @throws ParsingException
      *         if the XML content cannot be read
      */
-    protected abstract ModuleNode parseReport(Reader reader, FilteredLog log);
+    protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 
     protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         Attribute value = element.getAttributeByName(attribute);
@@ -193,7 +204,7 @@ public abstract class CoverageParser implements Serializable {
         }
     }
 
-    protected static ParsingException createEofException() {
-        return new ParsingException("Unexpected end of file");
+    protected static ParsingException createEofException(final String fileName) {
+        return new ParsingException("Unexpected end of file '%s'", fileName);
     }
 }

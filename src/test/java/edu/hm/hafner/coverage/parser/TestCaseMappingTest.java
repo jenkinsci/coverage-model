@@ -99,7 +99,7 @@ class TestCaseMappingTest {
             try (InputStream stream = Objects.requireNonNull(TestCaseMappingTest.class.getResourceAsStream(fileName),
                     "File not found: " + fileName);
                     Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
-                return parser.parse(reader, new FilteredLog("Errors"));
+                return parser.parse(reader, fileName, new FilteredLog("Errors"));
             }
         }
         catch (IOException e) {

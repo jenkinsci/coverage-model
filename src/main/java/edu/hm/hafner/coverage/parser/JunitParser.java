@@ -44,7 +44,7 @@ public class JunitParser extends AbstractTestParser {
 
     @Override
     TestCase readTestCase(final XMLEventReader reader, final StartElement testCaseElement,
-            final String suiteName, final ModuleNode root) throws XMLStreamException {
+            final String suiteName, final ModuleNode root, final String fileName) throws XMLStreamException {
         var builder = new TestCaseBuilder();
 
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
@@ -68,7 +68,7 @@ public class JunitParser extends AbstractTestParser {
                 return builder.build();
             }
         }
-        throw createEofException();
+        throw createEofException(fileName);
     }
 
     private boolean isFailure(final XMLEvent event) {
