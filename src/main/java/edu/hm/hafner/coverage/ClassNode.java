@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A {@link Node} for a specific class.
  */
@@ -52,6 +54,7 @@ public final class ClassNode extends Node {
      *
      * @return this
      */
+    @SuppressFBWarnings("RCN")
     private Object readResolve() {
         if (testCases == null) {
             testCases = new ArrayList<>();
@@ -108,7 +111,7 @@ public final class ClassNode extends Node {
 
     @Override
     public List<TestCase> getTestCases() {
-        return testCases;
+        return new ArrayList<>(testCases);
     }
 
     @Override
