@@ -114,7 +114,7 @@ public final class Percentage implements Serializable {
      * @return the coverage percentage
      */
     public double toDouble() {
-        return (double) items * 100.0 / total;
+        return items * 100.0 / total;
     }
 
     /**

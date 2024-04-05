@@ -27,7 +27,7 @@ public final class PackageNode extends Node {
             return StringUtils.replaceEach(name, new String[] {"/", "\\"}, new String[] {".", "."});
         }
         else {
-            return Node.EMPTY_NAME;
+            return EMPTY_NAME;
         }
     }
 
