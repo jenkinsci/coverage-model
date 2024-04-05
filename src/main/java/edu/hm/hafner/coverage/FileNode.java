@@ -28,6 +28,7 @@ import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
 import edu.hm.hafner.util.TreeString;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -81,6 +82,7 @@ public final class FileNode extends Node {
      *
      * @return this
      */
+    @SuppressFBWarnings(value = "RCN", justification = "Value might be null in old serializations")
     private Object readResolve() {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
@@ -211,7 +213,7 @@ public final class FileNode extends Node {
     }
 
     public SortedSet<Integer> getModifiedLines() {
-        return modifiedLines;
+        return new TreeSet<>(modifiedLines);
     }
 
     /**
@@ -722,6 +724,7 @@ public final class FileNode extends Node {
         return StringUtils.defaultIfBlank(relativePath.toString(), getName());
     }
 
+    @SuppressFBWarnings(value = "SECWF", justification = "False positive")
     public String getFileName() {
         return FilenameUtils.getName(getRelativePath());
     }

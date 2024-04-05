@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -21,6 +22,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * @author Jannik Treichel
  */
 @DefaultLocale("en")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
 class CoverageTest {
     private static final Coverage NO_COVERAGE = new CoverageBuilder()
             .withMetric(Metric.LINE)
