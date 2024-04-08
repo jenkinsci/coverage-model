@@ -107,15 +107,15 @@ public abstract class CoverageParser implements Serializable {
      *
      * @param fileName
      *         the file name of the report
-     * @param isEmpty
-     *         determines whether the results are empty
      * @param log
      *         the log
+     * @param isEmpty
+     *         determines whether the results are empty
      *
      * @throws NoSuchElementException
      *         if the results are empty and errors should not be ignored
      */
-    protected void handleEmptyResults(final String fileName, final boolean isEmpty, final FilteredLog log) {
+    protected void handleEmptyResults(final String fileName, final FilteredLog log, final boolean isEmpty) {
         if (isEmpty) {
             var emptyMessage = String.format("[%s] The processed file '%s' does not contain data.", getClass().getSimpleName(), fileName);
             if (ignoreErrors()) {
@@ -136,7 +136,7 @@ public abstract class CoverageParser implements Serializable {
      *         the log
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log) {
-        handleEmptyResults(fileName, true, log);
+        handleEmptyResults(fileName, log, true);
     }
 
     /**

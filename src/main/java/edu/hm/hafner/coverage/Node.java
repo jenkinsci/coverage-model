@@ -31,7 +31,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
 public abstract class Node implements Serializable {
     private static final long serialVersionUID = -6608885640271135273L;
 
@@ -528,10 +528,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        if (!metric.equals(searchMetric)) {
-            return false;
-        }
-        return name.equals(searchName);
+        return metric.equals(searchMetric) && name.equals(searchName);
     }
 
     /**
@@ -545,10 +542,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        if (!metric.equals(searchMetric)) {
-            return false;
-        }
-        return name.hashCode() == searchNameHashCode;
+        return metric.equals(searchMetric) && name.hashCode() == searchNameHashCode;
     }
 
     /**

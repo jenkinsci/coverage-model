@@ -87,7 +87,7 @@ public class CoberturaParser extends CoverageParser {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
 
             var root = new ModuleNode(EMPTY); // Cobertura has no support for module names
-            handleEmptyResults(fileName, readModule(eventReader, root, fileName, log), log);
+            handleEmptyResults(fileName, log, readModule(eventReader, root, fileName, log));
             return root;
         }
         catch (XMLStreamException exception) {

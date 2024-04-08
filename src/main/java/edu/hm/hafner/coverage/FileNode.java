@@ -28,13 +28,14 @@ import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
 import edu.hm.hafner.util.TreeString;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
     private static final int UNSET = -1;
@@ -81,6 +82,7 @@ public final class FileNode extends Node {
      *
      * @return this
      */
+    @SuppressFBWarnings(value = "RCN", justification = "Value might be null in old serializations")
     private Object readResolve() {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
@@ -112,18 +114,14 @@ public final class FileNode extends Node {
 
     @Override
     public boolean matches(final Metric searchMetric, final String searchName) {
-        if (super.matches(searchMetric, searchName)) {
-            return true;
-        }
-        return getRelativePath().equals(searchName);
+        return super.matches(searchMetric, searchName)
+                || getRelativePath().equals(searchName);
     }
 
     @Override
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        if (super.matches(searchMetric, searchNameHashCode)) {
-            return true;
-        }
-        return getRelativePath().hashCode() == searchNameHashCode;
+        return super.matches(searchMetric, searchNameHashCode)
+                || getRelativePath().hashCode() == searchNameHashCode;
     }
 
     @Override
@@ -215,7 +213,7 @@ public final class FileNode extends Node {
     }
 
     public SortedSet<Integer> getModifiedLines() {
-        return modifiedLines;
+        return new TreeSet<>(modifiedLines);
     }
 
     /**
@@ -589,6 +587,7 @@ public final class FileNode extends Node {
      *
      * @return the aggregated LineRanges that have no line coverage
      */
+    @SuppressWarnings("PMD.LooseCoupling")
     public LineRangeList getMissedLineRanges() {
         var lineRanges = new LineRangeList();
 
@@ -725,6 +724,7 @@ public final class FileNode extends Node {
         return StringUtils.defaultIfBlank(relativePath.toString(), getName());
     }
 
+    @SuppressFBWarnings(value = "SECWF", justification = "False positive")
     public String getFileName() {
         return FilenameUtils.getName(getRelativePath());
     }

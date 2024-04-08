@@ -103,15 +103,15 @@ public enum Metric {
 
     public static NavigableSet<Metric> getCoverageMetrics() {
         return new TreeSet<>(Set.of(
-                Metric.CONTAINER,
-                Metric.MODULE,
-                Metric.PACKAGE,
-                Metric.FILE,
-                Metric.CLASS,
-                Metric.METHOD,
-                Metric.LINE,
-                Metric.BRANCH,
-                Metric.INSTRUCTION
+                CONTAINER,
+                MODULE,
+                PACKAGE,
+                FILE,
+                CLASS,
+                METHOD,
+                LINE,
+                BRANCH,
+                INSTRUCTION
         ));
     }
 
@@ -154,9 +154,9 @@ public enum Metric {
         }
 
         private boolean hasCoverage(final Node node) {
-            return hasCoverage(node, Metric.INSTRUCTION)
-                    || hasCoverage(node, Metric.LINE)
-                    || hasCoverage(node, Metric.BRANCH);
+            return hasCoverage(node, INSTRUCTION)
+                    || hasCoverage(node, LINE)
+                    || hasCoverage(node, BRANCH);
         }
 
         private boolean hasCoverage(final Node node, final Metric metric) {

@@ -382,6 +382,7 @@ public class OpenCoverParser extends CoverageParser {
         }
     }
 
+    @SuppressWarnings("PMD.DataClass")
     private static class CoverageMethod {
         private String methodName = StringUtils.EMPTY;
         private String fileId = StringUtils.EMPTY;

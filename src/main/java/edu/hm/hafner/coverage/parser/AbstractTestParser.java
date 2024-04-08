@@ -53,7 +53,7 @@ abstract class AbstractTestParser extends CoverageParser {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
             var root = new ModuleNode(fileName);
             var tests = readTestCases(eventReader, root, fileName);
-            handleEmptyResults(fileName, tests.isEmpty(), log);
+            handleEmptyResults(fileName, log, tests.isEmpty());
             return root;
         }
         catch (XMLStreamException exception) {

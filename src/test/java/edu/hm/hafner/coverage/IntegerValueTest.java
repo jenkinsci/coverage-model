@@ -3,10 +3,13 @@ package edu.hm.hafner.coverage;
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
 abstract class IntegerValueTest {
     private static Fraction getDelta(final int value) {
         return Fraction.getFraction(value, 1);

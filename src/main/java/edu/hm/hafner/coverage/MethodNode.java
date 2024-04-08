@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import java.util.Objects;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * A {@link Node} for a specific method.
  *
@@ -45,6 +47,7 @@ public final class MethodNode extends Node {
         this.lineNumber = lineNumber;
     }
 
+    @SuppressFBWarnings(value = "RCN", justification = "Value might be null in old serializations")
     private Object readResolve() {
         if (methodName == null) { // serialization of old versions
             methodName = getName();

@@ -63,7 +63,13 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
     private static final QName MISSED_BRANCHES = new QName("mb");
     private static final QName COVERED_BRANCHED = new QName("cb");
+
+    private static final String VALUE_COMPLEXITY = "COMPLEXITY";
+
     private static final PathUtil PATH_UTIL = new PathUtil();
+    private static final String VALUE_BRANCH = "BRANCH";
+    private static final String VALUE_INSTRUCTION = "INSTRUCTION";
+    private static final String VALUE_LINE = "LINE";
 
     /**
      * Creates a new instance of {@link JacocoParser}.
@@ -301,7 +307,7 @@ public class JacocoParser extends CoverageParser {
     private void readValueCounter(final Node node, final StartElement startElement) {
         String currentType = getValueOf(startElement, TYPE);
 
-        if (StringUtils.containsAny(currentType, "LINE", "INSTRUCTION", "BRANCH", "COMPLEXITY")) {
+        if (StringUtils.containsAny(currentType, VALUE_LINE, VALUE_INSTRUCTION, VALUE_BRANCH, VALUE_COMPLEXITY)) {
             var covered = getIntegerValueOf(startElement, COVERED);
             var missed = getIntegerValueOf(startElement, MISSED);
 
@@ -312,7 +318,7 @@ public class JacocoParser extends CoverageParser {
     }
 
     private Value createValue(final String currentType, final int covered, final int missed) {
-        if ("COMPLEXITY".equals(currentType)) {
+        if (VALUE_COMPLEXITY.equals(currentType)) {
             return new CyclomaticComplexity(covered + missed);
         }
         else {

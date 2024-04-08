@@ -79,7 +79,7 @@ public class PitestParser extends CoverageParser {
                     isEmpty = false;
                 }
             }
-            handleEmptyResults(fileName, isEmpty, log);
+            handleEmptyResults(fileName, log, isEmpty);
             root.getAllFileNodes().forEach(this::collectLineCoverage);
             return root;
         }
