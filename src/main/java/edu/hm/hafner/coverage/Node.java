@@ -629,26 +629,34 @@ public abstract class Node implements Serializable {
     public abstract Node copy();
 
     /**
-     * Maps the test cases in all test classes of the specified {@link Node} to the corresponding class nodes of this
-     * tree. The mapping is done by the name of the test class. If the name of the test class can't be mapped to a
-     * target class, then the tests of this test class are ignored.
+     * Merges the test cases of the specified test classes into the corresponding production classes of this coverage
+     * tree. The mapping is done by evaluating the name of the test class. If the name of the test class cannot be
+     * mapped to a target class, then the tests of this test class are ignored.
      *
      * @param testClassNodes
      *         the test classes containing the test cases
+     *
+     * @return the test classes that have not been merged into this coverage tree
      */
-    public void mapTests(final List<ClassNode> testClassNodes) {
-        testClassNodes.forEach(this::mapTestClass);
+    public Set<ClassNode> mergeTests(final Collection<ClassNode> testClassNodes) {
+        return testClassNodes.stream()
+                .map(this::mapTestClass)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toSet());
     }
 
-    private void mapTestClass(final ClassNode testClassNode) {
-        findPackage(testClassNode.getPackageName())
-                .ifPresent(packageNode -> packageNode.getAllClassNodes().stream()
-                        .filter(classNode -> isTargetOfTest(classNode, testClassNode))
-                        .forEach(classNode -> classNode.addTestCases(testClassNode.getTestCases())));
-    }
+    private Optional<ClassNode> mapTestClass(final ClassNode testClassNode) {
+        Optional<ClassNode> targetClass = findPackage(testClassNode.getPackageName())
+                .map(Node::getAllClassNodes).stream()
+                .flatMap(Collection::stream)
+                .filter(classNode -> classNode.getName().endsWith(createTargetClassName(testClassNode)))
+                .findFirst();
+        if (targetClass.isPresent()) {
+            targetClass.get().addTestCases(testClassNode.getTestCases());
 
-    private boolean isTargetOfTest(final ClassNode classNode, final ClassNode testClassNode) {
-        return classNode.getName().endsWith(createTargetClassName(testClassNode));
+            return Optional.empty();
+        }
+        return Optional.of(testClassNode);
     }
 
     private String createTargetClassName(final ClassNode testClassNode) {
