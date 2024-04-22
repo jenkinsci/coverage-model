@@ -79,12 +79,12 @@ class TestCaseMappingTest {
         assertThat(tests.getTestCases()).hasSize(257);
         assertThat(tests.getAllClassNodes()).extracting(Node::getName).containsExactly(TEST_CLASSES);
 
-        var testCases = tests.getTestCases();
-        coverage.mapTests(tests.getAllClassNodes());
+        var unmappedTests = coverage.mergeTests(tests.getAllClassNodes());
+        assertThat(unmappedTests).flatMap(Node::getTestCases).hasSize(10);
+        assertThat(coverage.getTestCases()).hasSize(247);
 
-        testCases.removeAll(coverage.getTestCases());
-        assertThat(testCases).hasSize(10)
-                .extracting(TestCase::getClassName)
+        assertThat(unmappedTests)
+                .extracting(Node::getName)
                 .containsOnly("ArchitectureTest", "PackageArchitectureTest");
 
         assertThat(coverage.findFile("Metric.java")).hasValueSatisfying(
