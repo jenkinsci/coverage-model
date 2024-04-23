@@ -521,6 +521,17 @@ public final class FileNode extends Node {
         return this;
     }
 
+    @CanIgnoreReturnValue
+    public FileNode addCounterIncremental(final int lineNumber, final int covered, final int missed) {
+        coveredPerLine.merge(lineNumber, covered, Integer::sum);
+        if (coveredPerLine.get(lineNumber) > 0) {
+            missedPerLine.put(lineNumber, 0);
+        } else {
+            missedPerLine.merge(lineNumber, missed, Integer::sum);
+        }
+        return this;
+    }
+
     public int[] getCoveredCounters() {
         return entriesToArray(coveredPerLine);
     }

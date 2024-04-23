@@ -166,7 +166,7 @@ public abstract class CoverageParser implements Serializable {
      *         the logger to write messages to
      *
      * @return the root of the created tree
-     * @throws ParsingException
+     * @throws RuntimeException
      *         if the XML content cannot be read
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
