@@ -317,7 +317,7 @@ public class JacocoParser extends CoverageParser {
         }
     }
 
-    protected Value createValue(final String currentType, final int covered, final int missed) {
+    protected static Value createValue(final String currentType, final int covered, final int missed) {
         if (VALUE_COMPLEXITY.equals(currentType)) {
             return new CyclomaticComplexity(covered + missed);
         }

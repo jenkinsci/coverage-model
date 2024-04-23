@@ -24,12 +24,12 @@ public class GoParser extends CoverageParser {
     }
 
     @Override
-    protected ModuleNode parseReport(Reader reader, FilteredLog log) throws InvalidGoCoverageFormatException {
+    protected ModuleNode parseReport(Reader reader, String fileName, FilteredLog log) throws InvalidGoCoverageFormatException {
         try {
             BufferedReader reader1 = new BufferedReader(reader);
             String line = reader1.readLine();
             if (line == null || line.isBlank()) {
-                handleEmptyResults(log);
+                handleEmptyResults(fileName, log);
                 if (ignoreErrors()) {
                     return new ModuleNode("empty");
                 }
@@ -110,7 +110,7 @@ public class GoParser extends CoverageParser {
             } while (line != null);
 
             if (root == null) {
-                handleEmptyResults(log);
+                handleEmptyResults(fileName, log);
             }
 
             meta.resolveAggregate();
