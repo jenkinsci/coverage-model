@@ -81,14 +81,14 @@ public class GoParser extends CoverageParser {
 
                 String s = split[pkgIndxEnd];
                 String[] split2 = s.split("[:,]");
-                String fileName = split2[0];
+                String file = split2[0];
                 String filePath;
                 if (pkg != null && !pkg.isBlank()) {
-                    filePath = String.join("/", pkg, fileName);
+                    filePath = String.join("/", pkg, file);
                 } else {
-                    filePath = fileName;
+                    filePath = file;
                 }
-                FileNode fNode = meta.getOrAddFile(fileName, filePath);
+                FileNode fNode = meta.getOrAddFile(file, filePath);
                 addChildHelper(pNode, fNode);
 
                 String[] start = split2[1].split("\\.");
