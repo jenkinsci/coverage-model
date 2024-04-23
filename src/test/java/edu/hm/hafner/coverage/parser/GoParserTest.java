@@ -68,11 +68,12 @@ class GoParserTest extends AbstractParserTest {
     @Override
     @Test
     void shouldFailWhenEmptyFilesAreNotIgnored() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.out"));
+        String emptyFile = "empty.out";
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFile));
 
         var report = readReport("empty.out", ProcessingMode.IGNORE_ERRORS);
 
         Assertions.assertThat(report).hasNoChildren().hasNoValues();
-        assertThat(getLog().getErrorMessages()).contains(CoverageParser.EMPTY_MESSAGE);
+        assertThat(getLog().getErrorMessages()).contains(String.format("The processed file '%s' does not contain data.", emptyFile));
     }
 }
