@@ -75,7 +75,7 @@ class GoParserTest extends AbstractParserTest {
 
         Assertions.assertThat(report).hasNoChildren().hasNoValues();
         var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file 'empty.xml' does not contain data.", parserName));
+        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file '%s' does not contain data.", parserName, emptyFile));
 
     }
 }
