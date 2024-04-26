@@ -31,6 +31,8 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.hm.hafner.util.TreeString;
 
+import static edu.hm.hafner.coverage.parser.ParseUtil.createValue;
+
 /**
  * Parses JaCoCo reports into a hierarchical Java Object Model.
  *
@@ -317,15 +319,4 @@ public class JacocoParser extends CoverageParser {
         }
     }
 
-    protected static Value createValue(final String currentType, final int covered, final int missed) {
-        if (VALUE_COMPLEXITY.equals(currentType)) {
-            return new CyclomaticComplexity(covered + missed);
-        }
-        else {
-            var builder = new CoverageBuilder();
-            return builder.withMetric(Metric.valueOf(currentType))
-                        .withCovered(covered)
-                        .withMissed(missed).build();
-        }
-    }
 }
