@@ -9,8 +9,6 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import static edu.hm.hafner.coverage.parser.ParseUtil.createValue;
-
 public class GoParser extends CoverageParser {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(GoParser.class.getName());
 

@@ -31,8 +31,6 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.hm.hafner.util.TreeString;
 
-import static edu.hm.hafner.coverage.parser.ParseUtil.createValue;
-
 /**
  * Parses JaCoCo reports into a hierarchical Java Object Model.
  *
