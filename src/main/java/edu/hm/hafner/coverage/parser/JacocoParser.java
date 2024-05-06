@@ -316,16 +316,4 @@ public class JacocoParser extends CoverageParser {
             }
         }
     }
-
-    private Value createValue(final String currentType, final int covered, final int missed) {
-        if (VALUE_COMPLEXITY.equals(currentType)) {
-            return new CyclomaticComplexity(covered + missed);
-        }
-        else {
-            var builder = new CoverageBuilder();
-            return builder.withMetric(Metric.valueOf(currentType))
-                        .withCovered(covered)
-                        .withMissed(missed).build();
-        }
-    }
 }
