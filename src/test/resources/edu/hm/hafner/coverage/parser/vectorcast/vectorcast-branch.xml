@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE coverage SYSTEM 'http://cobertura.sourceforge.net/xml/coverage-04.dtd'>
+<coverage branch-rate="0.6764705882352942" timestamp="0" version="VectorCAST 23.sp5 (12/14/23)">
+  <sources>
+    <source>./</source>
+  </sources>
+  <packages>
+    <package name="tutorial.c.database" complexity="4" branch-rate="0.3333333333333333">
+      <classes>
+        <class name="database" filename="tutorial/c/database/database.c" branch-rate="0.3333333333333333" complexity="4">
+          <methods/>
+          <lines>
+            <line number="6" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="7" condition-coverage="50.0% (1/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="50.0%"/>
+              </conditions>
+            </line>
+            <line number="16" condition-coverage="0.0% (0/1)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+            <line number="17" condition-coverage="0.0% (0/2)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="tutorial.c.order_entry" complexity="18" branch-rate="0.84">
+      <classes>
+        <class name="manager" filename="tutorial/c/order_entry/manager.c" branch-rate="0.84" complexity="18">
+          <methods/>
+          <lines>
+            <line number="61" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="55" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="50" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="52" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="58" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="36" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="25" condition-coverage="100.0% (2/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="19" condition-coverage="100.0% (2/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="16" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="17" condition-coverage="50.0% (1/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="50.0%"/>
+              </conditions>
+            </line>
+            <line number="105" condition-coverage="100.0% (2/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="100" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="102" condition-coverage="100.0% (2/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="114" condition-coverage="100.0% (2/2)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="113" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+            <line number="78" condition-coverage="0.0% (0/2)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+            <line number="71" condition-coverage="0.0% (0/1)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+            <line number="93" condition-coverage="100.0% (1/1)" hits="1" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="100.0%"/>
+              </conditions>
+            </line>
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="tutorial.c.utils" branch-rate="0.0" complexity="3">
+      <classes>
+        <class name="whitebox" filename="tutorial/c/utils/whitebox.c" branch-rate="0.0" complexity="3">
+          <methods/>
+          <lines>
+            <line number="16" condition-coverage="0.0% (0/1)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+            <line number="21" condition-coverage="0.0% (0/1)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+            <line number="26" condition-coverage="0.0% (0/1)" hits="0" branch="true">
+              <conditions>
+                <condition number="0" type="jump" coverage="0.0%"/>
+              </conditions>
+            </line>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
