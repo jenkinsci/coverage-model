@@ -31,6 +31,7 @@ public enum Metric {
     LINE(new ValuesAggregator()),
     BRANCH(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
+    CONDITIONAL(new ValuesAggregator()),
 
     /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),

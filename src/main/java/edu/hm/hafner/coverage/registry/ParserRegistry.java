@@ -1,16 +1,10 @@
 package edu.hm.hafner.coverage.registry;
 
+import edu.hm.hafner.coverage.parser.*;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.parser.CoberturaParser;
-import edu.hm.hafner.coverage.parser.JacocoParser;
-import edu.hm.hafner.coverage.parser.JunitParser;
-import edu.hm.hafner.coverage.parser.NunitParser;
-import edu.hm.hafner.coverage.parser.OpenCoverParser;
-import edu.hm.hafner.coverage.parser.PitestParser;
-import edu.hm.hafner.coverage.parser.XunitParser;
 
 /**
  * Provides a registry for all available {@link CoverageParserType parsers}.
@@ -26,7 +20,8 @@ public class ParserRegistry {
         JACOCO,
         PIT,
         JUNIT,
-        XUNIT
+        XUNIT,
+        CLOVER
     }
 
     /**
@@ -74,6 +69,8 @@ public class ParserRegistry {
                 return new JunitParser(processingMode);
             case XUNIT:
                 return new XunitParser(processingMode);
+            case CLOVER:
+                return new CloverParser(processingMode);
         }
         throw new IllegalArgumentException("Unknown parser type: " + parser);
     }

@@ -207,4 +207,17 @@ public abstract class CoverageParser implements Serializable {
     protected static ParsingException createEofException(final String fileName) {
         return new ParsingException("Unexpected end of file '%s'", fileName);
     }
+
+
+    protected static Value createValue(final String currentType, final int covered, final int missed) {
+        if (currentType.equals("COMPLEXITY")) {
+            return new CyclomaticComplexity(covered + missed);
+        }
+        else {
+            var builder = new Coverage.CoverageBuilder();
+            return builder.withMetric(Metric.valueOf(currentType))
+                    .withCovered(covered)
+                    .withMissed(missed).build();
+        }
+    }
 }
