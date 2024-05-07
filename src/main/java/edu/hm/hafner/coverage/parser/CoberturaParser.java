@@ -95,7 +95,7 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
+    protected boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
             final String fileName, final FilteredLog log) throws XMLStreamException {
         boolean isEmpty = true;
 
@@ -139,14 +139,14 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
+    protected FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
         var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
 
         return packageNode.findOrCreateFileNode(getFileName(fileName), path);
     }
 
-    private String getFileName(final String relativePath) {
+    protected String getFileName(final String relativePath) {
         var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
         if (path == null) {
             return relativePath;
@@ -155,7 +155,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    private void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
+    protected void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final Node parentNode, final StartElement element, final String fileName, final FilteredLog log)
             throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
@@ -209,19 +209,20 @@ public class CoberturaParser extends CoverageParser {
         throw createEofException(fileName);
     }
 
-    private Coverage computeLineCoverage(final int coverage) {
+    protected Coverage computeLineCoverage(final int coverage) {
         return coverage > 0 ? LINE_COVERED : LINE_MISSED;
     }
 
-    private Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
+    protected Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
         var name = readName(element);
         if (CLASS.equals(element.getName())) {
             return createClassNode(parentNode, log, name);
         }
+        
         return createMethodNode(parentNode, element, log, name);
     }
 
-    private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
+    protected MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
             final String name) {
         String className = name;
         var signature = getValueOf(element, SIGNATURE);
@@ -234,7 +235,7 @@ public class CoberturaParser extends CoverageParser {
         return classNode.createMethodNode(className, signature);
     }
 
-    private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
+    protected ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
         String className = name;
         if (parentNode.hasChild(className) && ignoreErrors()) {
             log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
@@ -243,15 +244,15 @@ public class CoberturaParser extends CoverageParser {
         return ((FileNode) parentNode).createClassNode(className);
     }
 
-    private String readName(final StartElement element) {
+    protected String readName(final StartElement element) {
         return StringUtils.defaultIfBlank(getValueOf(element, NAME), createId());
     }
 
-    private String createId() {
+    protected String createId() {
         return UUID.randomUUID().toString();
     }
 
-    private int readComplexity(final String c) {
+    protected int readComplexity(final String c) {
         try {
             return Math.round(Float.parseFloat(c)); // some reports use float values
         }
@@ -260,13 +261,13 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private boolean isBranchCoverage(final StartElement line) {
+    protected boolean isBranchCoverage(final StartElement line) {
         return getOptionalValueOf(line, BRANCH)
                 .map(Boolean::parseBoolean)
                 .orElse(false);
     }
 
-    private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
+    protected void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
         while (reader.hasNext()) {
@@ -282,11 +283,11 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private Coverage readBranchCoverage(final StartElement line) {
+    protected Coverage readBranchCoverage(final StartElement line) {
         return getOptionalValueOf(line, CONDITION_COVERAGE).map(this::fromConditionCoverage).orElse(DEFAULT_BRANCH_COVERAGE);
     }
 
-    private Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
+    protected Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
         var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
         if (matcher.matches()) {
             return new CoverageBuilder().withMetric(Metric.BRANCH)

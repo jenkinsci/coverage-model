@@ -229,6 +229,11 @@ public final class Coverage extends Value {
         private static final Coverage[] INSTRUCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] MUTATION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
 
+        /* VectorCAST Coverages */
+        private static final Coverage[] MCDC_PAIR_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+        private static final Coverage[] FUNCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+        private static final Coverage[] FUNCTION_CALL_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+
         static {
             for (int covered = 0; covered < CACHE_SIZE; covered++) {
                 for (int missed = 0; missed < CACHE_SIZE; missed++) {
@@ -237,6 +242,11 @@ public final class Coverage extends Value {
                     INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
                             missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
+        
+                    /* VectorCAST Coverages */
+                    MCDC_PAIR_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MCDC_PAIR, covered, missed);
+                    FUNCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION, covered, missed);
+                    FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION_CALL, covered, missed);
                 }
             }
         }
@@ -440,6 +450,14 @@ public final class Coverage extends Value {
                         return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
                     case MUTATION:
                         return MUTATION_CACHE[getCacheIndex(covered, missed)];
+                        
+                    /* VectorCAST Coverages */
+                    case MCDC_PAIR:
+                        return MCDC_PAIR_CACHE[getCacheIndex(covered, missed)];
+                    case FUNCTION:
+                        return FUNCTION_CACHE[getCacheIndex(covered, missed)];
+                    case FUNCTION_CALL:
+                        return FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)];
                     default:
                         // use constructor to create instance
                 }

@@ -32,6 +32,11 @@ public enum Metric {
     BRANCH(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
 
+    /* VectorCAST Coverage */
+    MCDC_PAIR(new ValuesAggregator()),
+    FUNCTION (new ValuesAggregator()),
+    FUNCTION_CALL(new ValuesAggregator()),
+
     /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
     TEST_STRENGTH(new ValuesAggregator()),
@@ -111,7 +116,10 @@ public enum Metric {
                 METHOD,
                 LINE,
                 BRANCH,
-                INSTRUCTION
+                INSTRUCTION,
+                MCDC_PAIR,
+                FUNCTION,
+                FUNCTION_CALL
         ));
     }
 
@@ -156,7 +164,10 @@ public enum Metric {
         private boolean hasCoverage(final Node node) {
             return hasCoverage(node, INSTRUCTION)
                     || hasCoverage(node, LINE)
-                    || hasCoverage(node, BRANCH);
+                    || hasCoverage(node, BRANCH)
+                    || hasCoverage(node, MCDC_PAIR)
+                    || hasCoverage(node, FUNCTION)
+                    || hasCoverage(node, FUNCTION_CALL);
         }
 
         private boolean hasCoverage(final Node node, final Metric metric) {
