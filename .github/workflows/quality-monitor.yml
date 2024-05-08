@@ -73,6 +73,7 @@ jobs:
                   },
                   {
                     "id": "error-prone",
+                    "icon": "bug",
                     "pattern": "**/maven.log"
                   }
                 ]
