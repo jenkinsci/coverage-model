@@ -100,7 +100,6 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
                 .withPrefabValues(Node.class, new PackageNode("src"), new PackageNode("test"))
                 .withIgnoredFields("parent")
                 .withRedefinedSuperclass()
-                .usingGetClass()
                 .suppress(Warning.NONFINAL_FIELDS);
         configureEqualsVerifier(equalsVerifier);
         equalsVerifier.verify();
