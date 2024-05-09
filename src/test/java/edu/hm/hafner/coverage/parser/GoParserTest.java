@@ -63,21 +63,11 @@ class GoParserTest extends AbstractParserTest {
     @Override
     @Test
     void shouldFailWhenParsingInvalidFiles() {
-        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.out"));
+        super.shouldFailWhenParsingInvalidFilesHelper("/design.puml", "empty.out");
     }
 
     @Override
-    @Test
-    void shouldFailWhenEmptyFilesAreNotIgnored() {
-        String emptyFile = "empty.out";
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFile));
-
-        var report = readReport("empty.out", ProcessingMode.IGNORE_ERRORS);
-
-        Assertions.assertThat(report).hasNoChildren().hasNoValues();
-        var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file '%s' does not contain data.", parserName, emptyFile));
-
+    protected String getEmptyFilePath() {
+        return "empty.out";
     }
 }

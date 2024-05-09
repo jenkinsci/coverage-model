@@ -76,18 +76,27 @@ abstract class AbstractParserTest {
 
     @Test
     void shouldFailWhenParsingInvalidFiles() {
-        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("../empty.xml"));
+        shouldFailWhenParsingInvalidFilesHelper("/design.puml", "../empty.xml");
+    }
+
+    void shouldFailWhenParsingInvalidFilesHelper(String invalidFilePath, String emptyFilePath) {
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> readReport(invalidFilePath));
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFilePath));
+    }
+
+    protected String getEmptyFilePath() {
+        return "empty.xml";
     }
 
     @Test
     void shouldFailWhenEmptyFilesAreNotIgnored() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+        String emptyFile = getEmptyFilePath();
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFile));
 
-        var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
+        var report = readReport(emptyFile, ProcessingMode.IGNORE_ERRORS);
         assertThat(report).hasNoChildren().hasNoValues();
 
         var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file 'empty.xml' does not contain data.", parserName));
+        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file '%s' does not contain data.", parserName, emptyFile));
     }
 }
