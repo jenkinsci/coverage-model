@@ -227,7 +227,7 @@ public final class FileNode extends Node {
                 updateBranchCoverage(line, branchCoverage);
             }
             else if (leftMcdcPairTotal > 1) {
-			    // exact mcdc pair coverage cannot be computed
+                // exact mcdc pair coverage cannot be computed
                 if (leftMcdcPairCovered > rightMcdcPairCovered) { 
                     mcdcPairCoveredPerLine.put(line, leftMcdcPairCovered);
                     mcdcPairMissedPerLine.put(line, leftMcdcPairMissed);
@@ -239,7 +239,7 @@ public final class FileNode extends Node {
                 updateMcdcPairCoverage(line, mcdcPairCoverage);
             }
             else if (leftFunctionCallTotal > 1) {
-				// exact function call coverage cannot be computed
+                // exact function call coverage cannot be computed
                 if (leftFunctionCallCovered > rightFunctionCallCovered) { 
                     functionCallCoveredPerLine.put(line, leftFunctionCallCovered);
                     functionCallMissedPerLine.put(line, leftFunctionCallMissed);

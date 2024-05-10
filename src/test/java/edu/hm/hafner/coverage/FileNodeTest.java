@@ -74,11 +74,11 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldReadOldVersion() {
-        byte[] restored = readAllBytes("version-0.21.0.ser");
+        // byte[] restored = readAllBytes("version-0.21.0.ser");
 
         var serializable = (FileNode)createSerializable();
         serializable.setRelativePath(TreeString.valueOf(StringUtils.EMPTY));
-		// version-0.21.0.ser needs to be updated
+        // version-0.21.0.ser needs to be updated
         // assertThatRestoredInstanceEqualsOriginalInstance(serializable, restore(restored));
     }
 

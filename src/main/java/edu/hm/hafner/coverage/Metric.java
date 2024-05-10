@@ -34,7 +34,7 @@ public enum Metric {
 
     /* VectorCAST Coverage */
     MCDC_PAIR(new ValuesAggregator()),
-    FUNCTION (new ValuesAggregator()),
+    FUNCTION(new ValuesAggregator()),
     FUNCTION_CALL(new ValuesAggregator()),
 
     /** Additional metrics without children. */
@@ -162,12 +162,16 @@ public enum Metric {
         }
 
         private boolean hasCoverage(final Node node) {
-            return hasCoverage(node, INSTRUCTION)
+            boolean baseline = hasCoverage(node, INSTRUCTION)
                     || hasCoverage(node, LINE)
-                    || hasCoverage(node, BRANCH)
-                    || hasCoverage(node, MCDC_PAIR)
+                    || hasCoverage(node, BRANCH);
+                    
+            boolean vectorcast = hasCoverage(node, MCDC_PAIR)
                     || hasCoverage(node, FUNCTION)
                     || hasCoverage(node, FUNCTION_CALL);
+                    
+            return baseline || vectorcast;
+                    
         }
 
         private boolean hasCoverage(final Node node, final Metric metric) {

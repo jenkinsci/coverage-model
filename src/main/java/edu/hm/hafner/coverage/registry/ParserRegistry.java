@@ -28,7 +28,7 @@ public class ParserRegistry {
         PIT,
         JUNIT,
         VECTORCAST,
-        XUNIT		
+        XUNIT
     }
 
     /**
@@ -75,7 +75,7 @@ public class ParserRegistry {
             case JUNIT:
                 return new JunitParser(processingMode);
             case XUNIT:
-                return new XunitParser(processingMode);				
+                return new XunitParser(processingMode);
             case VECTORCAST:
                 return new VectorCASTParser(processingMode);
         }
