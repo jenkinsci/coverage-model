@@ -32,7 +32,7 @@ public class CloverParser extends CoverageParser {
     private static final QName NUM = new QName("num");
     private static final QName COUNT = new QName("count");
 
-    public CloverParser(ProcessingMode processingMode) {
+    public CloverParser(final ProcessingMode processingMode) {
         super(processingMode);
     }
 
