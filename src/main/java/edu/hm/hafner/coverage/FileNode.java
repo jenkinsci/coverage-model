@@ -154,7 +154,7 @@ public final class FileNode extends Node {
         private int missed;
         private int total;
         
-        public CoverageMetricsValues(final int int c, final int int m) {
+        public CoverageMetricsValues(final int c, final int m) {
             this.covered = c;
             this.missed = m;
             this.total = c + m;
