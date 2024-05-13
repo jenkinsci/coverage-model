@@ -203,10 +203,6 @@ public class VectorCASTParser extends CoberturaParser {
         return isVectorCASTCoverage(line, MCDCPAIR_COVERAGE);
     }
 
-    private boolean isFunctionCoverage(final StartElement line) {
-        return isVectorCASTCoverage(line, FUNCTION_COVERAGE);
-    }
-
     private boolean isFunctionCallCoverage(final StartElement line) {
         return isVectorCASTCoverage(line, FUNCTIONCALL_COVERAGE);
     }

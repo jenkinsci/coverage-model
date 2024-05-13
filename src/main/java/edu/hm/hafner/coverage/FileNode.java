@@ -532,34 +532,6 @@ public final class FileNode extends Node {
         return Coverage.nullObject(Metric.BRANCH);
     }
 
-    private Coverage getMcdcPairCoverage(final int line) {
-        if (hasMcdcPairCoverageForLine(line)) {
-            var covered = getMcdcPairCoveredOfLine(line);
-            var missed = getMcdcPairMissedOfLine(line);
-            if (covered + missed > 1) {
-                return new CoverageBuilder().withMetric(Metric.MCDC_PAIR)
-                        .withCovered(covered)
-                        .withMissed(missed)
-                        .build();
-            }
-        }
-        return Coverage.nullObject(Metric.MCDC_PAIR);
-    }
-
-    private Coverage getFunctionCallCoverage(final int line) {
-        if (hasFunctionCallCoverageForLine(line)) {
-            var covered = getFunctionCallCoveredOfLine(line);
-            var missed = getFunctionCallMissedOfLine(line);
-            if (covered + missed > 1) {
-                return new CoverageBuilder().withMetric(Metric.FUNCTION_CALL)
-                        .withCovered(covered)
-                        .withMissed(missed)
-                        .build();
-            }
-        }
-        return Coverage.nullObject(Metric.FUNCTION_CALL);
-    }
-
     @Override
     public Set<String> getFiles() {
         return Set.of(getRelativePath());
