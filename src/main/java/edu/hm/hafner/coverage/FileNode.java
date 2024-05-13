@@ -163,30 +163,30 @@ public final class FileNode extends Node {
         var mcdcPairCoverage = new CoverageBuilder().withMetric(Metric.MCDC_PAIR).withCovered(0).withMissed(0);
         var functionCallCoverage = new CoverageBuilder().withMetric(Metric.FUNCTION_CALL).withCovered(0).withMissed(0);
         
-        for (int line : lines) {
+        for (final int line : lines) {
             int leftCovered = coveredPerLine.getOrDefault(line, 0);
             int leftMissed = missedPerLine.getOrDefault(line, 0);
             int leftTotal = leftCovered + leftMissed;
 
-            int leftMcdcPairCovered = mcdcPairCoveredPerLine.getOrDefault(line, 0);
-            int leftMcdcPairMissed  = mcdcPairMissedPerLine.getOrDefault(line, 0);
-            int leftMcdcPairTotal = leftMcdcPairCovered + leftMcdcPairMissed;
+            final int leftMcdcPairCovered = mcdcPairCoveredPerLine.getOrDefault(line, 0);
+            final int leftMcdcPairMissed  = mcdcPairMissedPerLine.getOrDefault(line, 0);
+            final int leftMcdcPairTotal = leftMcdcPairCovered + leftMcdcPairMissed;
 
-            int leftFunctionCallCovered = functionCallCoveredPerLine.getOrDefault(line, 0);
-            int leftFunctionCallMissed = functionCallMissedPerLine.getOrDefault(line, 0);
-            int leftFunctionCallTotal = leftFunctionCallCovered + leftFunctionCallMissed;
+            final int leftFunctionCallCovered = functionCallCoveredPerLine.getOrDefault(line, 0);
+            final int leftFunctionCallMissed = functionCallMissedPerLine.getOrDefault(line, 0);
+            final int leftFunctionCallTotal = leftFunctionCallCovered + leftFunctionCallMissed;
 
-            int rightCovered = otherFile.coveredPerLine.getOrDefault(line, 0);
-            int rightMissed = otherFile.missedPerLine.getOrDefault(line, 0);
-            int rightTotal = rightCovered + rightMissed;
+            final int rightCovered = otherFile.coveredPerLine.getOrDefault(line, 0);
+            final int rightMissed = otherFile.missedPerLine.getOrDefault(line, 0);
+            final int rightTotal = rightCovered + rightMissed;
 
-            int rightMcdcPairCovered = otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0);
-            int rightMcdcPairMissed = otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0);
-            int rightMcdcPairTotal = rightMcdcPairMissed + rightMcdcPairCovered;
+            final int rightMcdcPairCovered = otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0);
+            final int rightMcdcPairMissed = otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0);
+            final int rightMcdcPairTotal = rightMcdcPairMissed + rightMcdcPairCovered;
 
-            int rightFunctionCallCovered = otherFile.functionCallCoveredPerLine.getOrDefault(line, 0);
-            int rightFunctionCallMissed = otherFile.functionCallMissedPerLine.getOrDefault(line, 0);
-            int rightFunctionCallTotal = rightFunctionCallMissed + rightFunctionCallCovered;
+            final int rightFunctionCallCovered = otherFile.functionCallCoveredPerLine.getOrDefault(line, 0);
+            final int rightFunctionCallMissed = otherFile.functionCallMissedPerLine.getOrDefault(line, 0);
+            final int rightFunctionCallTotal = rightFunctionCallMissed + rightFunctionCallCovered;
 
             // check for errors in branc, mcdc pair and function call coverages
             if (leftTotal != rightTotal) {
@@ -217,8 +217,10 @@ public final class FileNode extends Node {
                 updateBranchCoverage(line, branchCoverage);
             }
             else if (leftMcdcPairTotal > 1) {
-                 mergeLeftRight(line, leftMcdcPairCovered, leftMcdcPairMissed, rightMcdcPairCovered, rightMcdcPairMissed, mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
-                 updateMcdcPairCoverage(line, mcdcPairCoverage);
+                mergeLeftRight(line, leftMcdcPairCovered, leftMcdcPairMissed, 
+                    rightMcdcPairCovered, rightMcdcPairMissed, 
+                    mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
+                updateMcdcPairCoverage(line, mcdcPairCoverage);
             }
             else if (leftFunctionCallTotal > 1) {
                 mergeLeftRight(line, leftFunctionCallCovered, leftFunctionCallMissed, rightFunctionCallCovered, rightFunctionCallMissed, functionCallCoveredPerLine, functionCallMissedPerLine);
@@ -256,8 +258,10 @@ public final class FileNode extends Node {
                 .forEach(this::addValue);
     }
 
-    protected void mergeLeftRight(int line, int leftCovered, int leftMissed, int rightCovered, int rightMissed, final NavigableMap<Integer, Integer> coveredPerLine, final NavigableMap<Integer, Integer> missedPerLine) {
-
+    protected void mergeLeftRight(int line, 
+            int leftCovered, int leftMissed, 
+            int rightCovered, int rightMissed, 
+            NavigableMap<Integer, Integer> coveredPerLine, NavigableMap<Integer, Integer> missedPerLine) {
         if (leftCovered > rightCovered) { 
             coveredPerLine.put(line, leftCovered);
             missedPerLine.put(line, leftMissed);
@@ -479,25 +483,27 @@ public final class FileNode extends Node {
         return coveredPerLine.containsKey(line) ||  mcdcPairCoveredPerLine.containsKey(line) ||  functionCallCoveredPerLine.containsKey(line);
     }
 
-     /* Returns whether this file has a coverage result for the specified line.
+     /**
+     * Returns whether this file has MCDC Pair coverage results for the specified line.
      *
      * @param line
      *         the line to check
      *
-     * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
+     * @return {@code true} if this file has MCDC Pair coverage results for the specified line, {@code false} otherwise
      */
-    public boolean hasMcdcPairCoverageForLine(final int line) {
+    private boolean hasMcdcPairCoverageForLine(final int line) {
         return mcdcPairCoveredPerLine.containsKey(line);
     }
 
-     /* Returns whether this file has a coverage result for the specified line.
+     /**
+     * Returns whether this file has a function call coverage result for the specified line.
      *
      * @param line
      *         the line to check
      *
-     * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
+     * @return {@code true} if this file has a function call coverage result for the specified line, {@code false} otherwise
      */
-    public boolean hasFunctionCallCoverageForLine(final int line) {
+    private boolean hasFunctionCallCoverageForLine(final int line) {
         return functionCallCoveredPerLine.containsKey(line);
     }
 
@@ -735,7 +741,7 @@ public final class FileNode extends Node {
      *
      * @return the number of covered items for the specified line
      */
-    public int getMcdcPairCoveredOfLine(final int line) {
+    private int getMcdcPairCoveredOfLine(final int line) {
         return mcdcPairCoveredPerLine.getOrDefault(line, 0);
     }
 
@@ -747,7 +753,7 @@ public final class FileNode extends Node {
      *
      * @return the number of covered items for the specified line
      */
-    public int getFunctionCallCoveredOfLine(final int line) {
+    private int getFunctionCallCoveredOfLine(final int line) {
         return functionCallCoveredPerLine.getOrDefault(line, 0);
     }
 
@@ -759,7 +765,7 @@ public final class FileNode extends Node {
      *
      * @return the number of covered items for the specified line
      */
-    public int getMcdcPairMissedOfLine(final int line) {
+    private int getMcdcPairMissedOfLine(final int line) {
         return mcdcPairMissedPerLine.getOrDefault(line, 0);
     }
 
@@ -771,7 +777,7 @@ public final class FileNode extends Node {
      *
      * @return the number of covered items for the specified line
      */
-    public int getFunctionCallMissedOfLine(final int line) {
+    private int getFunctionCallMissedOfLine(final int line) {
         return functionCallMissedPerLine.getOrDefault(line, 0);
     }
 

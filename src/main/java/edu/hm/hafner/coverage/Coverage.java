@@ -95,7 +95,6 @@ public final class Coverage extends Value {
         this.missed = missed;
     }
     
-
     /**
      * Returns the number of covered items.
      *
@@ -435,6 +434,29 @@ public final class Coverage extends Value {
             }
             throw new IllegalArgumentException("Exactly two properties have to be set.");
         }
+        
+        private Coverage getCache(final int covered, final int missed) {
+            switch (metric) {
+                case LINE:
+                    return LINE_CACHE[getCacheIndex(covered, missed)];
+                case BRANCH:
+                    return BRANCH_CACHE[getCacheIndex(covered, missed)];
+                case INSTRUCTION:
+                    return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
+                case MUTATION:
+                    return MUTATION_CACHE[getCacheIndex(covered, missed)];
+                case MCDC_PAIR:
+                    return MCDC_PAIR_CACHE[getCacheIndex(covered, missed)];
+                case FUNCTION:
+                    return FUNCTION_CACHE[getCacheIndex(covered, missed)];
+                case FUNCTION_CALL:
+                    return FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)];
+                default:
+                    break;
+            }
+            
+            return new Coverage(metric, covered, missed);
+        }
 
         @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
         private Coverage createOrGetCoverage(final int covered, final int missed) {
@@ -442,26 +464,7 @@ public final class Coverage extends Value {
                 throw new IllegalArgumentException("No metric defined.");
             }
             if (covered < CACHE_SIZE && missed < CACHE_SIZE) {
-                switch (metric) {
-                    case LINE:
-                        return LINE_CACHE[getCacheIndex(covered, missed)];
-                    case BRANCH:
-                        return BRANCH_CACHE[getCacheIndex(covered, missed)];
-                    case INSTRUCTION:
-                        return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
-                    case MUTATION:
-                        return MUTATION_CACHE[getCacheIndex(covered, missed)];
-                        
-                    /* VectorCAST Coverages */
-                    case MCDC_PAIR:
-                        return MCDC_PAIR_CACHE[getCacheIndex(covered, missed)];
-                    case FUNCTION:
-                        return FUNCTION_CACHE[getCacheIndex(covered, missed)];
-                    case FUNCTION_CALL:
-                        return FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)];
-                    default:
-                        // use constructor to create instance
-                }
+                return getCache(covered, missed);
             }
             return new Coverage(metric, covered, missed);
         }
