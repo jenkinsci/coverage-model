@@ -149,12 +149,12 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
     
-    public class coverageMetricsValues {
+    public class CoverageMetricsValues {
         private int covered;
         private int missed;
         private int total;
         
-        public coverageMetricsValues(int c, int m) {
+        public CoverageMetricsValues(final int int c, final int int m) {
             this.covered = c;
             this.missed = m;
             this.total = c + m;
@@ -172,19 +172,18 @@ public final class FileNode extends Node {
             return this.missed;
         }
         
-        public void setTotal(int t) {
+        public void setTotal(final int t) {
             this.total = t;
         }
         
-        public void setCovered(int c) {
+        public void setCovered(final int c) {
             this.covered = c;
         }
         
-        public void setMissed(int m) {
+        public void setMissed(final int m) {
             this.missed = m;
-        }
-        
-    };
+        }   
+    }
 
     // TODO: NPathComplexity - The method 'mergeCounters(FileNode)' has an NPath complexity of 400, current threshold is 200.
     //     : NcssCount - The method 'mergeCounters(FileNode)' has a NCSS line count of 72.
@@ -204,12 +203,12 @@ public final class FileNode extends Node {
         var functionCallCoverage = new CoverageBuilder().withMetric(Metric.FUNCTION_CALL).withCovered(0).withMissed(0);
         
         for (final int line : lines) {
-            coverageMetricsValues left = new coverageMetricsValues(coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
-            coverageMetricsValues leftMcdcPair = new coverageMetricsValues(mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
-            coverageMetricsValues leftFunctionCall = new coverageMetricsValues(functionCallCoveredPerLine.getOrDefault(line, 0), functionCallMissedPerLine.getOrDefault(line, 0));
-            coverageMetricsValues right = new coverageMetricsValues(otherFile.coveredPerLine.getOrDefault(line, 0), otherFile.missedPerLine.getOrDefault(line, 0));
-            coverageMetricsValues rightMcdcPair = new coverageMetricsValues(otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0), otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
-            coverageMetricsValues rightFunctionCall = new coverageMetricsValues(otherFile.functionCallCoveredPerLine.getOrDefault(line, 0), otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues left = new CoverageMetricsValues(coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues leftMcdcPair = new CoverageMetricsValues(mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues leftFunctionCall = new CoverageMetricsValues(functionCallCoveredPerLine.getOrDefault(line, 0), functionCallMissedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues right = new CoverageMetricsValues(otherFile.coveredPerLine.getOrDefault(line, 0), otherFile.missedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues rightMcdcPair = new CoverageMetricsValues(otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0), otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
+            CoverageMetricsValues rightFunctionCall = new CoverageMetricsValues(otherFile.functionCallCoveredPerLine.getOrDefault(line, 0), otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
             
             // check for errors in branc, mcdc pair and function call coverages
             if (left.getTotal() != right.getTotal()) {

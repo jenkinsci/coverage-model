@@ -58,8 +58,8 @@ public class VectorCASTParser extends CoberturaParser {
         super(processingMode);
     }
         
-    private Coverage processClassMethodStart(final StartElement nextElement, final Coverage FunctionCoverage) {
-        Coverage localFunctionCoverage = FunctionCoverage;
+    private Coverage processClassMethodStart(final StartElement nextElement, final Coverage functionCoverage) {
+        Coverage localFunctionCoverage = functionCoverage;
         
         if (METHOD.equals(nextElement.getName())) {
             Coverage functionMethodCoverage;
@@ -133,12 +133,7 @@ public class VectorCASTParser extends CoberturaParser {
     }
 
     private boolean classOrMethodElement (final StartElement nextElement) {
-        if (METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName())) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName()));
     }
     
     protected void processClassMethodEnd(final Node node, final Coverage lineCoverage, final Coverage branchCoverage,
@@ -186,7 +181,6 @@ public class VectorCASTParser extends CoberturaParser {
                 mcdcPairCoverage = tempCov[2];
                 functionCallCoverage = tempCov[3];
                 functionCoverage = tempCov[4];
-                
             }
 
             else if (event.isEndElement()) {

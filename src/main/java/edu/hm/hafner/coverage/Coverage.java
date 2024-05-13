@@ -435,6 +435,7 @@ public final class Coverage extends Value {
             throw new IllegalArgumentException("Exactly two properties have to be set.");
         }
         
+        @SuppressWarnings("PMD.CyclomaticComplexity")
         private Coverage getCache(final int covered, final int missed) {
             if (metric == null) {
                 throw new IllegalArgumentException("No metric defined.");
