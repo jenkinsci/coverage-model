@@ -57,8 +57,21 @@ public class VectorCASTParser extends CoberturaParser {
     public VectorCASTParser(final ProcessingMode processingMode) {
         super(processingMode);
     }
-    
+        
+    private Coverage processClassMethodStart(final StartElement nextElement, final Coverage FunctionCoverage) {
+        Coverage localFunctionCoverage = FunctionCoverage;
+        
+        if (METHOD.equals(nextElement.getName())) {
+            Coverage functionMethodCoverage;
+            functionMethodCoverage = readFunctionCoverage(nextElement);
+            localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
+        }
+        
+        return localFunctionCoverage;
+    }
+
     // TODO: ParameterNumberCheck - More than 7 parameters (found 12).
+    // TODO: CognitiveComplexity - has a cognitive complexity of 15, current threshold is 15
     protected Coverage[] processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
             final Coverage lineCoverage, final Coverage branchCoverage, final Coverage mcdcPairCoverage, final Coverage functionCallCoverage, final Coverage functionCoverage,
             final FilteredLog log) throws XMLStreamException {
@@ -72,8 +85,8 @@ public class VectorCASTParser extends CoberturaParser {
         if (LINE.equals(nextElement.getName())) {
             Coverage lineBranchCoverage;
             Coverage currentLineCoverage;
-            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
-            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
+            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.LINE);
+            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.LINE);
             if (isBranchCoverage(nextElement)) {
                 lineBranchCoverage = readBranchCoverage(nextElement);
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
@@ -111,20 +124,23 @@ public class VectorCASTParser extends CoberturaParser {
                 fileNode.addFunctionCallCounters(lineNumber, functionCallLineCoverage.getCovered(), functionCallLineCoverage.getMissed());
             }
         }
-        else if (METHOD.equals(nextElement.getName())) {
-            Coverage functionMethodCoverage = Coverage.nullObject(Metric.FUNCTION);
-            functionMethodCoverage = readFunctionCoverage(nextElement);
-            localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
-
-            readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call    
-        }
-        else if (CLASS.equals(nextElement.getName())) {
-            readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
+        else if (classOrMethodElement(nextElement)) {
+            localFunctionCoverage = processClassMethodStart(nextElement, localFunctionCoverage);
+            readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
         }
                  
         return new Coverage [] {localLineCoverage, localBranchCoverage, localMcdcPairCoverage, localFunctionCallCoverage, localFunctionCoverage};
     }
 
+    private boolean classOrMethodElement (final StartElement nextElement) {
+        if (METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName())) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
     protected void processClassMethodEnd(final Node node, final Coverage lineCoverage, final Coverage branchCoverage,
             final Coverage mcdcPairCoverage, final Coverage functionCallCoverage, final Coverage functionCoverage) {
         node.addValue(lineCoverage);

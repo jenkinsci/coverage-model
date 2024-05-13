@@ -60,6 +60,7 @@ public class ParserRegistry {
      *
      * @return the created parser
      */
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     public CoverageParser get(final CoverageParserType parser, final ProcessingMode processingMode) {
         switch (parser) {
             case COBERTURA:
