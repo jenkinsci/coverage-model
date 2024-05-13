@@ -171,7 +171,6 @@ public enum Metric {
                     || hasCoverage(node, FUNCTION_CALL);
                     
             return baseline || vectorcast;
-                    
         }
 
         private boolean hasCoverage(final Node node, final Metric metric) {

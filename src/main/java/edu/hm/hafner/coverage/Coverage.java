@@ -94,6 +94,7 @@ public final class Coverage extends Value {
         this.covered = covered;
         this.missed = missed;
     }
+    
 
     /**
      * Returns the number of covered items.
