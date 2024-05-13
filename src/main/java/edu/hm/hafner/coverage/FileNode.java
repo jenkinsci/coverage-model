@@ -35,6 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
+// TODO: ExcessivePublicCount - This class has a bunch of public methods and attributes
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
@@ -148,6 +149,8 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
+    // TODO: NPathComplexity - The method 'mergeCounters(FileNode)' has an NPath complexity of 400, current threshold is 200.
+    //     : NcssCount - The method 'mergeCounters(FileNode)' has a NCSS line count of 72.
     @SuppressWarnings("PMD.CognitiveComplexity")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
@@ -218,8 +221,8 @@ public final class FileNode extends Node {
             }
             else if (leftMcdcPairTotal > 1) {
                 mergeLeftRight(line, leftMcdcPairCovered, leftMcdcPairMissed, 
-                    rightMcdcPairCovered, rightMcdcPairMissed, 
-                    mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
+                        rightMcdcPairCovered, rightMcdcPairMissed, 
+                        mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
                 updateMcdcPairCoverage(line, mcdcPairCoverage);
             }
             else if (leftFunctionCallTotal > 1) {
@@ -233,7 +236,15 @@ public final class FileNode extends Node {
                 updateLineCoverage(line, lineCoverage);
             }
         }
+        
+        setValues(lineCoverage, branchCoverage, mcdcPairCoverage, functionCallCoverage);
 
+        otherFile.getValues().stream()
+                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
+                .forEach(this::addValue);
+    }
+    
+    private void setValues(final CoverageBuilder lineCoverage, final CoverageBuilder branchCoverage, final CoverageBuilder mcdcPairCoverage, final CoverageBuilder functionCallCoverage) {
         var lineValue = lineCoverage.build();
         if (lineValue.isSet()) {
             addValue(lineValue);
@@ -252,23 +263,17 @@ public final class FileNode extends Node {
         if (functionCallValue.isSet()) {
             addValue(functionCallValue);
         }
-
-        otherFile.getValues().stream()
-                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
-                .forEach(this::addValue);
     }
-
-    protected void mergeLeftRight(int line, 
-            int leftCovered, int leftMissed, 
-            int rightCovered, int rightMissed, 
-            NavigableMap<Integer, Integer> coveredPerLine, NavigableMap<Integer, Integer> missedPerLine) {
+            
+    protected void mergeLeftRight(final int line, final int leftCovered, final int leftMissed, final int rightCovered, final int rightMissed, 
+            final NavigableMap<Integer, Integer> localCoveredPerLine, final NavigableMap<Integer, Integer> localMissedPerLine) {
         if (leftCovered > rightCovered) { 
-            coveredPerLine.put(line, leftCovered);
-            missedPerLine.put(line, leftMissed);
+            localCoveredPerLine.put(line, leftCovered);
+            localMissedPerLine.put(line, leftMissed);
         }
         else {
-            coveredPerLine.put(line, rightCovered);
-            missedPerLine.put(line, rightMissed);
+            localCoveredPerLine.put(line, rightCovered);
+            localMissedPerLine.put(line, rightMissed);
         }
     }
 
@@ -481,30 +486,6 @@ public final class FileNode extends Node {
      */
     public boolean hasCoverageForLine(final int line) {
         return coveredPerLine.containsKey(line) ||  mcdcPairCoveredPerLine.containsKey(line) ||  functionCallCoveredPerLine.containsKey(line);
-    }
-
-     /**
-     * Returns whether this file has MCDC Pair coverage results for the specified line.
-     *
-     * @param line
-     *         the line to check
-     *
-     * @return {@code true} if this file has MCDC Pair coverage results for the specified line, {@code false} otherwise
-     */
-    private boolean hasMcdcPairCoverageForLine(final int line) {
-        return mcdcPairCoveredPerLine.containsKey(line);
-    }
-
-     /**
-     * Returns whether this file has a function call coverage result for the specified line.
-     *
-     * @param line
-     *         the line to check
-     *
-     * @return {@code true} if this file has a function call coverage result for the specified line, {@code false} otherwise
-     */
-    private boolean hasFunctionCallCoverageForLine(final int line) {
-        return functionCallCoveredPerLine.containsKey(line);
     }
 
     private Coverage getLineCoverage(final int line) {

@@ -328,20 +328,18 @@ class VectorCASTParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(3);
         assertThat(root.getAll(METHOD)).hasSize(0);
 
-        assertThat(root).hasOnlyMetrics(MODULE,PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC);
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(3).extracting(FileNode::getFileName)
-                .containsExactlyInAnyOrder("database.c",
-                        "manager.c",
-                        "whitebox.c");
+                .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c");
 
         var builder = new CoverageBuilder();
         assertThat(root.find(FILE, "tutorial/c/database/database.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
-                                .hasMissedLines(10,9,19,17,20,23)
-                                .hasCoveredLines(7,12)));
+                                .hasMissedLines(10, 9, 19, 17, 20, 23)
+                                .hasCoveredLines(7, 12)));
                                 
         assertThat(root.find(CLASS, "database")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
@@ -354,10 +352,10 @@ class VectorCASTParserTest extends AbstractParserTest {
         assertThat(root.find(FILE, "tutorial/c/order_entry/manager.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
-                                .hasMissedLines(80,89,78,81,82,88,76,75,83,86,74,79)
-                                .hasCoveredLines(46,60,39,42,43,62,53,63,56,66,59,51,
-                                    48,67,41,54,57,23,19,20,21,17,25,26,27,29,95,96,
-                                    103,101,106,107,109,105,102,116,114,115)));
+                                .hasMissedLines(80, 89, 78, 81, 82, 88, 76, 75, 83, 86, 74, 79)
+                                .hasCoveredLines(46, 60, 39, 42, 43, 62, 53, 63, 56, 66, 59, 51, 
+                                    48, 67, 41, 54, 57, 23, 19, 20, 21, 17, 25, 26, 27, 29, 95, 96, 
+                                    103, 101, 106, 107, 109, 105, 102, 116, 114, 115)));
                                     
         assertThat(root.find(CLASS, "manager")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
@@ -370,7 +368,7 @@ class VectorCASTParserTest extends AbstractParserTest {
         assertThat(root.find(FILE, "tutorial/c/utils/whitebox.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
-                                .hasMissedLines(17,22,27,29,28)
+                                .hasMissedLines(17, 22, 27, 29, 28)
                                 .hasCoveredLines(30)));
                                     
         assertThat(root.find(CLASS, "whitebox")).isNotEmpty()

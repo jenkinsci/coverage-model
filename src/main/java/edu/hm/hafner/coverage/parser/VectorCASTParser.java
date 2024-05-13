@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -14,7 +13,6 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
 
@@ -60,12 +58,12 @@ public class VectorCASTParser extends CoberturaParser {
         super(processingMode);
     }
     
-    protected Coverage[] processStartElement(final Node node, final XMLEventReader reader, XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
-            Coverage lineCoverage, Coverage branchCoverage, Coverage mcdcPairCoverage, Coverage functionCallCoverage, Coverage functionCoverage,
+    // TODO: ParameterNumberCheck - More than 7 parameters (found 12).
+    protected Coverage[] processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
+            final Coverage lineCoverage, final Coverage branchCoverage, final Coverage mcdcPairCoverage, final Coverage functionCallCoverage, final Coverage functionCoverage,
             final FilteredLog log) throws XMLStreamException {
-                
         Coverage localLineCoverage = lineCoverage;
-        Coverage localBranchCoverage = branchCoverage ;
+        Coverage localBranchCoverage = branchCoverage;
         Coverage localMcdcPairCoverage = mcdcPairCoverage;
         Coverage localFunctionCallCoverage = functionCallCoverage;
         Coverage localFunctionCoverage = functionCoverage;
@@ -89,7 +87,8 @@ public class VectorCASTParser extends CoberturaParser {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                     localFunctionCallCoverage = localFunctionCallCoverage.add(functionCallLineCoverage);
                 }
-            } else if (isFunctionCallCoverage(nextElement)) {
+            } 
+            else if (isFunctionCallCoverage(nextElement)) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                 localFunctionCallCoverage = localFunctionCallCoverage.add(functionCallLineCoverage);
                 int lineHits = getIntegerValueOf(nextElement, HITS);
@@ -122,20 +121,17 @@ public class VectorCASTParser extends CoberturaParser {
         else if (CLASS.equals(nextElement.getName())) {
             readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
         }
-        
-        Coverage [] localCov = {localLineCoverage, localBranchCoverage, localMcdcPairCoverage, localFunctionCallCoverage, localFunctionCoverage};
-        
-        return localCov;
+                 
+        return new Coverage [] {localLineCoverage, localBranchCoverage, localMcdcPairCoverage, localFunctionCallCoverage, localFunctionCoverage};
     }
 
-    protected void processClassMethodEnd(final Node node, Coverage lineCoverage, Coverage branchCoverage,
-            Coverage mcdcPairCoverage, Coverage functionCallCoverage, Coverage functionCoverage) {
+    protected void processClassMethodEnd(final Node node, final Coverage lineCoverage, final Coverage branchCoverage,
+            final Coverage mcdcPairCoverage, final Coverage functionCallCoverage, final Coverage functionCoverage) {
         node.addValue(lineCoverage);
         
         if (mcdcPairCoverage.isSet()) {
             node.addValue(mcdcPairCoverage);
         }
-        
         if (functionCallCoverage.isSet()) {
             node.addValue(functionCallCoverage);
         }

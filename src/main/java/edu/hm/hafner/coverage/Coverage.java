@@ -436,6 +436,9 @@ public final class Coverage extends Value {
         }
         
         private Coverage getCache(final int covered, final int missed) {
+            if (metric == null) {
+                throw new IllegalArgumentException("No metric defined.");
+            }            
             switch (metric) {
                 case LINE:
                     return LINE_CACHE[getCacheIndex(covered, missed)];
