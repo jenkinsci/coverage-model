@@ -17,7 +17,6 @@ import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -75,13 +74,9 @@ abstract class AbstractParserTest {
     }
 
     @Test
-    void shouldFailWhenParsingInvalidFiles() {
-        shouldFailWhenParsingInvalidFilesHelper("/design.puml", "../empty.xml");
-    }
-
-    void shouldFailWhenParsingInvalidFilesHelper(String invalidFilePath, String emptyFilePath) {
-        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> readReport(invalidFilePath));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFilePath));
+    void shouldFailWhenParsingInvalidFile() {
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> readReport("/design.puml"));
     }
 
     protected String getEmptyFilePath() {
