@@ -161,4 +161,15 @@ public class CloverParser extends CoverageParser {
             c.addValue(val);
         }
     }
+
+    public static Value createValue(final String currentType, final int covered, final int missed) {
+        if (currentType.equals("CONDITIONAL")) {
+            var builder = new Coverage.CoverageBuilder();
+            return builder.withMetric(Metric.valueOf("BRANCH"))
+                    .withCovered(covered)
+                    .withMissed(missed).build();
+        } else {
+            return CoverageParser.createValue(currentType, covered, missed);
+        }
+    }
 }
