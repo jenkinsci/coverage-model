@@ -131,7 +131,7 @@ public class CloverParser extends CoverageParser {
                     int line =  Integer.parseInt(getValueOf(e, NUM));
                     int count = Integer.parseInt(getValueOf(e, COUNT));
                     if (count > 0) {
-                        fileNode.addCounters(line, count, 0);
+                        fileNode.addCounters(line, 1, 0);
                     } else {
                         fileNode.addCounters(line, 0, 1);
                     }
