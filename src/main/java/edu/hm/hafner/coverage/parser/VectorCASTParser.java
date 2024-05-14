@@ -114,7 +114,6 @@ public class VectorCASTParser extends CoberturaParser {
         }
         else if (classOrMethodElement(nextElement)) {
             processClassMethodStart(nextElement, covGroup);
-            covGroup.setCoverage(covGroup.functionCoverage, Metric.FUNCTION);
             readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
         }
     }
@@ -243,29 +242,48 @@ public class VectorCASTParser extends CoberturaParser {
         public Coverage functionCallCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
         public Coverage functionCoverage = Coverage.nullObject(Metric.FUNCTION);
         
-        public void setCoverage(Coverage coverage, Metric metric) {
+        /**
+         * Sets the coverage specified by the metrics.
+         *
+         * @param coverage
+         *          the coverage to be set
+         *
+         * @param metric
+         *          the indicator as to which metric to set
+         */
+
+        public void setCoverage(final Coverage coverage, final Metric metric) {
             switch (metric) {
                 case LINE:
-                    this.lineCoverage = this.lineCoverage.add(coverage);
+                    this.lineCoverage = coverage;
                     break;
                 case BRANCH:
-                    this.branchCoverage = this.branchCoverage.add(coverage);
+                    this.branchCoverage = coverage;
                     break;
                 case MCDC_PAIR:
-                    this.mcdcPairCoverage = this.mcdcPairCoverage.add(coverage);
+                    this.mcdcPairCoverage = coverage;
                     break;
                 case FUNCTION_CALL:
-                    this.functionCallCoverage = this.functionCallCoverage.add(coverage);
+                    this.functionCallCoverage = coverage;
                     break;
                 case FUNCTION:
-                    this.functionCoverage = this.functionCoverage.add(coverage);
+                    this.functionCoverage = coverage;
                     break;
                 default:
                     break;
             }
         }
 
-        public void add (Coverage coverage, Metric metric) {
+        /**
+         * Adds the input coverage, specified by the metrics, to the coverage
+         *
+         * @param coverage
+         *          the coverage to be set
+         *
+         * @param metric
+         *          the indicator as to which metric to set
+         */
+        public void add(final Coverage coverage, final Metric metric) {
             switch (metric) {
                 case LINE:
                     this.lineCoverage = this.lineCoverage.add(coverage);

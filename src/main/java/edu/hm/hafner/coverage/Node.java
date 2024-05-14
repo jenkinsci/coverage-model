@@ -872,5 +872,7 @@ public abstract class Node implements Serializable {
      *
      * @return {@code true} if this node is an aggregation node, {@code false} otherwise
      */
-    public abstract boolean isAggregation();
+    public boolean isAggregation() {
+        return false;
+    }
 }

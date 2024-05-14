@@ -24,7 +24,6 @@ import org.apache.commons.lang3.math.Fraction;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.CoverageMetricsValues;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
@@ -167,7 +166,7 @@ public final class FileNode extends Node {
         var branchCoverage = new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
         var mcdcPairCoverage = new CoverageBuilder().withMetric(Metric.MCDC_PAIR).withCovered(0).withMissed(0);
         var functionCallCoverage = new CoverageBuilder().withMetric(Metric.FUNCTION_CALL).withCovered(0).withMissed(0);
-        
+                
         for (final int line : lines) {
             CoverageMetricsValues left = new CoverageMetricsValues(coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
             CoverageMetricsValues leftMcdcPair = new CoverageMetricsValues(mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
@@ -225,7 +224,6 @@ public final class FileNode extends Node {
                 .filter(value -> value.getMetric() == Metric.COMPLEXITY)
                 .forEach(this::addValue);
     }
-    
     
     private void setValues(final CoverageBuilder lineCoverage, final CoverageBuilder branchCoverage, final CoverageBuilder mcdcPairCoverage, final CoverageBuilder functionCallCoverage) {
         var lineValue = lineCoverage.build();
@@ -916,11 +914,6 @@ public final class FileNode extends Node {
     }
 
     @Override
-    public boolean isAggregation() {
-        return false;
-    }
-
-    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -944,7 +937,7 @@ public final class FileNode extends Node {
                 && Objects.equals(coverageDelta, fileNode.coverageDelta)
                 && Objects.equals(relativePath, fileNode.relativePath);
     }
-
+    
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
