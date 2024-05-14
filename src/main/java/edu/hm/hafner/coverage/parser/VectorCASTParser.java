@@ -15,6 +15,8 @@ import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.util.FilteredLog;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Parses VectorCAST reports into a hierarchical Java Object Model.
@@ -70,34 +72,40 @@ public class VectorCASTParser extends CoberturaParser {
         return localFunctionCoverage;
     }
 
-    protected CoverageGroup processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
-            final CoverageGroup covGroup, final FilteredLog log) throws XMLStreamException {
-        CoverageGroup localCovGroup = covGroup;
-        
+    protected void processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
+            final HashMap<Metric, Coverage> coverageMap, final FilteredLog log) throws XMLStreamException {
         var nextElement = event.asStartElement();
 
         if (LINE.equals(nextElement.getName())) {
             Coverage lineBranchCoverage;
             Coverage currentLineCoverage;
-            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.LINE);
-            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.LINE);
+            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
+            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
             if (isBranchCoverage(nextElement)) {
                 lineBranchCoverage = readBranchCoverage(nextElement);
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
-                localCovGroup.branchCoverage = localCovGroup.branchCoverage.add(lineBranchCoverage);
+                
+                //repeating
+                coverageMap.put(Metric.BRANCH,coverageMap.get(Metric.BRANCH).add(lineBranchCoverage));
 
                 if (isMcdcPairCoverage(nextElement)) {
                     mcdcPairLineCoverage = readMcdcPairCoverage(nextElement);
-                    localCovGroup.mcdcPairCoverage = localCovGroup.mcdcPairCoverage.add(mcdcPairLineCoverage);
+                    
+                    //repeating
+                    coverageMap.put(Metric.MCDC_PAIR,coverageMap.get(Metric.MCDC_PAIR).add(mcdcPairLineCoverage));
                 }
                 if (isFunctionCallCoverage(nextElement)) {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
-                    localCovGroup.functionCallCoverage = localCovGroup.functionCallCoverage.add(functionCallLineCoverage);
+                    
+                    //repeating
+                    coverageMap.put(Metric.FUNCTION_CALL,coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
                 }
             } 
             else if (isFunctionCallCoverage(nextElement)) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
-                localCovGroup.functionCallCoverage = localCovGroup.functionCallCoverage.add(functionCallLineCoverage);
+                
+                coverageMap.put(Metric.FUNCTION_CALL,coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
+
                 int lineHits = getIntegerValueOf(nextElement, HITS);
                 currentLineCoverage = computeLineCoverage(lineHits);
                 lineBranchCoverage = currentLineCoverage;
@@ -108,8 +116,8 @@ public class VectorCASTParser extends CoberturaParser {
                 lineBranchCoverage = currentLineCoverage;
             }
             
-            localCovGroup.lineCoverage = localCovGroup.lineCoverage.add(currentLineCoverage);
-
+            coverageMap.put(Metric.LINE,coverageMap.get(Metric.LINE).add(currentLineCoverage));
+                
             if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                 
@@ -119,32 +127,30 @@ public class VectorCASTParser extends CoberturaParser {
             }
         }
         else if (classOrMethodElement(nextElement)) {
-            localCovGroup.functionCoverage = processClassMethodStart(nextElement, localCovGroup.functionCoverage);
+            coverageMap.put(Metric.FUNCTION, processClassMethodStart(nextElement, coverageMap.get(Metric.FUNCTION)));
             readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
         }
-                 
-        return localCovGroup;
     }
 
     private boolean classOrMethodElement(final StartElement nextElement) {
         return METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName());
     }
     
-    protected void processClassMethodEnd(final Node node, final CoverageGroup covGroup) {
+    protected void processClassMethodEnd(final Node node, final HashMap<Metric, Coverage> coverageMap) {
     
-        node.addValue(covGroup.lineCoverage);
+        node.addValue(coverageMap.get(Metric.LINE));
         
-        if (covGroup.mcdcPairCoverage.isSet()) {
-            node.addValue(covGroup.mcdcPairCoverage);
+        if (coverageMap.get(Metric.MCDC_PAIR).isSet()) {
+            node.addValue(coverageMap.get(Metric.MCDC_PAIR));
         }
-        if (covGroup.functionCallCoverage.isSet()) {
-            node.addValue(covGroup.functionCallCoverage);
+        if (coverageMap.get(Metric.FUNCTION_CALL).isSet()) {
+            node.addValue(coverageMap.get(Metric.FUNCTION_CALL));
         }
-        if (covGroup.functionCoverage.isSet()) {
-            node.addValue(covGroup.functionCoverage);
+        if (coverageMap.get(Metric.FUNCTION).isSet()) {
+            node.addValue(coverageMap.get(Metric.FUNCTION));
         }
-        if (covGroup.branchCoverage.isSet()) {
-            node.addValue(covGroup.branchCoverage);
+        if (coverageMap.get(Metric.BRANCH).isSet()) {
+            node.addValue(coverageMap.get(Metric.BRANCH));
         }
     }
 
@@ -153,9 +159,15 @@ public class VectorCASTParser extends CoberturaParser {
     protected void readClassOrMethod(final XMLEventReader reader, 
             final FileNode fileNode, final Node parentNode, 
             final StartElement element, final String fileName, final FilteredLog log)
-                throws XMLStreamException {
-        CoverageGroup covGroup = new CoverageGroup();
+                throws XMLStreamException {    
+        HashMap<Metric, Coverage> coverageMap = new HashMap<Metric, Coverage>();
         
+        coverageMap.put(Metric.LINE, Coverage.nullObject(Metric.LINE));
+        coverageMap.put(Metric.BRANCH, Coverage.nullObject(Metric.BRANCH));
+        coverageMap.put(Metric.MCDC_PAIR, Coverage.nullObject(Metric.MCDC_PAIR));
+        coverageMap.put(Metric.FUNCTION_CALL, Coverage.nullObject(Metric.FUNCTION_CALL));
+        coverageMap.put(Metric.FUNCTION, Coverage.nullObject(Metric.FUNCTION));
+
         Node node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
@@ -164,13 +176,13 @@ public class VectorCASTParser extends CoberturaParser {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                covGroup = processStartElement(node, reader, event, element, fileName, fileNode, covGroup, log);
+                processStartElement(node, reader, event, element, fileName, fileNode, coverageMap, log);
             }
 
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
-                    processClassMethodEnd(node, covGroup);
+                    processClassMethodEnd(node, coverageMap);
                     return;
                 }
             }
