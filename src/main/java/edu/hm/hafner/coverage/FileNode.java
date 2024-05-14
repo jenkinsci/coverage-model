@@ -24,6 +24,7 @@ import org.apache.commons.lang3.math.Fraction;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageMetricsValues;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
@@ -149,62 +150,6 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
     
-    public class CoverageMetricsValues {
-        private int covered;
-        private int missed;
-        private int total;
-        
-        public CoverageMetricsValues(final int c, final int m) {
-            this.covered = c;
-            this.missed = m;
-            this.total = c + m;
-        }
-        
-        public int getTotal() {
-            return this.total;
-        }
-        
-        public int getCovered() {
-            return this.covered;
-        }
-        
-        public int getMissed() {
-            return this.missed;
-        }
-        
-        public void setTotal(final int t) {
-            this.total = t;
-        }
-        
-        public void setCovered(final int c) {
-            this.covered = c;
-        }
-        
-        public void clearMissed() {
-            this.missed = 0;
-        }   
-        public void setCoveredFromMax(CoverageMetricsValues other) {
-            this.covered = Math.max(this.total, other.getTotal());
-        }
-        public void setTotalFromCovered() {
-            this.total = this.covered ;
-        }
-        public boolean hasAnyInfo() {
-            return total > 1;
-        }
-        public boolean totalsNotEqual(CoverageMetricsValues other) {
-            return total != other.total;
-        }
-        public boolean noMissing() {
-            return total == covered;
-        }
-        public int getMaxCovered(CoverageMetricsValues other) {
-            return Math.max(this.covered, other.getCovered());
-        }
-        public int getMinMissed(CoverageMetricsValues other) {
-            return Math.min(this.missed, other.getMissed());
-        }
-    }
 
     // TODO: NPathComplexity - The method 'mergeCounters(FileNode)' has an NPath complexity of 400, current threshold is 200.
     //     : NcssCount - The method 'mergeCounters(FileNode)' has a NCSS line count of 72.
