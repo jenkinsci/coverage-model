@@ -58,52 +58,40 @@ public class VectorCASTParser extends CoberturaParser {
         super(processingMode);
     }
         
-    private Coverage processClassMethodStart(final StartElement nextElement, final Coverage functionCoverage) {
-        Coverage localFunctionCoverage = functionCoverage;
-        
+    private void processClassMethodStart(final StartElement nextElement, final CoverageGroup covGroup) {
         if (METHOD.equals(nextElement.getName())) {
             Coverage functionMethodCoverage;
             functionMethodCoverage = readFunctionCoverage(nextElement);
-            localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
-        }
-        
-        return localFunctionCoverage;
+            covGroup.add(functionMethodCoverage, Metric.FUNCTION);
+        }        
     }
 
-    protected CoverageGroup processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
+    protected void processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
             final CoverageGroup covGroup, final FilteredLog log) throws XMLStreamException {
-        CoverageGroup localCovGroup = covGroup;
-        
         var nextElement = event.asStartElement();
-/*      var lineCoverage         = Coverage.nullObject(Metric.LINE);
-        var branchCoverage       = Coverage.nullObject(Metric.BRANCH);
-        var mcdcPairCoverage     = Coverage.nullObject(Metric.MCDC_PAIR);
-        var functionCallCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
-        var functionCoverage     = Coverage.nullObject(Metric.FUNCTION);
- */
 
         if (LINE.equals(nextElement.getName())) {
             Coverage lineBranchCoverage;
             Coverage currentLineCoverage;
-            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.LINE);
-            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.LINE);
+            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
+            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
             if (isBranchCoverage(nextElement)) {
                 lineBranchCoverage = readBranchCoverage(nextElement);
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
-                localCovGroup.branchCoverage = localCovGroup.branchCoverage.add(lineBranchCoverage);
+                covGroup.add(lineBranchCoverage, Metric.BRANCH);
 
                 if (isMcdcPairCoverage(nextElement)) {
                     mcdcPairLineCoverage = readMcdcPairCoverage(nextElement);
-                    localCovGroup.mcdcPairCoverage = localCovGroup.mcdcPairCoverage.add(mcdcPairLineCoverage);
+                    covGroup.add(mcdcPairLineCoverage, Metric.MCDC_PAIR);
                 }
                 if (isFunctionCallCoverage(nextElement)) {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
-                    localCovGroup.functionCallCoverage = localCovGroup.functionCallCoverage.add(functionCallLineCoverage);
+                    covGroup.add(functionCallLineCoverage, Metric.FUNCTION_CALL);
                 }
             } 
             else if (isFunctionCallCoverage(nextElement)) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
-                localCovGroup.functionCallCoverage = localCovGroup.functionCallCoverage.add(functionCallLineCoverage);
+                covGroup.add(functionCallLineCoverage, Metric.FUNCTION_CALL);
                 int lineHits = getIntegerValueOf(nextElement, HITS);
                 currentLineCoverage = computeLineCoverage(lineHits);
                 lineBranchCoverage = currentLineCoverage;
@@ -114,7 +102,7 @@ public class VectorCASTParser extends CoberturaParser {
                 lineBranchCoverage = currentLineCoverage;
             }
             
-            localCovGroup.lineCoverage = localCovGroup.lineCoverage.add(currentLineCoverage);
+            covGroup.setCoverage(currentLineCoverage, Metric.LINE);
 
             if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
@@ -125,11 +113,10 @@ public class VectorCASTParser extends CoberturaParser {
             }
         }
         else if (classOrMethodElement(nextElement)) {
-            localCovGroup.functionCoverage = processClassMethodStart(nextElement, localCovGroup.functionCoverage);
+            processClassMethodStart(nextElement, covGroup);
+            covGroup.setCoverage(covGroup.functionCoverage, Metric.FUNCTION);
             readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
         }
-                 
-        return localCovGroup;
     }
 
     private boolean classOrMethodElement(final StartElement nextElement) {
@@ -170,7 +157,7 @@ public class VectorCASTParser extends CoberturaParser {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                covGroup = processStartElement(node, reader, event, element, fileName, fileNode, covGroup, log);
+                processStartElement(node, reader, event, element, fileName, fileNode, covGroup, log);
             }
 
             else if (event.isEndElement()) {
@@ -248,15 +235,56 @@ public class VectorCASTParser extends CoberturaParser {
         return Coverage.nullObject(Metric.FUNCTION_CALL);
     }
 
-    public class CoverageGroup {
+    public static class CoverageGroup {
         
         public Coverage lineCoverage = Coverage.nullObject(Metric.LINE);
         public Coverage branchCoverage = Coverage.nullObject(Metric.BRANCH);
         public Coverage mcdcPairCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
         public Coverage functionCallCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
         public Coverage functionCoverage = Coverage.nullObject(Metric.FUNCTION);
+        
+        public void setCoverage(Coverage coverage, Metric metric) {
+            switch (metric) {
+                case LINE:
+                    this.lineCoverage = this.lineCoverage.add(coverage);
+                    break;
+                case BRANCH:
+                    this.branchCoverage = this.branchCoverage.add(coverage);
+                    break;
+                case MCDC_PAIR:
+                    this.mcdcPairCoverage = this.mcdcPairCoverage.add(coverage);
+                    break;
+                case FUNCTION_CALL:
+                    this.functionCallCoverage = this.functionCallCoverage.add(coverage);
+                    break;
+                case FUNCTION:
+                    this.functionCoverage = this.functionCoverage.add(coverage);
+                    break;
+                default:
+                    break;
+            }
+        }
 
-        public CoverageGroup() {
+        public void add (Coverage coverage, Metric metric) {
+            switch (metric) {
+                case LINE:
+                    this.lineCoverage = this.lineCoverage.add(coverage);
+                    break;
+                case BRANCH:
+                    this.branchCoverage = this.branchCoverage.add(coverage);
+                    break;
+                case MCDC_PAIR:
+                    this.mcdcPairCoverage = this.mcdcPairCoverage.add(coverage);
+                    break;
+                case FUNCTION_CALL:
+                    this.functionCallCoverage = this.functionCallCoverage.add(coverage);
+                    break;
+                case FUNCTION:
+                    this.functionCoverage = this.functionCoverage.add(coverage);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

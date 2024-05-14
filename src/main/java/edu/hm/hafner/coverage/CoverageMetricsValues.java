@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage;
 
-
 /**
  * Used to simplify FileNode.java
  *
