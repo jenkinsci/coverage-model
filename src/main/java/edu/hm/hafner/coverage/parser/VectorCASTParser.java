@@ -133,7 +133,7 @@ public class VectorCASTParser extends CoberturaParser {
     }
 
     private boolean classOrMethodElement (final StartElement nextElement) {
-        return (METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName()));
+        return METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName());
     }
     
     protected void processClassMethodEnd(final Node node, final Coverage lineCoverage, final Coverage branchCoverage,
