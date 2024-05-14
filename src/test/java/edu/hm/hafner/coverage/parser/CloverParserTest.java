@@ -24,11 +24,7 @@ class CloverParserTest extends AbstractParserTest {
         var root = readReport("clover.xml");
         var line = new CoverageBuilder().withMetric(Metric.LINE);
         var branch = new CoverageBuilder().withMetric(Metric.BRANCH);
-        assertThat(root.getAllFileNodes().get(2))
-                .hasFileName("File3.jsx")
-                .hasMissedLines(45, 46, 78, 104, 105, 106)
-                .hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103)
-                .hasValues(line.withCovered(11).withTotal(17).build());
+        var instruction = new CoverageBuilder().withMetric(Metric.INSTRUCTION);
         assertThat(root.getAllFileNodes()).satisfiesExactlyInAnyOrder(
                 file -> assertThat(file)
                         .hasFileName("File1.js")
@@ -48,8 +44,7 @@ class CloverParserTest extends AbstractParserTest {
                         .hasFileName("File3.jsx")
                         .hasMissedLines(45, 46, 78, 104, 105, 106)
                         .hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103)
-                        .hasValues(line.withCovered(11).withTotal(17).build(),
-                                branch.withCovered(2).withTotal(2).build()),
+                        .hasValues(line.withCovered(11).withTotal(17).build()),
                 file -> assertThat(file)
                         .hasFileName("File4.jsx")
                         .hasMissedLines(8, 50, 51, 58)
@@ -65,6 +60,31 @@ class CloverParserTest extends AbstractParserTest {
                         .hasMissedLines(32, 33, 35, 92)
                         .hasCoveredLines(23, 24, 31, 38, 72, 79, 90)
                         .hasValues(line.withCovered(7).withTotal(11).build())
+        );
+        assertThat(root.getAllClassNodes()).satisfiesExactlyInAnyOrder(
+                c -> assertThat(c)
+                        .hasName("File1")
+                        .hasValues(instruction.withCovered(68).withTotal(68).build()),
+                c -> assertThat(c)
+                        .hasName("File2")
+                        .hasValues(instruction.withCovered(33).withTotal(40).build(),
+                                branch.withCovered(12).withTotal(17).build()),
+                c -> assertThat(c)
+                        .hasName("File3")
+                        .hasValues(instruction.withCovered(11).withTotal(17).build(),
+                                branch.withCovered(2).withTotal(2).build()),
+                c -> assertThat(c)
+                        .hasName("File4")
+                        .hasValues(instruction.withCovered(17).withTotal(21).build(),
+                                branch.withCovered(2).withTotal(4).build()),
+                c -> assertThat(c)
+                        .hasName("File5")
+                        .hasValues(instruction.withCovered(7).withTotal(8).build(),
+                                branch.withCovered(4).withTotal(6).build()),
+                c -> assertThat(c)
+                        .hasName("File6")
+                        .hasValues(instruction.withCovered(7).withTotal(11).build(),
+                                branch.withCovered(1).withTotal(4).build())
         );
     }
 }
