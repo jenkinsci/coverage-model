@@ -72,9 +72,8 @@ public class VectorCASTParser extends CoberturaParser {
         return localFunctionCoverage;
     }
 
-    protected void processStartElement(final Node node, final XMLEventReader reader, final XMLEvent event, final StartElement element, final String fileName, final FileNode fileNode, 
-            final HashMap<Metric, Coverage> coverageMap, final FilteredLog log) throws XMLStreamException {
-        var nextElement = event.asStartElement();
+    protected boolean processStartElement(final StartElement nextElement, final StartElement element, final FileNode fileNode, final Map<Metric, Coverage> coverageMap) throws XMLStreamException {
+        boolean runReadClassOrMethod = false;
 
         if (LINE.equals(nextElement.getName())) {
             Coverage lineBranchCoverage;
@@ -128,15 +127,17 @@ public class VectorCASTParser extends CoberturaParser {
         }
         else if (classOrMethodElement(nextElement)) {
             coverageMap.put(Metric.FUNCTION, processClassMethodStart(nextElement, coverageMap.get(Metric.FUNCTION)));
-            readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
+            runReadClassOrMethod = true;
         }
+        
+        return runReadClassOrMethod;
     }
 
     private boolean classOrMethodElement(final StartElement nextElement) {
         return METHOD.equals(nextElement.getName()) || CLASS.equals(nextElement.getName());
     }
     
-    protected void processClassMethodEnd(final Node node, final HashMap<Metric, Coverage> coverageMap) {
+    protected void processClassMethodEnd(final Node node, final Map<Metric, Coverage> coverageMap) {
     
         node.addValue(coverageMap.get(Metric.LINE));
         
@@ -160,7 +161,7 @@ public class VectorCASTParser extends CoberturaParser {
             final FileNode fileNode, final Node parentNode, 
             final StartElement element, final String fileName, final FilteredLog log)
                 throws XMLStreamException {    
-        HashMap<Metric, Coverage> coverageMap = new HashMap<Metric, Coverage>();
+        Map<Metric, Coverage> coverageMap = new HashMap<>();
         
         coverageMap.put(Metric.LINE, Coverage.nullObject(Metric.LINE));
         coverageMap.put(Metric.BRANCH, Coverage.nullObject(Metric.BRANCH));
@@ -176,7 +177,11 @@ public class VectorCASTParser extends CoberturaParser {
             XMLEvent event = reader.nextEvent();
 
             if (event.isStartElement()) {
-                processStartElement(node, reader, event, element, fileName, fileNode, coverageMap, log);
+                var nextElement = event.asStartElement();
+
+                if (processStartElement(nextElement, element, fileNode, coverageMap)) {
+                    readClassOrMethod(reader, fileNode, node, nextElement, fileName, log);
+                }
             }
 
             else if (event.isEndElement()) {

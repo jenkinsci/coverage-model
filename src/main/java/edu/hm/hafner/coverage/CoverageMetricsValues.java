@@ -1,12 +1,11 @@
 package edu.hm.hafner.coverage;
 
 /**
- * Used to simplify FileNode.java
+ * Used to simplify FileNode.
  *
  * @author Tim Schneider
  */
 public class CoverageMetricsValues {
-    
     /* Three values to manage */
     private int covered;
     private int missed;
@@ -95,7 +94,7 @@ public class CoverageMetricsValues {
      * Sets the total from the current covered count.
      */    
     public void setTotalFromCovered() {
-        this.total = this.covered ;
+        this.total = this.covered;
     }
     
     /**
@@ -121,7 +120,7 @@ public class CoverageMetricsValues {
     }
 
     /**
-     * Checks to see if instance total is equal to instances covered
+     * Checks to see if instance total is equal to instances covered.
      *
      * @return - boolean total count equals covered count
      */
