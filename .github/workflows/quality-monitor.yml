@@ -72,7 +72,7 @@ jobs:
                     "pattern": "**/target/spotbugsXml.xml"
                   },
                   {
-                    "id": "error-prone"
+                    "id": "error-prone",
                     "pattern": "**/maven.log"
                   }
                 ]
