@@ -128,8 +128,8 @@ public class CloverParser extends CoverageParser {
                     addInstructionCoverage(classNode, stmntsCovered, stmntsTotal);
 
                 } else if (LINE.equals(e.getName())) {
-                    int line =  Integer.parseInt(getValueOf(e, NUM));
-                    int count = Integer.parseInt(getValueOf(e, COUNT));
+                    int line =  getIntegerValueOf(e, NUM);
+                    int count = getIntegerValueOf(e, COUNT);
                     if (count > 0) {
                         fileNode.addCounters(line, 1, 0);
                     } else {
