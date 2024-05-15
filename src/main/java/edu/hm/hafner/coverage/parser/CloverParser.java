@@ -66,10 +66,7 @@ public class CloverParser extends CoverageParser {
                     var tagName = startElement.getName();
                     if (COVERAGE.equals(tagName)) {
                         ModuleNode root = new ModuleNode("");
-                        if (!readCoverage(eventReader, root, fileName).hasChildren()) {
-                            handleEmptyResults(fileName, log);
-                        }
-                        else {
+                        if (readCoverage(eventReader, root, fileName).hasChildren()) {
                             return root;
                         }
                     }
