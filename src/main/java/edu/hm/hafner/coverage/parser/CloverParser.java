@@ -124,8 +124,8 @@ public class CloverParser extends CoverageParser {
                     int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
                     int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
                     int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
-                    classNode.addValue(createValue("CONDITIONAL", condCovered, condTotal - condCovered));
-                    classNode.addValue(createValue("INSTRUCTION", stmntsCovered, stmntsTotal - stmntsCovered));
+                    addBranchCoverage(classNode, condCovered, condTotal);
+                    addInstructionCoverage(classNode, stmntsCovered, stmntsTotal);
 
                 } else if (LINE.equals(e.getName())) {
                     int line =  Integer.parseInt(getValueOf(e, NUM));
@@ -157,14 +157,18 @@ public class CloverParser extends CoverageParser {
         }
     }
 
-    public static Value createValue(final String currentType, final int covered, final int missed) {
-        if (currentType.equals("CONDITIONAL")) {
-            var builder = new Coverage.CoverageBuilder();
-            return builder.withMetric(Metric.valueOf("BRANCH"))
-                    .withCovered(covered)
-                    .withMissed(missed).build();
-        } else {
-            return CoverageParser.createValue(currentType, covered, missed);
-        }
+    private void addBranchCoverage(final ClassNode classNode, final int covered, final int total) {
+        addCoverage(classNode, "BRANCH", covered, total);
+    }
+
+    private void addInstructionCoverage(final ClassNode classNode, final int covered, final int total) {
+        addCoverage(classNode, "INSTRUCTION", covered, total);
+    }
+
+    private void addCoverage(final ClassNode classNode, String metricName, final int covered, final int total) {
+        var builder = new Coverage.CoverageBuilder();
+        classNode.addValue(builder.withMetric(Metric.valueOf(metricName))
+                .withCovered(covered)
+                .withMissed(total - covered).build());
     }
 }

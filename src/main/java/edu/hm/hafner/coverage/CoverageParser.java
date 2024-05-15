@@ -209,7 +209,7 @@ public abstract class CoverageParser implements Serializable {
     }
 
 
-    protected static Value createValue(final String currentType, final int covered, final int missed) {
+    protected Value createValue(final String currentType, final int covered, final int missed) {
         if (currentType.equals("COMPLEXITY")) {
             return new CyclomaticComplexity(covered + missed);
         }
