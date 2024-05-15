@@ -1,19 +1,30 @@
 package edu.hm.hafner.coverage.parser;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
-import edu.hm.hafner.util.TreeString;
-
+import java.io.Reader;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.Reader;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
+import edu.hm.hafner.util.TreeString;
+
+/**
+ * Parses Clover reports into a hierarchical Java Object Model.
+ */
 public class CloverParser extends CoverageParser {
     private static final long serialVersionUID = -1903059983931698657L;
 
@@ -32,12 +43,18 @@ public class CloverParser extends CoverageParser {
     private static final QName NUM = new QName("num");
     private static final QName COUNT = new QName("count");
 
+    /**
+     * Creates a new instance of {@link CloverParser}.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     */
     public CloverParser(final ProcessingMode processingMode) {
         super(processingMode);
     }
 
     @Override
-    protected ModuleNode parseReport(Reader reader, String fileName, FilteredLog log) {
+    protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
@@ -51,7 +68,8 @@ public class CloverParser extends CoverageParser {
                         ModuleNode root = new ModuleNode("");
                         if (!readCoverage(eventReader, root, fileName).hasChildren()) {
                             handleEmptyResults(fileName, log);
-                        } else {
+                        }
+                        else {
                             return root;
                         }
                     }
@@ -59,13 +77,15 @@ public class CloverParser extends CoverageParser {
             }
             handleEmptyResults(fileName, log);
             return new ModuleNode("empty");
-        } catch (XMLStreamException exception) {
+        }
+        catch (XMLStreamException exception) {
             throw new SecureXmlParserFactory.ParsingException(exception);
         }
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readCoverage(final XMLEventReader reader, final ModuleNode root, String fileName) throws XMLStreamException {
+    private ModuleNode readCoverage(final XMLEventReader reader, final ModuleNode root, final String fileName)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
@@ -74,7 +94,8 @@ public class CloverParser extends CoverageParser {
                 if (PROJECT.equals(startElement.getName())) {
                     readProject(reader, root, fileName);
                 }
-            } else if (event.isEndElement()) {
+            }
+            else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (COVERAGE.equals((endElement.getName()))) {
                     return root;
@@ -85,7 +106,8 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readProject(final XMLEventReader reader, final ModuleNode root, String fileName) throws XMLStreamException {
+    private ModuleNode readProject(final XMLEventReader reader, final ModuleNode root, final String fileName)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
@@ -94,10 +116,12 @@ public class CloverParser extends CoverageParser {
                 if (METRICS.equals(startElement.getName())) {
                     addBranchCoverage(root, startElement);
                     addInstructionCoverage(root, startElement);
-                } else if (PACKAGE.equals(startElement.getName())) {
+                }
+                else if (PACKAGE.equals(startElement.getName())) {
                     readPackage(reader, root, startElement, fileName);
                 }
-            } else if (event.isEndElement()) {
+            }
+            else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (PROJECT.equals((endElement.getName()))) {
                     return root;
@@ -108,7 +132,8 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root, final StartElement packageElement, String fileName)
+    private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root,
+            final StartElement packageElement, final String fileName)
             throws XMLStreamException {
         var packageName = getValueOf(packageElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
@@ -125,7 +150,8 @@ public class CloverParser extends CoverageParser {
                 else if (FILE.equals(startElement.getName())) {
                     readFile(reader, packageNode, startElement);
                 }
-            } else if (event.isEndElement()) {
+            }
+            else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (PACKAGE.equals((endElement.getName()))) {
                     return packageNode;
@@ -136,7 +162,8 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private FileNode readFile(final XMLEventReader reader, final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
+    private FileNode readFile(final XMLEventReader reader, final PackageNode packageNode,
+            final StartElement fileElement) throws XMLStreamException {
         String fileName = getValueOf(fileElement, NAME);
         String className = fileName.substring(0, fileName.lastIndexOf("."));
         String filePath = getValueOf(fileElement, PATH);
@@ -150,18 +177,24 @@ public class CloverParser extends CoverageParser {
                 if (METRICS.equals(e.getName())) {
                     addBranchCoverage(classNode, e);
                     addInstructionCoverage(classNode, e);
-                } else if (LINE.equals(e.getName())) {
-                    int line =  getIntegerValueOf(e, NUM);
+                }
+                else if (LINE.equals(e.getName())) {
+                    int line = getIntegerValueOf(e, NUM);
                     int count = getIntegerValueOf(e, COUNT);
                     if (count > 0) {
                         fileNode.addCounters(line, 1, 0);
-                    } else {
+                    }
+                    else {
                         fileNode.addCounters(line, 0, 1);
                     }
-                } else {
-                    new ParsingException(String.format("Unexpected element '%s' in <file> block in file '%s'", e.getName(), fileName));
                 }
-            } else if (event.isEndElement()) {
+                else {
+                    new ParsingException(
+                            String.format("Unexpected element '%s' in <file> block in file '%s'", e.getName(),
+                                    fileName));
+                }
+            }
+            else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (FILE.equals(endElement.getName())) {
                     resolveLines(fileNode);
@@ -175,24 +208,24 @@ public class CloverParser extends CoverageParser {
     private void resolveLines(final FileNode fileNode) {
         var val = createValue("LINE", fileNode.getCoveredLines().size(), fileNode.getMissedLines().size());
         fileNode.addValue(val);
-        for (ClassNode c: fileNode.getAllClassNodes()) {
+        for (ClassNode c : fileNode.getAllClassNodes()) {
             c.addValue(val);
         }
     }
 
-    private void addBranchCoverage(final Node node, StartElement e) {// final int covered, final int total) {
+    private void addBranchCoverage(final Node node, final StartElement e) {// final int covered, final int total) {
         int condTotal = getIntegerValueOf(e, CONDITIONALS);
         int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
         addCoverage(node, "BRANCH", condCovered, condTotal);
     }
 
-    private void addInstructionCoverage(final Node node, StartElement e) { //final int covered, final int total) {
+    private void addInstructionCoverage(final Node node, final StartElement e) { //final int covered, final int total) {
         int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
         int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
         addCoverage(node, "INSTRUCTION", stmntsCovered, stmntsTotal);
     }
 
-    private void addCoverage(final Node node, String metricName, final int covered, final int total) {
+    private void addCoverage(final Node node, final String metricName, final int covered, final int total) {
         var builder = new Coverage.CoverageBuilder();
         node.addValue(builder.withMetric(Metric.valueOf(metricName))
                 .withCovered(covered)
