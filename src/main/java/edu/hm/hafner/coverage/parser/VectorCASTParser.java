@@ -85,25 +85,25 @@ public class VectorCASTParser extends CoberturaParser {
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
                 
                 //repeating
-                coverageMap.put(Metric.BRANCH,coverageMap.get(Metric.BRANCH).add(lineBranchCoverage));
+                coverageMap.put(Metric.BRANCH, coverageMap.get(Metric.BRANCH).add(lineBranchCoverage));
 
                 if (isMcdcPairCoverage(nextElement)) {
                     mcdcPairLineCoverage = readMcdcPairCoverage(nextElement);
                     
                     //repeating
-                    coverageMap.put(Metric.MCDC_PAIR,coverageMap.get(Metric.MCDC_PAIR).add(mcdcPairLineCoverage));
+                    coverageMap.put(Metric.MCDC_PAIR, coverageMap.get(Metric.MCDC_PAIR).add(mcdcPairLineCoverage));
                 }
                 if (isFunctionCallCoverage(nextElement)) {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                     
                     //repeating
-                    coverageMap.put(Metric.FUNCTION_CALL,coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
+                    coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
                 }
             } 
             else if (isFunctionCallCoverage(nextElement)) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                 
-                coverageMap.put(Metric.FUNCTION_CALL,coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
+                coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
 
                 int lineHits = getIntegerValueOf(nextElement, HITS);
                 currentLineCoverage = computeLineCoverage(lineHits);
@@ -115,7 +115,7 @@ public class VectorCASTParser extends CoberturaParser {
                 lineBranchCoverage = currentLineCoverage;
             }
             
-            coverageMap.put(Metric.LINE,coverageMap.get(Metric.LINE).add(currentLineCoverage));
+            coverageMap.put(Metric.LINE, coverageMap.get(Metric.LINE).add(currentLineCoverage));
                 
             if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
@@ -138,7 +138,6 @@ public class VectorCASTParser extends CoberturaParser {
     }
     
     protected void processClassMethodEnd(final Node node, final Map<Metric, Coverage> coverageMap) {
-    
         node.addValue(coverageMap.get(Metric.LINE));
         
         if (coverageMap.get(Metric.MCDC_PAIR).isSet()) {
