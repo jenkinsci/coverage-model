@@ -25,6 +25,25 @@ class CloverParserTest extends AbstractParserTest {
         var line = new CoverageBuilder().withMetric(Metric.LINE);
         var branch = new CoverageBuilder().withMetric(Metric.BRANCH);
         var instruction = new CoverageBuilder().withMetric(Metric.INSTRUCTION);
+        assertThat(root).satisfies(
+                node -> assertThat(node)
+                        .hasValues(instruction.withCovered(2578).withTotal(3057).build(),
+                                branch.withCovered(1068).withTotal(1444).build())
+        );
+        assertThat(root.getAllPackageNodes()).satisfiesExactlyInAnyOrder(
+                pkg -> assertThat(pkg)
+                        .hasName("actions")
+                        .hasValues(instruction.withCovered(212).withTotal(234).build(),
+                                branch.withCovered(12).withTotal(17).build()),
+                pkg -> assertThat(pkg)
+                        .hasName("components")
+                        .hasValues(instruction.withCovered(35).withTotal(46).build(),
+                                branch.withCovered(8).withTotal(12).build()),
+                pkg -> assertThat(pkg)
+                        .hasName("components.AddEditCategories")
+                        .hasValues(instruction.withCovered(33).withTotal(39).build(),
+                                branch.withCovered(1).withTotal(4).build())
+        );
         assertThat(root.getAllFileNodes()).satisfiesExactlyInAnyOrder(
                 file -> assertThat(file)
                         .hasFileName("File1.js")

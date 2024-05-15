@@ -18,6 +18,7 @@ public class CloverParser extends CoverageParser {
     private static final long serialVersionUID = -1903059983931698657L;
 
     private static final QName COVERAGE = new QName("coverage");
+    private static final QName PROJECT = new QName("project");
     private static final QName PACKAGE = new QName("package");
     private static final QName METRICS = new QName("metrics");
     private static final QName FILE = new QName("file");
@@ -70,12 +71,35 @@ public class CloverParser extends CoverageParser {
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
-                if (PACKAGE.equals(startElement.getName())) {
-                    readPackage(reader, root, startElement, fileName);
+                if (PROJECT.equals(startElement.getName())) {
+                    readProject(reader, root, fileName);
                 }
             } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (COVERAGE.equals((endElement.getName()))) {
+                    return root;
+                }
+            }
+        }
+        throw createEofException(fileName);
+    }
+
+    @CanIgnoreReturnValue
+    private ModuleNode readProject(final XMLEventReader reader, final ModuleNode root, String fileName) throws XMLStreamException {
+        while (reader.hasNext()) {
+            XMLEvent event = reader.nextEvent();
+
+            if (event.isStartElement()) {
+                var startElement = event.asStartElement();
+                if (METRICS.equals(startElement.getName())) {
+                    addBranchCoverage(root, startElement);
+                    addInstructionCoverage(root, startElement);
+                } else if (PACKAGE.equals(startElement.getName())) {
+                    readPackage(reader, root, startElement, fileName);
+                }
+            } else if (event.isEndElement()) {
+                var endElement = event.asEndElement();
+                if (PROJECT.equals((endElement.getName()))) {
                     return root;
                 }
             }
@@ -94,7 +118,11 @@ public class CloverParser extends CoverageParser {
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
-                if (FILE.equals(startElement.getName())) {
+                if (METRICS.equals(startElement.getName())) {
+                    addBranchCoverage(packageNode, startElement);
+                    addInstructionCoverage(packageNode, startElement);
+                }
+                else if (FILE.equals(startElement.getName())) {
                     readFile(reader, packageNode, startElement);
                 }
             } else if (event.isEndElement()) {
@@ -120,13 +148,8 @@ public class CloverParser extends CoverageParser {
             if (event.isStartElement()) {
                 var e = event.asStartElement();
                 if (METRICS.equals(e.getName())) {
-                    int condTotal = getIntegerValueOf(e, CONDITIONALS);
-                    int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
-                    int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
-                    int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
-                    addBranchCoverage(classNode, condCovered, condTotal);
-                    addInstructionCoverage(classNode, stmntsCovered, stmntsTotal);
-
+                    addBranchCoverage(classNode, e);
+                    addInstructionCoverage(classNode, e);
                 } else if (LINE.equals(e.getName())) {
                     int line =  getIntegerValueOf(e, NUM);
                     int count = getIntegerValueOf(e, COUNT);
@@ -157,17 +180,21 @@ public class CloverParser extends CoverageParser {
         }
     }
 
-    private void addBranchCoverage(final ClassNode classNode, final int covered, final int total) {
-        addCoverage(classNode, "BRANCH", covered, total);
+    private void addBranchCoverage(final Node node, StartElement e) {// final int covered, final int total) {
+        int condTotal = getIntegerValueOf(e, CONDITIONALS);
+        int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
+        addCoverage(node, "BRANCH", condCovered, condTotal);
     }
 
-    private void addInstructionCoverage(final ClassNode classNode, final int covered, final int total) {
-        addCoverage(classNode, "INSTRUCTION", covered, total);
+    private void addInstructionCoverage(final Node node, StartElement e) { //final int covered, final int total) {
+        int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
+        int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
+        addCoverage(node, "INSTRUCTION", stmntsCovered, stmntsTotal);
     }
 
-    private void addCoverage(final ClassNode classNode, String metricName, final int covered, final int total) {
+    private void addCoverage(final Node node, String metricName, final int covered, final int total) {
         var builder = new Coverage.CoverageBuilder();
-        classNode.addValue(builder.withMetric(Metric.valueOf(metricName))
+        node.addValue(builder.withMetric(Metric.valueOf(metricName))
                 .withCovered(covered)
                 .withMissed(total - covered).build());
     }

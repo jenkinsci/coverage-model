@@ -388,6 +388,9 @@ public abstract class Node implements Serializable {
         return getAll(metric1).stream().map(cast).collect(Collectors.toList());
     }
 
+    public List<PackageNode> getAllPackageNodes() {
+        return getAll(Metric.PACKAGE, PackageNode.class::cast);
+    }
     public List<FileNode> getAllFileNodes() {
         return getAll(Metric.FILE, FileNode.class::cast);
     }
