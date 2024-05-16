@@ -35,7 +35,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-// TODO: ExcessivePublicCount - This class has a bunch of public methods and attributes
+// Added ExcessivePublicCount - This class has a bunch of public methods and attributes
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
@@ -148,10 +148,7 @@ public final class FileNode extends Node {
 
         mergeCounters((FileNode) other);
     }
-    
 
-    // TODO: NPathComplexity - The method 'mergeCounters(FileNode)' has an NPath complexity of 400, current threshold is 200.
-    //     : NcssCount - The method 'mergeCounters(FileNode)' has a NCSS line count of 72.
     @SuppressWarnings("PMD.CognitiveComplexity")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
@@ -159,7 +156,6 @@ public final class FileNode extends Node {
         lines.addAll(coveredPerLine.keySet());
         lines.addAll(mcdcPairCoveredPerLine.keySet());
         lines.addAll(functionCallCoveredPerLine.keySet());
-        lines.addAll(coveredPerLine.keySet());
         lines.addAll(otherFile.coveredPerLine.keySet());
 
         var lineCoverage = new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
@@ -937,7 +933,7 @@ public final class FileNode extends Node {
                 && Objects.equals(coverageDelta, fileNode.coverageDelta)
                 && Objects.equals(relativePath, fileNode.relativePath);
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
