@@ -160,24 +160,9 @@ class VectorCASTParserTest extends AbstractParserTest {
                 .isRoot()
                 .hasMetric(MODULE).hasParentName("^");
     }
-
-    @Test
-    void verifyMcdcFunctionCallCoverage() {
-        Node root = readReport("vectorcast-statement-mcdc-fcc.xml");
-
-        assertThat(root.getAll(MODULE)).hasSize(1);
-        assertThat(root.getAll(PACKAGE)).hasSize(5);
-        assertThat(root.getAll(FILE)).hasSize(8);
-        assertThat(root.getAll(CLASS)).hasSize(8);
-        assertThat(root.getAll(METHOD)).hasSize(30);
-
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC, MCDC_PAIR, FUNCTION_CALL, METHOD, FUNCTION);
-
-        var files = root.getAllFileNodes();
-        assertThat(files).hasSize(8).extracting(FileNode::getFileName)
-                .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c", "matrix_multiply.c", "linked_list.c", "encrypt.c", "pos_driver.c", "waiting_list.c");
-                
-        var builder = new CoverageBuilder();
+    
+    void verifyMcdcFccEncryptC(Node root) {
+        CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/encrypt/src/encrypt.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
@@ -197,7 +182,10 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            builder.withMetric(FUNCTION_CALL).withCovered(14).withMissed(4).build(),
                                            builder.withMetric(FUNCTION).withCovered(5).withMissed(0).build()
                                            )));
-           
+    }
+
+    void verifyMcdcFccManagerC(Node root) {
+        CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/order_entry/src/manager.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
@@ -219,7 +207,10 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            builder.withMetric(FUNCTION_CALL).withCovered(10).withMissed(0).build(),
                                            builder.withMetric(FUNCTION).withCovered(5).withMissed(0).build()
                                            )));
+    }
 
+    void verifyMcdcFccWhiteboxC(Node root) {
+        CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/utils/src/whitebox.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
@@ -234,25 +225,9 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            builder.withMetric(FUNCTION_CALL).withCovered(0).withMissed(2).build(),
                                            builder.withMetric(FUNCTION).withCovered(0).withMissed(4).build()
                                            )));
+    }
 
-        assertThat(root.aggregateValues()).containsExactly(
-                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
-                builder.withMetric(PACKAGE).withCovered(5).withMissed(0).build(),
-                builder.withMetric(FILE).withCovered(6).withMissed(2).build(),
-                builder.withMetric(CLASS).withCovered(6).withMissed(2).build(),
-                builder.withMetric(METHOD).withCovered(0).withMissed(30).build(),
-                builder.withMetric(LINE).withCovered(235).withMissed(59).build(),
-                builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
-                builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
-                builder.withMetric(FUNCTION).withCovered(21).withMissed(9).build(),
-                builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
-                new CyclomaticComplexity(100),
-                new CyclomaticComplexity(26, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 100, 294),
-                new LinesOfCode(294));
-
-        List<Node> nodes = root.getAll(FILE);
-
+    void verifyMcdcFccProjectMetrics(List<Node> nodes) {
         long missedLines = 0;
         long coveredLines = 0;
 
@@ -315,19 +290,64 @@ class VectorCASTParserTest extends AbstractParserTest {
         assertThat(coveredFunctionCalls).isEqualTo(62);
         assertThat(missedFunctionCalls).isEqualTo(17);
         
+    }
+                
+    void verifyMcdcFccProject(Node root) {
+        CoverageBuilder builder = new CoverageBuilder();
+        assertThat(root.aggregateValues()).containsExactly(
+            builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+            builder.withMetric(PACKAGE).withCovered(5).withMissed(0).build(),
+            builder.withMetric(FILE).withCovered(6).withMissed(2).build(),
+            builder.withMetric(CLASS).withCovered(6).withMissed(2).build(),
+            builder.withMetric(METHOD).withCovered(0).withMissed(30).build(),
+            builder.withMetric(LINE).withCovered(235).withMissed(59).build(),
+            builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
+            builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
+            builder.withMetric(FUNCTION).withCovered(21).withMissed(9).build(),
+            builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
+            new CyclomaticComplexity(100),
+            new CyclomaticComplexity(26, COMPLEXITY_MAXIMUM),
+            new FractionValue(COMPLEXITY_DENSITY, 100, 294),
+            new LinesOfCode(294));
+    }
+
+    @Test
+    void verifyMcdcFunctionCallCoverage() {
+        Node root = readReport("vectorcast-statement-mcdc-fcc.xml");
+
+        assertThat(root.getAll(MODULE)).hasSize(1);
+        assertThat(root.getAll(PACKAGE)).hasSize(5);
+        assertThat(root.getAll(FILE)).hasSize(8);
+        assertThat(root.getAll(CLASS)).hasSize(8);
+        assertThat(root.getAll(METHOD)).hasSize(30);
+
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC, MCDC_PAIR, FUNCTION_CALL, METHOD, FUNCTION);
+
+        var files = root.getAllFileNodes();
+        assertThat(files).hasSize(8).extracting(FileNode::getFileName)
+                .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c", "matrix_multiply.c", "linked_list.c", "encrypt.c", "pos_driver.c", "waiting_list.c");
+                
+        verifyMcdcFccEncryptC(root);
+        verifyMcdcFccManagerC(root);
+        verifyMcdcFccWhiteboxC(root);
+        verifyMcdcFccProject(root);
+
+        List<Node> nodes = root.getAll(FILE);
+        verifyMcdcFccProjectMetrics(nodes);
+        
         assertThat(root.getAllFileNodes())
-                .hasSize(8)
-                .extracting(FileNode::getRelativePath)
-                .containsOnly(
-                    "CurrentRelease/database/src/database.c",
-                    "CurrentRelease/encrypt/src/encrypt.c",
-                    "CurrentRelease/encrypt/src/matrix_multiply.c",
-                    "CurrentRelease/main/pos_driver.c",
-                    "CurrentRelease/order_entry/src/manager.c",
-                    "CurrentRelease/order_entry/src/waiting_list.c",
-                    "CurrentRelease/utils/src/linked_list.c",
-                    "CurrentRelease/utils/src/whitebox.c"
-                    );
+            .hasSize(8)
+            .extracting(FileNode::getRelativePath)
+            .containsOnly(
+                "CurrentRelease/database/src/database.c",
+                "CurrentRelease/encrypt/src/encrypt.c",
+                "CurrentRelease/encrypt/src/matrix_multiply.c",
+                "CurrentRelease/main/pos_driver.c",
+                "CurrentRelease/order_entry/src/manager.c",
+                "CurrentRelease/order_entry/src/waiting_list.c",
+                "CurrentRelease/utils/src/linked_list.c",
+                "CurrentRelease/utils/src/whitebox.c"
+                );
     }
 
     private ModuleNode readExampleReport() {
