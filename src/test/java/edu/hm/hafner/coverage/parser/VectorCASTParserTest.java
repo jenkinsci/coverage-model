@@ -161,7 +161,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                 .hasMetric(MODULE).hasParentName("^");
     }
     
-    void verifyMcdcFccEncryptC(Node root) {
+    void verifyMcdcFccEncryptC(final Node root) {
         CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/encrypt/src/encrypt.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -184,7 +184,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            )));
     }
 
-    void verifyMcdcFccManagerC(Node root) {
+    void verifyMcdcFccManagerC(final Node root) {
         CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/order_entry/src/manager.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -209,7 +209,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            )));
     }
 
-    void verifyMcdcFccWhiteboxC(Node root) {
+    void verifyMcdcFccWhiteboxC(final Node root) {
         CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.find(FILE, "CurrentRelease/utils/src/whitebox.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
@@ -227,7 +227,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            )));
     }
 
-    void verifyMcdcFccProjectMetrics(List<Node> nodes) {
+    void verifyMcdcFccProjectMetrics(final List<Node> nodes) {
         long missedLines = 0;
         long coveredLines = 0;
 
@@ -289,26 +289,25 @@ class VectorCASTParserTest extends AbstractParserTest {
         
         assertThat(coveredFunctionCalls).isEqualTo(62);
         assertThat(missedFunctionCalls).isEqualTo(17);
-        
     }
                 
-    void verifyMcdcFccProject(Node root) {
+    void verifyMcdcFccProject(final Node root) {
         CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.aggregateValues()).containsExactly(
-            builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
-            builder.withMetric(PACKAGE).withCovered(5).withMissed(0).build(),
-            builder.withMetric(FILE).withCovered(6).withMissed(2).build(),
-            builder.withMetric(CLASS).withCovered(6).withMissed(2).build(),
-            builder.withMetric(METHOD).withCovered(0).withMissed(30).build(),
-            builder.withMetric(LINE).withCovered(235).withMissed(59).build(),
-            builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
-            builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
-            builder.withMetric(FUNCTION).withCovered(21).withMissed(9).build(),
-            builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
-            new CyclomaticComplexity(100),
-            new CyclomaticComplexity(26, COMPLEXITY_MAXIMUM),
-            new FractionValue(COMPLEXITY_DENSITY, 100, 294),
-            new LinesOfCode(294));
+                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                builder.withMetric(PACKAGE).withCovered(5).withMissed(0).build(),
+                builder.withMetric(FILE).withCovered(6).withMissed(2).build(),
+                builder.withMetric(CLASS).withCovered(6).withMissed(2).build(),
+                builder.withMetric(METHOD).withCovered(0).withMissed(30).build(),
+                builder.withMetric(LINE).withCovered(235).withMissed(59).build(),
+                builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
+                builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
+                builder.withMetric(FUNCTION).withCovered(21).withMissed(9).build(),
+                builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
+                new CyclomaticComplexity(100),
+                new CyclomaticComplexity(26, COMPLEXITY_MAXIMUM),
+                new FractionValue(COMPLEXITY_DENSITY, 100, 294),
+                new LinesOfCode(294));
     }
 
     @Test
@@ -336,18 +335,18 @@ class VectorCASTParserTest extends AbstractParserTest {
         verifyMcdcFccProjectMetrics(nodes);
         
         assertThat(root.getAllFileNodes())
-            .hasSize(8)
-            .extracting(FileNode::getRelativePath)
-            .containsOnly(
-                "CurrentRelease/database/src/database.c",
-                "CurrentRelease/encrypt/src/encrypt.c",
-                "CurrentRelease/encrypt/src/matrix_multiply.c",
-                "CurrentRelease/main/pos_driver.c",
-                "CurrentRelease/order_entry/src/manager.c",
-                "CurrentRelease/order_entry/src/waiting_list.c",
-                "CurrentRelease/utils/src/linked_list.c",
-                "CurrentRelease/utils/src/whitebox.c"
-                );
+                .hasSize(8)
+                .extracting(FileNode::getRelativePath)
+                .containsOnly(
+                    "CurrentRelease/database/src/database.c",
+                    "CurrentRelease/encrypt/src/encrypt.c",
+                    "CurrentRelease/encrypt/src/matrix_multiply.c",
+                    "CurrentRelease/main/pos_driver.c",
+                    "CurrentRelease/order_entry/src/manager.c",
+                    "CurrentRelease/order_entry/src/waiting_list.c",
+                    "CurrentRelease/utils/src/linked_list.c",
+                    "CurrentRelease/utils/src/whitebox.c"
+                    );
     }
 
     private ModuleNode readExampleReport() {
