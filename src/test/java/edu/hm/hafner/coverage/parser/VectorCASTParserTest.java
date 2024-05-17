@@ -346,7 +346,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                     "CurrentRelease/order_entry/src/waiting_list.c",
                     "CurrentRelease/utils/src/linked_list.c",
                     "CurrentRelease/utils/src/whitebox.c"
-                    );
+                );
     }
 
     private ModuleNode readExampleReport() {
