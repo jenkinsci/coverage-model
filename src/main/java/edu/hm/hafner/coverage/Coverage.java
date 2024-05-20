@@ -228,8 +228,6 @@ public final class Coverage extends Value {
         private static final Coverage[] BRANCH_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] INSTRUCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] MUTATION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
-
-        /* VectorCAST Coverages */
         private static final Coverage[] MCDC_PAIR_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] FUNCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] FUNCTION_CALL_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
@@ -241,9 +239,7 @@ public final class Coverage extends Value {
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
                     INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
                             missed);
-                    MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
-        
-                    /* VectorCAST Coverages */
+                    MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);        
                     MCDC_PAIR_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MCDC_PAIR, covered, missed);
                     FUNCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION, covered, missed);
                     FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION_CALL, covered, missed);
