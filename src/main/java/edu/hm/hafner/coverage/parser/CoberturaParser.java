@@ -95,7 +95,7 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    protected boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
+    private boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
             final String fileName, final FilteredLog log) throws XMLStreamException {
         boolean isEmpty = true;
 
@@ -139,14 +139,14 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    protected FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
+    private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
         var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
 
         return packageNode.findOrCreateFileNode(getFileName(fileName), path);
     }
 
-    protected String getFileName(final String relativePath) {
+    private String getFileName(final String relativePath) {
         var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
         if (path == null) {
             return relativePath;
@@ -222,7 +222,7 @@ public class CoberturaParser extends CoverageParser {
         return createMethodNode(parentNode, element, log, name);
     }
 
-    protected MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
+    private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
             final String name) {
         String className = name;
         var signature = getValueOf(element, SIGNATURE);
@@ -235,7 +235,7 @@ public class CoberturaParser extends CoverageParser {
         return classNode.createMethodNode(className, signature);
     }
 
-    protected ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
+    private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
         String className = name;
         if (parentNode.hasChild(className) && ignoreErrors()) {
             log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
@@ -244,11 +244,11 @@ public class CoberturaParser extends CoverageParser {
         return ((FileNode) parentNode).createClassNode(className);
     }
 
-    protected String readName(final StartElement element) {
+    private String readName(final StartElement element) {
         return StringUtils.defaultIfBlank(getValueOf(element, NAME), createId());
     }
 
-    protected String createId() {
+    private String createId() {
         return UUID.randomUUID().toString();
     }
 
@@ -267,7 +267,7 @@ public class CoberturaParser extends CoverageParser {
                 .orElse(false);
     }
 
-    protected void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
+    private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
         while (reader.hasNext()) {
@@ -287,7 +287,7 @@ public class CoberturaParser extends CoverageParser {
         return getOptionalValueOf(line, CONDITION_COVERAGE).map(this::fromConditionCoverage).orElse(DEFAULT_BRANCH_COVERAGE);
     }
 
-    protected Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
+    private Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
         var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
         if (matcher.matches()) {
             return new CoverageBuilder().withMetric(Metric.BRANCH)
