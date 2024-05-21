@@ -5,7 +5,7 @@ package edu.hm.hafner.coverage;
  *
  * @author Tim Schneider
  */
-public class CoverageMetricsValues {
+class CoverageMetricsValues {
     /* Three values to manage */
     private int covered;
     private int missed;
@@ -17,10 +17,8 @@ public class CoverageMetricsValues {
      *
      * @param covered  the coverage count
      * @param missed   the missed count
-     *
-     */
-    
-    public CoverageMetricsValues(final int covered, final int missed) {
+     */    
+    CoverageMetricsValues(final int covered, final int missed) {
         this.covered = covered;
         this.missed = missed;
         this.total = covered + missed;

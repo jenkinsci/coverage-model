@@ -78,7 +78,7 @@ class FileNodeTest extends AbstractNodeTest {
 
         var serializable = (FileNode)createSerializable();
         serializable.setRelativePath(TreeString.valueOf(StringUtils.EMPTY));
-        // version-0.21.0.ser needs to be updated
+        // FIXME: version-0.21.0.ser needs to be updated
         // assertThatRestoredInstanceEqualsOriginalInstance(serializable, restore(restored));
     }
 

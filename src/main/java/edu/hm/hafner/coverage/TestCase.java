@@ -66,7 +66,7 @@ public final class TestCase implements Serializable {
             return false;
         }
 
-        TestCase testCase = (TestCase) o;
+        var testCase = (TestCase) o;
 
         if (!testName.equals(testCase.testName)) {
             return false;

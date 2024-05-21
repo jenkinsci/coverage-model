@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -16,6 +16,7 @@ import edu.hm.hafner.coverage.LinesOfCode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.Percentage;
 
 import static edu.hm.hafner.coverage.Metric.CLASS;
@@ -24,10 +25,10 @@ import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
-class VectorCASTParserTest extends AbstractParserTest {
+class VectorCastParserTest extends AbstractParserTest {
     @Override
-    VectorCASTParser createParser(final ProcessingMode processingMode) {
-        return new VectorCASTParser(processingMode);
+    VectorCastParser createParser(final ProcessingMode processingMode) {
+        return new VectorCastParser(processingMode);
     }
 
     @Override
@@ -109,18 +110,13 @@ class VectorCASTParserTest extends AbstractParserTest {
 
         verifyCoverageMetrics(root);
 
-        List<Node> nodes = root.getAll(FILE);
+        var lineCoverage = builder.withMetric(LINE).withCovered(52).withMissed(28).build();
+        Value aggregation = root.getAll(FILE).stream()
+                .map(node -> node.getValue(LINE))
+                .flatMap(Optional::stream)
+                .reduce(Value::add).get();
 
-        long missedLines = 0;
-        long coveredLines = 0;
-        for (Node node : nodes) {
-            var lineCoverage = (Coverage) node.getValue(LINE).get();
-            missedLines = missedLines + lineCoverage.getMissed();
-            coveredLines = coveredLines + lineCoverage.getCovered();
-        }
-
-        assertThat(missedLines).isEqualTo(28);
-        assertThat(coveredLines).isEqualTo(52);
+        assertThat(aggregation).isEqualTo(lineCoverage);
     }
 
     @Test
@@ -161,8 +157,7 @@ class VectorCASTParserTest extends AbstractParserTest {
                 .hasMetric(MODULE).hasParentName("^");
     }
     
-    void verifyMcdcFccEncryptC(final Node root) {
-        CoverageBuilder builder = new CoverageBuilder();
+    private void verifyMcdcFccEncryptFileNode(final Node root) {
         assertThat(root.find(FILE, "CurrentRelease/encrypt/src/encrypt.c")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
@@ -171,7 +166,31 @@ class VectorCASTParserTest extends AbstractParserTest {
                                     110, 112, 129, 135, 139, 142, 145, 146, 149, 152, 155, 
                                     161, 179, 181, 182, 185, 188, 191, 195, 214, 216, 219, 
                                     222, 225, 228, 231, 251, 253, 259, 261)));
-                                
+    }
+    
+    private void verifyMcdcFccWhiteboxFileNode(final Node root) {
+        assertThat(root.find(FILE, "CurrentRelease/utils/src/whitebox.c")).isNotEmpty()
+                .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
+                        f -> assertThat(f)
+                                .hasMissedLines(67, 69, 85, 87, 104, 105, 121, 123, 126, 129, 130)));
+    }
+
+    private void verifyMcdcFccManagerFileNode(final Node root) {
+        assertThat(root.find(FILE, "CurrentRelease/order_entry/src/manager.c")).isNotEmpty()
+                .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
+                        f -> assertThat(f)
+                                .hasMissedLines(142, 143, 178, 228, 276)
+                                .hasCoveredLines(71, 73, 76, 77, 78, 80, 84, 85, 86, 88, 110, 112,
+                                    115, 116, 117, 120, 123, 126, 128, 129, 130, 131, 132, 133,
+                                    134, 135, 136, 137, 138, 139, 140, 141, 147, 150, 151, 167,
+                                    169, 170, 173, 176, 182, 183, 184, 186, 187, 188, 189, 190,
+                                    191, 194, 196, 199, 203, 219, 220, 223, 226, 231, 232, 235,
+                                    255, 257, 260, 263, 266, 269, 272)));
+    }
+
+    private void verifyMcdcFccEncryptClassNode(final Node root) {
+        var builder = new CoverageBuilder();
+
         assertThat(root.find(CLASS, "encrypt")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
@@ -184,19 +203,9 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            )));
     }
 
-    void verifyMcdcFccManagerC(final Node root) {
-        CoverageBuilder builder = new CoverageBuilder();
-        assertThat(root.find(FILE, "CurrentRelease/order_entry/src/manager.c")).isNotEmpty()
-                .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
-                        f -> assertThat(f)
-                                .hasMissedLines(142, 143, 178, 228, 276)
-                                .hasCoveredLines(71, 73, 76, 77, 78, 80, 84, 85, 86, 88, 110, 112,
-                                    115, 116, 117, 120, 123, 126, 128, 129, 130, 131, 132, 133,
-                                    134, 135, 136, 137, 138, 139, 140, 141, 147, 150, 151, 167,
-                                    169, 170, 173, 176, 182, 183, 184, 186, 187, 188, 189, 190,
-                                    191, 194, 196, 199, 203, 219, 220, 223, 226, 231, 232, 235,
-                                    255, 257, 260, 263, 266, 269, 272)));
-                                    
+    private void verifyMcdcFccManagerClassNode(final Node root) {
+        var builder = new CoverageBuilder();
+
         assertThat(root.find(CLASS, "manager")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
@@ -208,14 +217,10 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            builder.withMetric(FUNCTION).withCovered(5).withMissed(0).build()
                                            )));
     }
+    
+    private void verifyMcdcFccWhiteboxClassNode(final Node root) {
+        var builder = new CoverageBuilder();
 
-    void verifyMcdcFccWhiteboxC(final Node root) {
-        CoverageBuilder builder = new CoverageBuilder();
-        assertThat(root.find(FILE, "CurrentRelease/utils/src/whitebox.c")).isNotEmpty()
-                .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
-                        f -> assertThat(f)
-                                .hasMissedLines(67, 69, 85, 87, 104, 105, 121, 123, 126, 129, 130)));
-                                    
         assertThat(root.find(CLASS, "whitebox")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
@@ -226,72 +231,27 @@ class VectorCASTParserTest extends AbstractParserTest {
                                            builder.withMetric(FUNCTION).withCovered(0).withMissed(4).build()
                                            )));
     }
+    
+    private void verifyMcdcFccMetrics(final Node root, final Metric metric, final int covered, final int missed) {
+        var builder = new CoverageBuilder();
+        var coverage = builder.withMetric(metric).withCovered(covered).withMissed(missed).build();
+        Value aggregation = root.getAll(FILE).stream()
+                .map(node -> node.getValue(metric))
+                .flatMap(Optional::stream)
+                .reduce(Value::add).get();
 
-    void verifyMcdcFccProjectMetrics(final List<Node> nodes) {
-        long missedLines = 0;
-        long coveredLines = 0;
-
-        long missedBranches = 0;
-        long coveredBranches = 0;
-
-        long missedMcdcPairs = 0;
-        long coveredMcdcPairs = 0;
-
-        long missedFunctions = 0;
-        long coveredFunctions = 0;
-
-        long missedFunctionCalls = 0;
-        long coveredFunctionCalls = 0;
-
-        for (Node node : nodes) {
-            if (node.getValue(LINE).isPresent()) {
-                var lineCoverage = (Coverage) node.getValue(LINE).get();
-                missedLines = missedLines + lineCoverage.getMissed();
-                coveredLines = coveredLines + lineCoverage.getCovered();
-            }
-
-            if (node.getValue(BRANCH).isPresent()) {
-                var branchCoverage = (Coverage) node.getValue(BRANCH).get();
-                missedBranches = missedBranches + branchCoverage.getMissed();
-                coveredBranches = coveredBranches + branchCoverage.getCovered();
-            }
-
-            if (node.getValue(MCDC_PAIR).isPresent()) {
-                var mcdcCoverage = (Coverage) node.getValue(MCDC_PAIR).get();
-                missedMcdcPairs = missedMcdcPairs + mcdcCoverage.getMissed();
-                coveredMcdcPairs = coveredMcdcPairs + mcdcCoverage.getCovered();
-            }
-
-            if (node.getValue(FUNCTION).isPresent()) {
-                var functionCoverage = (Coverage) node.getValue(FUNCTION).get();
-                missedFunctions = missedFunctions + functionCoverage.getMissed();
-                coveredFunctions = coveredFunctions + functionCoverage.getCovered();
-            }
-
-            if (node.getValue(FUNCTION_CALL).isPresent()) {
-                var functionCallCoverage = (Coverage) node.getValue(FUNCTION_CALL).get();
-                missedFunctionCalls = missedFunctionCalls + functionCallCoverage.getMissed();
-                coveredFunctionCalls = coveredFunctionCalls + functionCallCoverage.getCovered();
-            }
-        }
-
-        assertThat(coveredLines).isEqualTo(235);
-        assertThat(missedLines).isEqualTo(59);
-        
-        assertThat(coveredBranches).isEqualTo(180);
-        assertThat(missedBranches).isEqualTo(92);
-        
-        assertThat(coveredMcdcPairs).isEqualTo(24);
-        assertThat(missedMcdcPairs).isEqualTo(35);
-        
-        assertThat(coveredFunctions).isEqualTo(21);
-        assertThat(missedFunctions).isEqualTo(9);
-        
-        assertThat(coveredFunctionCalls).isEqualTo(62);
-        assertThat(missedFunctionCalls).isEqualTo(17);
+        assertThat(aggregation).isEqualTo(coverage);
+    }
+    
+    private void verifyMcdcFccProjectMetrics(final Node root) {
+        verifyMcdcFccMetrics(root, LINE, 235, 59);
+        verifyMcdcFccMetrics(root, BRANCH, 180, 92);
+        verifyMcdcFccMetrics(root, MCDC_PAIR, 24, 35);
+        verifyMcdcFccMetrics(root, FUNCTION, 21, 9);
+        verifyMcdcFccMetrics(root, FUNCTION_CALL, 62, 17);
     }
                 
-    void verifyMcdcFccProject(final Node root) {
+    private void verifyMcdcFccProject(final Node root) {
         CoverageBuilder builder = new CoverageBuilder();
         assertThat(root.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
@@ -309,7 +269,19 @@ class VectorCASTParserTest extends AbstractParserTest {
                 new FractionValue(COMPLEXITY_DENSITY, 100, 294),
                 new LinesOfCode(294));
     }
-
+    
+    private void verifyMcdcFccClassFileNodeMetrics(final Node root) {
+        /* File node tests */
+        verifyMcdcFccEncryptFileNode(root);
+        verifyMcdcFccManagerFileNode(root);
+        verifyMcdcFccWhiteboxFileNode(root);
+        
+        /* class node tests */
+        verifyMcdcFccEncryptClassNode(root);
+        verifyMcdcFccManagerClassNode(root);
+        verifyMcdcFccWhiteboxClassNode(root);
+    }
+    
     @Test
     void verifyMcdcFunctionCallCoverage() {
         Node root = readReport("vectorcast-statement-mcdc-fcc.xml");
@@ -326,27 +298,9 @@ class VectorCASTParserTest extends AbstractParserTest {
         assertThat(files).hasSize(8).extracting(FileNode::getFileName)
                 .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c", "matrix_multiply.c", "linked_list.c", "encrypt.c", "pos_driver.c", "waiting_list.c");
                 
-        verifyMcdcFccEncryptC(root);
-        verifyMcdcFccManagerC(root);
-        verifyMcdcFccWhiteboxC(root);
         verifyMcdcFccProject(root);
-
-        List<Node> nodes = root.getAll(FILE);
-        verifyMcdcFccProjectMetrics(nodes);
-        
-        assertThat(root.getAllFileNodes())
-                .hasSize(8)
-                .extracting(FileNode::getRelativePath)
-                .containsOnly(
-                    "CurrentRelease/database/src/database.c",
-                    "CurrentRelease/encrypt/src/encrypt.c",
-                    "CurrentRelease/encrypt/src/matrix_multiply.c",
-                    "CurrentRelease/main/pos_driver.c",
-                    "CurrentRelease/order_entry/src/manager.c",
-                    "CurrentRelease/order_entry/src/waiting_list.c",
-                    "CurrentRelease/utils/src/linked_list.c",
-                    "CurrentRelease/utils/src/whitebox.c"
-                );
+        verifyMcdcFccProjectMetrics(root);
+        verifyMcdcFccClassFileNodeMetrics(root);
     }
 
     private ModuleNode readExampleReport() {

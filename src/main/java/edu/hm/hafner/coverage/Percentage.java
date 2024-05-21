@@ -179,7 +179,7 @@ public final class Percentage implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Percentage that = (Percentage) o;
+        var that = (Percentage) o;
         return items == that.items && total == that.total;
     }
 

@@ -5,8 +5,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.events.Attribute;
+/*import javax.xml.stream.events.XMLEvent; */
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -25,7 +24,7 @@ import java.util.HashMap;
  * @author Ullrich Hafner
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
-public class VectorCASTParser extends CoberturaParser {
+public class VectorCastParser extends CoberturaParser {
     private static final long serialVersionUID = 598117573006409816L;
  
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
@@ -51,19 +50,20 @@ public class VectorCASTParser extends CoberturaParser {
     private static final QName FUNCTION_COVERAGE = new QName("function-coverage");
     
     /**
-     * Creates a new instance of {@link VectorCASTParser}.
+     * Creates a new instance of {@link VectorCastParser}.
      *
      * @param processingMode
      *         determines whether to ignore errors
      */
-    public VectorCASTParser(final ProcessingMode processingMode) {
+    public VectorCastParser(final ProcessingMode processingMode) {
         super(processingMode);
     }
         
     private Coverage processClassMethodStart(final StartElement nextElement, final Coverage functionCoverage) {
-        Coverage localFunctionCoverage = functionCoverage;
+        var localFunctionCoverage = functionCoverage;
         
-        if (METHOD.equals(nextElement.getName())) {
+        if (nextElement.getName().equals(METHOD)) {
+        // METHOD.equals(nextElement.getName())) {
             Coverage functionMethodCoverage;
             functionMethodCoverage = readFunctionCoverage(nextElement);
             localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
@@ -87,20 +87,20 @@ public class VectorCASTParser extends CoberturaParser {
                 //repeating
                 coverageMap.put(Metric.BRANCH, coverageMap.get(Metric.BRANCH).add(lineBranchCoverage));
 
-                if (isMcdcPairCoverage(nextElement)) {
+                if (getOptionalValueOf(nextElement, MCDCPAIR_COVERAGE).isPresent()) {
                     mcdcPairLineCoverage = readMcdcPairCoverage(nextElement);
                     
                     //repeating
                     coverageMap.put(Metric.MCDC_PAIR, coverageMap.get(Metric.MCDC_PAIR).add(mcdcPairLineCoverage));
                 }
-                if (isFunctionCallCoverage(nextElement)) {
+                if (getOptionalValueOf(nextElement, FUNCTIONCALL_COVERAGE).isPresent()) {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                     
                     //repeating
                     coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
                 }
             } 
-            else if (isFunctionCallCoverage(nextElement)) {
+            else if (getOptionalValueOf(nextElement, FUNCTIONCALL_COVERAGE).isPresent()) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
                 
                 coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
@@ -121,7 +121,7 @@ public class VectorCASTParser extends CoberturaParser {
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                 
                 fileNode.addCounters(lineNumber, lineBranchCoverage.getCovered(), lineBranchCoverage.getMissed());
-                fileNode.addMCDCPairCounters(lineNumber, mcdcPairLineCoverage.getCovered(), mcdcPairLineCoverage.getMissed());
+                fileNode.addMcdcPairCounters(lineNumber, mcdcPairLineCoverage.getCovered(), mcdcPairLineCoverage.getMissed());
                 fileNode.addFunctionCallCounters(lineNumber, functionCallLineCoverage.getCovered(), functionCallLineCoverage.getMissed());
             }
         }
@@ -173,7 +173,7 @@ public class VectorCASTParser extends CoberturaParser {
                 .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -194,68 +194,39 @@ public class VectorCASTParser extends CoberturaParser {
         throw createEofException(fileName);
     }
     
-    private boolean isVectorCASTCoverage(final StartElement line, final QName attribute) {
-        boolean retVal = false;
-        
-        Attribute cov = line.getAttributeByName(attribute);
-        
-        if (cov != null) {
-            retVal = true;
-        } 
-        return retVal;
-    }
-
-    private boolean isMcdcPairCoverage(final StartElement line) {
-        return isVectorCASTCoverage(line, MCDCPAIR_COVERAGE);
-    }
-
-    private boolean isFunctionCallCoverage(final StartElement line) {
-        return isVectorCASTCoverage(line, FUNCTIONCALL_COVERAGE);
-    }
-
     private Coverage readMcdcPairCoverage(final StartElement line) {
         return getOptionalValueOf(line, MCDCPAIR_COVERAGE).map(this::fromMcdcPairCoverage).orElse(DEFAULT_MCDCPAIR_COVERAGE);
-    }
-
-    private Coverage fromMcdcPairCoverage(final String mcdcPairCoverageAttribute) {
-        var matcher = BRANCH_PATTERN.matcher(mcdcPairCoverageAttribute);
-        if (matcher.matches()) {
-            return new CoverageBuilder().withMetric(Metric.MCDC_PAIR)
-                    .withCovered(matcher.group("covered"))
-                    .withTotal(matcher.group("total"))
-                    .build();
-        }
-        return Coverage.nullObject(Metric.MCDC_PAIR);
     }
     
     private Coverage readFunctionCoverage(final StartElement line) {
         return getOptionalValueOf(line, FUNCTION_COVERAGE).map(this::fromFunctionCoverage).orElse(DEFAULT_FUNCTION_COVERAGE);
     }
 
-    private Coverage fromFunctionCoverage(final String functionCoverageAttribute) {
-        var matcher = BRANCH_PATTERN.matcher(functionCoverageAttribute);
-        if (matcher.matches()) {
-            return new CoverageBuilder().withMetric(Metric.FUNCTION)
-                    .withCovered(matcher.group("covered"))
-                    .withTotal(matcher.group("total"))
-                    .build();
-        }
-        return Coverage.nullObject(Metric.FUNCTION);
-    }
-    
     private Coverage readFunctionCallCoverage(final StartElement line) {
         return getOptionalValueOf(line, FUNCTIONCALL_COVERAGE).map(this::fromFunctionCallCoverage).orElse(DEFAULT_FUNCTIONCALL_COVERAGE);
     }
 
-    private Coverage fromFunctionCallCoverage(final String functionCallCoverageAttribute) {
-        var matcher = BRANCH_PATTERN.matcher(functionCallCoverageAttribute);
+    private Coverage fromAllCoverages(final String covAttrStr, final Metric metric) {
+        var matcher = BRANCH_PATTERN.matcher(covAttrStr);
         if (matcher.matches()) {
-            return new CoverageBuilder().withMetric(Metric.FUNCTION_CALL)
+            return new CoverageBuilder().withMetric(metric)
                     .withCovered(matcher.group("covered"))
                     .withTotal(matcher.group("total"))
                     .build();
         }
-        return Coverage.nullObject(Metric.FUNCTION_CALL);
+        return Coverage.nullObject(metric);
+    }
+    
+    private Coverage fromMcdcPairCoverage(final String covAttrStr) {
+        return fromAllCoverages(covAttrStr, Metric.MCDC_PAIR);        
+    }
+    
+    private Coverage fromFunctionCoverage(final String covAttrStr) {
+        return fromAllCoverages(covAttrStr, Metric.FUNCTION);        
+    }
+    
+    private Coverage fromFunctionCallCoverage(final String covAttrStr) {
+        return fromAllCoverages(covAttrStr, Metric.FUNCTION_CALL);        
     }
 }
 

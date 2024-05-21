@@ -205,7 +205,7 @@ public abstract class Value implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Value value = (Value) o;
+        var value = (Value) o;
         return Objects.equals(metric, value.metric);
     }
 

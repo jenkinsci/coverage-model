@@ -99,7 +99,7 @@ public final class MethodNode extends Node {
         if (!super.equals(o)) {
             return false;
         }
-        MethodNode that = (MethodNode) o;
+        var that = (MethodNode) o;
         return lineNumber == that.lineNumber
                 && Objects.equals(signature, that.signature)
                 && Objects.equals(methodName, that.methodName);

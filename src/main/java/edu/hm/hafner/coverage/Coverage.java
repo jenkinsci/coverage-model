@@ -194,7 +194,7 @@ public final class Coverage extends Value {
         if (!super.equals(o)) {
             return false;
         }
-        Coverage coverage = (Coverage) o;
+        var coverage = (Coverage) o;
         return covered == coverage.covered && missed == coverage.missed;
     }
 
