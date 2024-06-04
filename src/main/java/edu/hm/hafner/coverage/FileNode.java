@@ -35,7 +35,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-// Added ExcessivePublicCount - This class has a bunch of public methods and attributes
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
@@ -254,7 +253,7 @@ public final class FileNode extends Node {
         }
     }
             
-    void mergeLeftRight(final int line, final int leftCovered, final int leftMissed, final int rightCovered, final int rightMissed, 
+    private void mergeLeftRight(final int line, final int leftCovered, final int leftMissed, final int rightCovered, final int rightMissed, 
             final NavigableMap<Integer, Integer> localCoveredPerLine, final NavigableMap<Integer, Integer> localMissedPerLine) {
         if (leftCovered > rightCovered) { 
             localCoveredPerLine.put(line, leftCovered);

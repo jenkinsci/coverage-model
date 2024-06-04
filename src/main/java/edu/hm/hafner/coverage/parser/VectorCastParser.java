@@ -22,6 +22,7 @@ import java.util.HashMap;
  *
  * @author Melissa Bauer
  * @author Ullrich Hafner
+ * @author Tim Schneider
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class VectorCastParser extends CoberturaParser {
@@ -63,7 +64,6 @@ public class VectorCastParser extends CoberturaParser {
         var localFunctionCoverage = functionCoverage;
         
         if (nextElement.getName().equals(METHOD)) {
-        // METHOD.equals(nextElement.getName())) {
             Coverage functionMethodCoverage;
             functionMethodCoverage = readFunctionCoverage(nextElement);
             localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
