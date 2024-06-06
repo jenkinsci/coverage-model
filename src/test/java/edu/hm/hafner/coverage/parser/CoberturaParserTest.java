@@ -40,10 +40,17 @@ class CoberturaParserTest extends AbstractParserTest {
         return "cobertura";
     }
 
-    @Test @Issue("JENKINS-73175")
+    @Test
+    @Issue("JENKINS-73175")
     void shouldAutoGenerateNamesForRuby() {
         Node root = readReport("cobertura-ruby.xml");
+
         assertThat(root).isNotEmpty();
+        assertThat(root.getAllFileNodes()).hasSize(3)
+                .satisfiesExactlyInAnyOrder(
+                        foobar -> assertThat(foobar).hasName("foobar.rb").hasRelativePath("lib/foobar.rb"),
+                        bar -> assertThat(bar).hasName("my_class.rb").hasRelativePath("lib/foobar/bar/my_class.rb"),
+                        baz -> assertThat(baz).hasName("my_class.rb").hasRelativePath("lib/foobar/baz/my_class.rb"));
     }
 
     @Test @Issue("JENKINS-73175")

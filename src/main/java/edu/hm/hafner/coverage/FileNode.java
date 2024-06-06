@@ -77,6 +77,11 @@ public final class FileNode extends Node {
         this(name, TreeString.valueOf(relativePath));
     }
 
+    @Override
+    public String getId() {
+        return relativePath.toString() + getName();
+    }
+
     /**
      * Called after deserialization to retain backward compatibility.
      *
@@ -114,14 +119,14 @@ public final class FileNode extends Node {
 
     @Override
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return super.matches(searchMetric, searchName)
-                || getRelativePath().equals(searchName);
+        return getMetric().equals(searchMetric)
+                && (getRelativePath().equals(searchName) || getName().equals(searchName));
     }
 
     @Override
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return super.matches(searchMetric, searchNameHashCode)
-                || getRelativePath().hashCode() == searchNameHashCode;
+        return getMetric().equals(searchMetric)
+                && (getRelativePath().hashCode() == searchNameHashCode || getName().hashCode() == searchNameHashCode);
     }
 
     @Override

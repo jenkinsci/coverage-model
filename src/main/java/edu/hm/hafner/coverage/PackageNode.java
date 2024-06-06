@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.util.TreeString;
@@ -81,11 +83,17 @@ public final class PackageNode extends Node {
      * @see #createFileNode(String, TreeString)
      */
     public FileNode findOrCreateFileNode(final String fileName, final TreeString relativePath) {
-        return findFile(fileName).orElseGet(() -> createFileNode(fileName, relativePath));
+        return findFile(fileName, relativePath.toString()).orElseGet(() -> createFileNode(fileName, relativePath));
+    }
+
+    private Optional<FileNode> findFile(final String fileName, final String relativePath) {
+        return getAllFileNodes().stream().filter(fileNode ->
+                fileNode.getName().equals(fileName)
+                        && fileNode.getRelativePath().equals(relativePath)).findAny();
     }
 
     /**
-     * Searches for the specified class node. If the class node is not found then a new class node will be created and
+     * Searches for the specified class node. If the class node is not found, then a new class node will be created and
      * linked to this file node.
      *
      * @param className

@@ -66,6 +66,16 @@ public abstract class Node implements Serializable {
         return name;
     }
 
+    /**
+     * Returns the unique ID of this node. This ID must be unique for the direct children in this node. Other nodes in
+     * the tree hierarchy may reuse the same ID.
+     *
+     * @return the unique ID of this node
+     */
+    public String getId() {
+        return getName();
+    }
+
     void setName(final String name) { // Might be used during the deserialization of old reports
         this.name = name;
     }
@@ -162,9 +172,10 @@ public abstract class Node implements Serializable {
      *         the child to add
      */
     public void addChild(final Node child) {
-        if (children.stream().anyMatch(node -> node.getName().equals(child.getName()))) {
+        if (hasChild(child.getId())) {
             throw new IllegalArgumentException(
-                    String.format("There is already a child %s with the name %s in %s", child, child.getName(), this));
+                    String.format("There is already the same child %s with the name %s in %s",
+                            child, child.getName(), this));
         }
 
         children.add(child);
@@ -188,7 +199,7 @@ public abstract class Node implements Serializable {
      * @return {@code true} if this node has a child with the specified name, {@code false} otherwise
      */
     public boolean hasChild(final String childName) {
-        return children.stream().map(Node::getName).anyMatch(childName::equals);
+        return children.stream().map(Node::getId).anyMatch(childName::equals);
     }
 
     /**
@@ -199,6 +210,16 @@ public abstract class Node implements Serializable {
      */
     public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
+    }
+
+    /**
+     * Adds alls given nodes as children to the current node.
+     *
+     * @param nodes
+     *         nodes to add
+     */
+    public void addAllChildren(final Node... nodes) {
+        addAllChildren(List.of(nodes));
     }
 
     /**
@@ -433,15 +454,15 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Searches for a file within this node that has the given name.
+     * Searches for a file within this node that has the given relative path.
      *
-     * @param searchName
-     *         the name of the file
+     * @param searchPath
+     *         the path of the file
      *
      * @return the first matching file or an empty result, if no such file exists
      */
-    public Optional<FileNode> findFile(final String searchName) {
-        return find(Metric.FILE, searchName).map(FileNode.class::cast);
+    public Optional<FileNode> findFile(final String searchPath) {
+        return find(Metric.FILE, searchPath).map(FileNode.class::cast);
     }
 
     /**
@@ -528,7 +549,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return metric.equals(searchMetric) && name.equals(searchName);
+        return metric.equals(searchMetric) && getId().equals(searchName);
     }
 
     /**
@@ -542,7 +563,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return metric.equals(searchMetric) && name.hashCode() == searchNameHashCode;
+        return metric.equals(searchMetric) && getId().hashCode() == searchNameHashCode;
     }
 
     /**
