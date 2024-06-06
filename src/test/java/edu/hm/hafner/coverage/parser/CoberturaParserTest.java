@@ -40,6 +40,24 @@ class CoberturaParserTest extends AbstractParserTest {
         return "cobertura";
     }
 
+    @Test @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForRuby() {
+        Node root = readReport("cobertura-ruby.xml");
+        assertThat(root).isNotEmpty();
+    }
+
+    @Test @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForJavaScript() {
+        Node root = readReport("cobertura-js.xml");
+        assertThat(root).isNotEmpty();
+    }
+
+    @Test @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForCpp() {
+        Node root = readReport("cobertura-cpp.xml");
+        assertThat(root).isNotEmpty();
+    }
+
     @Test @Issue("JENKINS-72757")
     void shouldMergeIfCountersAreNotCompatible() {
         Node left = readReport("merge-a.xml");
