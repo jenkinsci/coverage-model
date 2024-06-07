@@ -721,12 +721,12 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the relative path of the file. If no relative path is set, then the name of this node is returned.
+     * Returns the relative path of the file.
      *
      * @return the relative path of the file
      */
     public String getRelativePath() {
-        return StringUtils.defaultIfBlank(relativePath.toString(), getName());
+        return relativePath.toString();
     }
 
     @SuppressFBWarnings(value = "SECWF", justification = "False positive")

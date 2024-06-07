@@ -221,17 +221,19 @@ public class CoberturaParser extends CoverageParser {
         return createMethodNode(parentNode, element, log, name);
     }
 
+    // TODO: Avoid casting and pull those create and find methods up to the node
+    // Each node should then have a validation which nocdes are actually valid direct children
     private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
             final String name) {
-        String className = name;
+        String methodName = name;
         var signature = getValueOf(element, SIGNATURE);
         var classNode = (ClassNode) parentNode;
-        if (classNode.findMethod(className, signature).isPresent() && ignoreErrors()) {
+        if (classNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
             log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
-                    className, signature, parentNode.getName());
-            className = name + "-" + createId();
+                    methodName, signature, parentNode.getName());
+            methodName = name + "-" + createId();
         }
-        return classNode.createMethodNode(className, signature);
+        return classNode.createMethodNode(methodName, signature);
     }
 
     private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
