@@ -17,7 +17,6 @@ import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -75,19 +74,24 @@ abstract class AbstractParserTest {
     }
 
     @Test
-    void shouldFailWhenParsingInvalidFiles() {
-        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("../empty.xml"));
+    void shouldFailWhenParsingInvalidFile() {
+        assertThatExceptionOfType(RuntimeException.class)
+                .isThrownBy(() -> readReport("/design.puml"));
+    }
+
+    protected String getEmptyFilePath() {
+        return "empty.xml";
     }
 
     @Test
     void shouldFailWhenEmptyFilesAreNotIgnored() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+        String emptyFile = getEmptyFilePath();
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport(emptyFile));
 
-        var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
+        var report = readReport(emptyFile, ProcessingMode.IGNORE_ERRORS);
         assertThat(report).hasNoChildren().hasNoValues();
 
         var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file 'empty.xml' does not contain data.", parserName));
+        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file '%s' does not contain data.", parserName, emptyFile));
     }
 }

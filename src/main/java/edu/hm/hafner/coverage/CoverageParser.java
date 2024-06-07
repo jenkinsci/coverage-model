@@ -166,7 +166,7 @@ public abstract class CoverageParser implements Serializable {
      *         the logger to write messages to
      *
      * @return the root of the created tree
-     * @throws ParsingException
+     * @throws RuntimeException
      *         if the XML content cannot be read
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
@@ -206,5 +206,17 @@ public abstract class CoverageParser implements Serializable {
 
     protected static ParsingException createEofException(final String fileName) {
         return new ParsingException("Unexpected end of file '%s'", fileName);
+    }
+
+    protected static Value createValue(final String currentType, final int covered, final int missed) {
+        if (currentType.equals("COMPLEXITY")) {
+            return new CyclomaticComplexity(covered + missed);
+        }
+        else {
+            var builder = new Coverage.CoverageBuilder();
+            return builder.withMetric(Metric.valueOf(currentType))
+                    .withCovered(covered)
+                    .withMissed(missed).build();
+        }
     }
 }
