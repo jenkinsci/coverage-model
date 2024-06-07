@@ -40,6 +40,37 @@ class CoberturaParserTest extends AbstractParserTest {
         return "cobertura";
     }
 
+    @Test
+    @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForRuby() {
+        Node root = readReport("cobertura-ruby.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(3)
+                .satisfiesExactlyInAnyOrder(
+                        foobar -> assertThat(foobar).hasName("foobar.rb").hasRelativePath("lib/foobar.rb"),
+                        bar -> assertThat(bar).hasName("my_class.rb").hasRelativePath("lib/foobar/bar/my_class.rb"),
+                        baz -> assertThat(baz).hasName("my_class.rb").hasRelativePath("lib/foobar/baz/my_class.rb"));
+    }
+
+    @Test @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForJavaScript() {
+        Node root = readReport("cobertura-js.xml", ProcessingMode.IGNORE_ERRORS);
+
+        assertThat(root.getAllMethodNodes()).hasSize(3).map(Node::getName).satisfiesExactly(
+                first -> assertThat(first).isEqualTo("Foo()V"),
+                second -> assertThat(second).isEqualTo("bar()V"),
+                third -> assertThat(third).startsWith("bar-"));
+    }
+
+    @Test @Issue("JENKINS-73175")
+    void shouldAutoGenerateNamesForCpp() {
+        Node root = readReport("cobertura-cpp.xml", ProcessingMode.IGNORE_ERRORS);
+
+        assertThat(root.getAllMethodNodes()).hasSize(2).map(Node::getName).satisfiesExactly(
+                first -> assertThat(first).isEqualTo("calculate::[lambda][](int)"),
+                second -> assertThat(second).startsWith("calculate::[lambda]-"));
+    }
+
     @Test @Issue("JENKINS-72757")
     void shouldMergeIfCountersAreNotCompatible() {
         Node left = readReport("merge-a.xml");

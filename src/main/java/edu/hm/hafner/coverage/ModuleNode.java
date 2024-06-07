@@ -121,35 +121,6 @@ public final class ModuleNode extends Node {
         return packageNode;
     }
 
-    /**
-     * Create a new package node with the given name and add it to the list of children.
-     *
-     * @param packageName
-     *         the package name
-     *
-     * @return the created and linked package node
-     */
-    public PackageNode createPackageNode(final String packageName) {
-        var packageNode = new PackageNode(packageName);
-        addChild(packageNode);
-        return packageNode;
-    }
-
-    /**
-     * Searches for the specified package node. If the package node is not found, then a new package node will be created
-     * and linked to this module node.
-     *
-     * @param packageName
-     *         the package name
-     *
-     * @return the existing or created package node
-     * @see #createPackageNode(String)
-     */
-    public PackageNode findOrCreatePackageNode(final String packageName) {
-        var normalizedPackageName = PackageNode.normalizePackageName(packageName);
-        return findPackage(normalizedPackageName).orElseGet(() -> createPackageNode(normalizedPackageName));
-    }
-
     @Override
     public boolean isAggregation() {
         return true;

@@ -2,7 +2,6 @@ package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 /**
@@ -50,66 +49,6 @@ public final class PackageNode extends Node {
     @Override
     public PackageNode copy() {
         return new PackageNode(getName());
-    }
-
-    /**
-     * Create a new file node with the given name and add it to the list of children.
-     *
-     * @param fileName
-     *         the file name
-     * @param relativePath
-     *         the relative path of the file
-     *
-     * @return the created and linked file node
-     */
-    public FileNode createFileNode(final String fileName, final TreeString relativePath) {
-        var fileNode = new FileNode(fileName, relativePath);
-        addChild(fileNode);
-        return fileNode;
-    }
-
-    /**
-     * Searches for the specified file node. If the file node is not found then a new file node will be created and
-     * linked to this package node.
-     *
-     * @param fileName
-     *         the file name
-     * @param relativePath
-     *         the relative path of the file
-     *
-     * @return the existing or created file node
-     * @see #createFileNode(String, TreeString)
-     */
-    public FileNode findOrCreateFileNode(final String fileName, final TreeString relativePath) {
-        return findFile(fileName).orElseGet(() -> createFileNode(fileName, relativePath));
-    }
-
-    /**
-     * Searches for the specified class node. If the class node is not found then a new class node will be created and
-     * linked to this file node.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     * @see #createClassNode(String)
-     */
-    public ClassNode findOrCreateClassNode(final String className) {
-        return findClass(className).orElseGet(() -> createClassNode(className));
-    }
-
-    /**
-     * Create a new class node with the given name and add it to the list of children.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     */
-    public ClassNode createClassNode(final String className) {
-        var classNode = new ClassNode(className);
-        addChild(classNode);
-        return classNode;
     }
 
     @Override
