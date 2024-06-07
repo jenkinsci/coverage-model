@@ -693,34 +693,6 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Create a new class node with the given name and add it to the list of children.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     */
-    public ClassNode createClassNode(final String className) {
-        var classNode = new ClassNode(className);
-        addChild(classNode);
-        return classNode;
-    }
-
-    /**
-     * Searches for the specified class node. If the class node is not found then a new class node will be created and
-     * linked to this file node.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     * @see #createClassNode(String)
-     */
-    public ClassNode findOrCreateClassNode(final String className) {
-        return findClass(className).orElseGet(() -> createClassNode(className));
-    }
-
-    /**
      * Returns the relative path of the file.
      *
      * @return the relative path of the file
