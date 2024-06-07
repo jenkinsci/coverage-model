@@ -889,38 +889,56 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Create a new method node with the given method name and signature and add it to the list of children.
+     * Creates a new method node with the given method name and signature.
+     * Then the newly created node is added to this list of children.
      *
      * @param methodName
      *         the method name
      * @param signature
      *         the signature of the method
      *
-     * @return the created and linked package node
+     * @return the created and linked node
      */
     public MethodNode createMethodNode(final String methodName, final String signature) {
-        var fileNode = new MethodNode(methodName, signature);
-        addChild(fileNode);
-        return fileNode;
+        return addChildNode(new MethodNode(methodName, signature));
     }
 
     /**
-     * Create a new class node with the given name and add it to the list of children.
+     * Creates a new class node with the given name.
+     * Then the newly created node is added to this list of children.
      *
      * @param className
      *         the class name
      *
-     * @return the created and linked class node
+     * @return the created and linked node
      */
     public ClassNode createClassNode(final String className) {
-        var classNode = new ClassNode(className);
-        addChild(classNode);
-        return classNode;
+        return addChildNode(new ClassNode(className));
+    }
+
+    /**
+     * Creates a new file node with the given file name and path.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param fileName
+     *         the file name
+     * @param relativePath
+     *         the relative path of the file
+     *
+     * @return the created and linked node
+     */
+    public FileNode createFileNode(final String fileName, final TreeString relativePath) {
+        return addChildNode(new FileNode(fileName, relativePath));
+    }
+
+    private <T extends Node> T addChildNode(final T child) {
+        addChild(child);
+        return child;
     }
 
     /**
      * Searches for the specified class node. If the class node is not found, then a new class node will be created and
-     * linked to this file node.
+     * linked to this node.
      *
      * @param className
      *         the class name
@@ -933,24 +951,8 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Create a new file node with the given name and add it to the list of children.
-     *
-     * @param fileName
-     *         the file name
-     * @param relativePath
-     *         the relative path of the file
-     *
-     * @return the created and linked file node
-     */
-    public FileNode createFileNode(final String fileName, final TreeString relativePath) {
-        var fileNode = new FileNode(fileName, relativePath);
-        addChild(fileNode);
-        return fileNode;
-    }
-
-    /**
-     * Searches for the specified file node. If the file node is not found then a new file node will be created and
-     * linked to this package node.
+     * Searches for the specified file node. If the file node is not found, then a new file node will be created and
+     * linked to this node.
      *
      * @param fileName
      *         the file name
