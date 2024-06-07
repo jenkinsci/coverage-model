@@ -931,6 +931,19 @@ public abstract class Node implements Serializable {
         return addChildNode(new FileNode(fileName, relativePath));
     }
 
+    /**
+     * Creates a new package node with the given name.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the created and linked node
+     */
+    public PackageNode createPackageNode(final String packageName) {
+        return addChildNode(new PackageNode(packageName));
+    }
+
     private <T extends Node> T addChildNode(final T child) {
         addChild(child);
         return child;
@@ -964,6 +977,22 @@ public abstract class Node implements Serializable {
      */
     public FileNode findOrCreateFileNode(final String fileName, final TreeString relativePath) {
         return findFile(fileName, relativePath.toString()).orElseGet(() -> createFileNode(fileName, relativePath));
+    }
+
+    /**
+     * Searches for the specified package node. If the package node is not found, then a new package node will be created
+     * and linked to this module node.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the existing or created package node
+     * @see #createPackageNode(String)
+     */
+    public PackageNode findOrCreatePackageNode(final String packageName) {
+        var normalizedPackageName = PackageNode.normalizePackageName(packageName);
+
+        return findPackage(normalizedPackageName).orElseGet(() -> createPackageNode(normalizedPackageName));
     }
 
     private Optional<FileNode> findFile(final String fileName, final String relativePath) {
