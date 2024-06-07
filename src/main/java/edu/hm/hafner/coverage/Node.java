@@ -694,7 +694,7 @@ public abstract class Node implements Serializable {
      *
      * @return a new tree with the merged {@link Node nodes}
      */
-    public static Node merge(final List<? extends Node> nodes) {
+    public static Node merge(final List<Node> nodes) {
         if (nodes.isEmpty()) {
             throw new IllegalArgumentException("Cannot merge an empty list of nodes");
         }
@@ -702,18 +702,17 @@ public abstract class Node implements Serializable {
             return nodes.get(0); // No merge required
         }
 
-        Map<ImmutablePair<String, Metric>, ? extends List<? extends Node>> grouped = nodes.stream()
+        Map<ImmutablePair<String, Metric>, ? extends List<Node>> grouped = nodes.stream()
                 .collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
 
         if (grouped.size() == 1) {
             return nodes.stream()
-                    .map(t -> (Node) t)
                     .reduce(Node::merge)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
         var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
-        for (List<? extends Node> matching : grouped.values()) {
+        for (List<Node> matching : grouped.values()) {
             container.addChild(merge(matching));
         }
         return container;
