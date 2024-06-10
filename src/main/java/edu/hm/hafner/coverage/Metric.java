@@ -32,7 +32,6 @@ public enum Metric {
     BRANCH(new ValuesAggregator()),
     INSTRUCTION(new ValuesAggregator()),
     MCDC_PAIR(new ValuesAggregator()),
-    FUNCTION(new ValuesAggregator()),
     FUNCTION_CALL(new ValuesAggregator()),
 
     /** Additional metrics without children. */
@@ -116,7 +115,6 @@ public enum Metric {
                 BRANCH,
                 INSTRUCTION,
                 MCDC_PAIR,
-                FUNCTION,
                 FUNCTION_CALL
         ));
     }
@@ -137,6 +135,13 @@ public enum Metric {
         abstract Optional<Value> compute(Node node, Metric searchMetric);
 
         abstract boolean isAggregatingChildren();
+
+        protected Optional<Value> getValue(final Node node, final Metric searchMetric) {
+            return node.getValues()
+                    .stream()
+                    .filter(leaf -> leaf.getMetric().equals(searchMetric))
+                    .findAny();
+        }
     }
 
     private static class LocOfChildrenEvaluator extends MetricEvaluator {
@@ -147,27 +152,31 @@ public enum Metric {
 
         protected Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
-                var builder = new CoverageBuilder().withMetric(searchMetric);
-                if (hasCoverage(node)) {
-                    builder.withCovered(1).withMissed(0);
-                }
-                else {
-                    builder.withCovered(0).withMissed(1);
-                }
-                return Optional.of(builder.build());
+                return Optional.of(getValue(node, searchMetric)
+                        .orElse(deriveCoverageFromOtherMetrics(node, searchMetric)));
             }
             return Optional.empty();
+        }
+
+        private Coverage deriveCoverageFromOtherMetrics(final Node node, final Metric searchMetric) {
+            var builder = new CoverageBuilder().withMetric(searchMetric);
+            if (hasCoverage(node)) {
+                builder.withCovered(1).withMissed(0);
+            }
+            else {
+                builder.withCovered(0).withMissed(1);
+            }
+            return builder.build();
         }
 
         private boolean hasCoverage(final Node node) {
             boolean baseline = hasCoverage(node, INSTRUCTION)
                     || hasCoverage(node, LINE)
                     || hasCoverage(node, BRANCH);
-                    
+
             boolean additional = hasCoverage(node, MCDC_PAIR)
-                    || hasCoverage(node, FUNCTION)
                     || hasCoverage(node, FUNCTION_CALL);
-                    
+
             return baseline || additional;
         }
 
@@ -251,10 +260,7 @@ public enum Metric {
 
         @Override
         final Optional<Value> compute(final Node node, final Metric searchMetric) {
-            Optional<Value> localMetricValue = node.getValues()
-                    .stream()
-                    .filter(leaf -> leaf.getMetric().equals(searchMetric))
-                    .findAny();
+            var localMetricValue = getValue(node, searchMetric);
             if (localMetricValue.isPresent()) {
                 return localMetricValue;
             }

@@ -39,8 +39,7 @@ class MetricTest {
                 Metric.LINE,
                 Metric.BRANCH,
                 Metric.INSTRUCTION,
-                Metric.MCDC_PAIR, 
-                Metric.FUNCTION, 
+                Metric.MCDC_PAIR,
                 Metric.FUNCTION_CALL);
     }
 
