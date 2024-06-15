@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="4" lines-covered="4" line-rate="1" branches-valid="0" branches-covered="0" branch-rate="1" timestamp="1717519564446" complexity="0" version="0.1">
+  <packages>
+    <package name="unknown">
+      <classes>
+        <class name="calculate" filename="Calculate.cpp" lineRate="1.0" branch-rate="1.000000" complexity="">
+          <methods>
+            <method name="calculate::[lambda]" signature="[](int)" line-rate="1.0" branch-rate="1.000000">
+              <lines>
+                <line number="53" hits="3" branch="false"/>
+              </lines>
+            </method>
+            <method name="calculate::[lambda]" signature="[](int)" line-rate="1.0" branch-rate="1.000000">
+              <lines>
+                <line number="54" hits="3" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

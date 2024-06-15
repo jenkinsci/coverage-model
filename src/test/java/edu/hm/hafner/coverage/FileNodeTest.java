@@ -40,6 +40,37 @@ class FileNodeTest extends AbstractNodeTest {
     }
 
     @Test
+    void shouldSearchForFilesByNameOrPath() {
+        var file = "File.java";
+        var left = new FileNode(file, "/root/left/File.java");
+        left.addChild(new ClassNode("FileClass.java"));
+
+        var right = new FileNode(file, "/root/right/File.java");
+        right.addChild(new ClassNode("FileClass.java"));
+
+        var root = new PackageNode("root");
+        root.addAllChildren(left, right);
+
+        assertThat(root.findFile("/root/right/File.java")).contains(right);
+        assertThat(root.findFile("/root/left/File.java")).contains(left);
+        assertThat(root).hasOnlyAllFileNodes(left, right);
+
+        assertThat(root.findFile(file)).isNotEmpty(); // it does not matter which file is returned
+    }
+
+    @Test
+    void shouldFailWhenPathIsIdentical() {
+        var file = "File.java";
+        var path = "/root/File.java";
+
+        var red = new FileNode(file, path);
+        var blue = new FileNode(file, path);
+
+        var root = new PackageNode("root");
+        assertThatIllegalArgumentException().isThrownBy(() -> root.addAllChildren(red, blue));
+    }
+
+    @Test
     void shouldGetFilePath() {
         var module = new ModuleNode("top-level"); // just for testing
         var folder = new PackageNode("folder"); // just for testing

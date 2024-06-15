@@ -23,6 +23,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -64,6 +65,16 @@ public abstract class Node implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the unique ID of this node. This ID must be unique for the direct children in this node. Other nodes in
+     * the tree hierarchy may reuse the same ID.
+     *
+     * @return the unique ID of this node
+     */
+    public String getId() {
+        return getName();
     }
 
     void setName(final String name) { // Might be used during the deserialization of old reports
@@ -162,9 +173,10 @@ public abstract class Node implements Serializable {
      *         the child to add
      */
     public void addChild(final Node child) {
-        if (children.stream().anyMatch(node -> node.getName().equals(child.getName()))) {
+        if (hasChild(child.getId())) {
             throw new IllegalArgumentException(
-                    String.format("There is already a child %s with the name %s in %s", child, child.getName(), this));
+                    String.format("There is already the same child %s with the name %s in %s",
+                            child, child.getName(), this));
         }
 
         children.add(child);
@@ -188,7 +200,7 @@ public abstract class Node implements Serializable {
      * @return {@code true} if this node has a child with the specified name, {@code false} otherwise
      */
     public boolean hasChild(final String childName) {
-        return children.stream().map(Node::getName).anyMatch(childName::equals);
+        return children.stream().map(Node::getId).anyMatch(childName::equals);
     }
 
     /**
@@ -199,6 +211,16 @@ public abstract class Node implements Serializable {
      */
     public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
+    }
+
+    /**
+     * Adds alls given nodes as children to the current node.
+     *
+     * @param nodes
+     *         nodes to add
+     */
+    public void addAllChildren(final Node... nodes) {
+        addAllChildren(List.of(nodes));
     }
 
     /**
@@ -433,15 +455,15 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Searches for a file within this node that has the given name.
+     * Searches for a file within this node that has the given relative path.
      *
-     * @param searchName
-     *         the name of the file
+     * @param searchPath
+     *         the path of the file
      *
      * @return the first matching file or an empty result, if no such file exists
      */
-    public Optional<FileNode> findFile(final String searchName) {
-        return find(Metric.FILE, searchName).map(FileNode.class::cast);
+    public Optional<FileNode> findFile(final String searchPath) {
+        return find(Metric.FILE, searchPath).map(FileNode.class::cast);
     }
 
     /**
@@ -528,7 +550,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return metric.equals(searchMetric) && name.equals(searchName);
+        return metric.equals(searchMetric) && getId().equals(searchName);
     }
 
     /**
@@ -542,7 +564,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return metric.equals(searchMetric) && name.hashCode() == searchNameHashCode;
+        return metric.equals(searchMetric) && getId().hashCode() == searchNameHashCode;
     }
 
     /**
@@ -680,18 +702,18 @@ public abstract class Node implements Serializable {
             return nodes.get(0); // No merge required
         }
 
-        Map<ImmutablePair<String, Metric>, ? extends List<? extends Node>> grouped = nodes.stream()
+        Map<ImmutablePair<String, Metric>, ? extends List<Node>> grouped = nodes.stream()
                 .collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
 
         if (grouped.size() == 1) {
             return nodes.stream()
-                    .map(t -> (Node) t)
+                    .map(Node.class::cast)
                     .reduce(Node::merge)
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
         var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
-        for (List<? extends Node> matching : grouped.values()) {
+        for (List<Node> matching : grouped.values()) {
             container.addChild(merge(matching));
         }
         return container;
@@ -864,6 +886,119 @@ public abstract class Node implements Serializable {
         var copy = copy();
         copy.addAllChildren(prunedChildren);
         return Optional.of(copy);
+    }
+
+    /**
+     * Creates a new method node with the given method name and signature.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param methodName
+     *         the method name
+     * @param signature
+     *         the signature of the method
+     *
+     * @return the created and linked node
+     */
+    public MethodNode createMethodNode(final String methodName, final String signature) {
+        return addChildNode(new MethodNode(methodName, signature));
+    }
+
+    /**
+     * Creates a new class node with the given name.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param className
+     *         the class name
+     *
+     * @return the created and linked node
+     */
+    public ClassNode createClassNode(final String className) {
+        return addChildNode(new ClassNode(className));
+    }
+
+    /**
+     * Creates a new file node with the given file name and path.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param fileName
+     *         the file name
+     * @param relativePath
+     *         the relative path of the file
+     *
+     * @return the created and linked node
+     */
+    public FileNode createFileNode(final String fileName, final TreeString relativePath) {
+        return addChildNode(new FileNode(fileName, relativePath));
+    }
+
+    /**
+     * Creates a new package node with the given name.
+     * Then the newly created node is added to this list of children.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the created and linked node
+     */
+    public PackageNode createPackageNode(final String packageName) {
+        return addChildNode(new PackageNode(packageName));
+    }
+
+    private <T extends Node> T addChildNode(final T child) {
+        addChild(child);
+        return child;
+    }
+
+    /**
+     * Searches for the specified class node. If the class node is not found, then a new class node will be created and
+     * linked to this node.
+     *
+     * @param className
+     *         the class name
+     *
+     * @return the created and linked class node
+     * @see #createClassNode(String)
+     */
+    public ClassNode findOrCreateClassNode(final String className) {
+        return findClass(className).orElseGet(() -> createClassNode(className));
+    }
+
+    /**
+     * Searches for the specified file node. If the file node is not found, then a new file node will be created and
+     * linked to this node.
+     *
+     * @param fileName
+     *         the file name
+     * @param relativePath
+     *         the relative path of the file
+     *
+     * @return the existing or created file node
+     * @see #createFileNode(String, TreeString)
+     */
+    public FileNode findOrCreateFileNode(final String fileName, final TreeString relativePath) {
+        return findFile(fileName, relativePath.toString()).orElseGet(() -> createFileNode(fileName, relativePath));
+    }
+
+    /**
+     * Searches for the specified package node. If the package node is not found, then a new package node will be created
+     * and linked to this module node.
+     *
+     * @param packageName
+     *         the package name
+     *
+     * @return the existing or created package node
+     * @see #createPackageNode(String)
+     */
+    public PackageNode findOrCreatePackageNode(final String packageName) {
+        var normalizedPackageName = PackageNode.normalizePackageName(packageName);
+
+        return findPackage(normalizedPackageName).orElseGet(() -> createPackageNode(normalizedPackageName));
+    }
+
+    private Optional<FileNode> findFile(final String fileName, final String relativePath) {
+        return getAllFileNodes().stream().filter(fileNode ->
+                fileNode.getName().equals(fileName)
+                        && fileNode.getRelativePath().equals(relativePath)).findAny();
     }
 
     /**

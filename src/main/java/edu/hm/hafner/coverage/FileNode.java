@@ -85,6 +85,11 @@ public final class FileNode extends Node {
         this(name, TreeString.valueOf(relativePath));
     }
 
+    @Override
+    public String getId() {
+        return relativePath.toString() + getName();
+    }
+
     /**
      * Called after deserialization to retain backward compatibility.
      *
@@ -140,14 +145,14 @@ public final class FileNode extends Node {
 
     @Override
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return super.matches(searchMetric, searchName)
-                || getRelativePath().equals(searchName);
+        return getMetric().equals(searchMetric)
+                && (getRelativePath().equals(searchName) || getName().equals(searchName));
     }
 
     @Override
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return super.matches(searchMetric, searchNameHashCode)
-                || getRelativePath().hashCode() == searchNameHashCode;
+        return getMetric().equals(searchMetric)
+                && (getRelativePath().hashCode() == searchNameHashCode || getName().hashCode() == searchNameHashCode);
     }
 
     @Override
@@ -869,40 +874,12 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Create a new class node with the given name and add it to the list of children.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     */
-    public ClassNode createClassNode(final String className) {
-        var classNode = new ClassNode(className);
-        addChild(classNode);
-        return classNode;
-    }
-
-    /**
-     * Searches for the specified class node. If the class node is not found then a new class node will be created and
-     * linked to this file node.
-     *
-     * @param className
-     *         the class name
-     *
-     * @return the created and linked class node
-     * @see #createClassNode(String)
-     */
-    public ClassNode findOrCreateClassNode(final String className) {
-        return findClass(className).orElseGet(() -> createClassNode(className));
-    }
-
-    /**
-     * Returns the relative path of the file. If no relative path is set, then the name of this node is returned.
+     * Returns the relative path of the file.
      *
      * @return the relative path of the file
      */
     public String getRelativePath() {
-        return StringUtils.defaultIfBlank(relativePath.toString(), getName());
+        return relativePath.toString();
     }
 
     @SuppressFBWarnings(value = "SECWF", justification = "False positive")
