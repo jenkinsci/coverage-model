@@ -1,8 +1,8 @@
 package edu.hm.hafner.coverage;
 
+import java.io.IOException;
 import java.util.NavigableMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
@@ -105,12 +105,9 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldReadOldVersion() {
-        // byte[] restored = readAllBytes("version-0.21.0.ser");
+        byte[] restored = readAllBytes("version-0.46.0.ser");
 
-        var serializable = (FileNode)createSerializable();
-        serializable.setRelativePath(TreeString.valueOf(StringUtils.EMPTY));
-        // FIXME: version-0.21.0.ser needs to be updated
-        // assertThatRestoredInstanceEqualsOriginalInstance(serializable, restore(restored));
+        assertThatRestoredInstanceEqualsOriginalInstance(createSerializable(), restore(restored));
     }
 
     @Test
@@ -345,5 +342,9 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addCounters(8, 1, 1);
         assertThat(fileNode.getMissedLineRanges())
                 .containsExactly(new LineRange(2, 5), new LineRange(7));
+    }
+
+    public static void main(final String... args) throws IOException {
+        new FileNodeTest().createSerializationFile();
     }
 }
