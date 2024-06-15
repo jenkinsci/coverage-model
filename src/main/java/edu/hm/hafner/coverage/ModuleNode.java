@@ -137,7 +137,7 @@ public final class ModuleNode extends Node {
         if (!super.equals(o)) {
             return false;
         }
-        ModuleNode that = (ModuleNode) o;
+        var that = (ModuleNode) o;
         return Objects.equals(sources, that.sources);
     }
 

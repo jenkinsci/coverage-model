@@ -35,13 +35,21 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
     private static final int UNSET = -1;
 
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
+
+    // metrics for MC/DC pairs per line
+    private NavigableMap<Integer, Integer> mcdcPairCoveredPerLine = new TreeMap<>();
+    private NavigableMap<Integer, Integer> mcdcPairMissedPerLine = new TreeMap<>();
+
+    // metrics for function calls per line
+    private NavigableMap<Integer, Integer> functionCallCoveredPerLine = new TreeMap<>();
+    private NavigableMap<Integer, Integer> functionCallMissedPerLine = new TreeMap<>();
 
     private final List<Mutation> mutations = new ArrayList<>();
 
@@ -92,6 +100,18 @@ public final class FileNode extends Node {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }
+        if (mcdcPairCoveredPerLine == null) {
+            mcdcPairCoveredPerLine = new TreeMap<>();
+        }
+        if (mcdcPairMissedPerLine == null) {
+            mcdcPairMissedPerLine = new TreeMap<>();
+        }
+        if (functionCallCoveredPerLine == null) {
+            functionCallCoveredPerLine = new TreeMap<>();
+        }
+        if (functionCallMissedPerLine == null) {
+            functionCallMissedPerLine = new TreeMap<>();
+        }
         return this;
     }
 
@@ -101,6 +121,12 @@ public final class FileNode extends Node {
 
         copy.coveredPerLine.putAll(coveredPerLine);
         copy.missedPerLine.putAll(missedPerLine);
+
+        copy.mcdcPairCoveredPerLine.putAll(mcdcPairCoveredPerLine);
+        copy.mcdcPairMissedPerLine.putAll(mcdcPairMissedPerLine);
+
+        copy.functionCallCoveredPerLine.putAll(functionCallCoveredPerLine);
+        copy.functionCallMissedPerLine.putAll(functionCallMissedPerLine);
 
         copy.modifiedLines.addAll(modifiedLines);
 
@@ -144,23 +170,29 @@ public final class FileNode extends Node {
         var lines = new TreeSet<Integer>();
 
         lines.addAll(coveredPerLine.keySet());
+        lines.addAll(mcdcPairCoveredPerLine.keySet());
+        lines.addAll(functionCallCoveredPerLine.keySet());
         lines.addAll(otherFile.coveredPerLine.keySet());
 
         var lineCoverage = new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
         var branchCoverage = new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
-        for (int line : lines) {
-            int leftCovered = coveredPerLine.getOrDefault(line, 0);
-            int leftMissed = missedPerLine.getOrDefault(line, 0);
-            int leftTotal = leftCovered + leftMissed;
-            int rightCovered = otherFile.coveredPerLine.getOrDefault(line, 0);
-            int rightMissed = otherFile.missedPerLine.getOrDefault(line, 0);
-            int rightTotal = rightCovered + rightMissed;
-
-            if (leftTotal != rightTotal) {
-                if (leftTotal == leftCovered || rightTotal == rightCovered) {
-                    leftCovered = Math.max(leftTotal, rightTotal);
-                    leftMissed = 0;
-                    leftTotal = leftCovered;
+        var mcdcPairCoverage = new CoverageBuilder().withMetric(Metric.MCDC_PAIR).withCovered(0).withMissed(0);
+        var functionCallCoverage = new CoverageBuilder().withMetric(Metric.FUNCTION_CALL).withCovered(0).withMissed(0);
+                
+        for (final int line : lines) {
+            var left = new CoverageMetricsValues(coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
+            var leftMcdcPair = new CoverageMetricsValues(mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
+            var leftFunctionCall = new CoverageMetricsValues(functionCallCoveredPerLine.getOrDefault(line, 0), functionCallMissedPerLine.getOrDefault(line, 0));
+            var right = new CoverageMetricsValues(otherFile.coveredPerLine.getOrDefault(line, 0), otherFile.missedPerLine.getOrDefault(line, 0));
+            var rightMcdcPair = new CoverageMetricsValues(otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0), otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
+            var rightFunctionCall = new CoverageMetricsValues(otherFile.functionCallCoveredPerLine.getOrDefault(line, 0), otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
+            
+            // check for errors in branch, mcdc pair and function call coverages
+            if (left.totalsNotEqual(right)) {
+                if (left.noMissing() || right.noMissing()) {
+                    left.setCoveredFromMax(right);
+                    left.clearMissed();
+                    left.setTotalFromCovered();
                 }
                 else {
                     throw new IllegalArgumentException(
@@ -168,27 +200,44 @@ public final class FileNode extends Node {
                                     line, this));
                 }
             }
-            if (leftTotal > 1) {
+            else if (leftMcdcPair.totalsNotEqual(rightMcdcPair) || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {
+                throw new IllegalArgumentException(
+                        String.format("Cannot merge coverage information for line %d in %s",
+                                line, this));
+            }
+            
+            if (left.hasAnyInfo()) {
                 // exact branch coverage cannot be computed, so choose the higher value
-                if (leftCovered > rightCovered) {
-                    coveredPerLine.put(line, leftCovered);
-                    missedPerLine.put(line, leftMissed);
-                }
-                else {
-                    coveredPerLine.put(line, rightCovered);
-                    missedPerLine.put(line, rightMissed);
-                }
+                mergeLeftRight(line, left.getCovered(), left.getMissed(), right.getCovered(), right.getMissed(), coveredPerLine, missedPerLine);
                 updateLineCoverage(line, lineCoverage);
                 updateBranchCoverage(line, branchCoverage);
             }
+            else if (leftMcdcPair.hasAnyInfo()) {
+                mergeLeftRight(line, leftMcdcPair.getCovered(), leftMcdcPair.getMissed(), 
+                        rightMcdcPair.getCovered(), rightMcdcPair.getMissed(), 
+                        mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
+                updateMcdcPairCoverage(line, mcdcPairCoverage);
+            }
+            else if (leftFunctionCall.hasAnyInfo()) {
+                mergeLeftRight(line, leftFunctionCall.getCovered(), leftFunctionCall.getMissed(), rightFunctionCall.getCovered(), rightFunctionCall.getMissed(), functionCallCoveredPerLine, functionCallMissedPerLine);
+                updateFunctionCallCoverage(line, functionCallCoverage);
+            }
             else {
-                coveredPerLine.put(line, Math.max(leftCovered, rightCovered));
-                missedPerLine.put(line, Math.min(leftMissed, rightMissed));
+                coveredPerLine.put(line, left.getMaxCovered(right));
+                missedPerLine.put(line, left.getMinMissed(right));
 
                 updateLineCoverage(line, lineCoverage);
             }
         }
+        
+        setValues(lineCoverage, branchCoverage, mcdcPairCoverage, functionCallCoverage);
 
+        otherFile.getValues().stream()
+                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
+                .forEach(this::addValue);
+    }
+    
+    private void setValues(final CoverageBuilder lineCoverage, final CoverageBuilder branchCoverage, final CoverageBuilder mcdcPairCoverage, final CoverageBuilder functionCallCoverage) {
         var lineValue = lineCoverage.build();
         if (lineValue.isSet()) {
             addValue(lineValue);
@@ -198,14 +247,42 @@ public final class FileNode extends Node {
             addValue(branchValue);
         }
 
-        otherFile.getValues().stream()
-                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
-                .forEach(this::addValue);
+        var mcdcPairValue = mcdcPairCoverage.build();
+        if (mcdcPairValue.isSet()) {
+            addValue(mcdcPairValue);
+        }
+
+        var functionCallValue = functionCallCoverage.build();
+        if (functionCallValue.isSet()) {
+            addValue(functionCallValue);
+        }
+    }
+            
+    private void mergeLeftRight(final int line, final int leftCovered, final int leftMissed, final int rightCovered, final int rightMissed, 
+            final NavigableMap<Integer, Integer> localCoveredPerLine, final NavigableMap<Integer, Integer> localMissedPerLine) {
+        if (leftCovered > rightCovered) { 
+            localCoveredPerLine.put(line, leftCovered);
+            localMissedPerLine.put(line, leftMissed);
+        }
+        else {
+            localCoveredPerLine.put(line, rightCovered);
+            localMissedPerLine.put(line, rightMissed);
+        }
     }
 
     private void updateBranchCoverage(final int line, final CoverageBuilder branchCoverage) {
         branchCoverage.incrementCovered(getCoveredOfLine(line));
         branchCoverage.incrementMissed(getMissedOfLine(line));
+    }
+
+    private void updateMcdcPairCoverage(final int line, final CoverageBuilder mcdcPairCoverage) {
+        mcdcPairCoverage.incrementCovered(getMcdcPairCoveredOfLine(line));
+        mcdcPairCoverage.incrementMissed(getMcdcPairMissedOfLine(line));
+    }
+
+    private void updateFunctionCallCoverage(final int line, final CoverageBuilder functionCallCoverage) {
+        functionCallCoverage.incrementCovered(getFunctionCallCoveredOfLine(line));
+        functionCallCoverage.incrementMissed(getFunctionCallMissedOfLine(line));
     }
 
     private void updateLineCoverage(final int line, final CoverageBuilder lineCoverage) {
@@ -401,7 +478,7 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
      */
     public boolean hasCoverageForLine(final int line) {
-        return coveredPerLine.containsKey(line);
+        return coveredPerLine.containsKey(line) ||  mcdcPairCoveredPerLine.containsKey(line) ||  functionCallCoveredPerLine.containsKey(line);
     }
 
     private Coverage getLineCoverage(final int line) {
@@ -525,6 +602,46 @@ public final class FileNode extends Node {
 
         return this;
     }
+    
+    /**
+     * Add the MCDC coverage  counters for the specified line.
+     *
+     * @param lineNumber
+     *         the line number to add the counters for
+     * @param covered
+     *         the number of covered items
+     * @param missed
+     *         the number of missed items
+     *
+     * @return this instance
+     */
+    @CanIgnoreReturnValue
+    public FileNode addMcdcPairCounters(final int lineNumber, final int covered, final int missed) {
+        mcdcPairCoveredPerLine.put(lineNumber, covered);
+        mcdcPairMissedPerLine.put(lineNumber, missed);
+
+        return this;
+    }
+    
+    /**
+     * Add the function call coverage  counters for the specified line.
+     *
+     * @param lineNumber
+     *         the line number to add the counters for
+     * @param covered
+     *         the number of covered items
+     * @param missed
+     *         the number of missed items
+     *
+     * @return this instance
+     */
+    @CanIgnoreReturnValue
+    public FileNode addFunctionCallCounters(final int lineNumber, final int covered, final int missed) {
+        functionCallCoveredPerLine.put(lineNumber, covered);
+        functionCallMissedPerLine.put(lineNumber, missed);
+
+        return this;
+    }    
 
     public int[] getCoveredCounters() {
         return entriesToArray(coveredPerLine);
@@ -532,6 +649,22 @@ public final class FileNode extends Node {
 
     public int[] getMissedCounters() {
         return entriesToArray(missedPerLine);
+    }
+
+    public int[] getMcdcPairCoveredCounters() {
+        return entriesToArray(mcdcPairCoveredPerLine);
+    }
+
+    public int[] getMcdcPairMissedCounters() {
+        return entriesToArray(mcdcPairMissedPerLine);
+    }
+
+    public int[] getFunctionCallCoveredCounters() {
+        return entriesToArray(functionCallCoveredPerLine);
+    }
+
+    public int[] getFunctionCallMissedCounters() {
+        return entriesToArray(functionCallMissedPerLine);
     }
 
     /**
@@ -544,6 +677,54 @@ public final class FileNode extends Node {
      */
     public int getCoveredOfLine(final int line) {
         return coveredPerLine.getOrDefault(line, 0);
+    }
+
+    /**
+     * Returns the number of covered items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of covered items for the specified line
+     */
+    private int getMcdcPairCoveredOfLine(final int line) {
+        return mcdcPairCoveredPerLine.getOrDefault(line, 0);
+    }
+
+    /**
+     * Returns the number of covered items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of covered items for the specified line
+     */
+    private int getFunctionCallCoveredOfLine(final int line) {
+        return functionCallCoveredPerLine.getOrDefault(line, 0);
+    }
+
+    /**
+     * Returns the number of covered items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of covered items for the specified line
+     */
+    private int getMcdcPairMissedOfLine(final int line) {
+        return mcdcPairMissedPerLine.getOrDefault(line, 0);
+    }
+
+    /**
+     * Returns the number of covered items for the specified line.
+     *
+     * @param line
+     *         the line to check
+     *
+     * @return the number of covered items for the specified line
+     */
+    private int getFunctionCallMissedOfLine(final int line) {
+        return functionCallMissedPerLine.getOrDefault(line, 0);
     }
 
     /**
@@ -717,11 +898,6 @@ public final class FileNode extends Node {
     }
 
     @Override
-    public boolean isAggregation() {
-        return false;
-    }
-
-    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -732,9 +908,13 @@ public final class FileNode extends Node {
         if (!super.equals(o)) {
             return false;
         }
-        FileNode fileNode = (FileNode) o;
+        var fileNode = (FileNode) o;
         return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
                 && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(mcdcPairCoveredPerLine, fileNode.mcdcPairCoveredPerLine)
+                && Objects.equals(mcdcPairMissedPerLine, fileNode.mcdcPairMissedPerLine)
+                && Objects.equals(functionCallCoveredPerLine, fileNode.functionCallCoveredPerLine)
+                && Objects.equals(functionCallMissedPerLine, fileNode.functionCallMissedPerLine)
                 && Objects.equals(mutations, fileNode.mutations)
                 && Objects.equals(modifiedLines, fileNode.modifiedLines)
                 && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
@@ -745,6 +925,12 @@ public final class FileNode extends Node {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
+                mcdcPairCoveredPerLine, mcdcPairMissedPerLine, functionCallCoveredPerLine, functionCallMissedPerLine,
                 indirectCoverageChanges, coverageDelta, relativePath);
+    }
+
+    @Override
+    public boolean isAggregation() {
+        return false;
     }
 }

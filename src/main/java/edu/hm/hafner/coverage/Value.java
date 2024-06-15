@@ -91,6 +91,8 @@ public abstract class Value implements Serializable {
                     case BRANCH:
                     case MUTATION:
                     case TEST_STRENGTH:
+                    case MCDC_PAIR:
+                    case FUNCTION_CALL:
                         return Coverage.valueOf(metric, value);
                     case COMPLEXITY_DENSITY:
                         return new FractionValue(metric, Fraction.getFraction(value));
@@ -202,7 +204,7 @@ public abstract class Value implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Value value = (Value) o;
+        var value = (Value) o;
         return Objects.equals(metric, value.metric);
     }
 

@@ -28,6 +28,7 @@ This library consists basically of two separate parts:
     * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
     * [Cobertura](https://cobertura.github.io/cobertura/) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
+    * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
     * [PIT](https://pitest.org/) Mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results

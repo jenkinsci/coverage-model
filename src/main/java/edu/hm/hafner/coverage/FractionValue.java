@@ -120,7 +120,7 @@ public final class FractionValue extends Value {
         if (!super.equals(o)) {
             return false;
         }
-        FractionValue fractionValue = (FractionValue) o;
+        var fractionValue = (FractionValue) o;
         return Objects.equals(fraction, fractionValue.fraction);
     }
 

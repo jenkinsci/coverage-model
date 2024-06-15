@@ -194,7 +194,7 @@ public final class Coverage extends Value {
         if (!super.equals(o)) {
             return false;
         }
-        Coverage coverage = (Coverage) o;
+        var coverage = (Coverage) o;
         return covered == coverage.covered && missed == coverage.missed;
     }
 
@@ -228,6 +228,8 @@ public final class Coverage extends Value {
         private static final Coverage[] BRANCH_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] INSTRUCTION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
         private static final Coverage[] MUTATION_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+        private static final Coverage[] MCDC_PAIR_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
+        private static final Coverage[] FUNCTION_CALL_CACHE = new Coverage[CACHE_SIZE * CACHE_SIZE];
 
         static {
             for (int covered = 0; covered < CACHE_SIZE; covered++) {
@@ -237,6 +239,8 @@ public final class Coverage extends Value {
                     INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
                             missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
+                    MCDC_PAIR_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MCDC_PAIR, covered, missed);
+                    FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION_CALL, covered, missed);
                 }
             }
         }
@@ -425,7 +429,7 @@ public final class Coverage extends Value {
             throw new IllegalArgumentException("Exactly two properties have to be set.");
         }
 
-        @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable"})
+        @SuppressWarnings({"checkstyle:HiddenField", "ParameterHidesMemberVariable", "PMD.CyclomaticComplexity"})
         private Coverage createOrGetCoverage(final int covered, final int missed) {
             if (metric == null) {
                 throw new IllegalArgumentException("No metric defined.");
@@ -440,6 +444,10 @@ public final class Coverage extends Value {
                         return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
                     case MUTATION:
                         return MUTATION_CACHE[getCacheIndex(covered, missed)];
+                    case MCDC_PAIR:
+                        return MCDC_PAIR_CACHE[getCacheIndex(covered, missed)];
+                    case FUNCTION_CALL:
+                        return FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)];
                     default:
                         // use constructor to create instance
                 }

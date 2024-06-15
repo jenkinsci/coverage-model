@@ -790,7 +790,7 @@ public abstract class Node implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Node node = (Node) o;
+        var node = (Node) o;
         return Objects.equals(metric, node.metric) && Objects.equals(name, node.name)
                 && Objects.equals(children, node.children) && Objects.equals(values, node.values);
     }

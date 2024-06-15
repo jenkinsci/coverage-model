@@ -155,7 +155,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    private void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
+    protected void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final Node parentNode, final StartElement element, final String fileName, final FilteredLog log)
             throws XMLStreamException {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
@@ -209,15 +209,16 @@ public class CoberturaParser extends CoverageParser {
         throw createEofException(fileName);
     }
 
-    private Coverage computeLineCoverage(final int coverage) {
+    protected Coverage computeLineCoverage(final int coverage) {
         return coverage > 0 ? LINE_COVERED : LINE_MISSED;
     }
 
-    private Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
+    protected Node createNode(final Node parentNode, final StartElement element, final FilteredLog log) {
         var name = readName(element);
         if (CLASS.equals(element.getName())) {
             return createClassNode(parentNode, log, name);
         }
+        
         return createMethodNode(parentNode, element, log, name);
     }
 
@@ -250,7 +251,7 @@ public class CoberturaParser extends CoverageParser {
         return UUID.randomUUID().toString();
     }
 
-    private int readComplexity(final String c) {
+    protected int readComplexity(final String c) {
         try {
             return Math.round(Float.parseFloat(c)); // some reports use float values
         }
@@ -259,7 +260,7 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private boolean isBranchCoverage(final StartElement line) {
+    protected boolean isBranchCoverage(final StartElement line) {
         return getOptionalValueOf(line, BRANCH)
                 .map(Boolean::parseBoolean)
                 .orElse(false);
@@ -281,7 +282,7 @@ public class CoberturaParser extends CoverageParser {
         }
     }
 
-    private Coverage readBranchCoverage(final StartElement line) {
+    protected Coverage readBranchCoverage(final StartElement line) {
         return getOptionalValueOf(line, CONDITION_COVERAGE).map(this::fromConditionCoverage).orElse(DEFAULT_BRANCH_COVERAGE);
     }
 

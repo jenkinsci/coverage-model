@@ -107,7 +107,7 @@ public abstract class IntegerValue extends Value {
         if (!super.equals(o)) {
             return false;
         }
-        IntegerValue that = (IntegerValue) o;
+        var that = (IntegerValue) o;
         return integer == that.integer;
     }
 

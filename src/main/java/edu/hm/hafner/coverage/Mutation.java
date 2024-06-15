@@ -130,7 +130,7 @@ public final class Mutation implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Mutation mutation = (Mutation) o;
+        var mutation = (Mutation) o;
         return detected == mutation.detected
                 && line == mutation.line
                 && status == mutation.status

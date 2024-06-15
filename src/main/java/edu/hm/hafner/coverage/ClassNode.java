@@ -110,7 +110,7 @@ public final class ClassNode extends Node {
             return false;
         }
 
-        ClassNode classNode = (ClassNode) o;
+        var classNode = (ClassNode) o;
 
         return testCases.equals(classNode.testCases);
     }

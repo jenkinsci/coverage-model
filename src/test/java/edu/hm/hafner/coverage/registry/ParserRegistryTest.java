@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
+import edu.hm.hafner.coverage.parser.VectorCastParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
@@ -30,6 +31,8 @@ class ParserRegistryTest {
         assertThat(registry.get(CoverageParserType.OPENCOVER, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(OpenCoverParser.class);
         assertThat(registry.get(CoverageParserType.NUNIT, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(NunitParser.class);
         assertThat(registry.get(CoverageParserType.XUNIT, ProcessingMode.IGNORE_ERRORS)).isInstanceOf(XunitParser.class);
+        assertThat(registry.get(CoverageParserType.VECTORCAST, ProcessingMode.FAIL_FAST))
+                .isInstanceOf(VectorCastParser.class);
     }
 
     @Test
