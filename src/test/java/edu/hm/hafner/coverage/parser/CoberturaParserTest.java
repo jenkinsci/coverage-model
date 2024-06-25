@@ -43,7 +43,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     @Issue("JENKINS-73325")
-    void shouldUseFullPath() {
+    void shouldUseFullPathWhenParsingFileNodes() {
         Node root = readReport("cobertura-same-filename.xml");
 
         assertThat(root.getAllFileNodes()).hasSize(2)
@@ -54,7 +54,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     @Issue("JENKINS-73325")
-    void shouldMergeFiles() {
+    void shouldMergeFilesThatUseSameFileNameInDifferentFolder() {
         Node left = readReport("merge-duplicate-a.xml");
         Node right = readReport("merge-duplicate-b.xml");
 
