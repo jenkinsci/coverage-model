@@ -19,6 +19,7 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Percentage;
 import edu.hm.hafner.coverage.Value;
+import edu.hm.hafner.coverage.assertions.Assertions;
 
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
@@ -46,12 +47,22 @@ class CoberturaParserTest extends AbstractParserTest {
         Node root = readReport("cobertura-same-filename.xml");
 
         assertThat(root.getAllFileNodes()).hasSize(2)
-                .first().isInstanceOfSatisfying(FileNode.class,
-                        first -> assertThat(first).hasName("MyClass.cs").hasRelativePath("/src/NamespaceA/MyClass.cs"));
-        assertThat(root.getAllFileNodes()).hasSize(2)
                 .satisfiesExactlyInAnyOrder(
                         file -> assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/NamespaceA/MyClass.cs"),
                         file -> assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/NamespaceB/MyClass.cs"));
+    }
+
+    @Test
+    @Issue("JENKINS-73325")
+    void shouldMergeFiles() {
+        Node left = readReport("merge-duplicate-a.xml");
+        Node right = readReport("merge-duplicate-b.xml");
+
+        var aggregation = left.merge(right);
+        assertThat(aggregation.getAllFileNodes()).hasSize(2)
+                .satisfiesExactlyInAnyOrder(
+                        file -> Assertions.assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/Domain/NamespaceA/MyClass.cs"),
+                        file -> Assertions.assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/Domain/NamespaceB/MyClass.cs"));
     }
 
     @Test
