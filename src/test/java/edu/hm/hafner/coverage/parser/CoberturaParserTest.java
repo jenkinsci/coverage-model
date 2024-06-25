@@ -41,6 +41,20 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    @Issue("JENKINS-73325")
+    void shouldUseFullPath() {
+        Node root = readReport("cobertura-same-filename.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(2)
+                .first().isInstanceOfSatisfying(FileNode.class,
+                        first -> assertThat(first).hasName("MyClass.cs").hasRelativePath("/src/NamespaceA/MyClass.cs"));
+        assertThat(root.getAllFileNodes()).hasSize(2)
+                .satisfiesExactlyInAnyOrder(
+                        file -> assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/NamespaceA/MyClass.cs"),
+                        file -> assertThat(file).hasName("MyClass.cs").hasRelativePath("/src/NamespaceB/MyClass.cs"));
+    }
+
+    @Test
     @Issue("JENKINS-73175")
     void shouldAutoGenerateNamesForRuby() {
         Node root = readReport("cobertura-ruby.xml");
