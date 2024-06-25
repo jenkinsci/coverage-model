@@ -764,7 +764,7 @@ public abstract class Node implements Serializable {
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
-                    .filter(c -> c.getName().equals(otherChild.getName())).findFirst();
+                    .filter(c -> c.getId().equals(otherChild.getId())).findFirst();
             if (existingChild.isPresent()) {
                 existingChild.get().mergeNode(otherChild);
             }

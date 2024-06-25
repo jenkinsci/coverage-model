@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage line-rate="0.02" branch-rate="0.02" lines-covered="417" lines-valid="18516" branches-covered="112" branches-valid="5820" complexity="19" version="8.8.0.0" timestamp="1715002690">
+  <sources>
+    <source>D:\</source>
+  </sources>
+  <packages>
+    <package name="Domain" line-rate="0.04" branch-rate="0.03" complexity="1.95">
+      <classes>
+        <class name="Domain.NamespaceA.MyClass" filename="/src/Domain/NamespaceA/MyClass.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="Method" signature="System.Void ()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="17" hits="0" branch="true" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="3339" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="17" hits="0" branch="true" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="3339" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+          </lines>
+        </class>
+        <class name="Domain.NamespaceB.MyClass" filename="/src/Domain/NamespaceB/MyClass.cs" line-rate="1" branch-rate="0.6" complexity="3">
+          <methods>
+            <method name="Method" signature="System.Void ()" line-rate="1" branch-rate="0.5" complexity="3">
+              <lines>
+                <line number="17" hits="2" branch="true" condition-coverage="50% (2/4)">
+                  <conditions>
+                    <condition number="1779" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="17" hits="2" branch="true" condition-coverage="50% (2/4)">
+              <conditions>
+                <condition number="1779" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

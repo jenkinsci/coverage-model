@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage line-rate="1" branch-rate="1" lines-covered="12" lines-valid="12" branches-covered="6" branches-valid="6" complexity="6" version="0" timestamp="1675424586">
+  <sources>
+    <source>D:\</source>
+  </sources>
+  <packages>
+    <package name="Numbers" line-rate="1" branch-rate="1" complexity="6">
+      <classes>
+        <class name="NamespaceA.MyClass" filename="/src/NamespaceA/MyClass.cs" line-rate="1" branch-rate="0.6" complexity="3">
+          <methods>
+            <method name="Method" signature="System.Void ()" line-rate="1" branch-rate="0.5" complexity="3">
+              <lines>
+                <line number="17" hits="2" branch="true" condition-coverage="50% (2/4)">
+                  <conditions>
+                    <condition number="1779" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+          </methods>
+        </class>
+        <class name="NamespaceB.MyClass" filename="/src/NamespaceB/MyClass.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="Method" signature="System.Void ()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="17" hits="0" branch="true" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="3339" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+          </methods>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
