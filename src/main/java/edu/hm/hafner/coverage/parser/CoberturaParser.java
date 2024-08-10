@@ -26,7 +26,6 @@ import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
  * Parses Cobertura reports into a hierarchical Java Object Model.
@@ -218,7 +217,7 @@ public class CoberturaParser extends CoverageParser {
         if (CLASS.equals(element.getName())) {
             return createClassNode(parentNode, log, name);
         }
-        
+
         return createMethodNode(parentNode, element, log, name);
     }
 

@@ -15,7 +15,6 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
  * Baseclass for test result parsers.
