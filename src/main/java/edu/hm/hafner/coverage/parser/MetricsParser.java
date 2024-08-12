@@ -227,19 +227,17 @@ public class MetricsParser extends CoverageParser {
     private void readValueCounter(final Node node, final StartElement startElement) {
         String currentType = getValueOf(startElement, NAME);
         int value = parseInteger(getValueOf(startElement, VALUE));
-        if (!node.isAggregation()) {
-            if (CYCLOMATIC_COMPLEXITY.equals(currentType)) {
-                node.addValue(new CyclomaticComplexity(value));
-            }
-            else if (COGNITIVE_COMPLEXITY.equals(currentType)) {
-                node.addValue(new CyclomaticComplexity(value, Metric.COGNITIVE_COMPLEXITY));
-            }
-            else if (NCSS.equals(currentType)) {
-                node.addValue(new CyclomaticComplexity(value, Metric.NCSS));
-            }
-            else if (NPATH_COMPLEXITY.equals(currentType)) {
-                node.addValue(new CyclomaticComplexity(value, Metric.NPATH_COMPLEXITY));
-            }
+        if (CYCLOMATIC_COMPLEXITY.equals(currentType)) {
+            node.addValue(new CyclomaticComplexity(value));
+        }
+        else if (COGNITIVE_COMPLEXITY.equals(currentType)) {
+            node.addValue(new CyclomaticComplexity(value, Metric.COGNITIVE_COMPLEXITY));
+        }
+        else if (NCSS.equals(currentType)) {
+            node.addValue(new CyclomaticComplexity(value, Metric.NCSS));
+        }
+        else if (NPATH_COMPLEXITY.equals(currentType)) {
+            node.addValue(new CyclomaticComplexity(value, Metric.NPATH_COMPLEXITY));
         }
     }
 }
