@@ -59,6 +59,12 @@ class ValueTest {
                 .isInstanceOfSatisfying(LinesOfCode.class, value -> assertThat(value).hasValue(2));
         assertThat(Value.valueOf("TESTS: 3"))
                 .isInstanceOfSatisfying(TestCount.class, value -> assertThat(value).hasValue(3));
+        assertThat(Value.valueOf("NCSS: 4"))
+                .isInstanceOfSatisfying(CyclomaticComplexity.class, value -> assertThat(value).hasValue(4));
+        assertThat(Value.valueOf("NPATH_COMPLEXITY: 5"))
+                .isInstanceOfSatisfying(CyclomaticComplexity.class, value -> assertThat(value).hasValue(5));
+        assertThat(Value.valueOf("COGNITIVE_COMPLEXITY: 6"))
+                .isInstanceOfSatisfying(CyclomaticComplexity.class, value -> assertThat(value).hasValue(6));
     }
 
     @Test
@@ -88,13 +94,22 @@ class ValueTest {
     void shouldGetValue() {
         var linesOfCode = new LinesOfCode(10);
         var cyclomaticComplexity = new CyclomaticComplexity(20);
+        var ncss = new CyclomaticComplexity(30, Metric.NCSS);
+        var npathComplexity = new CyclomaticComplexity(40, Metric.NPATH_COMPLEXITY);
+        var coginitiveComplexity = new CyclomaticComplexity(50, Metric.COGNITIVE_COMPLEXITY);
 
-        List<Value> values = List.of(linesOfCode, cyclomaticComplexity);
+        List<Value> values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, coginitiveComplexity);
 
         assertThat(Value.getValue(Metric.LOC, values))
                 .isEqualTo(linesOfCode);
         assertThat(Value.getValue(Metric.COMPLEXITY, values))
                 .isEqualTo(cyclomaticComplexity);
+        assertThat(Value.getValue(Metric.NCSS, values))
+                .isEqualTo(ncss);
+        assertThat(Value.getValue(Metric.NPATH_COMPLEXITY, values))
+                .isEqualTo(npathComplexity);
+        assertThat(Value.getValue(Metric.COGNITIVE_COMPLEXITY, values))
+                .isEqualTo(coginitiveComplexity);
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> Value.getValue(Metric.LINE, values))
                 .withMessageContaining("No value for metric");

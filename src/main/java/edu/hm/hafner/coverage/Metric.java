@@ -41,7 +41,10 @@ public enum Metric {
     COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
     COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),
     LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER),
-    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER);
+    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER),
+    NCSS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
+    COGNITIVE_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
+    NPATH_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER);
 
     /**
      * Returns the metric that belongs to the specified tag.

@@ -19,7 +19,7 @@ public final class TestCount extends IntegerValue {
     }
 
     @Override
-    protected IntegerValue create(final int value) {
+    protected IntegerValue create(final int value, final Metric ignored) {
         return new TestCount(value);
     }
 }

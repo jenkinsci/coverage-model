@@ -104,6 +104,12 @@ public abstract class Value implements Serializable {
                         return new LinesOfCode(Integer.parseInt(value));
                     case TESTS:
                         return new TestCount(Integer.parseInt(value));
+                    case NCSS:
+                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.NCSS);
+                    case NPATH_COMPLEXITY:
+                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.NPATH_COMPLEXITY);
+                    case COGNITIVE_COMPLEXITY:
+                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.COGNITIVE_COMPLEXITY);
                 }
             }
         }

@@ -7,6 +7,7 @@ import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
+import edu.hm.hafner.coverage.parser.MetricsParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
@@ -28,7 +29,8 @@ public class ParserRegistry {
         PIT,
         JUNIT,
         VECTORCAST,
-        XUNIT
+        XUNIT,
+        METRICS
     }
 
     /**
@@ -79,6 +81,8 @@ public class ParserRegistry {
                 return new XunitParser(processingMode);
             case VECTORCAST:
                 return new VectorCastParser(processingMode);
+            case METRICS:
+                return new MetricsParser(processingMode);
         }
         throw new IllegalArgumentException("Unknown parser type: " + parser);
     }
