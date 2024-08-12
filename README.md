@@ -33,5 +33,6 @@ This library consists basically of two separate parts:
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results
     * [XUnit](https://xunit.net) test results
+    * [PMD](https://pmd.github.io/) Metrics XML report
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
