@@ -9,8 +9,11 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import com.google.errorprone.annotations.FormatMethod;
+
 import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.hm.hafner.util.TreeStringBuilder;
 
 /**
@@ -75,7 +78,7 @@ public abstract class CoverageParser implements Serializable {
      *
      * @return the root of the created tree
      * @throws ParsingException
-     *         if the XML content cannot be read
+     *         if the content cannot be read by the parser
      */
     public ModuleNode parse(final Reader reader, final String fileName, final FilteredLog log) {
         var moduleNode = parseReport(reader, fileName, log);
@@ -92,14 +95,12 @@ public abstract class CoverageParser implements Serializable {
      * @return the name
      */
     protected QName getElementName(final XMLEvent event) {
-        QName name;
         if (event.isStartElement()) {
-            name = event.asStartElement().getName();
+            return event.asStartElement().getName();
         }
         else {
-            name = event.asEndElement().getName();
+            return event.asEndElement().getName();
         }
-        return name;
     }
 
     /**
@@ -110,7 +111,7 @@ public abstract class CoverageParser implements Serializable {
      * @param log
      *         the log
      * @param isEmpty
-     *         determines whether the results are empty
+     *         set this flag to {@code true} to indicate that the results are empty
      *
      * @throws NoSuchElementException
      *         if the results are empty and errors should not be ignored
@@ -167,7 +168,7 @@ public abstract class CoverageParser implements Serializable {
      *
      * @return the root of the created tree
      * @throws ParsingException
-     *         if the XML content cannot be read
+     *         if the content cannot be read by the parser
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 
@@ -206,5 +207,67 @@ public abstract class CoverageParser implements Serializable {
 
     protected static ParsingException createEofException(final String fileName) {
         return new ParsingException("Unexpected end of file '%s'", fileName);
+    }
+
+    /**
+     * Indicates that during parsing a non-recoverable error has been occurred.
+     *
+     * @author Ullrich Hafner
+     */
+    public static class ParsingException extends RuntimeException {
+        private static final long serialVersionUID = -9016364685084958944L;
+
+        /**
+         * Constructs a new {@link ParsingException} with the specified cause.
+         *
+         * @param cause
+         *         the cause (which is saved for later retrieval by the {@link #getCause()} method).
+         */
+        public ParsingException(final Throwable cause) {
+            super(createMessage(cause, "Exception occurred during parsing"), cause);
+        }
+
+        /**
+         * Constructs a new {@link ParsingException} with the specified cause and message.
+         *
+         * @param cause
+         *         the cause (which is saved for later retrieval by the {@link #getCause()} method).
+         * @param messageFormat
+         *         the message as a format string as described in <a href="../util/Formatter.html#syntax">Format string
+         *         syntax</a>
+         * @param args
+         *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
+         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
+         *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behaviour on a {@code null} argument
+         *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
+         */
+        @FormatMethod
+        public ParsingException(final Throwable cause, final String messageFormat, final Object... args) {
+            super(createMessage(cause, String.format(messageFormat, args)), cause);
+        }
+
+        /**
+         * Constructs a new {@link ParsingException} with the specified message.
+         *
+         * @param messageFormat
+         *         the message as a format string as described in <a href="../util/Formatter.html#syntax">Format string
+         *         syntax</a>
+         * @param args
+         *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
+         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
+         *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behavior on a {@code null} argument
+         *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
+         */
+        @FormatMethod
+        public ParsingException(final String messageFormat, final Object... args) {
+            super(String.format(messageFormat, args));
+        }
+
+        private static String createMessage(final Throwable cause, final String message) {
+            return String.format("%s%n%s%n%s", message,
+                    ExceptionUtils.getMessage(cause), ExceptionUtils.getStackTrace(cause));
+        }
     }
 }

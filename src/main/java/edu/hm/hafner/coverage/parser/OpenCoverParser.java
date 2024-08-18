@@ -29,7 +29,6 @@ import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
