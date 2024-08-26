@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metrics version="7.5.0-SNAPSHOT" timestamp="2024-08-12T11:37:17.394" source="PMD">
-  <package fqcn="edu.hm.hafner.util">
+<metrics version="7.5.0-SNAPSHOT" timestamp="2024-08-12T11:37:17.394" source="PMD" projectName="testProject">
+  <package name="edu.hm.hafner.util">
     <file name="/home/jenkins/test/src/main/java/edu/hm/hafner/util/Ensure.java">
       <class name="Ensure">
         <metric name="NCSS" value="149"/>

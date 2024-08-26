@@ -41,6 +41,8 @@ class MetricsParserTest extends AbstractParserTest {
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, COMPLEXITY, COMPLEXITY_MAXIMUM,
                 NPATH_COMPLEXITY, NCSS, COGNITIVE_COMPLEXITY);
 
+        assertThat(tree).hasName("testProject");
+
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
                 .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"))

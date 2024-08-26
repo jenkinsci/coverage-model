@@ -35,14 +35,15 @@ public class MetricsParser extends CoverageParser {
     private static final long serialVersionUID = -4461747681863455621L;
 
     /** XML elements. */
+    private static final QName METRICS = new QName("metrics");
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
     private static final QName METHOD = new QName("method");
     private static final QName METRIC = new QName("metric");
     private static final QName FILE = new QName("file");
 
-    /** Required attributes of the XML elements. */
-    private static final QName FQCN = new QName("fqcn");
+    /** Attributes of the XML elements. */
+    private static final QName PROJECT_NAME = new QName("projectName");
     private static final QName NAME = new QName("name");
     private static final QName BEGIN_LINE = new QName("beginline");
     private static final QName VALUE = new QName("value");
@@ -77,22 +78,29 @@ public class MetricsParser extends CoverageParser {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
 
+            ModuleNode root = new ModuleNode("");
+
             while (eventReader.hasNext()) {
                 XMLEvent event = eventReader.nextEvent();
 
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
                     var tagName = startElement.getName();
-                    if (PACKAGE.equals(tagName)) {
-                        var root = new ModuleNode("");
+                    if (METRICS.equals(tagName)) {
+                        root = new ModuleNode(getOptionalValueOf(startElement, PROJECT_NAME).orElse(""));
+                    }
+                    else if (PACKAGE.equals(tagName)) {
                         readPackage(eventReader, root, startElement, fileName);
-                        return root;
                     }
                 }
             }
-            handleEmptyResults(fileName, log);
-
-            return new ModuleNode("empty");
+            if (root.hasChildren()) {
+                return root;
+            }
+            else {
+                handleEmptyResults(fileName, log);
+                return new ModuleNode("empty");
+            }
         }
         catch (XMLStreamException exception) {
             throw new ParsingException(exception);
@@ -102,8 +110,8 @@ public class MetricsParser extends CoverageParser {
     @CanIgnoreReturnValue
     private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root,
             final StartElement startElement, final String fileName) throws XMLStreamException {
-        var packageName = getValueOf(startElement, FQCN);
-        var packageNode = root.findOrCreatePackageNode(packageName.replaceAll("\\.", "/"));
+        var packageName = getValueOf(startElement, NAME);
+        var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
@@ -160,15 +168,8 @@ public class MetricsParser extends CoverageParser {
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final StartElement startElement, final String fileName)
             throws XMLStreamException {
-        var sourceFilePath = Paths.get(getValueOf(startElement, NAME)).getFileName();
-        String sourceFilefileName;
-        if (sourceFilePath == null) {
-            sourceFilefileName = getValueOf(startElement, NAME);
-        }
-        else {
-            sourceFilefileName = sourceFilePath.toString();
-        }
-        var fileNode = packageNode.findOrCreateFileNode(sourceFilefileName,
+        String sourceFileName = getSourceFileName(startElement);
+        var fileNode = packageNode.findOrCreateFileNode(sourceFileName,
                 internPath(getValueOf(startElement, NAME)));
 
         while (reader.hasNext()) {
@@ -191,6 +192,16 @@ public class MetricsParser extends CoverageParser {
             }
         }
         throw createEofException(fileName);
+    }
+
+    private String getSourceFileName(final StartElement startSourceFileElement) {
+        var sourceFilePath = Paths.get(getValueOf(startSourceFileElement, NAME)).getFileName();
+        if (sourceFilePath == null) {
+            return getValueOf(startSourceFileElement, NAME);
+        }
+        else {
+            return sourceFilePath.toString();
+        }
     }
 
     @CanIgnoreReturnValue
@@ -225,6 +236,7 @@ public class MetricsParser extends CoverageParser {
     }
 
     private void readValueCounter(final Node node, final StartElement startElement) {
+        // FIXME: create Metric Values independent of Metric Name
         String currentType = getValueOf(startElement, NAME);
         int value = parseInteger(getValueOf(startElement, VALUE));
         if (CYCLOMATIC_COMPLEXITY.equals(currentType)) {
