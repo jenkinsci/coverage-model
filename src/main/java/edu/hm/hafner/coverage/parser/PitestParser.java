@@ -22,7 +22,6 @@ import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.SecureXmlParserFactory.ParsingException;
 
 /**
  * Parses reports created by PITest into a Java object model.
