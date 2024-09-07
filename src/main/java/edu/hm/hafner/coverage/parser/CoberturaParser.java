@@ -26,6 +26,7 @@ import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.TreeString;
 
 /**
  * Parses Cobertura reports into a hierarchical Java Object Model.
@@ -140,17 +141,20 @@ public class CoberturaParser extends CoverageParser {
 
     private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
-        var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
-
-        return packageNode.findOrCreateFileNode(getFileName(fileName), path);
+        var relativePath = PATH_UTIL.getRelativePath(fileName);
+        var actualPath = relativePath.startsWith("/_/") ? 
+                         relativePath.replace("/_/", "./") : 
+                         relativePath;
+        var finalPath = getTreeStringBuilder().intern(actualPath);
+        return packageNode.findOrCreateFileNode(getFileName(fileName), finalPath);
     }
 
     private String getFileName(final String relativePath) {
-        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
-        if (path == null) {
-            return relativePath;
-        }
-        return path.toString();
+        var fileName = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
+        var actualFileName = (fileName != null && fileName.toString().startsWith("/_/")) ? 
+                              fileName.toString().replace("/_/", "./") : 
+                              (fileName != null ? fileName.toString() : relativePath);
+        return actualFileName;
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
