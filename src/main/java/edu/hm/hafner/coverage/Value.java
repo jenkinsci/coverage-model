@@ -13,13 +13,14 @@ import edu.hm.hafner.coverage.Metric.MetricTendency;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 /**
- * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction or branch coverage or mutation
- * or complexity.
+ * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction, branch, or mutation coverage
+ * or a metric like loc or complexity.
  *
  * @author Ullrich Hafner
  */
 public abstract class Value implements Serializable {
     private static final long serialVersionUID = -1062406664372222691L;
+
     private static final String METRIC_SEPARATOR = ":";
 
     /**

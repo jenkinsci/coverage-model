@@ -80,7 +80,7 @@ public abstract class Node implements Serializable {
         return getName();
     }
 
-    void setName(final String name) { // Might be used during the deserialization of old reports
+    void setName(final String name) { // Should only be used during the deserialization of old reports
         this.name = name;
     }
 
