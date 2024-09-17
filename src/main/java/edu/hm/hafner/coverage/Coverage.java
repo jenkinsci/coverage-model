@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
@@ -207,14 +208,14 @@ public final class Coverage extends Value {
     public String toString() {
         int total = getTotal();
         if (total > 0) {
-            return String.format("%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), covered, total);
+            return String.format(Locale.ENGLISH, "%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), covered, total);
         }
-        return String.format("%s: n/a", getMetric());
+        return String.format(Locale.ENGLISH, "%s: n/a", getMetric());
     }
 
     @Override
     public String serialize() {
-        return String.format("%s: %d/%d", getMetric(), getCovered(), getTotal());
+        return String.format(Locale.ENGLISH, "%s: %d/%d", getMetric(), getCovered(), getTotal());
     }
 
     /**

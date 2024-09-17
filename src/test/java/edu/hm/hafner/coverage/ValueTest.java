@@ -85,6 +85,7 @@ class ValueTest {
     }
 
     @Test
+    @SuppressWarnings("Varifier")
     void shouldGetValue() {
         var linesOfCode = new LinesOfCode(10);
         var cyclomaticComplexity = new CyclomaticComplexity(20);
