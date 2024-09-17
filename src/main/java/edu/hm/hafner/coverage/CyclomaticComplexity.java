@@ -32,7 +32,7 @@ public final class CyclomaticComplexity extends IntegerValue {
     }
 
     @Override
-    protected IntegerValue create(final int value) {
-        return new CyclomaticComplexity(value);
+    protected IntegerValue create(final int value, final Metric metric) {
+        return new CyclomaticComplexity(value, metric);
     }
 }

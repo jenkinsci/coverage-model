@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metrics version="7.5.0-SNAPSHOT" timestamp="2024-08-12T11:37:17.394" source="PMD" projectName="testProject">
+  <package name="edu.hm.hafner.util">
+    <file name="/home/jenkins/test/src/main/java/edu/hm/hafner/util/Ensure.java">
+      <class name="Ensure">
+        <metric name="NCSS" value="149"/>
+        <method name="that" beginline="47" endline="47" begincolumn="36" endcolumn="40">
+          <metric name="CognitiveComplexity" value="0"/>
+          <metric name="CyclomaticComplexity" value="1"/>
+          <metric name="NCSS" value="2"/>
+          <metric name="NPathComplexity" value="1"/>
+        </method>
+      </class>
+      <class name="IterableCondition">
+        <method name="IterableCondition" beginline="205" endline="205" begincolumn="16" endcolumn="33">
+        </method>
+        <method name="isNotEmpty" beginline="216" endline="216" begincolumn="21" endcolumn="31">
+          <metric name="CognitiveComplexity" value="0"/>
+        </method>
+      </class>
+      <metric name="NCSS" value="500"/>
+    </file>
+    <file name="/home/jenkins/test/src/main/java/edu/hm/hafner/util/FilteredLog.java">
+      <class name="FilteredLog">
+        <metric name="NCSS" value="96"/>
+        <method name="FilteredLog" beginline="41" endline="41" begincolumn="12" endcolumn="23">
+          <metric name="CyclomaticComplexity" value="1"/>
+        </method>
+        <method name="FilteredLog" beginline="51" endline="51" begincolumn="12" endcolumn="23">
+          <metric name="NCSS" value="2"/>
+        </method>
+        <method name="FilteredLog" beginline="63" endline="63" begincolumn="12" endcolumn="23">
+          <metric name="NPathComplexity" value="1"/>
+        </method>
+      </class>
+    </file>
+    <metric name="NCSS" value="1000"/>
+  </package>
+</metrics>

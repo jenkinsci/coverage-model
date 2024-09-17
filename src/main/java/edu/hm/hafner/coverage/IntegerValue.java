@@ -40,10 +40,10 @@ public abstract class IntegerValue extends Value {
 
     @Override
     public IntegerValue add(final Value other) {
-        return castAndMap(other, o -> create(integer + o.getValue()));
+        return castAndMap(other, o -> create(integer + o.getValue(), o.getMetric()));
     }
 
-    protected abstract IntegerValue create(int value);
+    protected abstract IntegerValue create(int value, Metric metric);
 
     @Override
     public IntegerValue max(final Value other) {

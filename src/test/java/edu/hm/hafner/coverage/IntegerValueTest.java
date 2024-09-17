@@ -46,9 +46,9 @@ abstract class IntegerValueTest {
         var value = createValue(123);
         assertThat(value.serialize()).startsWith(value.getMetric().name()).endsWith(": 123");
 
-        assertThat(value.create(100)).hasValue(100);
-        assertThat(value.create(-100)).hasValue(-100);
-        assertThat(value.create(0)).hasValue(0);
+        assertThat(value.create(100, Metric.COMPLEXITY)).hasValue(100);
+        assertThat(value.create(-100, Metric.COMPLEXITY)).hasValue(-100);
+        assertThat(value.create(0, Metric.COMPLEXITY)).hasValue(0);
     }
 
     @Test
