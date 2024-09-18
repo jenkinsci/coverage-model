@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -148,6 +149,6 @@ public final class ModuleNode extends Node {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSourceFolders());
+        return String.format(Locale.ENGLISH, "[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSourceFolders());
     }
 }

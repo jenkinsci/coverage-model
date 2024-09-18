@@ -101,7 +101,7 @@ public final class Percentage implements Serializable {
         }
         if (items > total) {
             throw new IllegalArgumentException(
-                    String.format("The number of items %d must be less or equal the total number %d.",
+                    String.format(Locale.ENGLISH, "The number of items %d must be less or equal the total number %d.",
                             items, total));
         }
         this.items = items;
@@ -196,7 +196,7 @@ public final class Percentage implements Serializable {
      * @return a string representation for this {@link Percentage}
      */
     public String serializeToString() {
-        return String.format("%d/%d", getItems(), getTotal());
+        return String.format(Locale.ENGLISH, "%d/%d", getItems(), getTotal());
     }
 
     @Override

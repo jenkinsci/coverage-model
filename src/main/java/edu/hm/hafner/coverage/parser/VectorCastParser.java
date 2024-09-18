@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
@@ -62,15 +63,15 @@ public class VectorCastParser extends CoberturaParser {
         var localFunctionCoverage = functionCoverage;
 
         if (nextElement.getName().equals(METHOD)) {
-            Coverage functionMethodCoverage;
-            functionMethodCoverage = readFunctionCoverage(nextElement);
+            Coverage functionMethodCoverage = readFunctionCoverage(nextElement);
             localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
         }
 
         return localFunctionCoverage;
     }
 
-    protected boolean processStartElement(final StartElement nextElement, final StartElement element, final FileNode fileNode, final Map<Metric, Coverage> coverageMap) throws XMLStreamException {
+    protected boolean processStartElement(final StartElement nextElement, final StartElement element,
+            final FileNode fileNode, final Map<Metric, Coverage> coverageMap) throws XMLStreamException {
         boolean runReadClassOrMethod = false;
 
         if (LINE.equals(nextElement.getName())) {
@@ -83,25 +84,25 @@ public class VectorCastParser extends CoberturaParser {
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
 
                 //repeating
-                coverageMap.put(Metric.BRANCH, coverageMap.get(Metric.BRANCH).add(lineBranchCoverage));
+                coverageMap.merge(Metric.BRANCH, lineBranchCoverage, Coverage::add);
 
                 if (getOptionalValueOf(nextElement, MCDCPAIR_COVERAGE).isPresent()) {
                     mcdcPairLineCoverage = readMcdcPairCoverage(nextElement);
 
                     //repeating
-                    coverageMap.put(Metric.MCDC_PAIR, coverageMap.get(Metric.MCDC_PAIR).add(mcdcPairLineCoverage));
+                    coverageMap.merge(Metric.MCDC_PAIR, mcdcPairLineCoverage, Coverage::add);
                 }
                 if (getOptionalValueOf(nextElement, FUNCTIONCALL_COVERAGE).isPresent()) {
                     functionCallLineCoverage = readFunctionCallCoverage(nextElement);
 
                     //repeating
-                    coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
+                    coverageMap.merge(Metric.FUNCTION_CALL, functionCallLineCoverage, Coverage::add);
                 }
             }
             else if (getOptionalValueOf(nextElement, FUNCTIONCALL_COVERAGE).isPresent()) {
                 functionCallLineCoverage = readFunctionCallCoverage(nextElement);
 
-                coverageMap.put(Metric.FUNCTION_CALL, coverageMap.get(Metric.FUNCTION_CALL).add(functionCallLineCoverage));
+                coverageMap.merge(Metric.FUNCTION_CALL, functionCallLineCoverage, Coverage::add);
 
                 int lineHits = getIntegerValueOf(nextElement, HITS);
                 currentLineCoverage = computeLineCoverage(lineHits);
@@ -113,7 +114,7 @@ public class VectorCastParser extends CoberturaParser {
                 lineBranchCoverage = currentLineCoverage;
             }
 
-            coverageMap.put(Metric.LINE, coverageMap.get(Metric.LINE).add(currentLineCoverage));
+            coverageMap.merge(Metric.LINE, currentLineCoverage, Coverage::add);
 
             if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
@@ -124,11 +125,15 @@ public class VectorCastParser extends CoberturaParser {
             }
         }
         else if (classOrMethodElement(nextElement)) {
-            coverageMap.put(Metric.METHOD, processClassMethodStart(nextElement, coverageMap.get(Metric.METHOD)));
+            coverageMap.put(Metric.METHOD, processClassMethodStart(nextElement, getValueFromMap(coverageMap, Metric.METHOD)));
             runReadClassOrMethod = true;
         }
 
         return runReadClassOrMethod;
+    }
+
+    private Coverage getValueFromMap(final Map<Metric, Coverage> coverageMap, final Metric metric) {
+        return coverageMap.getOrDefault(metric, Coverage.nullObject(metric));
     }
 
     private boolean classOrMethodElement(final StartElement nextElement) {
@@ -136,17 +141,15 @@ public class VectorCastParser extends CoberturaParser {
     }
 
     protected void processClassMethodEnd(final Node node, final Map<Metric, Coverage> coverageMap) {
-        node.addValue(coverageMap.get(Metric.LINE));
+        node.addValue(getValueFromMap(coverageMap, Metric.LINE));
 
-        if (coverageMap.get(Metric.MCDC_PAIR).isSet()) {
-            node.addValue(coverageMap.get(Metric.MCDC_PAIR));
-        }
-        if (coverageMap.get(Metric.FUNCTION_CALL).isSet()) {
-            node.addValue(coverageMap.get(Metric.FUNCTION_CALL));
-        }
-        if (coverageMap.get(Metric.BRANCH).isSet()) {
-            node.addValue(coverageMap.get(Metric.BRANCH));
-        }
+        List.of(Metric.MCDC_PAIR, Metric.FUNCTION_CALL, Metric.BRANCH)
+                .forEach(metric -> {
+                    var coverage = getValueFromMap(coverageMap, metric);
+                    if (coverage.isSet()) {
+                        node.addValue(coverage);
+                    }
+                });
     }
 
     @Override
@@ -155,7 +158,7 @@ public class VectorCastParser extends CoberturaParser {
             final FileNode fileNode, final Node parentNode,
             final StartElement element, final String fileName, final FilteredLog log)
                 throws XMLStreamException {
-        Map<Metric, Coverage> coverageMap = new HashMap<>();
+        Map<Metric, Coverage> coverageMap = new EnumMap<>(Metric.class);
 
         coverageMap.put(Metric.LINE, Coverage.nullObject(Metric.LINE));
         coverageMap.put(Metric.BRANCH, Coverage.nullObject(Metric.BRANCH));

@@ -252,7 +252,7 @@ class VectorCastParserTest extends AbstractParserTest {
     }
 
     private void verifyMcdcFccProject(final Node root) {
-        CoverageBuilder builder = new CoverageBuilder();
+        var builder = new CoverageBuilder();
         assertThat(root.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(5).withMissed(0).build(),

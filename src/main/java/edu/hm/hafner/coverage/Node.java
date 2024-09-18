@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -21,6 +22,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.TreeString;
@@ -466,6 +469,12 @@ public abstract class Node implements Serializable {
         return find(Metric.FILE, searchPath).map(FileNode.class::cast);
     }
 
+    private Optional<FileNode> findFile(final String fileName, final String relativePath) {
+        return getAllFileNodes().stream().filter(fileNode ->
+                fileNode.getName().equals(fileName)
+                        && fileNode.getRelativePath().equals(relativePath)).findAny();
+    }
+
     /**
      * Searches for a class within this node that has the given name.
      *
@@ -803,9 +812,9 @@ public abstract class Node implements Serializable {
     @Override
     public String toString() {
         return getValue(Metric.LINE)
-                .map(lineCoverage -> String.format("[%s] %s <%d, %s>",
+                .map(lineCoverage -> String.format(Locale.ENGLISH, "[%s] %s <%d, %s>",
                         getMetric(), getName(), getChildren().size(), lineCoverage))
-                .orElse(String.format("[%s] %s <%d>", getMetric(), getName(), children.size()));
+                .orElse(String.format(Locale.ENGLISH, "[%s] %s <%d>", getMetric(), getName(), children.size()));
     }
 
     public boolean isEmpty() {
@@ -944,6 +953,7 @@ public abstract class Node implements Serializable {
         return addChildNode(new PackageNode(packageName));
     }
 
+    @CanIgnoreReturnValue
     private <T extends Node> T addChildNode(final T child) {
         addChild(child);
         return child;
@@ -993,12 +1003,6 @@ public abstract class Node implements Serializable {
         var normalizedPackageName = PackageNode.normalizePackageName(packageName);
 
         return findPackage(normalizedPackageName).orElseGet(() -> createPackageNode(normalizedPackageName));
-    }
-
-    private Optional<FileNode> findFile(final String fileName, final String relativePath) {
-        return getAllFileNodes().stream().filter(fileNode ->
-                fileNode.getName().equals(fileName)
-                        && fileNode.getRelativePath().equals(relativePath)).findAny();
     }
 
     /**
