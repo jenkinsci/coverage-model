@@ -1,7 +1,8 @@
 package edu.hm.hafner.coverage;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,21 +11,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.coverage.Metric.MetricTendency;
+import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 /**
- * A leaf in the tree. A leaf is a non-divisible coverage metric like line, instruction, branch, or mutation coverage
- * or a metric like loc or complexity.
+ * A leaf in the tree that contains a value. The value is for a coverage metric like line, instruction, branch, or
+ * mutation coverage or a software-metric like loc or complexity.
  *
  * @author Ullrich Hafner
  */
-public abstract class Value implements Serializable {
+@SuppressWarnings("PMD.GodClass") // this is a data class
+public class Value implements Serializable {
     private static final long serialVersionUID = -1062406664372222691L;
 
     private static final String METRIC_SEPARATOR = ":";
 
     /**
-     * Searches for a value with the specified metric in the specified list of values.
+     * Searches for a value with the specified metric in the specified collection of values.
      *
      * @param metric
      *         the metric to search for
@@ -34,9 +37,9 @@ public abstract class Value implements Serializable {
      * @return the value with the specified metric
      * @throws NoSuchElementException
      *         if the value is not found
-     * @see #findValue(Metric, List)
+     * @see #findValue(Metric, Collection)
      */
-    public static Value getValue(final Metric metric, final List<Value> values) {
+    public static Value getValue(final Metric metric, final Collection<Value> values) {
         return findValue(metric, values)
                 .orElseThrow(() -> new NoSuchElementException("No value for metric " + metric + " in " + values));
     }
@@ -50,9 +53,9 @@ public abstract class Value implements Serializable {
      *         the values to search in
      *
      * @return the value with the specified metric, or an empty optional if the value is not found
-     * @see #getValue(Metric, List)
+     * @see #getValue(Metric, Collection)
      */
-    public static Optional<Value> findValue(final Metric metric, final List<Value> values) {
+    public static Optional<Value> findValue(final Metric metric, final Collection<Value> values) {
         return values.stream()
                 .filter(v -> metric.equals(v.getMetric()))
                 .findAny();
@@ -60,7 +63,7 @@ public abstract class Value implements Serializable {
 
     /**
      * Creates a new {@link Value} instance from the provided string representation. The string representation is
-     * expected start with the metric, written in all caps characters and followed by a colon. Then the {@link Value}
+     * expected to start with the metric, written in all caps characters and followed by a colon. Then the {@link Value}
      * specific serialization is following. Whitespace characters will be ignored.
      *
      * <p>Examples: LINE: 10/100, BRANCH: 0/5, COMPLEXITY: 160</p>
@@ -78,8 +81,9 @@ public abstract class Value implements Serializable {
         try {
             String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, METRIC_SEPARATOR)) {
-                var metric = Metric.valueOf(StringUtils.substringBefore(cleanedFormat, METRIC_SEPARATOR));
+                var metric = Metric.fromName(StringUtils.substringBefore(cleanedFormat, METRIC_SEPARATOR));
                 var value = StringUtils.substringAfter(cleanedFormat, METRIC_SEPARATOR);
+                // TODO: add a flag in the metric
                 switch (metric) {
                     case CONTAINER:
                     case MODULE:
@@ -95,22 +99,15 @@ public abstract class Value implements Serializable {
                     case MCDC_PAIR:
                     case FUNCTION_CALL:
                         return Coverage.valueOf(metric, value);
-                    case COMPLEXITY_DENSITY:
-                        return new FractionValue(metric, Fraction.getFraction(value));
-                    case COMPLEXITY:
-                        return new CyclomaticComplexity(Integer.parseInt(value));
-                    case COMPLEXITY_MAXIMUM:
-                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.COMPLEXITY_MAXIMUM);
+                    case CYCLOMATIC_COMPLEXITY:
+                    case CYCLOMATIC_COMPLEXITY_DENSITY:
+                    case CYCLOMATIC_COMPLEXITY_MAXIMUM:
                     case LOC:
-                        return new LinesOfCode(Integer.parseInt(value));
                     case TESTS:
-                        return new TestCount(Integer.parseInt(value));
                     case NCSS:
-                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.NCSS);
                     case NPATH_COMPLEXITY:
-                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.NPATH_COMPLEXITY);
                     case COGNITIVE_COMPLEXITY:
-                        return new CyclomaticComplexity(Integer.parseInt(value), Metric.COGNITIVE_COMPLEXITY);
+                        return new Value(metric, Fraction.getFraction(value));
                 }
             }
         }
@@ -120,32 +117,95 @@ public abstract class Value implements Serializable {
         throw new IllegalArgumentException(errorMessage);
     }
 
-    private final Metric metric;
-
     /**
-     * Creates a new leaf with the given coverage for the specified metric.
+     * Returns a {@code null} object that indicates that no value has been recorded.
      *
      * @param metric
      *         the coverage metric
+     *
+     * @return the {@code null} object
      */
-    protected Value(final Metric metric) {
+    public static Value nullObject(final Metric metric) {
+        return new Value(metric, 0);
+    }
+
+    private final Metric metric;
+    private final Fraction fraction;
+
+    /**
+     * Creates a new leaf with the given value for the specified metric.
+     *
+     * @param metric
+     *         the coverage metric
+     * @param value
+     *         the value to store
+     */
+    public Value(final Metric metric, final Fraction value) {
         this.metric = metric;
+        this.fraction = value;
+    }
+
+    /**
+     * Creates a new leaf with the given value (a fraction) for the specified metric.
+     *
+     * @param metric
+     *         the coverage metric
+     * @param numerator
+     *         the numerator, i.e., the three in 'three sevenths'
+     * @param denominator
+     *         the denominator, i.ee, the seven in 'three sevenths'
+     */
+    public Value(final Metric metric, final int numerator, final int denominator) {
+        this(metric, Fraction.getFraction(numerator, denominator));
+    }
+
+    /**
+     * Creates a new leaf with the given value for the specified metric.
+     *
+     * @param metric
+     *         the coverage metric
+     * @param value
+     *         the value
+     */
+    public Value(final Metric metric, final int value) {
+        this(metric, Fraction.getFraction(value, 1));
     }
 
     public final Metric getMetric() {
         return metric;
     }
 
+    public Fraction getFraction() {
+        return fraction;
+    }
+
+    protected void ensureSameMetric(final Value other) {
+        if (!hasSameMetric(other)) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot calculate with different metrics: %s and %s", this, other));
+        }
+        if (!other.getClass().equals(getClass())) {
+            throw new IllegalArgumentException(
+                    String.format("Cannot calculate with different types: %s and %s", this, other));
+        }
+    }
+
     /**
-     * Add the coverage from the specified instance to the coverage of this instance.
+     * Add the value from the specified instance to the value of this instance.
      *
      * @param other
      *         the additional coverage details
      *
      * @return the sum of this and the additional coverage
+     * @throws IllegalArgumentException
+     *         if the metrics of the two instances are different
      */
     @CheckReturnValue
-    public abstract Value add(Value other);
+    public Value add(final Value other) {
+        ensureSameMetric(other);
+
+        return new Value(getMetric(), asSafeFraction().add(other.fraction));
+    }
 
     /**
      * Computes the delta of this value with the specified value.
@@ -154,22 +214,31 @@ public abstract class Value implements Serializable {
      *         the value to compare with
      *
      * @return the delta of this and the additional value
+     * @throws IllegalArgumentException
+     *         if the metrics of the two instances are different
      */
     @CheckReturnValue
-    public abstract Fraction delta(Value other);
+    public Fraction delta(final Value other) {
+        ensureSameMetric(other);
+
+        return asSafeFraction().subtract(other.fraction);
+    }
 
     /**
-     * Merge this coverage with the specified coverage.
+     * Computes the maximum of this value and the specified value.
      *
      * @param other
      *         the other coverage
      *
-     * @return the merged coverage
-     * @throws IllegalArgumentException
-     *         if the totals
+     * @return the maximum value
      */
-    @CheckReturnValue
-    public abstract Value max(Value other);
+    public Value max(final Value other) {
+        ensureSameMetric(other);
+        if (fraction.doubleValue() < other.fraction.doubleValue()) {
+            return other;
+        }
+        return this;
+    }
 
     /**
      * Returns whether this value if within the specified threshold (given as double value). For metrics of type
@@ -182,14 +251,43 @@ public abstract class Value implements Serializable {
      *
      * @return {@code true} if this value is within the specified threshold, {@code false} otherwise
      */
-    public abstract boolean isOutOfValidRange(double threshold);
+    public boolean isOutOfValidRange(final double threshold) {
+        if (getMetric().getTendency() == MetricTendency.LARGER_IS_BETTER) {
+            return fraction.doubleValue() < threshold;
+        }
+        return fraction.doubleValue() > threshold;
+    }
+
+    private SafeFraction asSafeFraction() {
+        return new SafeFraction(fraction);
+    }
 
     /**
      * Serializes this instance into a String.
      *
-     * @return a String serialization of this value
+     * @return serialization of this value as a String
      */
-    public abstract String serialize();
+    public final String serialize() {
+        return String.format(Locale.ENGLISH, "%s: %s", getMetric(), asText());
+    }
+
+    /**
+     * Returns this value as a text.
+     *
+     * @return this value formatted as a String
+     */
+    public String asText() {
+        return fraction.toProperString();
+    }
+
+    /**
+     * Returns this value as an integer.
+     *
+     * @return this value as an integer
+     */
+    public int asInteger() {
+        return fraction.getProperWhole();
+    }
 
     /**
      * Returns whether this value has the same metric as the specified value.
@@ -197,13 +295,19 @@ public abstract class Value implements Serializable {
      * @param other
      *         the other value to compare with
      *
-     * @return {@code true} if this value  has the same metric as the specified value, {@code false} otherwise
+     * @return {@code true} if this value has the same metric as the specified value, {@code false} otherwise
      */
     protected boolean hasSameMetric(final Value other) {
         return other.getMetric().equals(getMetric());
     }
 
     @Override
+    public String toString() {
+        return serialize();
+    }
+
+    @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -212,11 +316,13 @@ public abstract class Value implements Serializable {
             return false;
         }
         var value = (Value) o;
-        return Objects.equals(metric, value.metric);
+        return metric == value.metric
+                && Objects.equals(fraction, value.fraction);
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        return Objects.hash(metric);
+        return Objects.hash(metric, fraction);
     }
 }

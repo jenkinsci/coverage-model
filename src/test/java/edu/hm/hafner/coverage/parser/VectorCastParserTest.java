@@ -9,10 +9,7 @@ import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.FractionValue;
-import edu.hm.hafner.coverage.LinesOfCode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -46,7 +43,8 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(3);
         assertThat(root.getAll(METHOD)).hasSize(0);
 
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC);
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_MAXIMUM, CYCLOMATIC_COMPLEXITY_DENSITY, LOC);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(3).extracting(FileNode::getFileName)
@@ -62,7 +60,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "database")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(4),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 4),
                                            builder.withMetric(LINE).withCovered(3).withMissed(7).build(),
                                            builder.withMetric(BRANCH).withCovered(2).withMissed(4).build()
                                            )));
@@ -78,7 +76,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "manager")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(18),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 18),
                                            builder.withMetric(LINE).withCovered(48).withMissed(13).build(),
                                            builder.withMetric(BRANCH).withCovered(21).withMissed(4).build()
                                            )));
@@ -92,7 +90,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "whitebox")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(3),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 3),
                                            builder.withMetric(LINE).withCovered(1).withMissed(8).build(),
                                            builder.withMetric(BRANCH).withCovered(0).withMissed(3).build()
                                            )));
@@ -104,9 +102,9 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(CLASS).withCovered(3).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(52).withMissed(28).build(),
                 builder.withMetric(BRANCH).withCovered(23).withMissed(11).build(),
-                new CyclomaticComplexity(25),
-                new FractionValue(COMPLEXITY_DENSITY, 25, 80),
-                new LinesOfCode(80));
+                new Value(CYCLOMATIC_COMPLEXITY, 25),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 25, 80),
+                new Value(LOC, 80));
 
         verifyCoverageMetrics(root);
 
@@ -194,7 +192,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "encrypt")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(17),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 17),
                                            builder.withMetric(LINE).withCovered(40).withMissed(5).build(),
                                            builder.withMetric(BRANCH).withCovered(52).withMissed(17).build(),
                                            builder.withMetric(MCDC_PAIR).withCovered(9).withMissed(9).build(),
@@ -209,7 +207,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "manager")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(17),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 17),
                                            builder.withMetric(LINE).withCovered(67).withMissed(5).build(),
                                            builder.withMetric(BRANCH).withCovered(38).withMissed(9).build(),
                                            builder.withMetric(MCDC_PAIR).withCovered(6).withMissed(5).build(),
@@ -224,7 +222,7 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "whitebox")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(new CyclomaticComplexity(4),
+                                .hasValues(new Value(CYCLOMATIC_COMPLEXITY, 4),
                                            builder.withMetric(LINE).withCovered(0).withMissed(11).build(),
                                            builder.withMetric(BRANCH).withCovered(0).withMissed(4).build(),
                                            builder.withMetric(FUNCTION_CALL).withCovered(0).withMissed(2).build(),
@@ -263,10 +261,10 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
                 builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
                 builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
-                new CyclomaticComplexity(100),
-                new CyclomaticComplexity(26, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 100, 294),
-                new LinesOfCode(294));
+                new Value(CYCLOMATIC_COMPLEXITY, 100),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 26),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 100, 294),
+                new Value(LOC, 294));
     }
 
     private void verifyMcdcFccClassFileNodeMetrics(final Node root) {
@@ -291,7 +289,8 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(8);
         assertThat(root.getAll(METHOD)).hasSize(30);
 
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, COMPLEXITY, COMPLEXITY_MAXIMUM, COMPLEXITY_DENSITY, LOC, MCDC_PAIR, FUNCTION_CALL, METHOD);
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_MAXIMUM, CYCLOMATIC_COMPLEXITY_DENSITY, LOC, MCDC_PAIR, FUNCTION_CALL, METHOD);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(8).extracting(FileNode::getFileName)

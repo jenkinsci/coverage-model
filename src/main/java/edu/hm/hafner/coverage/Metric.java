@@ -37,9 +37,9 @@ public enum Metric {
     /** Additional metrics without children. */
     MUTATION(new ValuesAggregator()),
     TEST_STRENGTH(new ValuesAggregator()),
-    COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
-    COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
-    COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),
+    CYCLOMATIC_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
+    CYCLOMATIC_COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER),
+    CYCLOMATIC_COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER),
     LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER),
     TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER),
     NCSS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER),
@@ -57,6 +57,31 @@ public enum Metric {
      */
     public static Metric fromTag(final String tag) {
         return valueOf(tag.toUpperCase(Locale.ENGLISH).replaceAll("-", "_"));
+    }
+
+    /**
+     * Returns the metric that belongs to the specified name. The name matching is done in a case-insensitive way.
+     * Additionally, all dashes and underscores are removed.
+     *
+     * @param name
+     *         the name
+     *
+     * @return the metric
+     */
+    public static Metric fromName(final String name) {
+        var normalizedName = normalize(name);
+        var normalizedFallback = normalize("CYCLOMATIC_" + name);
+        for (Metric metric : values()) {
+            if (normalizedName.equals(normalize(metric.name()))
+                    || normalizedFallback.equals(normalize(metric.name()))) { // support old serialization format
+                return metric;
+            }
+        }
+        throw new IllegalArgumentException("No metric found for name: " + name);
+    }
+
+    private static String normalize(final String name) {
+        return name.toUpperCase(Locale.ENGLISH).replaceAll("[-_]", "");
     }
 
     @SuppressFBWarnings("SE_BAD_FIELD")
@@ -210,7 +235,20 @@ public enum Metric {
 
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
-            return LINE.getValueFor(node).map(leaf -> new LinesOfCode(((Coverage) leaf).getTotal()));
+            var localMetricValue = getValue(node, searchMetric); // FIXME: do we need this check always?
+            if (localMetricValue.isPresent()) {
+                return localMetricValue;
+            }
+            return LINE.getValueFor(node).map(this::getTotal);
+        }
+
+        private Value getTotal(final Value leaf) {
+            if (leaf instanceof Coverage) {
+                var coverage = (Coverage) leaf;
+
+                return new Value(LOC, coverage.getTotal());
+            }
+            return Value.nullObject(LOC);
         }
     }
 
@@ -223,12 +261,12 @@ public enum Metric {
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             var locValue = LOC.getValueFor(node);
-            var complexityValue = COMPLEXITY.getValueFor(node);
+            var complexityValue = CYCLOMATIC_COMPLEXITY.getValueFor(node);
             if (locValue.isPresent() && complexityValue.isPresent()) {
-                var loc = (LinesOfCode) locValue.get();
-                if (loc.getValue() > 0) {
-                    var complexity = (CyclomaticComplexity) complexityValue.get();
-                    return Optional.of(new FractionValue(COMPLEXITY_DENSITY, complexity.getValue(), loc.getValue()));
+                var loc = locValue.get();
+                if (loc.asInteger() > 0) {
+                    var complexity = complexityValue.get();
+                    return Optional.of(new Value(CYCLOMATIC_COMPLEXITY_DENSITY, complexity.asInteger(), loc.asInteger()));
                 }
             }
             return Optional.empty();
@@ -244,9 +282,8 @@ public enum Metric {
         @Override
         Optional<Value> compute(final Node node, final Metric searchMetric) {
             if (node.getMetric() == METHOD) {
-                return COMPLEXITY.getValueFor(node)
-                        .map(c -> new CyclomaticComplexity(((CyclomaticComplexity)c).getValue(),
-                                COMPLEXITY_MAXIMUM));
+                return CYCLOMATIC_COMPLEXITY.getValueFor(node)
+                        .map(c -> new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, c.getFraction()));
             }
             return node.getChildren().stream()
                     .map(c -> compute(c, searchMetric))

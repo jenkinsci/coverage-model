@@ -122,12 +122,12 @@ public abstract class Node implements Serializable {
         if (elements.contains(Metric.LINE)) {
             // These metrics depend on the existence of other metrics
             elements.add(Metric.LOC);
-            if (elements.contains(Metric.COMPLEXITY)) {
-                elements.add(Metric.COMPLEXITY_DENSITY);
+            if (elements.contains(Metric.CYCLOMATIC_COMPLEXITY)) {
+                elements.add(Metric.CYCLOMATIC_COMPLEXITY_DENSITY);
             }
         }
-        if (elements.contains(Metric.COMPLEXITY)) {
-            elements.add(Metric.COMPLEXITY_MAXIMUM);
+        if (elements.contains(Metric.CYCLOMATIC_COMPLEXITY)) {
+            elements.add(Metric.CYCLOMATIC_COMPLEXITY_MAXIMUM);
         }
         return elements;
     }

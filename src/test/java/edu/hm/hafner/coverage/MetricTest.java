@@ -6,6 +6,7 @@ import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -15,6 +16,13 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  * @author Ullrich Hafner
  */
 class MetricTest {
+    @ValueSource(strings = {"COMPLEXITY", "CyclomaticComplexity",
+            "cyclomatic-complexity", "cyclomatic_complexity", "CYCLOMATIC_COMPLEXITY"})
+    @ParameterizedTest(name = "{0} should be converted to metric COMPLEXITY")
+    void shouldMapFromName(final String name) {
+        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
+    }
+
     @EnumSource(Metric.class)
     @ParameterizedTest(name = "{0} should be converted to a tag name and then back to a metric")
     void shouldConvertToTags(final Metric metric) {
@@ -51,7 +59,7 @@ class MetricTest {
     void shouldCorrectlyImplementIsContainer() {
         assertThat(Metric.MODULE.isContainer()).isTrue();
         assertThat(Metric.LINE.isContainer()).isFalse();
-        assertThat(Metric.COMPLEXITY_DENSITY.isContainer()).isFalse();
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.isContainer()).isFalse();
         assertThat(Metric.LOC.isContainer()).isFalse();
     }
 
@@ -59,13 +67,16 @@ class MetricTest {
     void shouldCorrectlyComputeDensityEvaluator() {
         var node = new PackageNode("package");
         node.addValue(new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build());
-        node.addValue(new CyclomaticComplexity(10));
+        node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
 
-        Value complexityDensity = Metric.COMPLEXITY_DENSITY.getValueFor(node).get();
-
+        Value loc = Metric.LOC.getValueFor(node).get();
+        assertThat(loc.asInteger()).isEqualTo(10);
+        assertThat(loc)
+                .hasMetric(Metric.LOC)
+                .hasFraction(Fraction.getFraction(10, 1));
+        Value complexityDensity = Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node).get();
         assertThat(complexityDensity)
-                .isInstanceOf(FractionValue.class);
-        assertThat((FractionValue) complexityDensity)
+                .hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY)
                 .hasFraction(Fraction.getFraction(10, 10));
     }
 
@@ -73,7 +84,7 @@ class MetricTest {
     void shouldReturnEmptyOptionalOnComputeDensityEvaluator() {
         var zeroLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0).build();
         var tenLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build();
-        var cyclomaticComplexity = new CyclomaticComplexity(10);
+        var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
 
         var onlyLinesOfCode = new PackageNode("package");
         onlyLinesOfCode.addValue(tenLines);
@@ -83,8 +94,8 @@ class MetricTest {
         zeroLinesOfCodeWithComplexity.addValue(zeroLines);
         zeroLinesOfCodeWithComplexity.addValue(cyclomaticComplexity);
 
-        assertThat(Metric.COMPLEXITY_DENSITY.getValueFor(onlyLinesOfCode)).isEmpty();
-        assertThat(Metric.COMPLEXITY_DENSITY.getValueFor(onlyCyclomaticComplexity)).isEmpty();
-        assertThat(Metric.COMPLEXITY_DENSITY.getValueFor(zeroLinesOfCodeWithComplexity)).isEmpty();
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(onlyLinesOfCode)).isEmpty();
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(onlyCyclomaticComplexity)).isEmpty();
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(zeroLinesOfCodeWithComplexity)).isEmpty();
     }
 }

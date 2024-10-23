@@ -109,7 +109,7 @@ class NodeTest {
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 valueOne,
                 valueTwo,
-                new LinesOfCode(1));
+                new Value(LOC, 1));
     }
 
     @Test

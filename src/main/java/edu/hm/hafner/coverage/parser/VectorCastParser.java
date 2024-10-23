@@ -11,10 +11,10 @@ import javax.xml.stream.events.StartElement;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 
 /**
@@ -168,7 +168,7 @@ public class VectorCastParser extends CoberturaParser {
 
         Node node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
-                .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
+                .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
         getOptionalValueOf(element, FUNCTION_COVERAGE).map(this::fromFunctionCoverage).ifPresent(node::addValue);
 
         while (reader.hasNext()) {

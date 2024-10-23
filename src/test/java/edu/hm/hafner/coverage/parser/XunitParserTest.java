@@ -14,7 +14,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.TestCount;
+import edu.hm.hafner.coverage.Value;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -36,7 +36,7 @@ class XunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("Assert.Equal() Failure");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -45,7 +45,7 @@ class XunitParserTest extends AbstractParserTest {
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("");
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -53,7 +53,7 @@ class XunitParserTest extends AbstractParserTest {
         var tree = readXunitReport("xunit-invalid-status.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -62,7 +62,7 @@ class XunitParserTest extends AbstractParserTest {
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("test.Tests2");
         assertThat(getFirstTest(tree).getDescription()).contains("");
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     private ModuleNode readXunitReport(final String fileName) {

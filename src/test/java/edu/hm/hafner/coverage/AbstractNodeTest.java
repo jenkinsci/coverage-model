@@ -40,7 +40,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
 
     private Node createParentWithValues() {
         Node node = createNode(NAME);
-        node.addValue(new LinesOfCode(15));
+        node.addValue(new Value(Metric.LOC, 15));
         node.addValue(MUTATION_COVERAGE);
         return node;
     }
@@ -90,7 +90,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
     private List<? extends Value> createMetricDistributionWithMissed(final int missed) {
         var builder = new CoverageBuilder();
         builder.withMetric(getMetric()).withCovered(0).withMissed(missed);
-        return List.of(builder.build(), MUTATION_COVERAGE);
+        return List.of(builder.build(), MUTATION_COVERAGE, new Value(Metric.LOC, 15));
     }
 
     @Test

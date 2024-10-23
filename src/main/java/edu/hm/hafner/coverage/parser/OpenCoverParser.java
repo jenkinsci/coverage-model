@@ -20,12 +20,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -189,7 +189,7 @@ public class OpenCoverParser extends CoverageParser {
         methodNode.addValue(lineCoverage);
         methodNode.addValue(branchCoverage);
         methodNode.addValue(instructionCoverage);
-        methodNode.addValue(new CyclomaticComplexity(method.getComplexity(), Metric.COMPLEXITY));
+        methodNode.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, method.getComplexity()));
         Map<Integer, Pair<Integer, Integer>> points = new LinkedHashMap<>();
 
         // Line coverage only

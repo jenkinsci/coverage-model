@@ -10,10 +10,7 @@ import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.FractionValue;
-import edu.hm.hafner.coverage.LinesOfCode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
@@ -203,7 +200,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(3).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
                 builder.withMetric(BRANCH).withCovered(2).withMissed(1).build(),
-                new LinesOfCode(22));
+                new Value(LOC, 22));
         verifyMissedAndCoveredLines(a);
 
         Node b = readReport("cobertura-merge-b.xml");
@@ -215,7 +212,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(1).withMissed(2).build(),
                 builder.withMetric(LINE).withCovered(16).withMissed(6).build(),
                 builder.withMetric(BRANCH).withCovered(0).withMissed(3).build(),
-                new LinesOfCode(22));
+                new Value(LOC, 22));
         assertThat(b.getAllFileNodes()).hasSize(1).element(0).satisfies(
                 fileNode -> assertThat(fileNode)
                         .hasMissedLines(36, 37, 38, 40, 41, 42)
@@ -228,7 +225,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
                 builder.withMetric(BRANCH).withCovered(1).withMissed(1).build(),
-                new LinesOfCode(22)};
+                new Value(LOC, 22)};
 
         var left = Node.merge(List.of(a, b));
         assertThat(left.aggregateValues()).containsExactly(expectedValuesAfterMerge);
@@ -316,7 +313,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(14).withMissed(24).build(),
                 builder.withMetric(LINE).withCovered(63).withMissed(93).build(),
                 builder.withMetric(BRANCH).withCovered(21).withMissed(11).build(),
-                new LinesOfCode(63 + 93));
+                new Value(LOC, 63 + 93));
 
         assertThat(tree.findPackage("libs.env.src")).isNotEmpty().get().satisfies(
                 p -> {
@@ -349,8 +346,8 @@ class CoberturaParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY,
-                COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
         assertThat(tree.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
@@ -359,10 +356,10 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(4).withMissed(1).build(),
                 builder.withMetric(LINE).withCovered(44).withMissed(9).build(),
                 builder.withMetric(BRANCH).withCovered(3).withMissed(1).build(),
-                new CyclomaticComplexity(8),
-                new CyclomaticComplexity(4, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 8, 44 + 9),
-                new LinesOfCode(44 + 9));
+                new Value(CYCLOMATIC_COMPLEXITY, 8),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 4),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 8, 44 + 9),
+                new Value(LOC, 44 + 9));
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#551")
@@ -386,8 +383,8 @@ class CoberturaParserTest extends AbstractParserTest {
 
         var builder = new CoverageBuilder();
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY,
-                COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
         assertThat(tree.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
@@ -396,10 +393,10 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(1).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(12).withMissed(0).build(),
                 builder.withMetric(BRANCH).withCovered(6).withMissed(0).build(),
-                new CyclomaticComplexity(0),
-                new CyclomaticComplexity(0, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 0, 12),
-                new LinesOfCode(12));
+                new Value(CYCLOMATIC_COMPLEXITY, 0),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 0),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 0, 12),
+                new Value(LOC, 12));
     }
 
     @Test
@@ -412,8 +409,8 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(5);
         assertThat(root.getAll(METHOD)).hasSize(10);
 
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, COMPLEXITY,
-                COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(4).extracting(FileNode::getFileName)
@@ -478,10 +475,10 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(7).withMissed(3).build(),
                 builder.withMetric(LINE).withCovered(COVERED_LINES).withMissed(MISSED_LINES).build(),
                 builder.withMetric(BRANCH).withCovered(2).withMissed(2).build(),
-                new CyclomaticComplexity(22),
-                new CyclomaticComplexity(7, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 22, 63 + 19),
-                new LinesOfCode(63 + 19));
+                new Value(CYCLOMATIC_COMPLEXITY, 22),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 7),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 22, 63 + 19),
+                new Value(LOC, 63 + 19));
 
         verifyCoverageMetrics(root);
 
@@ -583,8 +580,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 coverage -> assertThat(coverage).hasCovered(19).hasMissed(0));
         assertThat(result.getValue(BRANCH)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
                 coverage -> assertThat(coverage).hasCovered(4).hasMissed(0));
-        assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, COMPLEXITY,
-                COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM);
+        assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, CYCLOMATIC_COMPLEXITY,
+                CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM);
 
         var fileNode = result.getAllFileNodes().get(0);
         assertThat(fileNode.getLinesWithCoverage())

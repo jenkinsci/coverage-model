@@ -15,15 +15,13 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.FractionValue;
-import edu.hm.hafner.coverage.LinesOfCode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Percentage;
+import edu.hm.hafner.coverage.Value;
 
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
@@ -78,7 +76,7 @@ class JacocoParserTest extends AbstractParserTest {
                 .hasValues(
                         createFileCoverageForFile(0),
                         createBranchCoverage(2, 12),
-                        new CyclomaticComplexity(14));
+                        new Value(CYCLOMATIC_COMPLEXITY, 14));
     }
 
     private void verifyLineCoverage(final FileNode a, final int missed) {
@@ -95,11 +93,11 @@ class JacocoParserTest extends AbstractParserTest {
                                 .hasValues(
                                         createLineCoverage(10 - missed, missed),
                                         createBranchCoverage(2 + 4 - missed, 2 - (4 - missed)),
-                                        new CyclomaticComplexity(3)));
+                                        new Value(CYCLOMATIC_COMPLEXITY, 3)));
 
         assertThat(a).hasValues(createFileCoverageForFile(missed),
                 createBranchCoverage(2 + 4 - missed, 2 - (4 - missed) + 10),
-                new CyclomaticComplexity(14));
+                new Value(CYCLOMATIC_COMPLEXITY, 14));
     }
 
     private Coverage createFileCoverageForFile(final int missed) {
@@ -222,7 +220,7 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
-                COMPLEXITY, COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+                CYCLOMATIC_COMPLEXITY, CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
 
         var builder = new CoverageBuilder();
 
@@ -235,10 +233,10 @@ class JacocoParserTest extends AbstractParserTest {
                 builder.withMetric(LINE).withCovered(294).withMissed(29).build(),
                 builder.withMetric(BRANCH).withCovered(109).withMissed(7).build(),
                 builder.withMetric(INSTRUCTION).withCovered(1260).withMissed(90).build(),
-                new CyclomaticComplexity(160),
-                new CyclomaticComplexity(6, COMPLEXITY_MAXIMUM),
-                new FractionValue(COMPLEXITY_DENSITY, 160, 294 + 29),
-                new LinesOfCode(294 + 29));
+                new Value(CYCLOMATIC_COMPLEXITY, 160),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 6),
+                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 160, 294 + 29),
+                new Value(LOC, 294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)
@@ -250,9 +248,9 @@ class JacocoParserTest extends AbstractParserTest {
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
         assertThat(any.getValue(LINE)).contains(builder.withMetric(LINE).withCovered(100).withMissed(25).build());
-        assertThat(any.getValue(LOC)).contains(new LinesOfCode(125));
+        assertThat(any.getValue(LOC)).contains(new Value(LOC, 125));
         assertThat(any.getValue(BRANCH)).contains(builder.withMetric(BRANCH).withCovered(40).withMissed(6).build());
-        assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
+        assertThat(any.getValue(CYCLOMATIC_COMPLEXITY)).contains(new Value(CYCLOMATIC_COMPLEXITY, 68));
 
         verifyCoverageMetrics(tree);
 
@@ -272,7 +270,7 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
-                COMPLEXITY, COMPLEXITY_DENSITY, COMPLEXITY_MAXIMUM, LOC);
+                CYCLOMATIC_COMPLEXITY, CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
 
         var builder = new CoverageBuilder();
 
@@ -293,9 +291,9 @@ class JacocoParserTest extends AbstractParserTest {
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException("Blub"));
         assertThat(any.getValue(LINE)).contains(builder.withMetric(LINE).withCovered(100).withMissed(25).build());
-        assertThat(any.getValue(LOC)).contains(new LinesOfCode(125));
+        assertThat(any.getValue(LOC)).contains(new Value(LOC, 125));
         assertThat(any.getValue(BRANCH)).contains(builder.withMetric(BRANCH).withCovered(40).withMissed(6).build());
-        assertThat(any.getValue(COMPLEXITY)).contains(new CyclomaticComplexity(68));
+        assertThat(any.getValue(CYCLOMATIC_COMPLEXITY)).contains(new Value(CYCLOMATIC_COMPLEXITY, 68));
 
         var log = tree.findFile("TreeStringBuilder.java").orElseThrow();
         assertThat(log.getMissedLines()).containsExactly(61, 62);
@@ -313,11 +311,11 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(root.getAll(METHOD)).hasSize(102);
 
         assertThat(root.aggregateValues()).contains(
-                new CyclomaticComplexity(160),
+                new Value(CYCLOMATIC_COMPLEXITY, 160),
                 Coverage.valueOf(BRANCH, "109/116"),
                 Coverage.valueOf(LINE, "294/323"),
                 Coverage.valueOf(INSTRUCTION, "1260/1350"),
-                new LinesOfCode(294 + 29));
+                new Value(LOC, 294 + 29));
 
         var includedNames = root.getFiles()
                 .stream()
@@ -332,11 +330,11 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(includedFiles.getAll(METHOD)).hasSize(59);
 
         assertThat(includedFiles.aggregateValues()).contains(
-                new CyclomaticComplexity(91),
+                new Value(CYCLOMATIC_COMPLEXITY, 91),
                 Coverage.valueOf(BRANCH, "57/64"),
                 Coverage.valueOf(LINE, "151/178"),
                 Coverage.valueOf(INSTRUCTION, "606/690"),
-                new LinesOfCode(178));
+                new Value(LOC, 178));
 
         var excludedNames = root.getFiles()
                 .stream()
@@ -351,11 +349,11 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(excludedFiles.getAll(METHOD)).hasSize(43);
 
         assertThat(excludedFiles.aggregateValues()).contains(
-                new CyclomaticComplexity(69),
+                new Value(CYCLOMATIC_COMPLEXITY, 69),
                 Coverage.valueOf(BRANCH, "52/52"),
                 Coverage.valueOf(LINE, "143/145"),
                 Coverage.valueOf(INSTRUCTION, "654/660"),
-                new LinesOfCode(145));
+                new Value(LOC, 145));
     }
 
     @Test
