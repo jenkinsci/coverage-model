@@ -51,13 +51,6 @@ public abstract class CoverageParser implements Serializable {
     }
 
     /**
-     * Creates a new instance of {@link CoverageParser} that will fail on all errors.
-     */
-    protected CoverageParser() {
-        this(ProcessingMode.FAIL_FAST);
-    }
-
-    /**
      * Returns whether to ignore errors or to fail fast.
      *
      * @return true if errors should be ignored, false if an exception should be thrown on errors

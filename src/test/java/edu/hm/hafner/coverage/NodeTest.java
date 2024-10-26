@@ -61,6 +61,9 @@ class NodeTest {
 
         assertThat(child.getParentName()).isEqualTo("Parent");
         assertThat(subSubPackage.getParentName()).isEqualTo("Child.SubPackage");
+
+        parent.setName("NewParent");
+        assertThat(child.getParentName()).isEqualTo("NewParent");
     }
 
     @Test

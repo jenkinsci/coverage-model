@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -57,35 +58,6 @@ public final class TestCase implements Serializable {
         return description;
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        var testCase = (TestCase) o;
-
-        if (!testName.equals(testCase.testName)) {
-            return false;
-        }
-        if (!className.equals(testCase.className)) {
-            return false;
-        }
-        if (result != testCase.result) {
-            return false;
-        }
-        if (!type.equals(testCase.type)) {
-            return false;
-        }
-        if (!message.equals(testCase.message)) {
-            return false;
-        }
-        return description.equals(testCase.description);
-    }
-
     @Override @Generated
     public String toString() {
         return "TestCase{testName='" + testName + '\'' + ", className='" + className + '\'' + ", status=" + result
@@ -94,14 +66,27 @@ public final class TestCase implements Serializable {
     }
 
     @Override
+    @Generated
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        var testCase = (TestCase) o;
+        return Objects.equals(testName, testCase.testName)
+                && Objects.equals(className, testCase.className)
+                && result == testCase.result
+                && Objects.equals(type, testCase.type)
+                && Objects.equals(message, testCase.message)
+                && Objects.equals(description, testCase.description);
+    }
+
+    @Override
+    @Generated
     public int hashCode() {
-        int value = testName.hashCode();
-        value = 31 * value + className.hashCode();
-        value = 31 * value + this.result.hashCode();
-        value = 31 * value + type.hashCode();
-        value = 31 * value + message.hashCode();
-        value = 31 * value + description.hashCode();
-        return value;
+        return Objects.hash(testName, className, result, type, message, description);
     }
 
     /**
