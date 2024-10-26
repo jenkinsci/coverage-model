@@ -48,7 +48,9 @@ class MetricTest {
                 Metric.BRANCH,
                 Metric.INSTRUCTION,
                 Metric.MCDC_PAIR,
-                Metric.FUNCTION_CALL);
+                Metric.FUNCTION_CALL,
+                Metric.MUTATION,
+                Metric.TEST_STRENGTH);
     }
 
     /**
