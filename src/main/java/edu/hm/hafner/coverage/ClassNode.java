@@ -27,8 +27,8 @@ public final class ClassNode extends Node {
     }
 
     /**
-     * Returns the package name of this class. The package name is either the name of the parent package node or the
-     * package part of this class' name.
+     * Returns the package name of this class. The package name is either the package part of this class' name, or if it
+     * does not exist, the name of the parent package node.
      *
      * @return the package name
      */
@@ -90,7 +90,7 @@ public final class ClassNode extends Node {
     }
 
     private void updateTestCount() {
-        replaceValue(new TestCount(testCases.size()));
+        replaceValue(new Value(Metric.TESTS, testCases.size()));
     }
 
     @Override

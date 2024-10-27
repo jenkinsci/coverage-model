@@ -2,7 +2,6 @@ package edu.hm.hafner.coverage;
 
 import java.util.Locale;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
@@ -10,6 +9,7 @@ import org.apache.commons.lang3.math.Fraction;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.Generated;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
@@ -76,7 +76,6 @@ public final class Coverage extends Value {
                 .build();
     }
 
-    private final int covered;
     private final int missed;
 
     /**
@@ -90,9 +89,8 @@ public final class Coverage extends Value {
      *         the number of missed items
      */
     private Coverage(final Metric metric, final int covered, final int missed) {
-        super(metric);
+        super(metric, Fraction.getFraction(covered)); // Only the covered items are stored in the parent
 
-        this.covered = covered;
         this.missed = missed;
     }
 
@@ -102,7 +100,7 @@ public final class Coverage extends Value {
      * @return the number of covered items
      */
     public int getCovered() {
-        return covered;
+        return getFraction().getNumerator();
     }
 
     /**
@@ -129,20 +127,37 @@ public final class Coverage extends Value {
 
     @Override
     public Coverage add(final Value other) {
-        return castAndMap(other, o -> new Coverage(getMetric(), covered + o.getCovered(), missed + o.getMissed()));
+        var otherCoverage = ensureSameMetricAndType(other);
+
+        return new CoverageBuilder().withMetric(getMetric())
+                .withCovered(getCovered() + otherCoverage.getCovered())
+                .withMissed(getMissed() + otherCoverage.getMissed())
+                .build();
     }
 
     @Override
     public Fraction delta(final Value other) {
-        if (hasSameMetric(other) && other instanceof Coverage) {
-            return getCoveredPercentage().subtract(((Coverage) other).getCoveredPercentage());
-        }
-        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
+        var otherCoverage = ensureSameMetricAndType(other);
+
+        return getCoveredPercentage().subtract(otherCoverage.getCoveredPercentage());
     }
 
     @Override
     public Coverage max(final Value other) {
-        return castAndMap(other, this::computeMax);
+        var otherCoverage = ensureSameMetricAndType(other);
+        Ensure.that(getTotal() == otherCoverage.getTotal())
+                .isTrue("Cannot compute maximum of coverages %s and %s since total differs",
+                        this, other);
+
+        if (getCovered() >= otherCoverage.getCovered()) {
+            return this;
+        }
+        return otherCoverage;
+    }
+
+    private Coverage ensureSameMetricAndType(final Value other) {
+        ensureSameMetric(other);
+        return (Coverage) other; // the type is checked in ensureSameMetric
     }
 
     /**
@@ -159,25 +174,8 @@ public final class Coverage extends Value {
         return getCoveredPercentage().toDouble() < threshold;
     }
 
-    private Coverage computeMax(final Coverage otherCoverage) {
-        Ensure.that(getTotal() == otherCoverage.getTotal())
-                .isTrue("Cannot compute maximum of coverages %s and %s since total differs", this, otherCoverage);
-        if (getCovered() >= otherCoverage.getCovered()) {
-            return this;
-        }
-        return otherCoverage;
-    }
-
-    private Coverage castAndMap(final Value other, final UnaryOperator<Coverage> mapper) {
-        if (hasSameMetric(other) && other instanceof Coverage) {
-            return mapper.apply((Coverage) other);
-        }
-
-        throw new IllegalArgumentException(String.format("Cannot cast incompatible types: %s and %s", this, other));
-    }
-
     public int getTotal() {
-        return missed + covered;
+        return getCovered() + getMissed();
     }
 
     public boolean isSet() {
@@ -185,6 +183,7 @@ public final class Coverage extends Value {
     }
 
     @Override
+    @Generated
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -196,26 +195,27 @@ public final class Coverage extends Value {
             return false;
         }
         var coverage = (Coverage) o;
-        return covered == coverage.covered && missed == coverage.missed;
+        return missed == coverage.missed;
     }
 
     @Override
+    @Generated
     public int hashCode() {
-        return Objects.hash(super.hashCode(), covered, missed);
+        return Objects.hash(super.hashCode(), missed);
     }
 
     @Override
     public String toString() {
-        int total = getTotal();
-        if (total > 0) {
-            return String.format(Locale.ENGLISH, "%s: %s (%d/%d)", getMetric(), getCoveredPercentage(), covered, total);
+        if (isSet()) {
+            return String.format(Locale.ENGLISH, "%s: %s (%d/%d)",
+                    getMetric(), getCoveredPercentage(), getCovered(), getTotal());
         }
         return String.format(Locale.ENGLISH, "%s: n/a", getMetric());
     }
 
     @Override
-    public String serialize() {
-        return String.format(Locale.ENGLISH, "%s: %d/%d", getMetric(), getCovered(), getTotal());
+    public String asText() {
+        return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
     }
 
     /**
@@ -237,8 +237,7 @@ public final class Coverage extends Value {
                 for (int missed = 0; missed < CACHE_SIZE; missed++) {
                     LINE_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.LINE, covered, missed);
                     BRANCH_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.BRANCH, covered, missed);
-                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered,
-                            missed);
+                    INSTRUCTION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.INSTRUCTION, covered, missed);
                     MUTATION_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MUTATION, covered, missed);
                     MCDC_PAIR_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.MCDC_PAIR, covered, missed);
                     FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)] = new Coverage(Metric.FUNCTION_CALL, covered, missed);

@@ -14,7 +14,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.TestCount;
+import edu.hm.hafner.coverage.Value;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -39,13 +39,13 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(tree.getAll(Metric.PACKAGE)).hasSize(1);
         assertThat(tree.getAll(Metric.CLASS)).hasSize(1);
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(1));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 1));
 
         assertThat(getPackage(tree)).hasName(EMPTY);
 
         var testClass = getFirstClass(tree);
         assertThat(testClass).hasName("Aufgabe3Test");
-        assertThat(testClass.aggregateValues()).contains(new TestCount(1));
+        assertThat(testClass.aggregateValues()).contains(new Value(Metric.TESTS, 1));
         assertThat(testClass.getTestCases()).hasSize(1);
 
         var testCase = getFirstTest(tree);
@@ -60,7 +60,7 @@ class JunitParserTest extends AbstractParserTest {
         ModuleNode node = readReport("archunit2.xml");
 
         assertThat(node.getAll(Metric.CLASS)).hasSize(1);
-        assertThat(node.aggregateValues()).contains(new TestCount(3));
+        assertThat(node.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -69,7 +69,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getPackage(tree)).hasName(EMPTY);
         assertThat(getFirstClass(tree)).hasName("CloudFormation Lint");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(141));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 141));
         assertThat(tree.getTestCases()).hasSize(141)
                 .filteredOn(test -> test.getResult() == TestResult.SKIPPED).hasSize(19);
     }
@@ -81,7 +81,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("Assignment1Test");
         assertThat(getFirstTest(tree).getDescription()).contains("Die Welten sind nicht korrekt");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(1));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 1));
     }
 
     @Test
@@ -92,7 +92,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstTest(tree).getMessage()).isEqualTo("The container NewcontTest0 does not allow a parameter of type f1");
         assertThat(getFirstTest(tree).getDescription()).contains("ava.lang.IllegalStateException: The container NewcontTest0 does not allow a parameter of type f1");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -102,7 +102,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("snapshots should display correct snapshot");
         assertThat(getFirstTest(tree).getDescription()).contains("Error: expect.assertions(3)");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(11));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 11));
     }
 
     @Test
@@ -112,7 +112,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("com.example.jenkinstest.ExampleUnitTest");
         assertThat(getFirstTest(tree).getDescription()).contains("com.example.jenkinstest.ExampleUnitTest.failTest4");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(6));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 6));
     }
 
     @Test
@@ -122,7 +122,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("my.company.MainActivityTest");
         assertThat(getFirstTest(tree).getDescription()).contains("Looped for 3838 iterations over 60 SECONDS");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(1));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 1));
     }
 
     @Test
@@ -132,7 +132,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("timrAPITests.UtilTests");
         assertThat(getFirstTest(tree).getDescription()).contains("timrAPITests/Tests/Utils/UtilTests.swift:23");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(3));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 3));
     }
 
     @Test
@@ -142,7 +142,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("edu.hm.hafner.analysis.parser.SonarQubeDiffParserTest");
         assertThat(getFirstTest(tree).getDescription()).contains("org.json.JSONException: Missing value at 0");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(1));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 1));
     }
 
     @Test
@@ -152,7 +152,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("org.jenkinsci.plugins.jvctb.perform.JvctbPerformerTest");
         assertThat(getFirstTest(tree).getDescription()).contains("org.junit.ComparisonFailure");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(1));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 1));
     }
 
     @Test
@@ -162,7 +162,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("ch.bdna.tsm.service.PollingServiceTest");
         assertThat(getFirstTest(tree).getDescription()).contains("Missing CPU value");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(2));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 2));
     }
 
     private ModuleNode readJunitReport(final String fileName) {

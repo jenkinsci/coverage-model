@@ -17,7 +17,6 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
@@ -318,7 +317,7 @@ public class JacocoParser extends CoverageParser {
 
     private Value createValue(final String currentType, final int covered, final int missed) {
         if (VALUE_COMPLEXITY.equals(currentType)) {
-            return new CyclomaticComplexity(covered + missed);
+            return new Value(Metric.CYCLOMATIC_COMPLEXITY, covered + missed);
         }
         else {
             var builder = new CoverageBuilder();

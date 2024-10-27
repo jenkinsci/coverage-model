@@ -234,7 +234,7 @@ public final class FileNode extends Node {
         setValues(lineCoverage, branchCoverage, mcdcPairCoverage, functionCallCoverage);
 
         otherFile.getValues().stream()
-                .filter(value -> value.getMetric() == Metric.COMPLEXITY)
+                .filter(value -> value.getMetric() == Metric.CYCLOMATIC_COMPLEXITY)
                 .forEach(this::addValue);
     }
 

@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import java.util.Locale;
+
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +23,7 @@ class PercentageTest {
         Percentage percentage = Percentage.valueOf(fraction);
         assertThat(percentage.toDouble()).isEqualTo(100);
         assertThat(percentage.toInt()).isEqualTo(100);
+        assertThat(percentage.formatDeltaPercentage(Locale.ENGLISH)).isEqualTo("+100.00%");
     }
 
     @Test
@@ -28,6 +31,7 @@ class PercentageTest {
         Fraction fraction = Fraction.getFraction(COVERAGE_FRACTION);
         Percentage percentage = Percentage.valueOf(fraction);
         assertThat(percentage.toDouble()).isEqualTo(50.0);
+        assertThat(percentage.formatDeltaPercentage(Locale.ENGLISH)).isEqualTo("+50.00%");
     }
 
     @Test

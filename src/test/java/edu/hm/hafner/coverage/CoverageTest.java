@@ -108,7 +108,7 @@ class CoverageTest {
 
         Coverage coverage = builder.withCovered(1).withMissed(2).build();
         Coverage wrongMetric = builder.withMetric(Metric.LOC).build();
-        var loc = new LinesOfCode(1);
+        var loc = new Value(Metric.LOC, 1);
 
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(loc));
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.max(loc));

@@ -14,7 +14,7 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
-import edu.hm.hafner.coverage.TestCount;
+import edu.hm.hafner.coverage.Value;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -36,7 +36,7 @@ class NunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("Expected string length 4 but was 5. Strings differ at index 4");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(4));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 4));
     }
 
     @Test
@@ -46,7 +46,7 @@ class NunitParserTest extends AbstractParserTest {
         assertThat(getFirstClass(tree)).hasName("MockTestFixture");
         assertThat(getFirstTest(tree).getDescription()).contains("Intentional failure");
 
-        assertThat(tree.aggregateValues()).contains(new TestCount(28));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 28));
     }
 
     @Test
@@ -55,7 +55,7 @@ class NunitParserTest extends AbstractParserTest {
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("");
-        assertThat(tree.aggregateValues()).contains(new TestCount(4));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 4));
     }
 
     @Test
@@ -64,7 +64,7 @@ class NunitParserTest extends AbstractParserTest {
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
         assertThat(getFirstTest(tree).getDescription()).contains("");
-        assertThat(tree.aggregateValues()).contains(new TestCount(4));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 4));
     }
 
     private ModuleNode readNunitReport(final String fileName) {
@@ -78,7 +78,7 @@ class NunitParserTest extends AbstractParserTest {
         var tree = readNunitReport("nunit-invalid-status.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
-        assertThat(tree.aggregateValues()).contains(new TestCount(4));
+        assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 4));
     }
 
     private PackageNode getPackage(final Node node) {

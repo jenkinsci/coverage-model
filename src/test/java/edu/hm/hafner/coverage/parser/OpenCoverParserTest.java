@@ -13,12 +13,11 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.LinesOfCode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.Value;
 
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
@@ -83,9 +82,9 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(METHOD, "19/21"),
                 Coverage.valueOf(BRANCH, "35/48"),
                 Coverage.valueOf(INSTRUCTION, "122/138"),
-                new CyclomaticComplexity(61, COMPLEXITY),
-                new CyclomaticComplexity(16, COMPLEXITY_MAXIMUM),
-                new LinesOfCode(138));
+                new Value(CYCLOMATIC_COMPLEXITY, 61),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 16),
+                new Value(LOC, 138));
         var fileNode = getFileNode(root);
         assertThat(fileNode).hasMissedLines(32).hasCoveredLines(16, 30, 34, 36, 38, 40, 51, 127, 161, 188, 197, 218, 226);
         verifyCoverageMetrics(root);
@@ -125,9 +124,9 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(METHOD, "1/1"),
                 Coverage.valueOf(BRANCH, "3/6"),
                 Coverage.valueOf(INSTRUCTION, "9/15"),
-                new CyclomaticComplexity(6, COMPLEXITY),
-                new CyclomaticComplexity(6, COMPLEXITY_MAXIMUM),
-                new LinesOfCode(15));
+                new Value(CYCLOMATIC_COMPLEXITY, 6),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 6),
+                new Value(LOC, 15));
     }
 
     @Test
@@ -145,9 +144,9 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(METHOD, "90/103"),
                 Coverage.valueOf(BRANCH, "322/379"),
                 Coverage.valueOf(INSTRUCTION, "807/826"),
-                new CyclomaticComplexity(256, COMPLEXITY),
-                new CyclomaticComplexity(18, COMPLEXITY_MAXIMUM),
-                new LinesOfCode(826));
+                new Value(CYCLOMATIC_COMPLEXITY, 256),
+                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 18),
+                new Value(LOC, 826));
     }
 
     private void verifyLineCoverage(final FileNode a) {
@@ -164,7 +163,7 @@ class OpenCoverParserTest extends AbstractParserTest {
                                 .hasValues(
                                         createLineCoverage(1, 0),
                                         createBranchCoverage(1, 1),
-                                        new CyclomaticComplexity(2)));
+                                        new Value(CYCLOMATIC_COMPLEXITY, 2)));
     }
 
     private Coverage createBranchCoverage(final int covered, final int missed) {

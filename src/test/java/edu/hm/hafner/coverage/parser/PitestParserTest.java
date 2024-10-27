@@ -128,7 +128,7 @@ class PitestParserTest extends AbstractParserTest {
         assertThat(file.getMissedCounters()).containsOnly(0).hasSize(16);
         assertThat(file.getSurvivedMutationsPerLine()).containsOnlyKeys(50);
         assertThat(file.getSurvivedMutationsPerLine().values()).hasSize(1)
-                .first().asList()
+                .first().asInstanceOf(LIST)
                 .hasSize(1).first()
                 .isInstanceOfSatisfying(Mutation.class, this::verifyMutation);
         assertThat(file.getMissedLines()).isEmpty();

@@ -5,12 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * TestCount the class {@link FractionValue}.
+ * Tests the class {@link FractionValue}.
  *
  * @author Ullrich Hafner
  */
@@ -19,9 +17,9 @@ class FractionValueTest {
     @Test
     void shouldCreateDelta() {
         var fraction = Fraction.getFraction(50, 1);
-        var fifty = new FractionValue(Metric.LINE, fraction);
-        var fiftyAgain = new FractionValue(Metric.LINE, 50, 1);
-        var hundred = new FractionValue(Metric.LINE, Fraction.getFraction(100, 1));
+        var fifty = new Value(Metric.TESTS, fraction);
+        var fiftyAgain = new Value(Metric.TESTS, 50, 1);
+        var hundred = new Value(Metric.TESTS, Fraction.getFraction(100, 1));
 
         assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
         assertThat(fifty.isOutOfValidRange(50)).isFalse();
@@ -32,40 +30,33 @@ class FractionValueTest {
         assertThat(hundred.max(fifty)).isEqualTo(hundred);
 
         assertThat(fifty).hasFraction(fraction);
-        assertThat(fifty.serialize()).isEqualTo("LINE: 50/1");
+        assertThat(fifty.serialize()).isEqualTo("TESTS: 50");
     }
 
     @Test
     void shouldVerifyContract() {
-        var fifty = new FractionValue(Metric.LINE, Fraction.getFraction(50, 1));
-        var hundred = new FractionValue(Metric.FILE, Fraction.getFraction(100, 1));
-
-        var fiftyLoc = new FractionValue(Metric.LOC, Fraction.getFraction(50, 1));
-        var loc = new LinesOfCode(2);
+        var fifty = new Value(Metric.TESTS, Fraction.getFraction(50, 1));
+        var hundred = new Value(Metric.CYCLOMATIC_COMPLEXITY, Fraction.getFraction(100, 1));
+        var loc = new Value(Metric.LOC, 2);
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.add(hundred));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fiftyLoc.add(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.add(loc));
 
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.delta(hundred));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fiftyLoc.delta(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.delta(fifty));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.delta(loc));
 
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.max(hundred));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fiftyLoc.max(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> loc.max(hundred));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> loc.max(fifty));
     }
 
     @Test
     void shouldReturnDelta() {
-        var fifty = new FractionValue(Metric.LINE, Fraction.getFraction(50, 1));
-        var hundred = new FractionValue(Metric.LINE, Fraction.getFraction(100, 1));
+        var fifty = new Value(Metric.LINE, Fraction.getFraction(50, 1));
+        var hundred = new Value(Metric.LINE, Fraction.getFraction(100, 1));
 
         assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
         assertThat(fifty.isOutOfValidRange(50)).isFalse();
 
         assertThat(hundred.delta(fifty)).isEqualTo(Fraction.getFraction(50, 1));
-    }
-
-    @Test
-    void shouldObeyEqualsContract() {
-        EqualsVerifier.forClass(FractionValue.class).withRedefinedSuperclass().verify();
     }
 }

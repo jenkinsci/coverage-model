@@ -12,13 +12,13 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -46,11 +46,6 @@ public class MetricsParser extends CoverageParser {
     private static final QName NAME = new QName("name");
     private static final QName BEGIN_LINE = new QName("beginline");
     private static final QName VALUE = new QName("value");
-
-    private static final String CYCLOMATIC_COMPLEXITY = "CyclomaticComplexity";
-    private static final String COGNITIVE_COMPLEXITY = "CognitiveComplexity";
-    private static final String NCSS = "NCSS";
-    private static final String NPATH_COMPLEXITY = "NPathComplexity";
 
     private static final PathUtil PATH_UTIL = new PathUtil();
 
@@ -235,20 +230,9 @@ public class MetricsParser extends CoverageParser {
     }
 
     private void readValueCounter(final Node node, final StartElement startElement) {
-        // FIXME: create Metric Values independent of Metric Name
         String currentType = getValueOf(startElement, NAME);
+        var metric = Metric.fromName(currentType);
         int value = parseInteger(getValueOf(startElement, VALUE));
-        if (CYCLOMATIC_COMPLEXITY.equals(currentType)) {
-            node.addValue(new CyclomaticComplexity(value));
-        }
-        else if (COGNITIVE_COMPLEXITY.equals(currentType)) {
-            node.addValue(new CyclomaticComplexity(value, Metric.COGNITIVE_COMPLEXITY));
-        }
-        else if (NCSS.equals(currentType)) {
-            node.addValue(new CyclomaticComplexity(value, Metric.NCSS));
-        }
-        else if (NPATH_COMPLEXITY.equals(currentType)) {
-            node.addValue(new CyclomaticComplexity(value, Metric.NPATH_COMPLEXITY));
-        }
+        node.addValue(new Value(metric, value));
     }
 }

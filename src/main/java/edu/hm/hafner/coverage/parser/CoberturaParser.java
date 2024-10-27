@@ -16,13 +16,13 @@ import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.CyclomaticComplexity;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -162,7 +162,7 @@ public class CoberturaParser extends CoverageParser {
 
         Node node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
-                .ifPresent(c -> node.addValue(new CyclomaticComplexity(readComplexity(c))));
+                .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
