@@ -672,6 +672,13 @@ public abstract class Node implements Serializable {
      * @return the test classes that have not been merged into this coverage tree
      */
     public Set<ClassNode> mergeTests(final Collection<ClassNode> testClassNodes) {
+        var totalTests = testClassNodes.stream().map(testClass -> testClass.getValue(Metric.TESTS))
+                .flatMap(Optional::stream)
+                .reduce(Value::add)
+                .map(Value::asInteger)
+                .orElse(0);
+        addValue(new Value(Metric.TESTS, totalTests));
+
         return testClassNodes.stream()
                 .map(this::mapTestClass)
                 .flatMap(Optional::stream)
