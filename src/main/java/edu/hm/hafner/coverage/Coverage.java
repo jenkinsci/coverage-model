@@ -157,14 +157,8 @@ public final class Coverage extends Value {
 
     private Coverage ensureSameMetricAndType(final Value other) {
         ensureSameMetric(other);
-        if (other instanceof Coverage) {
-            return (Coverage) other;
-        }
-        throw new IllegalArgumentException(
-                String.format("Cannot calculate with different types: %s and %s", this, other));
+        return (Coverage) other; // the type is checked in ensureSameMetric
     }
-
-
 
     /**
      * Returns whether this coverage percentage is below the given threshold. The threshold must be a percentage in the
