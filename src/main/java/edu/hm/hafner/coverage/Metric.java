@@ -259,11 +259,10 @@ public enum Metric {
             return LINE.getValueFor(node).map(this::getTotal);
         }
 
+        @SuppressFBWarnings(value = "BC", justification = "The value is a coverage value as it has the metric LINE")
         private Value getTotal(final Value leaf) {
-            if (leaf instanceof final Coverage coverage) {
-                return new Value(LOC, coverage.getTotal());
-            }
-            return Value.nullObject(LOC);
+            var coverage = (Coverage) leaf;
+            return new Value(LOC, coverage.getTotal());
         }
     }
 
