@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
+import java.io.Serial;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import edu.hm.hafner.util.FilteredLog;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class VectorCastParser extends CoberturaParser {
+    @Serial
     private static final long serialVersionUID = 598117573006409816L;
 
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");

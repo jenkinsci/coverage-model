@@ -21,12 +21,12 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldCopyEmpty() {
-        String parentName = ".ui.home.model";
+        var parentName = ".ui.home.model";
         var parent = new PackageNode(parentName);
         var child = new PackageNode("data");
         parent.addChild(child);
 
-        Node actualEmptyCopy = parent.copy();
+        var actualEmptyCopy = parent.copy();
 
         assertThat(actualEmptyCopy)
                 .hasName(parentName)
@@ -40,7 +40,7 @@ class PackageNodeTest extends AbstractNodeTest {
      */
     @Test
     void shouldMatchPath() {
-        String pkgName = "ui.home.model";
+        var pkgName = "ui.home.model";
         var pkg = new PackageNode(pkgName);
 
         assertThat(pkg.matches(PACKAGE, "ui.home.model".hashCode())).isTrue();
@@ -81,7 +81,7 @@ class PackageNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldNormalizePackageNameCorrectly() {
-        String normalizedName = "edu.hm.hafner";
+        var normalizedName = "edu.hm.hafner";
 
         assertThat(PackageNode.normalizePackageName("edu/hm/hafner")).isEqualTo(normalizedName);
         assertThat(PackageNode.normalizePackageName("edu\\hm\\hafner")).isEqualTo(normalizedName);

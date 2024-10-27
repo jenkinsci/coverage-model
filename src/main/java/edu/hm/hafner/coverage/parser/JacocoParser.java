@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.nio.file.Paths;
 import java.util.Optional;
 import javax.xml.namespace.QName;
@@ -36,6 +37,7 @@ import edu.hm.hafner.util.TreeString;
  */
 @SuppressWarnings("PMD.GodClass")
 public class JacocoParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = -6021749565311262221L;
 
     /** XML elements. */

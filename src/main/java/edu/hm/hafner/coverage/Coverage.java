@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -20,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  * @author Ullrich Hafner
  */
 public final class Coverage extends Value {
+    @Serial
     private static final long serialVersionUID = -3802318446471137305L;
     private static final String FRACTION_SEPARATOR = "/";
 
@@ -38,12 +40,12 @@ public final class Coverage extends Value {
      *         if the string is not a valid Coverage instance
      */
     public static Coverage valueOf(final Metric metric, final String stringRepresentation) {
-        var errorMessage = String.format("Cannot convert %s to a valid Coverage instance.", stringRepresentation);
+        var errorMessage = "Cannot convert %s to a valid Coverage instance.".formatted(stringRepresentation);
         try {
-            String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
+            var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, FRACTION_SEPARATOR)) {
-                String extractedCovered = StringUtils.substringBefore(cleanedFormat, FRACTION_SEPARATOR);
-                String extractedTotal = StringUtils.substringAfter(cleanedFormat, FRACTION_SEPARATOR);
+                var extractedCovered = StringUtils.substringBefore(cleanedFormat, FRACTION_SEPARATOR);
+                var extractedTotal = StringUtils.substringAfter(cleanedFormat, FRACTION_SEPARATOR);
 
                 int covered = Integer.parseInt(extractedCovered);
                 int total = Integer.parseInt(extractedTotal);

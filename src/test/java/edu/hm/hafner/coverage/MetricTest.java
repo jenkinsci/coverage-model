@@ -71,12 +71,12 @@ class MetricTest {
         node.addValue(new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build());
         node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
 
-        Value loc = Metric.LOC.getValueFor(node).get();
+        var loc = Metric.LOC.getValueFor(node).get();
         assertThat(loc.asInteger()).isEqualTo(10);
         assertThat(loc)
                 .hasMetric(Metric.LOC)
                 .hasFraction(Fraction.getFraction(10, 1));
-        Value complexityDensity = Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node).get();
+        var complexityDensity = Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node).get();
         assertThat(complexityDensity)
                 .hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY)
                 .hasFraction(Fraction.getFraction(10, 10));

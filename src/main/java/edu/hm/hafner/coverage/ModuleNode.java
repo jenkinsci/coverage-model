@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Melissa Bauer
  */
 public final class ModuleNode extends Node {
+    @Serial
     private static final long serialVersionUID = 2393265115219226404L;
 
     private final List<String> sources = new ArrayList<>();
@@ -76,7 +78,7 @@ public final class ModuleNode extends Node {
                 .collect(Collectors.toList());
         allPackages.forEach(this::removeChild);
         for (Node packageNode : allPackages) {
-            String[] packageParts = StringUtils.split(packageNode.getName(), "./\\");
+            var packageParts = StringUtils.split(packageNode.getName(), "./\\");
             if (packageParts.length > 1) {
                 ArrayUtils.reverse(packageParts);
                 Optional<PackageNode> splitPackages = Arrays.stream(packageParts)
@@ -101,7 +103,7 @@ public final class ModuleNode extends Node {
             if (isEqual(packageNode, existing)) {
                 // replace the existing node with the merged nodes
                 removeChild(existing);
-                Node merged = existing.merge(packageNode);
+                var merged = existing.merge(packageNode);
                 addChild(merged);
 
                 return;

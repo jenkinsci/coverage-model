@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -35,6 +36,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class CoberturaParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = -3625341318291829577L;
 
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");

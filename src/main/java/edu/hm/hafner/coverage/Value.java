@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Locale;
@@ -22,6 +23,7 @@ import edu.umd.cs.findbugs.annotations.CheckReturnValue;
  */
 @SuppressWarnings("PMD.GodClass") // this is a data class
 public class Value implements Serializable {
+    @Serial
     private static final long serialVersionUID = -1062406664372222691L;
 
     private static final String METRIC_SEPARATOR = ":";
@@ -77,38 +79,16 @@ public class Value implements Serializable {
      */
     @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
     public static Value valueOf(final String stringRepresentation) {
-        var errorMessage = String.format("Cannot convert '%s' to a valid Value instance.", stringRepresentation);
+        var errorMessage = "Cannot convert '%s' to a valid Value instance.".formatted(stringRepresentation);
         try {
-            String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
+            var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, METRIC_SEPARATOR)) {
                 var metric = Metric.fromName(StringUtils.substringBefore(cleanedFormat, METRIC_SEPARATOR));
                 var value = StringUtils.substringAfter(cleanedFormat, METRIC_SEPARATOR);
-                // TODO: add a flag in the metric
-                switch (metric) {
-                    case CONTAINER:
-                    case MODULE:
-                    case PACKAGE:
-                    case FILE:
-                    case CLASS:
-                    case METHOD:
-                    case LINE:
-                    case INSTRUCTION:
-                    case BRANCH:
-                    case MUTATION:
-                    case TEST_STRENGTH:
-                    case MCDC_PAIR:
-                    case FUNCTION_CALL:
-                        return Coverage.valueOf(metric, value);
-                    case CYCLOMATIC_COMPLEXITY:
-                    case CYCLOMATIC_COMPLEXITY_DENSITY:
-                    case CYCLOMATIC_COMPLEXITY_MAXIMUM:
-                    case LOC:
-                    case TESTS:
-                    case NCSS:
-                    case NPATH_COMPLEXITY:
-                    case COGNITIVE_COMPLEXITY:
-                        return new Value(metric, Fraction.getFraction(value));
+                if (metric.isCoverage()) {
+                    return Coverage.valueOf(metric, value);
                 }
+                return new Value(metric, Fraction.getFraction(value));
             }
         }
         catch (NumberFormatException exception) {
@@ -182,11 +162,11 @@ public class Value implements Serializable {
     protected void ensureSameMetric(final Value other) {
         if (!hasSameMetric(other)) {
             throw new IllegalArgumentException(
-                    String.format("Cannot calculate with different metrics: %s and %s", this, other));
+                    "Cannot calculate with different metrics: %s and %s".formatted(this, other));
         }
         if (!other.getClass().equals(getClass())) {
             throw new IllegalArgumentException(
-                    String.format("Cannot calculate with different types: %s and %s", this, other));
+                    "Cannot calculate with different types: %s and %s".formatted(this, other));
         }
     }
 

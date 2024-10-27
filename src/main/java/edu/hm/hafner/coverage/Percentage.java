@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.math.Fraction;
  * @author Florian Orendi
  */
 public final class Percentage implements Serializable {
+    @Serial
     private static final long serialVersionUID = 3324942976687883481L;
 
     /** null value. */
@@ -66,10 +68,10 @@ public final class Percentage implements Serializable {
      */
     public static Percentage valueOf(final String stringRepresentation) {
         try {
-            String cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
+            var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
             if (StringUtils.contains(cleanedFormat, "/")) {
-                String extractedNumerator = StringUtils.substringBefore(cleanedFormat, "/");
-                String extractedDenominator = StringUtils.substringAfter(cleanedFormat, "/");
+                var extractedNumerator = StringUtils.substringBefore(cleanedFormat, "/");
+                var extractedDenominator = StringUtils.substringAfter(cleanedFormat, "/");
 
                 int numerator = Integer.parseInt(extractedNumerator);
                 int denominator = Integer.parseInt(extractedDenominator);
@@ -81,7 +83,7 @@ public final class Percentage implements Serializable {
             // ignore and throw a specific exception
         }
         throw new IllegalArgumentException(
-                String.format("Cannot convert %s to a valid Percentage instance.", stringRepresentation));
+                "Cannot convert %s to a valid Percentage instance.".formatted(stringRepresentation));
     }
 
     private final int items;

@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
  */
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class PitestParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = 3449160972709724274L;
 
     private static final QName MUTATION = new QName("mutation");

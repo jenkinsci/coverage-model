@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
+
 /**
  * A {@link Node} which represents the top level node in the tree. Typically, such a node aggregates all
  * {@link ModuleNode modules} of a software project.
@@ -7,6 +9,7 @@ package edu.hm.hafner.coverage;
  * @author Ullrich Hafner
  */
 public final class ContainerNode extends Node {
+    @Serial
     private static final long serialVersionUID = 6304208788771158650L;
 
     /**

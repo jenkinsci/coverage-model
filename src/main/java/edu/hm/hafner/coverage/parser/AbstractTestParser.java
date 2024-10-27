@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
  * @author Ullrich Hafner
  */
 abstract class AbstractTestParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = 3771784159977766871L;
 
     static final QName NAME = new QName("name");

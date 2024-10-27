@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +38,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
 public class OpenCoverParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = -4819428317255612971L;
+
     private static final PathUtil PATH_UTIL = new PathUtil();
 
     /** XML elements. */

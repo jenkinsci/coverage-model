@@ -39,7 +39,7 @@ class ModuleNodeTest extends AbstractNodeTest {
         root.splitPackages();
         assertThat(root.getAll(PACKAGE)).isEmpty();
 
-        Node packageNode = new PackageNode("");
+        var packageNode = new PackageNode("");
         root.addChild(packageNode);
         assertThat(root.getAll(PACKAGE)).hasSize(1);
 
@@ -68,8 +68,8 @@ class ModuleNodeTest extends AbstractNodeTest {
     @Test
     void shouldKeepNodesAfterSplitting() {
         var root = new ModuleNode("Root");
-        Node pkg = new PackageNode("edu.hm.hafner");
-        Node file = new FileNode("HelloWorld.java", "path");
+        var pkg = new PackageNode("edu.hm.hafner");
+        var file = new FileNode("HelloWorld.java", "path");
 
         root.addChild(pkg);
         pkg.addChild(file);
@@ -82,8 +82,8 @@ class ModuleNodeTest extends AbstractNodeTest {
     @Test
     void shouldNotMergeWhenDifferentMetric() {
         var root = new ModuleNode("Root");
-        Node pkg = new PackageNode("edu.hm.hafner");
-        Node file = new FileNode("Helicopter.java", "path");
+        var pkg = new PackageNode("edu.hm.hafner");
+        var file = new FileNode("Helicopter.java", "path");
 
         root.addChild(pkg);
         root.addChild(file);

@@ -260,9 +260,7 @@ public enum Metric {
         }
 
         private Value getTotal(final Value leaf) {
-            if (leaf instanceof Coverage) {
-                var coverage = (Coverage) leaf;
-
+            if (leaf instanceof final Coverage coverage) {
                 return new Value(LOC, coverage.getTotal());
             }
             return Value.nullObject(LOC);

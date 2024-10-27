@@ -33,13 +33,13 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
 
     @Test
     void shouldCreateSingleNode() {
-        Node node = createParentWithValues();
+        var node = createParentWithValues();
 
         verifySingleNode(node);
     }
 
     private Node createParentWithValues() {
-        Node node = createNode(NAME);
+        var node = createNode(NAME);
         node.addValue(new Value(Metric.LOC, 15));
         node.addValue(MUTATION_COVERAGE);
         return node;
@@ -47,8 +47,8 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
 
     @Test
     void shouldCopyNode() {
-        Node parent = createParentWithValues();
-        Node child = createNode(CHILD);
+        var parent = createParentWithValues();
+        var child = createNode(CHILD);
         child.addValue(MUTATION_COVERAGE);
         parent.addChild(child);
 

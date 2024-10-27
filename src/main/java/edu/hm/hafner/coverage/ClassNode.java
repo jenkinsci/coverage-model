@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +13,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * A {@link Node} for a specific class.
  */
 public final class ClassNode extends Node {
+    @Serial
     private static final long serialVersionUID = 1621410859864978552L;
 
     private List<TestCase> testCases = new ArrayList<>();

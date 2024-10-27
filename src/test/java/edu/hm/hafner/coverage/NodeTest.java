@@ -117,7 +117,7 @@ class NodeTest {
 
     @Test
     void shouldHandleLeaves() {
-        Node node = new ModuleNode("Node");
+        var node = new ModuleNode("Node");
 
         assertThat(node).hasNoValues();
 
@@ -139,11 +139,11 @@ class NodeTest {
 
     @Test
     void shouldReturnAllNodesOfSpecificMetricType() {
-        Node parent = new ModuleNode("Parent");
-        Node child1 = new PackageNode("ChildOne");
-        Node child2 = new PackageNode("ChildTwo");
-        Node childOfChildOne = new FileNode("ChildOfChildOne", "path");
-        Node childOfChildTwo = new FileNode("ChildOfChildTwo", "path");
+        var parent = new ModuleNode("Parent");
+        var child1 = new PackageNode("ChildOne");
+        var child2 = new PackageNode("ChildTwo");
+        var childOfChildOne = new FileNode("ChildOfChildOne", "path");
+        var childOfChildTwo = new FileNode("ChildOfChildTwo", "path");
 
         parent.addChild(child1);
         parent.addChild(child2);
@@ -161,8 +161,8 @@ class NodeTest {
 
     @Test
     void shouldCalculateCorrectCoverageForModule() {
-        Node node = new ModuleNode("Node");
-        Value valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
+        var node = new ModuleNode("Node");
+        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
 
         node.addValue(valueOne);
 
@@ -197,7 +197,7 @@ class NodeTest {
         node.addValue(valueOne);
         node.addChild(childNode);
         childNode.addValue(valueTwo);
-        Node copiedNode = node.copyTree();
+        var copiedNode = node.copyTree();
 
         assertThat(node).isNotSameAs(copiedNode);
         assertThat(node.getChildren().get(0)).isNotSameAs(copiedNode.getChildren().get(0));
@@ -214,7 +214,7 @@ class NodeTest {
         node.addValue(valueOne);
         node.addChild(childNode);
         childNode.addValue(valueTwo);
-        Node copiedNode = node.copyTree(newParent);
+        var copiedNode = node.copyTree(newParent);
 
         assertThat(copiedNode).hasParent(newParent);
     }
@@ -312,19 +312,19 @@ class NodeTest {
 
     @Test
     void shouldKeepChildNodesAfterCombiningReportWithSamePackage() {
-        Node module = new ModuleNode("edu.hm.hafner.module1");
-        Node sameModule = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node samePackage = new PackageNode("coverage");
+        var module = new ModuleNode("edu.hm.hafner.module1");
+        var sameModule = new ModuleNode("edu.hm.hafner.module1");
+        var pkg = new PackageNode("coverage");
+        var samePackage = new PackageNode("coverage");
 
-        Node fileToKeep = new FileNode("KeepMe", "path");
-        Node otherFileToKeep = new FileNode("KeepMeToo", "path");
+        var fileToKeep = new FileNode("KeepMe", "path");
+        var otherFileToKeep = new FileNode("KeepMeToo", "path");
 
         pkg.addChild(fileToKeep);
         module.addChild(pkg);
         samePackage.addChild(otherFileToKeep);
         sameModule.addChild(samePackage);
-        Node combinedReport = module.merge(sameModule);
+        var combinedReport = module.merge(sameModule);
 
         assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep, otherFileToKeep);
     }
@@ -338,7 +338,7 @@ class NodeTest {
 
         project.addChild(coveragePkg);
         sameProject.addChild(autogradingPkg);
-        Node combinedReport = project.merge(sameProject);
+        var combinedReport = project.merge(sameProject);
 
         assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).orElseThrow())
                 .isNotSameAs(coveragePkg);
@@ -348,13 +348,13 @@ class NodeTest {
 
     @Test
     void shouldAlsoHandleReportsThatStopAtHigherLevelAndOtherReportHasHigherCoverage() {
-        Node report = new ModuleNode("edu.hm.hafner.module1");
-        Node pkg = new PackageNode("coverage");
-        Node file = new FileNode("Node.java", "path");
+        var report = new ModuleNode("edu.hm.hafner.module1");
+        var pkg = new PackageNode("coverage");
+        var file = new FileNode("Node.java", "path");
 
         report.addChild(pkg);
         pkg.addChild(file);
-        Node otherReport = report.copyTree();
+        var otherReport = report.copyTree();
 
         otherReport.getAllFileNodes().get(0)
                 .addCounters(1, 1, 0)
@@ -365,13 +365,13 @@ class NodeTest {
                 .addCounters(2, 0, 1)
                 .addCounters(3, 1, 0);
 
-        Node combined = report.merge(otherReport);
+        var combined = report.merge(otherReport);
         assertThat(getCoverage(combined, LINE)).hasMissed(0).hasCovered(3);
     }
 
     @Test
     void shouldFilterByFileName() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var files = tree.getFiles();
         var single = List.of(new ArrayList<>(files).get(0));
@@ -382,7 +382,7 @@ class NodeTest {
 
     @Test
     void shouldFilterByFile() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var filtered = tree.copyTree(null, this::file);
 
@@ -395,14 +395,14 @@ class NodeTest {
 
     @Test
     void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         verifyEmptyTree(tree, tree.filterByModifiedLines());
     }
 
     @Test
     void shouldCreateModifiedLinesCoverageTree() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var file = tree.findFile(COVERED_FILE);
         assertThat(file).isPresent();
@@ -456,7 +456,7 @@ class NodeTest {
 
     @Test
     void shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var filteredTree = tree.filterByModifiedFiles();
         verifyEmptyTree(tree, filteredTree);
@@ -473,7 +473,7 @@ class NodeTest {
 
     @Test
     void shouldCreateModifiedFilesCoverageTree() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var node = tree.findFile(COVERED_FILE);
         assertThat(node).isPresent();
@@ -510,13 +510,13 @@ class NodeTest {
 
     @Test
     void shouldCreateEmptyIndirectCoverageChangesTreeWithoutChanges() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
         verifyEmptyTree(tree, tree.filterByIndirectChanges());
     }
 
     @Test
     void shouldCreateIndirectCoverageChangesTree() {
-        Node tree = createTreeWithoutCoverage();
+        var tree = createTreeWithoutCoverage();
 
         var node = tree.findFile(COVERED_FILE);
         assertThat(node).isPresent();
@@ -566,7 +566,7 @@ class NodeTest {
         fileNode.addCounters(15 + offset, 4, 0);
         fileNode.addCounters(16 + offset, 2, 2);
 
-        MutationBuilder builder = new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
+        var builder = new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
 
         fileNode.addMutation(builder.withLine(17 + offset).withStatus(MutationStatus.KILLED).withIsDetected(true).build());
         fileNode.addMutation(builder.withLine(18 + offset).withStatus(MutationStatus.SURVIVED).withIsDetected(false).build());
@@ -594,10 +594,10 @@ class NodeTest {
     }
 
     private Node createTreeWithoutCoverage() {
-        Node moduleNode = new ModuleNode("edu.hm.hafner.module1");
-        Node packageNode = new PackageNode("coverage");
-        Node coveredFileNode = new FileNode(COVERED_FILE, "path/to/" + COVERED_FILE);
-        Node missedFileNode = new FileNode(MISSED_FILE, "path/to/" + MISSED_FILE);
+        var moduleNode = new ModuleNode("edu.hm.hafner.module1");
+        var packageNode = new PackageNode("coverage");
+        var coveredFileNode = new FileNode(COVERED_FILE, "path/to/" + COVERED_FILE);
+        var missedFileNode = new FileNode(MISSED_FILE, "path/to/" + MISSED_FILE);
 
         moduleNode.addChild(packageNode);
 
@@ -612,16 +612,16 @@ class NodeTest {
 
     @Test
     void shouldCreateEmptyNodes() {
-        Node fullyEmpty = new PackageNode("Empty Node");
+        var fullyEmpty = new PackageNode("Empty Node");
 
         assertThat(fullyEmpty).isEmpty();
     }
 
     @Test
     void shouldCreateNonEmptyNodes() {
-        Node noChildrenButValues = new PackageNode("No Children");
+        var noChildrenButValues = new PackageNode("No Children");
         noChildrenButValues.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
-        Node noValuesButChildren = new PackageNode("No Values");
+        var noValuesButChildren = new PackageNode("No Values");
         noValuesButChildren.addChild(new FileNode("child", "."));
 
         assertThat(noChildrenButValues).isNotEmpty();
@@ -630,11 +630,11 @@ class NodeTest {
 
     @Test
     void shouldMergeSingleNodeInList() {
-        Node parent = new PackageNode("package");
-        Node child = new FileNode("file", ".");
+        var parent = new PackageNode("package");
+        var child = new FileNode("file", ".");
         parent.addChild(child);
 
-        Node merged = Node.merge(List.of(parent));
+        var merged = Node.merge(List.of(parent));
 
         assertThat(merged).isEqualTo(parent);
     }
@@ -648,34 +648,34 @@ class NodeTest {
 
     @Test
     void shouldMergeMultipleNodesWithSameNameInList() {
-        Node parentA = new PackageNode("package");
-        Node childA = new FileNode("fileA", ".");
+        var parentA = new PackageNode("package");
+        var childA = new FileNode("fileA", ".");
         parentA.addChild(childA);
-        Node parentB = new PackageNode("package");
-        Node childB = new FileNode("fileB", ".");
+        var parentB = new PackageNode("package");
+        var childB = new FileNode("fileB", ".");
         parentB.addChild(childB);
-        Node parentC = new PackageNode("package");
-        Node childC = new FileNode("fileC", ".");
+        var parentC = new PackageNode("package");
+        var childC = new FileNode("fileC", ".");
         parentC.addChild(childC);
 
-        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+        var merged = Node.merge(List.of(parentA, parentB, parentC));
 
         assertThat(merged).hasOnlyChildren(childA, childB, childC);
     }
 
     @Test
     void shouldMergeMultipleNodesWithDifferentNameInList() {
-        Node parentA = new PackageNode("packageA");
-        Node childA = new FileNode("fileA", ".");
+        var parentA = new PackageNode("packageA");
+        var childA = new FileNode("fileA", ".");
         parentA.addChild(childA);
-        Node parentB = new PackageNode("packageB");
-        Node childB = new FileNode("fileB", ".");
+        var parentB = new PackageNode("packageB");
+        var childB = new FileNode("fileB", ".");
         parentB.addChild(childB);
-        Node parentC = new PackageNode("packageC");
-        Node childC = new FileNode("fileC", ".");
+        var parentC = new PackageNode("packageC");
+        var childC = new FileNode("fileC", ".");
         parentC.addChild(childC);
 
-        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+        var merged = Node.merge(List.of(parentA, parentB, parentC));
 
         assertThat(merged)
                 .hasName("Container")
@@ -685,20 +685,20 @@ class NodeTest {
 
     @Test @Issue("JENKINS-72310")
     void shouldMergeWithDuplicateAndDifferentNames() {
-        Node parentA = new PackageNode("packageA");
-        Node childA = new FileNode("fileA", ".");
+        var parentA = new PackageNode("packageA");
+        var childA = new FileNode("fileA", ".");
         parentA.addChild(childA);
-        Node parentB = new PackageNode("packageA");
-        Node childB = new FileNode("fileB", ".");
+        var parentB = new PackageNode("packageA");
+        var childB = new FileNode("fileB", ".");
         parentB.addChild(childB);
-        Node parentC = new PackageNode("packageC");
-        Node childC = new FileNode("fileC", ".");
+        var parentC = new PackageNode("packageC");
+        var childC = new FileNode("fileC", ".");
         parentC.addChild(childC);
-        Node parentD = new PackageNode("packageC");
-        Node childD = new FileNode("fileD", ".");
+        var parentD = new PackageNode("packageC");
+        var childD = new FileNode("fileD", ".");
         parentD.addChild(childD);
 
-        Node merged = Node.merge(List.of(parentA, parentB, parentC, parentD));
+        var merged = Node.merge(List.of(parentA, parentB, parentC, parentD));
 
         assertThat(merged)
                 .hasName("Container")
@@ -709,11 +709,11 @@ class NodeTest {
 
     @Test
     void shouldMergeMultipleNodesWithDifferentMetricInList() {
-        Node parentA = new ModuleNode("M");
-        Node parentB = new PackageNode("P");
-        Node parentC = new FileNode("F", ".");
+        var parentA = new ModuleNode("M");
+        var parentB = new PackageNode("P");
+        var parentC = new FileNode("F", ".");
 
-        Node merged = Node.merge(List.of(parentA, parentB, parentC));
+        var merged = Node.merge(List.of(parentA, parentB, parentC));
 
         assertThat(merged)
                 .hasName("Container")
@@ -742,7 +742,7 @@ class NodeTest {
     @Test
     void shouldComputeDelta() {
         var coverageBuilder = new CoverageBuilder();
-        Node fileA = new FileNode("FileA.java", ".");
+        var fileA = new FileNode("FileA.java", ".");
         fileA.addAllValues(Arrays.asList(
                 coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
                 coverageBuilder.withMetric(BRANCH).withCovered(2).withMissed(0).build(),
@@ -802,12 +802,12 @@ class NodeTest {
 
     @Test
     void shouldThrowExceptionWhenTryingToRemoveNodeThatIsNotAChild() {
-        Node moduleNode = new ModuleNode("module");
-        Node packageNode = new PackageNode("package");
+        var moduleNode = new ModuleNode("module");
+        var packageNode = new PackageNode("package");
 
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> moduleNode.removeChild(packageNode))
-                .withMessageContaining(String.format("The node %s is not a child of this node %s", packageNode, moduleNode));
+                .withMessageContaining("The node %s is not a child of this node %s".formatted(packageNode, moduleNode));
     }
 
     @Test

@@ -13,7 +13,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 class ValueTest {
     @Test
     void shouldReturnCorrectValueOfCoverage() {
-        Value container = Value.valueOf("CONTAINER: 1/1");
+        var container = Value.valueOf("CONTAINER: 1/1");
 
         assertThat(container)
                 .isInstanceOf(Coverage.class);
@@ -43,7 +43,7 @@ class ValueTest {
 
     @Test
     void shouldReturnCorrectValueOfFractionValue() {
-        Value fractionValue = Value.valueOf("COMPLEXITY_DENSITY: 1/1");
+        var fractionValue = Value.valueOf("COMPLEXITY_DENSITY: 1/1");
 
         assertThat(fractionValue)
                 .isInstanceOf(Value.class).hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY);
@@ -53,7 +53,7 @@ class ValueTest {
 
     @Test
     void shouldReturnCorrectValueOfLinesOfCode() {
-        Value linesOfCode = Value.valueOf("LOC: 1");
+        var linesOfCode = Value.valueOf("LOC: 1");
 
         assertThat(linesOfCode).isInstanceOf(Value.class).hasMetric(Metric.LOC);
         assertThat(linesOfCode.asInteger()).isEqualTo(1);
@@ -62,15 +62,15 @@ class ValueTest {
 
     @Test
     void shouldThrowExceptionOnInvalidStringRepresentation() {
-        String badRepresentation = "Bad representation";
-        String badNumber = "COMPLEXITY: BadNumber";
+        var badRepresentation = "Bad representation";
+        var badNumber = "COMPLEXITY: BadNumber";
 
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Value.valueOf(badRepresentation))
-                .withMessageContaining(String.format("Cannot convert '%s' to a valid Value instance.", badRepresentation));
+                .withMessageContaining("Cannot convert '%s' to a valid Value instance.".formatted(badRepresentation));
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Value.valueOf(badNumber))
-                .withMessageContaining(String.format("Cannot convert '%s' to a valid Value instance.", badNumber));
+                .withMessageContaining("Cannot convert '%s' to a valid Value instance.".formatted(badNumber));
     }
 
     @Test
