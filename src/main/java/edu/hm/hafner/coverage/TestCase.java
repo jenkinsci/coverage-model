@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ import edu.hm.hafner.util.Generated;
  * @author Ullrich Hafner
  */
 public final class TestCase implements Serializable {
+    @Serial
     private static final long serialVersionUID = -2181204291759959155L;
 
     private final String testName;

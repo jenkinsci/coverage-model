@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -10,6 +11,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Florian Orendi
  */
 public final class MethodNode extends Node {
+    @Serial
     private static final long serialVersionUID = -5765205034179396434L;
 
     private final String signature;
@@ -112,6 +114,6 @@ public final class MethodNode extends Node {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s <%s>", getMetric(), getName(), getLineNumber());
+        return "[%s] %s <%s>".formatted(getMetric(), getName(), getLineNumber());
     }
 }

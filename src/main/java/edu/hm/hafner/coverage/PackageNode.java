@@ -4,12 +4,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 
+import java.io.Serial;
+
 /**
  * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
  *
  * @author Ullrich Hafner
  */
 public final class PackageNode extends Node {
+    @Serial
     private static final long serialVersionUID = 8236436628673022634L;
 
     /**
@@ -23,7 +26,7 @@ public final class PackageNode extends Node {
      */
     public static String normalizePackageName(@CheckForNull final String name) {
         if (StringUtils.isNotBlank(name)) {
-            return StringUtils.replaceEach(name, new String[] {"/", "\\"}, new String[] {".", "."});
+            return StringUtils.replaceEach(name, new String[]{"/", "\\"}, new String[]{".", "."});
         }
         else {
             return EMPTY_NAME;

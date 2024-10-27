@@ -34,9 +34,9 @@ class CoverageTest {
     void shouldComputeDelta() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage worse = builder.withCovered(0).withMissed(2).build();
-        Coverage ok = builder.withCovered(1).withMissed(1).build();
-        Coverage better = builder.withCovered(2).withMissed(0).build();
+        var worse = builder.withCovered(0).withMissed(2).build();
+        var ok = builder.withCovered(1).withMissed(1).build();
+        var better = builder.withCovered(2).withMissed(0).build();
 
         assertThat(worse.delta(better).doubleValue()).isEqualTo(getDelta("-1/1"));
         assertThat(better.delta(worse).doubleValue()).isEqualTo(getDelta("1/1"));
@@ -48,9 +48,9 @@ class CoverageTest {
     void shouldCompareWithThreshold() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage zero = builder.withCovered(0).withMissed(2).build();
-        Coverage fifty = builder.withCovered(2).withMissed(2).build();
-        Coverage hundred = builder.withCovered(2).withMissed(0).build();
+        var zero = builder.withCovered(0).withMissed(2).build();
+        var fifty = builder.withCovered(2).withMissed(2).build();
+        var hundred = builder.withCovered(2).withMissed(0).build();
 
         assertThat(zero.isOutOfValidRange(0)).isFalse();
         assertThat(zero.isOutOfValidRange(0.1)).isTrue();
@@ -68,9 +68,9 @@ class CoverageTest {
     void shouldComputeMaximum() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage worse = builder.withCovered(0).withMissed(2).build();
-        Coverage coverage = builder.withCovered(1).withMissed(1).build();
-        Coverage better = builder.withCovered(2).withMissed(0).build();
+        var worse = builder.withCovered(0).withMissed(2).build();
+        var coverage = builder.withCovered(1).withMissed(1).build();
+        var better = builder.withCovered(2).withMissed(0).build();
 
         assertThat(coverage.max(coverage)).isSameAs(coverage);
         assertThat(coverage.max(better)).isSameAs(better);
@@ -83,7 +83,7 @@ class CoverageTest {
     void shouldThrowExceptionWhenMaximumIsInvalid(final int covered) {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage coverage = builder.withCovered(2).withMissed(1).build();
+        var coverage = builder.withCovered(2).withMissed(1).build();
 
         assertThatExceptionOfType(AssertionError.class).isThrownBy(
                 () -> coverage.max(
@@ -106,8 +106,8 @@ class CoverageTest {
     void shouldThrowExceptionWithIncompatibleValue() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage coverage = builder.withCovered(1).withMissed(2).build();
-        Coverage wrongMetric = builder.withMetric(Metric.LOC).build();
+        var coverage = builder.withCovered(1).withMissed(2).build();
+        var wrongMetric = builder.withMetric(Metric.LOC).build();
         var loc = new Value(Metric.LOC, 1);
 
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(loc));
@@ -136,7 +136,7 @@ class CoverageTest {
     void shouldCreatePercentages() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage coverage = builder.withCovered(6).withMissed(4).build();
+        var coverage = builder.withCovered(6).withMissed(4).build();
         assertThat(coverage)
                 .hasCovered(6)
                 .hasMissed(4)
@@ -146,7 +146,7 @@ class CoverageTest {
 
         assertThat(coverage.add(NO_COVERAGE)).isEqualTo(coverage);
 
-        Coverage sum = coverage.add(builder.withCovered(10).withMissed(0).build());
+        var sum = coverage.add(builder.withCovered(10).withMissed(0).build());
         assertThat(sum).isEqualTo(builder.withCovered(16).withMissed(4).build());
     }
 
@@ -156,7 +156,7 @@ class CoverageTest {
     void shouldCreateCoverage(final int covered) {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage coverage = builder
+        var coverage = builder
                 .withCovered(covered)
                 .withMissed(5 - covered)
                 .build();
@@ -177,10 +177,10 @@ class CoverageTest {
     void shouldCreateCoverage(final int covered, final int missed, final String toString) {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        Coverage coverage = builder.withCovered(covered).withMissed(missed).build();
+        var coverage = builder.withCovered(covered).withMissed(missed).build();
 
         assertThat(coverage).hasCovered(covered).hasMissed(missed);
-        assertThat(coverage.toString()).endsWith(String.format("(%s)", toString));
+        assertThat(coverage.toString()).endsWith("(%s)".formatted(toString));
     }
 
     @Test
@@ -192,7 +192,7 @@ class CoverageTest {
     void shouldSetMetricCoveredMissedByString() {
         var builder = new CoverageBuilder().withMetric("LINE");
 
-        Coverage coverage = builder.withCovered("10").withMissed("16").build();
+        var coverage = builder.withCovered("10").withMissed("16").build();
 
         assertThat(coverage)
                 .hasMetric(Metric.LINE)
@@ -203,7 +203,7 @@ class CoverageTest {
 
     @Test
     void shouldCreateCoverageBasedOnStringRepresentation() {
-        Coverage coverage = Coverage.valueOf(Metric.LINE, "16/20");
+        var coverage = Coverage.valueOf(Metric.LINE, "16/20");
 
         assertThat(coverage)
                 .hasMetric(Metric.LINE)
@@ -214,17 +214,17 @@ class CoverageTest {
 
     @Test
     void shouldThrowExceptionOnBadStringRepresentation() {
-        String invalidSeparator = "10-20";
+        var invalidSeparator = "10-20";
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Coverage.valueOf(Metric.LINE, invalidSeparator))
                 .withMessageContaining(invalidSeparator);
 
-        String totalSmallerThanCovered = "20/10";
+        var totalSmallerThanCovered = "20/10";
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Coverage.valueOf(Metric.LINE, totalSmallerThanCovered))
                 .withMessageContaining(totalSmallerThanCovered);
 
-        String noNumber = "NO/NUMBER";
+        var noNumber = "NO/NUMBER";
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Coverage.valueOf(Metric.LINE, noNumber))
                 .withMessageContaining(noNumber);
@@ -232,7 +232,7 @@ class CoverageTest {
 
     @Test
     void shouldCreateCoverageBasedOnFullStringRepresentation() {
-        Value value = Value.valueOf("LINE:10/20");
+        var value = Value.valueOf("LINE:10/20");
         assertThat(value).isInstanceOf(Coverage.class);
 
         var coverage = (Coverage) value;
@@ -245,13 +245,13 @@ class CoverageTest {
 
     @Test
     void shouldCalculateThirdValueOnBuilder() {
-        Coverage coveredTotal = new CoverageBuilder().withMetric(Metric.LINE).withCovered(15).withTotal(40).build();
+        var coveredTotal = new CoverageBuilder().withMetric(Metric.LINE).withCovered(15).withTotal(40).build();
         assertThat(coveredTotal).hasTotal(40).hasMissed(25).hasCovered(15);
 
-        Coverage coveredMissed = new CoverageBuilder().withMetric(Metric.LINE).withCovered(16).withMissed(16).build();
+        var coveredMissed = new CoverageBuilder().withMetric(Metric.LINE).withCovered(16).withMissed(16).build();
         assertThat(coveredMissed).hasTotal(32).hasMissed(16).hasCovered(16);
 
-        Coverage totalMissed = new CoverageBuilder().withMetric(Metric.LINE).withTotal(40).withMissed(15).build();
+        var totalMissed = new CoverageBuilder().withMetric(Metric.LINE).withTotal(40).withMissed(15).build();
         assertThat(totalMissed).hasTotal(40).hasMissed(15).hasCovered(25);
     }
 
@@ -266,17 +266,17 @@ class CoverageTest {
 
     @Test
     void shouldThrowExceptionWhenSettingOneOnBuilder() {
-        CoverageBuilder onlyTotal = new CoverageBuilder().withTotal(20);
+        var onlyTotal = new CoverageBuilder().withTotal(20);
         assertThatIllegalArgumentException()
                 .isThrownBy(onlyTotal::build)
                 .withMessageContaining("Exactly two properties have to be set.");
 
-        CoverageBuilder onlyMissed = new CoverageBuilder().withMissed(20);
+        var onlyMissed = new CoverageBuilder().withMissed(20);
         assertThatIllegalArgumentException()
                 .isThrownBy(onlyMissed::build)
                 .withMessageContaining("Exactly two properties have to be set.");
 
-        CoverageBuilder onlyCovered = new CoverageBuilder().withCovered(20);
+        var onlyCovered = new CoverageBuilder().withCovered(20);
         assertThatIllegalArgumentException()
                 .isThrownBy(onlyCovered::build)
                 .withMessageContaining("Exactly two properties have to be set.");

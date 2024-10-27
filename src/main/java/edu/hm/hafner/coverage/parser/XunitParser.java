@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
+import java.io.Serial;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -19,6 +20,7 @@ import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
  */
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class XunitParser extends AbstractTestParser {
+    @Serial
     private static final long serialVersionUID = -5468593789018138107L;
 
     private static final QName COLLECTION = new QName("collection");

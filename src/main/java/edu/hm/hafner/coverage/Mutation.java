@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -17,6 +18,7 @@ import edu.hm.hafner.util.TreeStringBuilder;
  */
 @SuppressWarnings("PMD.DataClass")
 public final class Mutation implements Serializable {
+    @Serial
     private static final long serialVersionUID = -7725185756332899065L;
 
     private final boolean detected;

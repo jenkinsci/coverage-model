@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
 public abstract class Node implements Serializable {
+    @Serial
     private static final long serialVersionUID = -6608885640271135273L;
 
     static final String EMPTY_NAME = "-";
@@ -93,10 +95,10 @@ public abstract class Node implements Serializable {
         if (parent == null) {
             return ROOT;
         }
-        Metric type = parent.getMetric();
+        var type = parent.getMetric();
 
         List<String> parentsOfSameType = new ArrayList<>();
-        for (Node node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
+        for (var node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
             parentsOfSameType.add(0, node.getName());
         }
         return String.join(".", parentsOfSameType);
@@ -178,7 +180,7 @@ public abstract class Node implements Serializable {
     public void addChild(final Node child) {
         if (hasChild(child.getId())) {
             throw new IllegalArgumentException(
-                    String.format("There is already the same child %s with the name %s in %s",
+                    "There is already the same child %s with the name %s in %s".formatted(
                             child, child.getName(), this));
         }
 
@@ -276,7 +278,7 @@ public abstract class Node implements Serializable {
     public void addValue(final Value value) {
         if (getMetricsOfValues().anyMatch(value.getMetric()::equals)) {
             throw new IllegalArgumentException(
-                    String.format("There is already a leaf %s with the metric %s", value, value.getMetric()));
+                    "There is already a leaf %s with the metric %s".formatted(value, value.getMetric()));
         }
         replaceValue(value);
     }
@@ -383,7 +385,7 @@ public abstract class Node implements Serializable {
         NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
 
         for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
-            Metric key = entry.getKey();
+            var key = entry.getKey();
             if (referencePercentages.containsKey(key)) {
                 deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
             }
@@ -608,7 +610,7 @@ public abstract class Node implements Serializable {
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent, final Function<Node, Boolean> filter) {
-        Node copy = copyNode();
+        var copy = copyNode();
 
         if (copiedParent != null) {
             copy.setParent(copiedParent);
@@ -646,7 +648,7 @@ public abstract class Node implements Serializable {
      * @return the copied node
      */
     public final Node copyNode() {
-        Node copy = copy();
+        var copy = copy();
         getValues().forEach(copy::addValue);
         return copy;
     }
@@ -749,20 +751,20 @@ public abstract class Node implements Serializable {
         ensureSameMetric(other);
 
         if (getName().equals(other.getName())) {
-            Node combinedReport = copyTree();
+            var combinedReport = copyTree();
             combinedReport.mergeNode(other);
             return combinedReport;
         }
         else {
             throw new IllegalArgumentException(
-                    String.format("Cannot merge nodes with different names: %s - %s", this, other));
+                    "Cannot merge nodes with different names: %s - %s".formatted(this, other));
         }
     }
 
     private void ensureSameMetric(final Node other) {
         if (getMetric() != other.getMetric()) {
             throw new IllegalArgumentException(
-                    String.format("Cannot merge nodes of different metrics: %s - %s", this, other));
+                    "Cannot merge nodes of different metrics: %s - %s".formatted(this, other));
         }
     }
 

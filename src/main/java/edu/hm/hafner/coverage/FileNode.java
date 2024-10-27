@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class FileNode extends Node {
+    @Serial
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
     private static final int UNSET = -1;
 
@@ -410,11 +412,11 @@ public final class FileNode extends Node {
         }
 
         var copy = new FileNode(getName(), relativePath);
-        Coverage lineCoverage = Coverage.nullObject(Metric.LINE);
-        Coverage branchCoverage = Coverage.nullObject(Metric.BRANCH);
+        var lineCoverage = Coverage.nullObject(Metric.LINE);
+        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
         for (Map.Entry<Integer, Integer> change : getIndirectCoverageChanges().entrySet()) {
             int delta = change.getValue();
-            Coverage currentCoverage = getBranchCoverage(change.getKey());
+            var currentCoverage = getBranchCoverage(change.getKey());
             if (!currentCoverage.isSet()) {
                 currentCoverage = getLineCoverage(change.getKey());
             }

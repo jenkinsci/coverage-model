@@ -42,7 +42,7 @@ class MethodNodeTest extends AbstractNodeTest {
                 .hasLineNumber(validLineNumber);
 
         int secondValidLineNumber = 1;
-        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V",  secondValidLineNumber);
+        var secondNode = new MethodNode("main", "(Ljava/util/Map;)V", secondValidLineNumber);
         assertThat(secondNode)
                 .hasValidLineNumber()
                 .hasLineNumber(secondValidLineNumber);

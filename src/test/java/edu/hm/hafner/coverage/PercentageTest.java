@@ -19,8 +19,8 @@ class PercentageTest {
 
     @Test
     void shouldHandleOverflow() {
-        Fraction fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
-        Percentage percentage = Percentage.valueOf(fraction);
+        var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
+        var percentage = Percentage.valueOf(fraction);
         assertThat(percentage.toDouble()).isEqualTo(100);
         assertThat(percentage.toInt()).isEqualTo(100);
         assertThat(percentage.formatDeltaPercentage(Locale.ENGLISH)).isEqualTo("+100.00%");
@@ -28,15 +28,15 @@ class PercentageTest {
 
     @Test
     void shouldCreatePercentageFromFraction() {
-        Fraction fraction = Fraction.getFraction(COVERAGE_FRACTION);
-        Percentage percentage = Percentage.valueOf(fraction);
+        var fraction = Fraction.getFraction(COVERAGE_FRACTION);
+        var percentage = Percentage.valueOf(fraction);
         assertThat(percentage.toDouble()).isEqualTo(50.0);
         assertThat(percentage.formatDeltaPercentage(Locale.ENGLISH)).isEqualTo("+50.00%");
     }
 
     @Test
     void shouldCreatePercentageFromNumeratorAndDenominator() {
-        Percentage percentage = Percentage.valueOf(50, 100);
+        var percentage = Percentage.valueOf(50, 100);
         assertThat(percentage.toDouble()).isEqualTo(50.0);
     }
 
@@ -62,7 +62,7 @@ class PercentageTest {
 
     @Test
     void shouldSerializeInstance() {
-        Percentage percentage = Percentage.valueOf(49, 100);
+        var percentage = Percentage.valueOf(49, 100);
         assertThat(percentage.serializeToString()).isEqualTo("49/100");
         assertThat(Percentage.valueOf("49/100")).isEqualTo(percentage).hasToString("49.00%");
 

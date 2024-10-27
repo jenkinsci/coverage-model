@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.nio.file.Paths;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -31,6 +32,7 @@ import edu.hm.hafner.util.TreeString;
  */
 @SuppressWarnings("PMD.GodClass")
 public class MetricsParser extends CoverageParser {
+    @Serial
     private static final long serialVersionUID = -4461747681863455621L;
 
     /** XML elements. */

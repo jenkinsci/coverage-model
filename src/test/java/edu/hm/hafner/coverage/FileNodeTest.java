@@ -105,7 +105,7 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldReadOldVersion() {
-        byte[] restored = readAllBytes("version-0.46.0.ser");
+        var restored = readAllBytes("version-0.46.0.ser");
 
         assertThatRestoredInstanceEqualsOriginalInstance(createSerializable(), restore(restored));
     }
@@ -231,9 +231,9 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, 2);
 
-        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredLineCoverage)
                 .hasOnlyValueMetrics(Metric.LINE);
@@ -269,9 +269,9 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, -2);
 
-        Node filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        Node filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        Node filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
         assertThat(filteredLineCoverage)
                 .hasNoValueMetrics();

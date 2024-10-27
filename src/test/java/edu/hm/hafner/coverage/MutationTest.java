@@ -18,16 +18,16 @@ class MutationTest {
     private Mutation createDummyMutation(final String identifier, final boolean detected,
                                          final MutationStatus status) {
         return new Mutation.MutationBuilder()
-                .withMutatedClass(String.format("Class%s.class", identifier))
-                .withSourceFile(String.format("Class%s.java", identifier))
-                .withMutatedMethod(String.format("Method%s", identifier))
+                .withMutatedClass("Class%s.class".formatted(identifier))
+                .withSourceFile("Class%s.java".formatted(identifier))
+                .withMutatedMethod("Method%s".formatted(identifier))
                 .withLine("1")
                 .withStatus(status)
                 .withIsDetected(detected)
-                .withMutator(String.format("Mutator%s", identifier))
-                .withKillingTest(String.format("Test%s", identifier))
-                .withMutatedMethodSignature(String.format("Signature%s", identifier))
-                .withDescription(String.format("Description%s", identifier))
+                .withMutator("Mutator%s".formatted(identifier))
+                .withKillingTest("Test%s".formatted(identifier))
+                .withMutatedMethodSignature("Signature%s".formatted(identifier))
+                .withDescription("Description%s".formatted(identifier))
                 .build();
     }
 

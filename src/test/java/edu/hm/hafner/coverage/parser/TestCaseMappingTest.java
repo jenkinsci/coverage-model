@@ -1,9 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -96,9 +94,9 @@ class TestCaseMappingTest {
     @SuppressFBWarnings("OBL")
     private ModuleNode readReport(final String fileName, final CoverageParser parser) {
         try {
-            try (InputStream stream = Objects.requireNonNull(TestCaseMappingTest.class.getResourceAsStream(fileName),
+            try (var stream = Objects.requireNonNull(TestCaseMappingTest.class.getResourceAsStream(fileName),
                     "File not found: " + fileName);
-                    Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
+                    var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
                 return parser.parse(reader, fileName, new FilteredLog("Errors"));
             }
         }
