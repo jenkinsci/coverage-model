@@ -8,9 +8,11 @@ import java.util.Objects;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -74,12 +76,15 @@ class TestCaseMappingTest {
         assertThat(coverage.getFiles()).hasSize(26);
 
         var tests = readReport("junit.xml", new JunitParser());
-        assertThat(tests.getTestCases()).hasSize(257);
+        var numberOfTests = 257;
+        assertThat(tests.getTestCases()).hasSize(numberOfTests);
         assertThat(tests.getAllClassNodes()).extracting(Node::getName).containsExactly(TEST_CLASSES);
+        assertThat(tests.getValue(Metric.TESTS)).contains(new Value(Metric.TESTS, numberOfTests));
 
         var unmappedTests = coverage.mergeTests(tests.getAllClassNodes());
         assertThat(unmappedTests).flatMap(Node::getTestCases).hasSize(10);
         assertThat(coverage.getTestCases()).hasSize(247);
+        assertThat(coverage.getValue(Metric.TESTS)).contains(new Value(Metric.TESTS, numberOfTests));
 
         assertThat(unmappedTests)
                 .extracting(Node::getName)

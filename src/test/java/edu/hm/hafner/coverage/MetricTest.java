@@ -68,18 +68,27 @@ class MetricTest {
     @Test
     void shouldCorrectlyComputeDensityEvaluator() {
         var node = new PackageNode("package");
-        node.addValue(new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build());
-        node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
 
-        var loc = Metric.LOC.getValueFor(node).get();
-        assertThat(loc.asInteger()).isEqualTo(10);
-        assertThat(loc)
-                .hasMetric(Metric.LOC)
-                .hasFraction(Fraction.getFraction(10, 1));
-        var complexityDensity = Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node).get();
-        assertThat(complexityDensity)
-                .hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY)
-                .hasFraction(Fraction.getFraction(10, 10));
+        node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
+        assertThat(Metric.LOC.getValueFor(node)).isEmpty(); // no line coverage yet
+
+        node.addValue(new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build());
+
+        assertThat(Metric.LOC.getValueFor(node)).hasValueSatisfying(loc -> {
+            assertThat(loc.asInteger()).isEqualTo(10);
+            assertThat(loc.asText()).isEqualTo("10");
+            assertThat(loc)
+                    .hasMetric(Metric.LOC)
+                    .hasFraction(Fraction.getFraction(10, 1));
+        });
+
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node)).hasValueSatisfying(complexity -> {
+            assertThat(complexity.asInteger()).isEqualTo(1);
+            assertThat(complexity.asText()).isEqualTo("1");
+            assertThat(complexity)
+                    .hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY)
+                    .hasFraction(Fraction.getFraction(10, 10));
+        });
     }
 
     @Test
