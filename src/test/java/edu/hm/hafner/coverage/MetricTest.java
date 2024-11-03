@@ -23,6 +23,14 @@ class MetricTest {
         assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
     }
 
+    @Test
+    void shouldProvideContextWhenMetricIsWrong() {
+        assertThatIllegalArgumentException().isThrownBy(() -> Metric.fromName("undefined"))
+                .withMessageContaining("No metric found for name 'undefined'");
+        assertThatIllegalArgumentException().isThrownBy(() -> Metric.fromName(""))
+                .withMessageContaining("No metric defined");
+    }
+
     @EnumSource(Metric.class)
     @ParameterizedTest(name = "{0} should be converted to a tag name and then back to a metric")
     void shouldConvertToTags(final Metric metric) {

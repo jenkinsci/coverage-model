@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.errorprone.annotations.Immutable;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -79,7 +81,10 @@ public enum Metric {
                 return metric;
             }
         }
-        throw new IllegalArgumentException("No metric found for name: " + name);
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("No metric defined");
+        }
+        throw new IllegalArgumentException("No metric found for name '" + name + "'");
     }
 
     private static String normalize(final String name) {
