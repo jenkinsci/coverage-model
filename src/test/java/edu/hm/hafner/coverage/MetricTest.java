@@ -8,6 +8,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import edu.hm.hafner.coverage.Metric.MetricTendency;
+import edu.hm.hafner.coverage.Metric.MetricValueType;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -69,12 +72,11 @@ class MetricTest {
     void shouldCorrectlyImplementIsContainer() {
         assertThat(Metric.MODULE.isContainer()).isTrue();
         assertThat(Metric.LINE.isContainer()).isFalse();
-        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.isContainer()).isFalse();
         assertThat(Metric.LOC.isContainer()).isFalse();
     }
 
     @Test
-    void shouldCorrectlyComputeDensityEvaluator() {
+    void shouldCorrectlyComputeLoc() {
         var node = new PackageNode("package");
 
         node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 10));
@@ -89,32 +91,42 @@ class MetricTest {
                     .hasMetric(Metric.LOC)
                     .hasFraction(Fraction.getFraction(10, 1));
         });
-
-        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(node)).hasValueSatisfying(complexity -> {
-            assertThat(complexity.asInteger()).isEqualTo(1);
-            assertThat(complexity.asText()).isEqualTo("1");
-            assertThat(complexity)
-                    .hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY)
-                    .hasFraction(Fraction.getFraction(10, 10));
-        });
     }
 
     @Test
-    void shouldReturnEmptyOptionalOnComputeDensityEvaluator() {
-        var zeroLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0).build();
-        var tenLines = new Coverage.CoverageBuilder().withMetric(Metric.LINE).withCovered(5).withMissed(5).build();
-        var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+    void shouldFormatMetricValues() {
+        var root = new PackageNode("package");
+        root.createClassNode("class").createMethodNode("method", "()");
 
-        var onlyLinesOfCode = new PackageNode("package");
-        onlyLinesOfCode.addValue(tenLines);
-        var onlyCyclomaticComplexity = new PackageNode("package");
-        onlyCyclomaticComplexity.addValue(cyclomaticComplexity);
-        var zeroLinesOfCodeWithComplexity = new PackageNode("package");
-        zeroLinesOfCodeWithComplexity.addValue(zeroLines);
-        zeroLinesOfCodeWithComplexity.addValue(cyclomaticComplexity);
+        var complexity = Metric.CYCLOMATIC_COMPLEXITY;
+        assertThat(complexity).hasTendency(MetricTendency.SMALLER_IS_BETTER);
+        assertThat(complexity.format(355)).isEqualTo("355");
+        assertThat(complexity.formatMean(355)).isEqualTo("355.00");
+        assertThat(complexity.getAggregationType()).isEqualTo("total");
+        assertThat(complexity.getType()).isEqualTo(MetricValueType.METHOD_METRIC);
+        assertThat(complexity.parseValue("355.7")).satisfies(value ->
+                assertThat(value.asText()).isEqualTo("356"));
 
-        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(onlyLinesOfCode)).isEmpty();
-        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(onlyCyclomaticComplexity)).isEmpty();
-        assertThat(Metric.CYCLOMATIC_COMPLEXITY_DENSITY.getValueFor(zeroLinesOfCodeWithComplexity)).isEmpty();
+        assertThat(complexity.getTargetNodes(root)).hasSize(1)
+                .first().extracting(Node::getName).isEqualTo("method()");
+
+        var cohesion = Metric.COHESION;
+        assertThat(cohesion).hasTendency(MetricTendency.LARGER_IS_BETTER);
+        assertThat(cohesion.format(0.355)).isEqualTo("35.50%");
+        assertThat(cohesion.formatMean(0.355)).isEqualTo("35.50%");
+        assertThat(cohesion.getAggregationType()).isEqualTo("maximum");
+        assertThat(cohesion.getType()).isEqualTo(MetricValueType.CLASS_METRIC);
+        assertThat(cohesion.parseValue("0.355")).satisfies(value ->
+                assertThat(value.asText()).isEqualTo("35.50%"));
+
+        assertThat(cohesion.getTargetNodes(root)).hasSize(1)
+                .first().extracting(Node::getName).isEqualTo("class");
+
+        var coverage = Metric.PACKAGE;
+        assertThat(coverage).hasTendency(MetricTendency.LARGER_IS_BETTER);
+        assertThat(coverage.getAggregationType()).isEmpty();
+        assertThat(coverage.getType()).isEqualTo(MetricValueType.COVERAGE);
+        assertThat(coverage.getTargetNodes(root)).hasSize(1)
+                .first().extracting(Node::getName).isEqualTo("method()");
     }
 }

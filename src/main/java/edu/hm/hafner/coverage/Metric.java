@@ -1,28 +1,32 @@
 package edu.hm.hafner.coverage;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.errorprone.annotations.Immutable;
+import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * A metric to identify the type of the results. The enum order will be used to sort the
- * values for display purposes.
+ * A metric to identify the type of the results. The enum order will be used to sort the values for display purposes.
  *
  * @author Ullrich Hafner
  */
+@SuppressWarnings("ImmutableEnumChecker")
 public enum Metric {
-    /** Nodes that can have children. These notes compute their values on the fly based on the children's content. */
+    /**
+     * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
+     * coverage.
+     */
     CONTAINER(new CoverageOfChildrenEvaluator()),
     MODULE(new CoverageOfChildrenEvaluator()),
     PACKAGE(new CoverageOfChildrenEvaluator()),
@@ -41,14 +45,20 @@ public enum Metric {
     MUTATION(new ValuesAggregator()),
     TEST_STRENGTH(new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    CYCLOMATIC_COMPLEXITY_MAXIMUM(new MethodMaxComplexityFinder(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    CYCLOMATIC_COMPLEXITY_DENSITY(new DensityEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    CYCLOMATIC_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
     LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC),
+    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC),
     NCSS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COGNITIVE_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    NPATH_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC);
+    COGNITIVE_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
+    NPATH_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
+    ACCESS_TO_FOREIGN_DATA(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    COHESION(new ValuesAggregator(Value::max, "maximum"),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
+    FAN_OUT(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    NUMBER_OF_ACCESSORS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC),
+    WEIGHT_OF_CLASS(new ValuesAggregator(Value::max, "maximum"),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
+    WEIGHED_METHOD_COUNT(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC);
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -95,6 +105,7 @@ public enum Metric {
     private final MetricEvaluator evaluator;
     private final MetricTendency tendency;
     private final MetricValueType type;
+    private final MetricFormatter formatter;
 
     Metric(final MetricEvaluator evaluator) {
         this(evaluator, MetricTendency.LARGER_IS_BETTER);
@@ -105,9 +116,15 @@ public enum Metric {
     }
 
     Metric(final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
+        this(evaluator, tendency, type, new IntegerFormatter());
+    }
+
+    Metric(final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
+            final MetricFormatter formatter) {
         this.evaluator = evaluator;
         this.tendency = tendency;
         this.type = type;
+        this.formatter = formatter;
     }
 
     public MetricTendency getTendency() {
@@ -121,6 +138,10 @@ public enum Metric {
      */
     public boolean isContainer() {
         return evaluator.isAggregatingChildren();
+    }
+
+    public MetricValueType getType() {
+        return type;
     }
 
     /**
@@ -153,6 +174,61 @@ public enum Metric {
         return evaluator.compute(node, this);
     }
 
+    /**
+     * Returns the target nodes that store the values for this metric in the tree spanned by the specified node.
+     *
+     * @param node
+     *         the node to get the target nodes from
+     *
+     * @return the target nodes
+     */
+    public List<? extends Node> getTargetNodes(final Node node) {
+        if (getType() == MetricValueType.CLASS_METRIC) {
+            return node.getAllClassNodes();
+        }
+        return node.getAllMethodNodes();
+    }
+
+    /**
+     * Formats the specified value according to the metrics formatter.
+     *
+     * @param value
+     *         the value to format
+     *
+     * @return the formatted value
+     */
+    public String format(final double value) {
+        return formatter.format(value);
+    }
+
+    /**
+     * Formats the specified mean value according to the metrics formatter.
+     *
+     * @param value
+     *         the mean value to format
+     *
+     * @return the formatted mean value
+     */
+    public String formatMean(final double value) {
+        return formatter.formatMean(value);
+    }
+
+    public String getAggregationType() {
+        return evaluator.getAggregationType();
+    }
+
+    /**
+     * Parses the specified {@link String} value as a {@link Fraction} and returns a corresponding value instance.
+     *
+     * @param value
+     *         the value to parse as a fraction
+     *
+     * @return the value instance representing the parsed fraction
+     */
+    public Value parseValue(final String value) {
+        return new Value(this, Fraction.getFraction(value));
+    }
+
     public static NavigableSet<Metric> getCoverageMetrics() {
         return Arrays.stream(values())
                 .filter(Metric::isCoverage)
@@ -176,11 +252,14 @@ public enum Metric {
     public enum MetricValueType {
         /** Coverages are represented by values of the type {@link Coverage}. */
         COVERAGE,
-        /** Software metrics are represented by values of the type {@link Value}. */
-        METRIC
+        /** Software metrics for methods and classes are represented by values of the type {@link Value}. */
+        METRIC,
+        /** Software metrics for methods are represented by values of the type {@link Value}. */
+        METHOD_METRIC,
+        /** Software metrics for classes are represented by values of the type {@link Value}. */
+        CLASS_METRIC
     }
 
-    @Immutable
     private abstract static class MetricEvaluator {
         final Optional<Value> compute(final Node node, final Metric searchMetric) {
             return getValue(node, searchMetric).or(() -> computeDerivedValue(node, searchMetric));
@@ -189,6 +268,10 @@ public enum Metric {
         abstract Optional<Value> computeDerivedValue(Node node, Metric searchMetric);
 
         abstract boolean isAggregatingChildren();
+
+        public String getAggregationType() {
+            return StringUtils.EMPTY;
+        }
 
         Optional<Value> getValue(final Node node, final Metric searchMetric) {
             return node.getValues()
@@ -218,8 +301,15 @@ public enum Metric {
 
         private Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
             if (node.getMetric().equals(searchMetric)) {
-                return Optional.of(getValue(node, searchMetric)
-                        .orElse(deriveCoverageFromOtherMetrics(node, searchMetric)));
+                return getValue(node, searchMetric).or(() -> deriveFromCoverage(node, searchMetric));
+            }
+            return Optional.empty();
+        }
+
+        private Optional<? extends Value> deriveFromCoverage(final Node node, final Metric searchMetric) {
+            var hasCoverage = node.getMetrics().stream().anyMatch(Metric::isCoverage);
+            if (hasCoverage) {
+                return Optional.ofNullable(deriveCoverageFromOtherMetrics(node, searchMetric));
             }
             return Optional.empty();
         }
@@ -241,7 +331,8 @@ public enum Metric {
                     || hasCoverage(node, BRANCH);
 
             boolean additional = hasCoverage(node, MCDC_PAIR)
-                    || hasCoverage(node, FUNCTION_CALL);
+                    || hasCoverage(node, FUNCTION_CALL)
+                    || hasCoverage(node, MUTATION);
 
             return baseline || additional;
         }
@@ -253,14 +344,49 @@ public enum Metric {
         }
     }
 
-    private static class LocEvaluator extends MetricEvaluator {
+    private static class ValuesAggregator extends MetricEvaluator {
+        private final BinaryOperator<Value> accumulator;
+        private final String name;
+
+        ValuesAggregator() {
+            this(Value::add, "total");
+        }
+
+        ValuesAggregator(final BinaryOperator<Value> accumulator, final String name) {
+            super();
+
+            this.accumulator = accumulator;
+            this.name = name;
+        }
+
+        @Override
+        public String getAggregationType() {
+            return name;
+        }
+
         @Override
         public boolean isAggregatingChildren() {
             return false;
         }
 
         @Override
-        Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
+        final Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
+            var defaultValue = getDefaultValue(node, searchMetric);
+
+            return defaultValue.or(() -> node.getChildren().stream()
+                    .map(n -> compute(n, searchMetric))
+                    .flatMap(Optional::stream)
+                    .reduce(accumulator));
+        }
+
+        protected Optional<Value> getDefaultValue(final Node node, final Metric searchMetric) {
+            return Optional.empty();
+        }
+    }
+
+    private static class LocEvaluator extends ValuesAggregator {
+        @Override
+        protected Optional<Value> getDefaultValue(final Node node, final Metric searchMetric) {
             return LINE.getValueFor(node).map(this::getTotal);
         }
 
@@ -271,59 +397,33 @@ public enum Metric {
         }
     }
 
-    private static class DensityEvaluator extends MetricEvaluator {
+    private interface MetricFormatter {
+        String format(double value);
+
+        String formatMean(double value);
+    }
+
+    private static class IntegerFormatter implements MetricFormatter {
         @Override
-        public boolean isAggregatingChildren() {
-            return false;
+        public String format(final double value) {
+            return String.valueOf(Math.round(value));
         }
 
         @Override
-        Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            var locValue = LOC.getValueFor(node);
-            var complexityValue = CYCLOMATIC_COMPLEXITY.getValueFor(node);
-            if (locValue.isPresent() && complexityValue.isPresent()) {
-                var loc = locValue.get().asInteger();
-                if (loc > 0) {
-                    var complexity = complexityValue.get();
-                    return Optional.of(new Value(CYCLOMATIC_COMPLEXITY_DENSITY, complexity.asInteger(), loc));
-                }
-            }
-            return Optional.empty();
+        public String formatMean(final double value) {
+            return String.format(Locale.ENGLISH, "%.2f", value);
         }
     }
 
-    private static class MethodMaxComplexityFinder extends MetricEvaluator {
+    private static class PercentageFormatter implements MetricFormatter {
         @Override
-        public boolean isAggregatingChildren() {
-            return false;
+        public String format(final double value) {
+            return String.format(Locale.ENGLISH, "%.2f%%", value * 100);
         }
 
         @Override
-        Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            if (node.getMetric() == METHOD) {
-                return CYCLOMATIC_COMPLEXITY.getValueFor(node)
-                        .map(c -> new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, c.getFraction()));
-            }
-            return node.getChildren().stream()
-                    .map(c -> compute(c, searchMetric))
-                    .flatMap(Optional::stream)
-                    .reduce(Value::max);
-        }
-    }
-
-    private static class ValuesAggregator extends MetricEvaluator {
-        @Override
-        public boolean isAggregatingChildren() {
-            return false;
-        }
-
-        @Override
-        final Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            // aggregate children values
-            return node.getChildren().stream()
-                    .map(n -> n.getValue(searchMetric))
-                    .flatMap(Optional::stream)
-                    .reduce(Value::add);
+        public String formatMean(final double value) {
+            return format(value);
         }
     }
 }

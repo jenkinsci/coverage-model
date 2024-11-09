@@ -257,7 +257,7 @@ public class Value implements Serializable {
      * @return this value formatted as a String
      */
     public String asText() {
-        return fraction.toProperString();
+        return getMetric().format(asDouble());
     }
 
     /**
@@ -267,6 +267,15 @@ public class Value implements Serializable {
      */
     public int asInteger() {
         return fraction.getProperWhole();
+    }
+
+    /**
+     * Returns this value as a double.
+     *
+     * @return this value as a double
+     */
+    public double asDouble() {
+        return fraction.doubleValue();
     }
 
     /**

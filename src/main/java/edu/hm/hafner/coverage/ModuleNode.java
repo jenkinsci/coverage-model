@@ -59,6 +59,7 @@ public final class ModuleNode extends Node {
 
     /**
      * Splits flat packages into a package hierarchy. Changes the internal tree structure of package nodes in place.
+     *
      * <p>
      * Examples:
      * </p>

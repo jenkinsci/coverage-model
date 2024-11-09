@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
+import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
@@ -28,6 +29,61 @@ class MetricsParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldParseAllMetrics() {
+        ModuleNode tree = readReport("all-metrics.xml");
+
+        assertThat(tree.getAll(MODULE)).hasSize(1);
+        assertThat(tree.getAll(PACKAGE)).hasSize(1);
+        assertThat(tree.getAll(FILE)).hasSize(13);
+        assertThat(tree.getAll(CLASS)).hasSize(26);
+        assertThat(tree.getAll(METHOD)).hasSize(205);
+
+        assertThat(tree).hasOnlyMetrics(
+                CYCLOMATIC_COMPLEXITY, LOC, NCSS, COGNITIVE_COMPLEXITY, NPATH_COMPLEXITY, ACCESS_TO_FOREIGN_DATA,
+                COHESION, FAN_OUT, NUMBER_OF_ACCESSORS, WEIGHT_OF_CLASS, WEIGHED_METHOD_COUNT);
+
+        var ensure = tree.findClass("edu.hm.hafner.util.Ensure");
+        assertThat(ensure).isPresent().hasValueSatisfying(this::verifyEnsureClassNode);
+
+        assertThat(tree.aggregateValues()).containsOnly(
+                new Value(CYCLOMATIC_COMPLEXITY, 355),
+                new Value(NCSS, 1199),
+                new Value(LOC, 3859),
+                new Value(COGNITIVE_COMPLEXITY, 172),
+                new Value(NPATH_COMPLEXITY, 432),
+                new Value(ACCESS_TO_FOREIGN_DATA, 87),
+                new Value(COHESION, 5, 7),
+                new Value(FAN_OUT, 224),
+                new Value(NUMBER_OF_ACCESSORS, 14),
+                new Value(WEIGHT_OF_CLASS, 1),
+                new Value(WEIGHED_METHOD_COUNT, 354));
+
+        assertThat(tree.getValue(CYCLOMATIC_COMPLEXITY)).hasValueSatisfying(value -> {
+            assertThat(value.asText()).isEqualTo("355");
+            assertThat(value.asInteger()).isEqualTo(355);
+            assertThat(value.asDouble()).isEqualTo(355.0);
+        });
+    }
+
+    private void verifyEnsureClassNode(final ClassNode classNode) {
+        assertThat(classNode)
+                .hasName("edu.hm.hafner.util.Ensure")
+                .hasValueMetrics(NCSS);
+        assertThat(classNode.aggregateValues()).contains(
+                new Value(CYCLOMATIC_COMPLEXITY, 14),
+                new Value(NCSS, 149),
+                new Value(LOC, 734),
+                new Value(COGNITIVE_COMPLEXITY, 0),
+                new Value(NPATH_COMPLEXITY, 12),
+                new Value(ACCESS_TO_FOREIGN_DATA, 4),
+                new Value(COHESION, 0),
+                new Value(FAN_OUT, 16),
+                new Value(NUMBER_OF_ACCESSORS, 0),
+                new Value(WEIGHT_OF_CLASS, 1),
+                new Value(WEIGHED_METHOD_COUNT, 14));
+    }
+
+    @Test
     void shouldParseMetrics() {
         ModuleNode tree = readReport("metrics.xml");
 
@@ -37,13 +93,11 @@ class MetricsParserTest extends AbstractParserTest {
         assertThat(tree.getAll(CLASS)).hasSize(3);
         assertThat(tree.getAll(METHOD)).hasSize(6);
 
-        assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, CYCLOMATIC_COMPLEXITY,
-                CYCLOMATIC_COMPLEXITY_MAXIMUM,
+        assertThat(tree).hasOnlyMetrics(CYCLOMATIC_COMPLEXITY,
                 NPATH_COMPLEXITY, NCSS, COGNITIVE_COMPLEXITY);
 
         assertThat(tree.aggregateValues()).contains(
                 new Value(CYCLOMATIC_COMPLEXITY, 2),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 1),
                 new Value(NCSS, 1000),
                 new Value(COGNITIVE_COMPLEXITY, 0),
                 new Value(NPATH_COMPLEXITY, 2));

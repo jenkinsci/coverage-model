@@ -43,8 +43,8 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(3);
         assertThat(root.getAll(METHOD)).hasSize(0);
 
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
-                CYCLOMATIC_COMPLEXITY_MAXIMUM, CYCLOMATIC_COMPLEXITY_DENSITY, LOC);
+        assertThat(root)
+                .hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY, LOC);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(3).extracting(FileNode::getFileName)
@@ -103,7 +103,6 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(LINE).withCovered(52).withMissed(28).build(),
                 builder.withMetric(BRANCH).withCovered(23).withMissed(11).build(),
                 new Value(CYCLOMATIC_COMPLEXITY, 25),
-                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 25, 80),
                 new Value(LOC, 80));
 
         verifyCoverageMetrics(root);
@@ -262,8 +261,6 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
                 builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
                 new Value(CYCLOMATIC_COMPLEXITY, 100),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 26),
-                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 100, 294),
                 new Value(LOC, 294));
     }
 
@@ -289,12 +286,14 @@ class VectorCastParserTest extends AbstractParserTest {
         assertThat(root.getAll(CLASS)).hasSize(8);
         assertThat(root.getAll(METHOD)).hasSize(30);
 
-        assertThat(root).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
-                CYCLOMATIC_COMPLEXITY_MAXIMUM, CYCLOMATIC_COMPLEXITY_DENSITY, LOC, MCDC_PAIR, FUNCTION_CALL, METHOD);
+        assertThat(root)
+                .hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, CYCLOMATIC_COMPLEXITY,
+                        LOC, MCDC_PAIR, FUNCTION_CALL, METHOD);
 
         var files = root.getAllFileNodes();
         assertThat(files).hasSize(8).extracting(FileNode::getFileName)
-                .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c", "matrix_multiply.c", "linked_list.c", "encrypt.c", "pos_driver.c", "waiting_list.c");
+                .containsExactlyInAnyOrder("database.c", "manager.c", "whitebox.c", "matrix_multiply.c",
+                        "linked_list.c", "encrypt.c", "pos_driver.c", "waiting_list.c");
 
         verifyMcdcFccProject(root);
         verifyMcdcFccProjectMetrics(root);

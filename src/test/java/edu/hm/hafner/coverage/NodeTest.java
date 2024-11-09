@@ -88,13 +88,13 @@ class NodeTest {
         var child1 = new PackageNode("ChildOne");
         var child2 = new PackageNode("ChildTwo");
         var childOfChildOne = new FileNode("ChildOfChildOne", "path");
-
+        var builder = new CoverageBuilder();
+        childOfChildOne.addValue(builder.withMetric(LINE).withCovered(1).withMissed(0).build());
         parent.addChild(child1);
         parent.addChild(child2);
         child1.addChild(childOfChildOne);
 
-        assertThat(parent.getMetrics().pollFirst()).isEqualTo(MODULE);
-        assertThat(parent.getMetrics()).contains(FILE);
+        assertThat(parent.getMetrics()).containsOnly(MODULE, PACKAGE, FILE, LINE, LOC);
     }
 
     @Test
@@ -783,7 +783,8 @@ class NodeTest {
         fileA.addChild(new ClassNode("ClassA.java"));
         fileA.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
 
-        assertThat(fileA.containsMetric(CLASS)).isTrue();
+        assertThat(fileA.containsMetric(CLASS)).isFalse();
+        assertThat(fileA.containsMetric(FILE)).isTrue();
         assertThat(fileA.containsMetric(LINE)).isTrue();
         assertThat(fileA.containsMetric(BRANCH)).isFalse();
     }

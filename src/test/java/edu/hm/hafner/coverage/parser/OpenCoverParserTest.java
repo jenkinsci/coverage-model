@@ -83,7 +83,6 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(BRANCH, "35/48"),
                 Coverage.valueOf(INSTRUCTION, "122/138"),
                 new Value(CYCLOMATIC_COMPLEXITY, 61),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 16),
                 new Value(LOC, 138));
         var fileNode = getFileNode(root);
         assertThat(fileNode).hasMissedLines(32).hasCoveredLines(16, 30, 34, 36, 38, 40, 51, 127, 161, 188, 197, 218, 226);
@@ -125,7 +124,6 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(BRANCH, "3/6"),
                 Coverage.valueOf(INSTRUCTION, "9/15"),
                 new Value(CYCLOMATIC_COMPLEXITY, 6),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 6),
                 new Value(LOC, 15));
     }
 
@@ -145,7 +143,6 @@ class OpenCoverParserTest extends AbstractParserTest {
                 Coverage.valueOf(BRANCH, "322/379"),
                 Coverage.valueOf(INSTRUCTION, "807/826"),
                 new Value(CYCLOMATIC_COMPLEXITY, 256),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 18),
                 new Value(LOC, 826));
     }
 
