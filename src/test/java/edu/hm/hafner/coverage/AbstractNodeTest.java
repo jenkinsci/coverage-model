@@ -53,7 +53,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
         parent.addChild(child);
 
         assertThat(parent).hasChildren(child);
-        assertThat(parent.aggregateValues()).containsExactlyElementsOf(createMetricDistributionWithMissed(2));
+        assertThat(parent.aggregateValues()).containsExactlyElementsOf(createMetricDistributionWithCovered(2));
         assertThat(parent.getAll(getMetric())).containsOnly(parent, child);
 
         assertThat(parent.find(getMetric(), NAME)).contains(parent);
@@ -76,7 +76,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
                 .doesNotHaveParent()
                 .hasParentName(Node.ROOT);
         assertThat(node.aggregateValues()).containsExactlyElementsOf(
-                createMetricDistributionWithMissed(1));
+                createMetricDistributionWithCovered(1));
 
         assertThat(node.getAll(getMetric())).containsOnly(node);
         assertThat(node.find(getMetric(), NAME)).contains(node);
@@ -87,9 +87,9 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
         assertThat(node.copy()).hasNoValues();
     }
 
-    private List<? extends Value> createMetricDistributionWithMissed(final int missed) {
+    private List<? extends Value> createMetricDistributionWithCovered(final int covered) {
         var builder = new CoverageBuilder();
-        builder.withMetric(getMetric()).withCovered(0).withMissed(missed);
+        builder.withMetric(getMetric()).withCovered(covered).withMissed(0);
         return List.of(builder.build(), MUTATION_COVERAGE, new Value(Metric.LOC, 15));
     }
 

@@ -119,17 +119,13 @@ public abstract class Node implements Serializable {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toCollection(TreeSet::new));
 
-        elements.add(getMetric());
         getMetricsOfValues().forEach(elements::add);
+        if (elements.stream().anyMatch(Metric::isCoverage)) {
+            elements.add(getMetric());
+        }
         if (elements.contains(Metric.LINE)) {
             // These metrics depend on the existence of other metrics
             elements.add(Metric.LOC);
-            if (elements.contains(Metric.CYCLOMATIC_COMPLEXITY)) {
-                elements.add(Metric.CYCLOMATIC_COMPLEXITY_DENSITY);
-            }
-        }
-        if (elements.contains(Metric.CYCLOMATIC_COMPLEXITY)) {
-            elements.add(Metric.CYCLOMATIC_COMPLEXITY_MAXIMUM);
         }
         return elements;
     }
@@ -411,8 +407,8 @@ public abstract class Node implements Serializable {
         return childNodes;
     }
 
-    private <T extends Node> List<T> getAll(final Metric metric1, final Function<Node, T> cast) {
-        return getAll(metric1).stream().map(cast).collect(Collectors.toList());
+    private <T extends Node> List<T> getAll(final Metric searchMetric, final Function<Node, T> cast) {
+        return getAll(searchMetric).stream().map(cast).collect(Collectors.toList());
     }
 
     public List<FileNode> getAllFileNodes() {

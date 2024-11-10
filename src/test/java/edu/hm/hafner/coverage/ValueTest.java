@@ -43,11 +43,11 @@ class ValueTest {
 
     @Test
     void shouldReturnCorrectValueOfFractionValue() {
-        var fractionValue = Value.valueOf("COMPLEXITY_DENSITY: 1/1");
+        var fractionValue = Value.valueOf("COMPLEXITY: 1/1");
 
         assertThat(fractionValue)
-                .isInstanceOf(Value.class).hasMetric(Metric.CYCLOMATIC_COMPLEXITY_DENSITY);
-        assertThat(fractionValue)
+                .isInstanceOf(Value.class)
+                .hasMetric(Metric.CYCLOMATIC_COMPLEXITY)
                 .hasFraction(Fraction.getFraction(1, 1));
     }
 

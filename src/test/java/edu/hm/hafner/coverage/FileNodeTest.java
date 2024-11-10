@@ -105,7 +105,7 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     void shouldReadOldVersion() {
-        var restored = readAllBytes("version-0.46.0.ser");
+        var restored = readAllBytes("version-0.49.0.ser");
 
         assertThatRestoredInstanceEqualsOriginalInstance(createSerializable(), restore(restored));
     }

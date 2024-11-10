@@ -51,16 +51,18 @@ class MethodNodeTest extends AbstractNodeTest {
     @ParameterizedTest(name = "[{index}] Compute method coverage based on {0} metric")
     @EnumSource(value = Metric.class, names = {"LINE", "BRANCH", "INSTRUCTION"})
     void shouldComputeMethodCoverage(final Metric targetMetric) {
-        var node = new MethodNode("method", "signature");
-
         var builder = new CoverageBuilder().withMetric(Metric.METHOD);
         var notCovered = builder.withCovered(0).withMissed(1).build();
         var covered = builder.withCovered(1).withMissed(0).build();
 
-        assertThat(node.getValue(Metric.METHOD)).isPresent().contains(notCovered);
+        var node = new MethodNode("method", "signature");
+        assertThat(node.getValue(Metric.METHOD)).isEmpty();
 
         node.addValue(builder.withMetric(targetMetric).withCovered(1).withMissed(0).build());
         assertThat(node.getValue(Metric.METHOD)).isPresent().contains(covered);
+
+        node.replaceValue(builder.withMetric(targetMetric).withCovered(0).withMissed(1).build());
+        assertThat(node.getValue(Metric.METHOD)).isPresent().contains(notCovered);
     }
 
     @Test

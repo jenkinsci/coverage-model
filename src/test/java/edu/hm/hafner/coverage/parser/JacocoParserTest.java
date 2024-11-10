@@ -220,22 +220,20 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
-                CYCLOMATIC_COMPLEXITY, CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
+                CYCLOMATIC_COMPLEXITY, LOC);
 
         var builder = new CoverageBuilder();
 
         assertThat(tree.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
-                builder.withMetric(FILE).withCovered(7).withMissed(3).build(),
-                builder.withMetric(CLASS).withCovered(15).withMissed(3).build(),
+                builder.withMetric(FILE).withCovered(7).withMissed(1).build(),
+                builder.withMetric(CLASS).withCovered(15).withMissed(1).build(),
                 builder.withMetric(METHOD).withCovered(97).withMissed(5).build(),
                 builder.withMetric(LINE).withCovered(294).withMissed(29).build(),
                 builder.withMetric(BRANCH).withCovered(109).withMissed(7).build(),
                 builder.withMetric(INSTRUCTION).withCovered(1260).withMissed(90).build(),
                 new Value(CYCLOMATIC_COMPLEXITY, 160),
-                new Value(CYCLOMATIC_COMPLEXITY_MAXIMUM, 6),
-                new Value(CYCLOMATIC_COMPLEXITY_DENSITY, 160, 294 + 29),
                 new Value(LOC, 294 + 29));
 
         assertThat(tree.getChildren()).hasSize(1)
@@ -270,15 +268,15 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(tree.getAll(METHOD)).hasSize(102);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, LINE, INSTRUCTION, BRANCH,
-                CYCLOMATIC_COMPLEXITY, CYCLOMATIC_COMPLEXITY_DENSITY, CYCLOMATIC_COMPLEXITY_MAXIMUM, LOC);
+                CYCLOMATIC_COMPLEXITY, LOC);
 
         var builder = new CoverageBuilder();
 
         assertThat(tree.aggregateValues()).contains(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
-                builder.withMetric(FILE).withCovered(7).withMissed(3).build(),
-                builder.withMetric(CLASS).withCovered(15).withMissed(3).build(),
+                builder.withMetric(FILE).withCovered(7).withMissed(1).build(),
+                builder.withMetric(CLASS).withCovered(15).withMissed(1).build(),
                 builder.withMetric(METHOD).withCovered(97).withMissed(5).build());
 
         assertThat(tree.getChildren()).hasSize(1)

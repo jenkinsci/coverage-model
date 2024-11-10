@@ -19,7 +19,6 @@ import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -234,7 +233,7 @@ public class MetricsParser extends CoverageParser {
     private void readValueCounter(final Node node, final StartElement startElement) {
         String currentType = getValueOf(startElement, NAME);
         var metric = Metric.fromName(currentType);
-        int value = parseInteger(getValueOf(startElement, VALUE));
-        node.addValue(new Value(metric, value));
+        var value = metric.parseValue(getValueOf(startElement, VALUE));
+        node.addValue(value);
     }
 }
