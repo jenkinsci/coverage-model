@@ -371,7 +371,7 @@ public enum Metric {
 
         @Override
         final Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            var defaultValue = getDefaultValue(node, searchMetric);
+            var defaultValue = getDefaultValue(node);
 
             return defaultValue.or(() -> node.getChildren().stream()
                     .map(n -> compute(n, searchMetric))
@@ -379,14 +379,14 @@ public enum Metric {
                     .reduce(accumulator));
         }
 
-        protected Optional<Value> getDefaultValue(final Node node, final Metric searchMetric) {
+        protected Optional<Value> getDefaultValue(final Node node) {
             return Optional.empty();
         }
     }
 
     private static class LocEvaluator extends ValuesAggregator {
         @Override
-        protected Optional<Value> getDefaultValue(final Node node, final Metric searchMetric) {
+        protected Optional<Value> getDefaultValue(final Node node) {
             return LINE.getValueFor(node).map(this::getTotal);
         }
 
