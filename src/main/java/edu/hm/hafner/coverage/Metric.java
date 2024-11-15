@@ -27,38 +27,38 @@ public enum Metric {
      * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
      * coverage.
      */
-    CONTAINER(new CoverageOfChildrenEvaluator()),
-    MODULE(new CoverageOfChildrenEvaluator()),
-    PACKAGE(new CoverageOfChildrenEvaluator()),
-    FILE(new CoverageOfChildrenEvaluator()),
-    CLASS(new CoverageOfChildrenEvaluator()),
-    METHOD(new CoverageOfChildrenEvaluator()),
+    CONTAINER("Container Coverage", new CoverageOfChildrenEvaluator()),
+    MODULE("Module Coverage", new CoverageOfChildrenEvaluator()),
+    PACKAGE("Package Coverage", new CoverageOfChildrenEvaluator()),
+    FILE("File Coverage", new CoverageOfChildrenEvaluator()),
+    CLASS("Class Coverage", new CoverageOfChildrenEvaluator()),
+    METHOD("Method Coverage", new CoverageOfChildrenEvaluator()),
 
     /** Coverage values that are leaves in the tree. */
-    LINE(new ValuesAggregator()),
-    BRANCH(new ValuesAggregator()),
-    INSTRUCTION(new ValuesAggregator()),
-    MCDC_PAIR(new ValuesAggregator()),
-    FUNCTION_CALL(new ValuesAggregator()),
+    LINE("Line Coverage", new ValuesAggregator()),
+    BRANCH("Branch Coverage", new ValuesAggregator()),
+    INSTRUCTION("Instruction Coverage", new ValuesAggregator()),
+    MCDC_PAIR("Modified Condition and Decision Coverage", new ValuesAggregator()),
+    FUNCTION_CALL("Function Call Coverage", new ValuesAggregator()),
 
     /** Additional coverage values obtained from mutation testing. */
-    MUTATION(new ValuesAggregator()),
-    TEST_STRENGTH(new ValuesAggregator()),
+    MUTATION("Mutation Coverage", new ValuesAggregator()),
+    TEST_STRENGTH("Test Strength", new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    LOC(new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    TESTS(new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC),
-    NCSS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COGNITIVE_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    NPATH_COMPLEXITY(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    ACCESS_TO_FOREIGN_DATA(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COHESION(new ValuesAggregator(Value::max, "maximum"),
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
+    LOC("Lines of Code", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    TESTS("Number of Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC),
+    NCSS("Non Commenting Source Statements", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    COGNITIVE_COMPLEXITY("Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
+    NPATH_COMPLEXITY("N-Path Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
+    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    COHESION("Class Cohesion", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    NUMBER_OF_ACCESSORS(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC),
-    WEIGHT_OF_CLASS(new ValuesAggregator(Value::max, "maximum"),
+    FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC),
+    WEIGHT_OF_CLASS("Weight of Class", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    WEIGHED_METHOD_COUNT(new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC);
+    WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC);
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -101,30 +101,36 @@ public enum Metric {
         return name.toUpperCase(Locale.ENGLISH).replaceAll("[-_]", "");
     }
 
+    private final String displayName;
     @SuppressFBWarnings("SE_BAD_FIELD")
     private final MetricEvaluator evaluator;
     private final MetricTendency tendency;
     private final MetricValueType type;
     private final MetricFormatter formatter;
 
-    Metric(final MetricEvaluator evaluator) {
-        this(evaluator, MetricTendency.LARGER_IS_BETTER);
+    Metric(final String displayName, final MetricEvaluator evaluator) {
+        this(displayName, evaluator, MetricTendency.LARGER_IS_BETTER);
     }
 
-    Metric(final MetricEvaluator evaluator, final MetricTendency tendency) {
-        this(evaluator, tendency, MetricValueType.COVERAGE);
+    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency) {
+        this(displayName, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
-        this(evaluator, tendency, type, new IntegerFormatter());
+    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
+        this(displayName, evaluator, tendency, type, new IntegerFormatter());
     }
 
-    Metric(final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
+    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
             final MetricFormatter formatter) {
+        this.displayName = displayName;
         this.evaluator = evaluator;
         this.tendency = tendency;
         this.type = type;
         this.formatter = formatter;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public MetricTendency getTendency() {

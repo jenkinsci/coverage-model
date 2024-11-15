@@ -23,7 +23,11 @@ class MetricTest {
             "cyclomatic-complexity", "cyclomatic_complexity", "CYCLOMATIC_COMPLEXITY"})
     @ParameterizedTest(name = "{0} should be converted to metric COMPLEXITY")
     void shouldMapFromName(final String name) {
-        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
+        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY)
+                .hasTendency(MetricTendency.SMALLER_IS_BETTER)
+                .isNotCoverage()
+                .isNotContainer()
+                .hasDisplayName("Cyclomatic Complexity");
     }
 
     @Test
@@ -70,9 +74,9 @@ class MetricTest {
      */
     @Test
     void shouldCorrectlyImplementIsContainer() {
-        assertThat(Metric.MODULE.isContainer()).isTrue();
-        assertThat(Metric.LINE.isContainer()).isFalse();
-        assertThat(Metric.LOC.isContainer()).isFalse();
+        assertThat(Metric.MODULE).isContainer().isCoverage().hasDisplayName("Module Coverage");
+        assertThat(Metric.FILE).isContainer().isCoverage().hasDisplayName("File Coverage");
+        assertThat(Metric.LINE).isNotContainer().isCoverage().hasDisplayName("Line Coverage");
     }
 
     @Test
@@ -99,7 +103,8 @@ class MetricTest {
         root.createClassNode("class").createMethodNode("method", "()");
 
         var complexity = Metric.CYCLOMATIC_COMPLEXITY;
-        assertThat(complexity).hasTendency(MetricTendency.SMALLER_IS_BETTER);
+        assertThat(complexity).hasTendency(MetricTendency.SMALLER_IS_BETTER)
+                .isNotContainer().isNotCoverage().hasDisplayName("Cyclomatic Complexity");
         assertThat(complexity.format(355)).isEqualTo("355");
         assertThat(complexity.formatMean(355)).isEqualTo("355.00");
         assertThat(complexity.getAggregationType()).isEqualTo("total");
@@ -111,7 +116,8 @@ class MetricTest {
                 .first().extracting(Node::getName).isEqualTo("method()");
 
         var cohesion = Metric.COHESION;
-        assertThat(cohesion).hasTendency(MetricTendency.LARGER_IS_BETTER);
+        assertThat(cohesion).hasTendency(MetricTendency.LARGER_IS_BETTER)
+                .isNotContainer().isNotCoverage().hasDisplayName("Class Cohesion");
         assertThat(cohesion.format(0.355)).isEqualTo("35.50%");
         assertThat(cohesion.formatMean(0.355)).isEqualTo("35.50%");
         assertThat(cohesion.getAggregationType()).isEqualTo("maximum");
@@ -123,7 +129,8 @@ class MetricTest {
                 .first().extracting(Node::getName).isEqualTo("class");
 
         var coverage = Metric.PACKAGE;
-        assertThat(coverage).hasTendency(MetricTendency.LARGER_IS_BETTER);
+        assertThat(coverage).hasTendency(MetricTendency.LARGER_IS_BETTER)
+                .isContainer().isCoverage().hasDisplayName("Package Coverage");
         assertThat(coverage.getAggregationType()).isEmpty();
         assertThat(coverage.getType()).isEqualTo(MetricValueType.COVERAGE);
         assertThat(coverage.getTargetNodes(root)).hasSize(1)
