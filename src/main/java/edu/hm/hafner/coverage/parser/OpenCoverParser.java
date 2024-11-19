@@ -2,7 +2,7 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.io.Serial;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,7 +12,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -22,7 +21,6 @@ import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.MethodNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.PackageNode;
@@ -94,7 +92,7 @@ public class OpenCoverParser extends CoverageParser {
             var eventReader = new SecureXmlParserFactory().createXmlEventReader(reader);
             var root = new ModuleNode(EMPTY);
             while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+                var event = eventReader.nextEvent();
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
                     if (MODULE.equals(startElement.getName()) && startElement.getAttributeByName(MODULE_SKIPPED) == null) {
@@ -117,9 +115,9 @@ public class OpenCoverParser extends CoverageParser {
         Map<String, String> files = new HashMap<>();
         List<CoverageClassHolder> classes = new ArrayList<>();
         boolean isEmpty = true;
-        PackageNode packageNode = new PackageNode(EMPTY);
+        var packageNode = new PackageNode(EMPTY);
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
@@ -132,7 +130,7 @@ public class OpenCoverParser extends CoverageParser {
                     files.put(uid, relativePath);
                 }
                 else if (MODULE_NAME.equals(nextElement.getName())) {
-                    String moduleName = reader.nextEvent().asCharacters().getData();
+                    var moduleName = reader.nextEvent().asCharacters().getData();
                     var moduleNode = new ModuleNode(moduleName);
                     packageNode = moduleNode.findOrCreatePackageNode(EMPTY);
                     root.addChild(moduleNode);
@@ -159,7 +157,7 @@ public class OpenCoverParser extends CoverageParser {
     private void createNodes(final Map<String, String> files, final PackageNode packageNode,
             final List<CoverageClassHolder> classes) {
         for (var file : files.entrySet()) {
-            FileNode fileNode = packageNode.findOrCreateFileNode(getFileName(file.getValue()), getTreeStringBuilder().intern(file.getValue()));
+            var fileNode = packageNode.findOrCreateFileNode(getFileName(file.getValue()), getTreeStringBuilder().intern(file.getValue()));
             for (CoverageClassHolder clazz : classes) {
                 if (clazz.hasMethods() && clazz.getFileId() != null && clazz.getFileId().equals(file.getKey())) {
                     createClassWithMethods(clazz, fileNode);
@@ -169,7 +167,7 @@ public class OpenCoverParser extends CoverageParser {
     }
 
     private void createClassWithMethods(final CoverageClassHolder clazz, final FileNode fileNode) {
-        ClassNode classNode = fileNode.createClassNode(clazz.getClassName());
+        var classNode = fileNode.createClassNode(clazz.getClassName());
         for (var method : clazz.getMethods()) {
             if (classNode.findMethod(method.getMethodName(), method.getMethodName()).isEmpty()) {
                 createPoints(fileNode, classNode, method);
@@ -178,7 +176,7 @@ public class OpenCoverParser extends CoverageParser {
     }
 
     private void createPoints(final FileNode fileNode, final ClassNode classNode, final CoverageMethod method) {
-        MethodNode methodNode = classNode.createMethodNode(method.getMethodName(), method.getMethodName());
+        var methodNode = classNode.createMethodNode(method.getMethodName(), method.getMethodName());
         var builder = new CoverageBuilder();
         var branchCoverage = builder.withMetric(Metric.BRANCH)
                     .withCovered(method.getBranchCovered())
@@ -215,10 +213,10 @@ public class OpenCoverParser extends CoverageParser {
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private CoverageClassHolder readClass(final XMLEventReader reader) throws XMLStreamException {
-        String className = StringUtils.EMPTY;
+        var className = StringUtils.EMPTY;
         List<CoverageMethod> methods = new ArrayList<>();
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (CLASS_NAME.equals(nextElement.getName())) {
@@ -226,7 +224,7 @@ public class OpenCoverParser extends CoverageParser {
                 }
                 // Only add visited methods
                 var visited = nextElement.getAttributeByName(METHOD_VISITED);
-                if (METHOD.equals(nextElement.getName()) && (visited == null || visited.getValue().equals("true"))) {
+                if (METHOD.equals(nextElement.getName()) && (visited == null || "true".equals(visited.getValue()))) {
                     methods.add(readMethod(reader, nextElement));
                 }
             }
@@ -246,7 +244,7 @@ public class OpenCoverParser extends CoverageParser {
         var coverageMethod = new CoverageMethod();
         coverageMethod.setComplexity(getIntegerValueOf(parentElement, METHOD_CYCLOMATIC_COMPLEXITY));
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (METHOD_NAME.equals(nextElement.getName())) {
@@ -285,7 +283,7 @@ public class OpenCoverParser extends CoverageParser {
 
     private void readSequencePoints(final XMLEventReader reader, final CoverageMethod coverageMethod) throws XMLStreamException {
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (SEQUENCE_POINT.equals(nextElement.getName()) && nextElement.getAttributeByName(SOURCE_LINE_NUMBER) != null) {
@@ -306,7 +304,7 @@ public class OpenCoverParser extends CoverageParser {
 
     private void readBranchPoints(final XMLEventReader reader, final CoverageMethod coverageMethod) throws XMLStreamException {
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (BRANCH_POINT.equals(nextElement.getName()) && nextElement.getAttributeByName(SOURCE_LINE_NUMBER) != null) {
@@ -341,10 +339,11 @@ public class OpenCoverParser extends CoverageParser {
 
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     private String getFileName(final String relativePath) {
-        return Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName().toString();
+        return Path.of(PATH_UTIL.getAbsolutePath(relativePath)).getFileName().toString();
     }
 
     private static class CoverageClassHolder extends MutablePair<String, List<CoverageMethod>> {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         CoverageClassHolder(final String className, final List<CoverageMethod> methods) {
@@ -369,6 +368,7 @@ public class OpenCoverParser extends CoverageParser {
     }
 
     private static class CoverageHint extends MutablePair<Integer, Integer> {
+        @Serial
         private static final long serialVersionUID = 1L;
 
         CoverageHint(final Integer lineNumber, final Integer hint) {

@@ -2,12 +2,11 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.io.Serial;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -73,10 +72,10 @@ public class MetricsParser extends CoverageParser {
             var factory = new SecureXmlParserFactory();
             var eventReader = factory.createXmlEventReader(reader);
 
-            ModuleNode root = new ModuleNode("");
+            var root = new ModuleNode("");
 
             while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+                var event = eventReader.nextEvent();
 
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
@@ -108,7 +107,7 @@ public class MetricsParser extends CoverageParser {
         var packageName = getValueOf(startElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -132,9 +131,9 @@ public class MetricsParser extends CoverageParser {
     @CanIgnoreReturnValue
     private Node readClass(final XMLEventReader reader, final FileNode fileNode, final StartElement startElement,
             final String fileName, final PackageNode packageNode) throws XMLStreamException {
-        ClassNode classNode = fileNode.findOrCreateClassNode(packageNode.getName() + "." + getValueOf(startElement, NAME));
+        var classNode = fileNode.findOrCreateClassNode(packageNode.getName() + "." + getValueOf(startElement, NAME));
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -156,19 +155,19 @@ public class MetricsParser extends CoverageParser {
     }
 
     private TreeString internPath(final String filePath) {
-        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Paths.get(filePath)));
+        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(filePath)));
     }
 
     @CanIgnoreReturnValue
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final StartElement startElement, final String fileName)
             throws XMLStreamException {
-        String sourceFileName = getSourceFileName(startElement);
+        var sourceFileName = getSourceFileName(startElement);
         var fileNode = packageNode.findOrCreateFileNode(sourceFileName,
                 internPath(getValueOf(startElement, NAME)));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -190,7 +189,7 @@ public class MetricsParser extends CoverageParser {
     }
 
     private String getSourceFileName(final StartElement startSourceFileElement) {
-        var sourceFilePath = Paths.get(getValueOf(startSourceFileElement, NAME)).getFileName();
+        var sourceFilePath = Path.of(getValueOf(startSourceFileElement, NAME)).getFileName();
         if (sourceFilePath == null) {
             return getValueOf(startSourceFileElement, NAME);
         }
@@ -202,13 +201,13 @@ public class MetricsParser extends CoverageParser {
     @CanIgnoreReturnValue
     private Node readMethod(final XMLEventReader reader, final ClassNode classNode,
             final StartElement startElement, final String fileName) throws XMLStreamException {
-        String methodName = getValueOf(startElement, NAME) + "#" + getValueOf(startElement, BEGIN_LINE);
+        var methodName = getValueOf(startElement, NAME) + "#" + getValueOf(startElement, BEGIN_LINE);
 
-        MethodNode methodNode = createMethod(startElement, methodName);
+        var methodNode = createMethod(startElement, methodName);
         classNode.addChild(methodNode);
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -231,7 +230,7 @@ public class MetricsParser extends CoverageParser {
     }
 
     private void readValueCounter(final Node node, final StartElement startElement) {
-        String currentType = getValueOf(startElement, NAME);
+        var currentType = getValueOf(startElement, NAME);
         var metric = Metric.fromName(currentType);
         var value = metric.parseValue(getValueOf(startElement, VALUE));
         node.addValue(value);

@@ -85,7 +85,7 @@ public final class ModuleNode extends Node {
                 Optional<PackageNode> splitPackages = Arrays.stream(packageParts)
                         .map(subPackage -> createPackageNode(subPackage, packageNode.getValues()))
                         .reduce(PackageNode::appendPackage);
-                PackageNode localRoot = splitPackages.get();
+                var localRoot = splitPackages.get();
                 Node localTail = localRoot;
                 while (localTail.hasChildren()) {
                     localTail = localTail.getChildren().get(0);

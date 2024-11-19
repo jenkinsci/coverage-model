@@ -2,14 +2,13 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.io.Serial;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -101,7 +100,7 @@ public class CoberturaParser extends CoverageParser {
         boolean isEmpty = true;
 
         while (eventReader.hasNext()) {
-            XMLEvent event = eventReader.nextEvent();
+            var event = eventReader.nextEvent();
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
@@ -124,7 +123,7 @@ public class CoberturaParser extends CoverageParser {
         var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var element = event.asStartElement();
@@ -148,7 +147,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private String getFileName(final String relativePath) {
-        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
+        var path = Path.of(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
         if (path == null) {
             return relativePath;
         }
@@ -162,12 +161,12 @@ public class CoberturaParser extends CoverageParser {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
 
-        Node node = createNode(parentNode, element, log);
+        var node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -225,7 +224,7 @@ public class CoberturaParser extends CoverageParser {
 
     private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
             final String name) {
-        String methodName = name;
+        var methodName = name;
         var signature = getValueOf(element, SIGNATURE);
         if (parentNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
             log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
@@ -236,7 +235,7 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
-        String className = name;
+        var className = name;
         if (parentNode.hasChild(className) && ignoreErrors()) {
             log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
             className = name + "-" + createId();
@@ -271,7 +270,7 @@ public class CoberturaParser extends CoverageParser {
         var aggregatedContent = new StringBuilder();
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
             }

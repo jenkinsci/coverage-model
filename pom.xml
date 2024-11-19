@@ -67,16 +67,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.openrewrite.maven</groupId>
-        <artifactId>rewrite-maven-plugin</artifactId>
-        <configuration>
-          <exclusions>
-            <exclusion>**/*Parser.java</exclusion>
-            <exclusion>**/*ParserTest.java</exclusion>
-          </exclusions>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
         <configuration>

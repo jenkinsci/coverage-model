@@ -9,7 +9,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -64,10 +63,10 @@ abstract class AbstractTestParser extends CoverageParser {
 
     private List<TestCase> readTestCases(final XMLEventReader eventReader,
             final ModuleNode root, final String fileName) throws XMLStreamException {
-        String suiteName = EMPTY;
+        var suiteName = EMPTY;
         var tests = new ArrayList<TestCase>();
         while (eventReader.hasNext()) {
-            XMLEvent event = eventReader.nextEvent();
+            var event = eventReader.nextEvent();
 
             if (event.isStartElement() && getTestSuite().equals(event.asStartElement().getName())) {
                 suiteName = getOptionalValueOf(event.asStartElement(), NAME).orElse(EMPTY);

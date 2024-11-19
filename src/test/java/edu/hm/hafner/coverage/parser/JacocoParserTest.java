@@ -60,7 +60,7 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(c).hasMissedLines(41, 42, 43, 46, 47).hasCoveredLines(36, 37, 38, 39, 49);
         verifyLineCoverage(c, 5);
 
-        var ab = (FileNode)a.merge(b);
+        var ab = (FileNode) a.merge(b);
         assertThat(ab)
                 .hasMissedLines(38, 39)
                 .doesNotHaveMissedLines(36, 37, 41, 42, 43, 46, 47, 49)
@@ -69,7 +69,7 @@ class JacocoParserTest extends AbstractParserTest {
                         createFileCoverageForFile(2),
                         createBranchCoverage(2, 12));
 
-        var abc = (FileNode)ab.merge(c);
+        var abc = (FileNode) ab.merge(c);
         assertThat(abc)
                 .doesNotHaveMissedLines(36, 37, 38, 39, 41, 42, 43, 46, 47, 49)
                 .hasCoveredLines(36, 37, 38, 39, 41, 42, 43, 46, 47, 49)
@@ -128,7 +128,7 @@ class JacocoParserTest extends AbstractParserTest {
     @ValueSource(booleans = {true, false})
     @DisplayName("Read and merge two coverage reports with different packages")
     void shouldMergeProjects(final boolean splitPackages) {
-        ModuleNode model = readReport("jacoco-analysis-model.xml");
+        var model = readReport("jacoco-analysis-model.xml");
 
         assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
                 "edu.hm.hafner.analysis.parser.dry.simian",
@@ -150,7 +150,7 @@ class JacocoParserTest extends AbstractParserTest {
                 "edu.hm.hafner.analysis.parser.ccm",
                 "edu.hm.hafner.analysis.parser.violations");
 
-        ModuleNode style = readReport("jacoco-codingstyle.xml");
+        var style = readReport("jacoco-codingstyle.xml");
 
         assertThat(style.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
                 "edu.hm.hafner.util");
@@ -186,7 +186,7 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadAndSplitSubpackage() {
-        ModuleNode model = readReport("file-subpackage.xml");
+        var model = readReport("file-subpackage.xml");
 
         model.splitPackages();
         assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
@@ -195,7 +195,7 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldDetectMethodCoverage() {
-        ModuleNode module = readReport("jacocoTestReport.xml");
+        var module = readReport("jacocoTestReport.xml");
 
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.findFile("CodeCoverageCategory.groovy")).isPresent().hasValueSatisfying(
@@ -211,7 +211,7 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertCodingStyleToTree() {
-        Node tree = readExampleReport();
+        var tree = readExampleReport();
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
@@ -240,7 +240,7 @@ class JacocoParserTest extends AbstractParserTest {
                 .element(0)
                 .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"));
 
-        Node any = tree.getAll(FILE)
+        var any = tree.getAll(FILE)
                 .stream()
                 .filter(n -> "Ensure.java".equals(n.getName()))
                 .findAny()
@@ -259,7 +259,7 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertCodingStyleWithoutSourceFilenames() {
-        Node tree = readReport("jacoco-codingstyle-no-sourcefilename.xml");
+        var tree = readReport("jacoco-codingstyle-no-sourcefilename.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
@@ -283,7 +283,7 @@ class JacocoParserTest extends AbstractParserTest {
                 .element(0)
                 .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"));
 
-        Node any = tree.getAll(FILE)
+        var any = tree.getAll(FILE)
                 .stream()
                 .filter(n -> "Ensure.java".equals(n.getName()))
                 .findAny()
@@ -356,7 +356,7 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldSplitPackages() {
-        ModuleNode tree = readExampleReport();
+        var tree = readExampleReport();
 
         tree.splitPackages();
 
@@ -374,9 +374,9 @@ class JacocoParserTest extends AbstractParserTest {
 
     @Test
     void shouldCreatePackageName() {
-        ModuleNode tree = readExampleReport();
+        var tree = readExampleReport();
 
-        String fileName = "Ensure.java";
+        var fileName = "Ensure.java";
         assertThat(tree.find(FILE, fileName)).isNotEmpty()
                 .hasValueSatisfying(node -> assertThat(node).hasName(fileName)
                         .hasParentName("edu.hm.hafner.util")

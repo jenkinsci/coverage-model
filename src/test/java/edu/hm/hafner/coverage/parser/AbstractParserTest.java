@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -41,8 +40,8 @@ abstract class AbstractParserTest {
     }
 
     ModuleNode readReport(final String fileName, final CoverageParser parser) {
-        try (InputStream stream = createFile(fileName);
-                Reader reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
+        try (var stream = createFile(fileName);
+                var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             return parser.parse(reader, fileName, log);
         }
         catch (IOException e) {
@@ -88,6 +87,6 @@ abstract class AbstractParserTest {
         assertThat(report).hasNoChildren().hasNoValues();
 
         var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains(String.format("[%s] The processed file 'empty.xml' does not contain data.", parserName));
+        assertThat(getLog().getErrorMessages()).contains("[%s] The processed file 'empty.xml' does not contain data.".formatted(parserName));
     }
 }

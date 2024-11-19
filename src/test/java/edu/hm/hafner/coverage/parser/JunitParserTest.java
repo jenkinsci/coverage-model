@@ -33,7 +33,7 @@ class JunitParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadArchUnitTests() {
-        ModuleNode tree = readJunitReport("archunit1.xml");
+        var tree = readJunitReport("archunit1.xml");
 
         assertThat(tree.getAll(Metric.MODULE)).hasSize(1);
         assertThat(tree.getAll(Metric.PACKAGE)).hasSize(1);
@@ -57,7 +57,7 @@ class JunitParserTest extends AbstractParserTest {
         assertThat(testCase.getDescription()).contains(
                 "at Aufgabe3Test.shouldSplitToEmptyRight(Aufgabe3Test.java:254)");
 
-        ModuleNode node = readReport("archunit2.xml");
+        var node = readReport("archunit2.xml");
 
         assertThat(node.getAll(Metric.CLASS)).hasSize(1);
         assertThat(node.aggregateValues()).contains(new Value(Metric.TESTS, 3));
@@ -166,7 +166,7 @@ class JunitParserTest extends AbstractParserTest {
     }
 
     private ModuleNode readJunitReport(final String fileName) {
-        ModuleNode tree = readReport(fileName);
+        var tree = readReport(fileName);
         assertThat(tree).hasName(fileName);
         return tree;
     }

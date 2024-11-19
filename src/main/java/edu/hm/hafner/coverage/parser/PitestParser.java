@@ -9,7 +9,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,7 +72,7 @@ public class PitestParser extends CoverageParser {
             var root = new ModuleNode(EMPTY); // PIT has no support for module names
             boolean isEmpty = true;
             while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+                var event = eventReader.nextEvent();
 
                 if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
                     readMutation(eventReader, root, event.asStartElement());
@@ -121,7 +120,7 @@ public class PitestParser extends CoverageParser {
         builder.withIsDetected(Boolean.parseBoolean(getValueOf(mutationElement, DETECTED)));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 readProperty(reader, builder);
@@ -139,7 +138,7 @@ public class PitestParser extends CoverageParser {
         var aggregatedContent = new StringBuilder();
 
         while (true) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
             }

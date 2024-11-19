@@ -2,14 +2,13 @@ package edu.hm.hafner.coverage.parser;
 
 import java.io.Reader;
 import java.io.Serial;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -95,7 +94,7 @@ public class JacocoParser extends CoverageParser {
             var eventReader = factory.createXmlEventReader(reader);
 
             while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+                var event = eventReader.nextEvent();
 
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
@@ -120,7 +119,7 @@ public class JacocoParser extends CoverageParser {
     private ModuleNode readModule(final XMLEventReader reader, final ModuleNode module, final String fileName)
             throws XMLStreamException {
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
@@ -156,7 +155,7 @@ public class JacocoParser extends CoverageParser {
         var packageName = getValueOf(startElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -196,7 +195,7 @@ public class JacocoParser extends CoverageParser {
             classNode = packageNode.findOrCreateClassNode(getValueOf(startElement, NAME));
         }
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -218,17 +217,17 @@ public class JacocoParser extends CoverageParser {
     }
 
     private TreeString internPath(final String packageName, final String fileName) {
-        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Paths.get(packageName, fileName)));
+        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(packageName, fileName)));
     }
 
     @CanIgnoreReturnValue
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final String packageName, final StartElement startElement, final String fileName) throws XMLStreamException {
-        String sourceFilefileName = getValueOf(startElement, NAME);
+        var sourceFilefileName = getValueOf(startElement, NAME);
         var fileNode = packageNode.findOrCreateFileNode(sourceFilefileName, internPath(packageName, sourceFilefileName));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -249,7 +248,7 @@ public class JacocoParser extends CoverageParser {
         throw createEofException(fileName);
     }
 
-    private void readLine(final FileNode fileNode, final StartElement startElement)  {
+    private void readLine(final FileNode fileNode, final StartElement startElement) {
         int lineNumber = getIntegerValueOf(startElement, LINE_NUMBER);
         int coveredInstructions = getIntegerValueOf(startElement, COVERED_INSTRUCTIONS);
         int coveredBranches = getIntegerValueOf(startElement, COVERED_BRANCHED);
@@ -271,14 +270,14 @@ public class JacocoParser extends CoverageParser {
     @CanIgnoreReturnValue
     private Node readMethod(final XMLEventReader reader, final ClassNode classNode,
             final StartElement startElement, final String fileName) throws XMLStreamException {
-        String methodName = getValueOf(startElement, NAME);
-        String methodSignature = getValueOf(startElement, SIGNATURE);
+        var methodName = getValueOf(startElement, NAME);
+        var methodSignature = getValueOf(startElement, SIGNATURE);
 
-        MethodNode methodNode = createMethod(startElement, methodName, methodSignature);
+        var methodNode = createMethod(startElement, methodName, methodSignature);
         classNode.addChild(methodNode);
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
@@ -305,7 +304,7 @@ public class JacocoParser extends CoverageParser {
     }
 
     private void readValueCounter(final Node node, final StartElement startElement) {
-        String currentType = getValueOf(startElement, TYPE);
+        var currentType = getValueOf(startElement, TYPE);
 
         if (StringUtils.containsAny(currentType, VALUE_LINE, VALUE_INSTRUCTION, VALUE_BRANCH, VALUE_COMPLEXITY)) {
             var covered = getIntegerValueOf(startElement, COVERED);
