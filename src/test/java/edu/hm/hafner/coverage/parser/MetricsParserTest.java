@@ -7,7 +7,6 @@ import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
-import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 
@@ -30,7 +29,7 @@ class MetricsParserTest extends AbstractParserTest {
 
     @Test
     void shouldParseAllMetrics() {
-        ModuleNode tree = readReport("all-metrics.xml");
+        var tree = readReport("all-metrics.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);
@@ -85,7 +84,7 @@ class MetricsParserTest extends AbstractParserTest {
 
     @Test
     void shouldParseMetrics() {
-        ModuleNode tree = readReport("metrics.xml");
+        var tree = readReport("metrics.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(1);

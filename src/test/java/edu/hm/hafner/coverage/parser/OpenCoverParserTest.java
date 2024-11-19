@@ -53,13 +53,13 @@ class OpenCoverParserTest extends AbstractParserTest {
 
     @Test
     void shouldCreatePackageName() {
-        ModuleNode tree = readExampleReport();
+        var tree = readExampleReport();
         assertThat(tree.find(PACKAGE, "-")).isNotEmpty()
                 .hasValueSatisfying(node -> assertThat(node).hasName("-")
                         .hasParentName("-.MyLogging")
                         .hasParent()
                         .isNotRoot());
-        String fileName = "MyLogging.FancyClass.cs";
+        var fileName = "MyLogging.FancyClass.cs";
         assertThat(tree.find(FILE, fileName)).isNotEmpty()
                 .hasValueSatisfying(node -> assertThat(node).hasName(fileName)
                         .hasParentName("-")
@@ -92,7 +92,7 @@ class OpenCoverParserTest extends AbstractParserTest {
 
     @Test
     void shouldDetectMethodCoverage() {
-        ModuleNode module = readExampleReport();
+        var module = readExampleReport();
 
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.findFile("MyLogging.FancyClass.cs")).isPresent().hasValueSatisfying(
@@ -110,7 +110,7 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Issue("JENKINS-72595")
     @ValueSource(strings = {"opencover-reporttotestsourcefiles.xml", "opencover-with-bom.xml"})
     void shouldReportTestSourceFiles(final String fileName) {
-        ModuleNode module = readReport(fileName);
+        var module = readReport(fileName);
         assertThat(module.getAll(MODULE)).hasSize(2);
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.getAll(FILE)).hasSize(1);
@@ -129,7 +129,7 @@ class OpenCoverParserTest extends AbstractParserTest {
 
     @Test
     void shouldReportWithSkippedModules() {
-        ModuleNode module = readReport("opencover-withskippedmodules.xml");
+        var module = readReport("opencover-withskippedmodules.xml");
         assertThat(module.getAll(MODULE)).hasSize(2);
         assertThat(module.getAll(PACKAGE)).hasSize(1);
         assertThat(module.getAll(FILE)).hasSize(25);

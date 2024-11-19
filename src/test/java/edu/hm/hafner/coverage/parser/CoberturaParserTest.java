@@ -41,7 +41,7 @@ class CoberturaParserTest extends AbstractParserTest {
     @Test
     @Issue("JENKINS-73325")
     void shouldUseFullPathWhenParsingFileNodes() {
-        Node root = readReport("cobertura-same-filename.xml");
+        var root = readReport("cobertura-same-filename.xml");
 
         assertThat(root.getAllFileNodes()).hasSize(2)
                 .satisfiesExactlyInAnyOrder(
@@ -52,8 +52,8 @@ class CoberturaParserTest extends AbstractParserTest {
     @Test
     @Issue("JENKINS-73325")
     void shouldMergeFilesThatUseSameFileNameInDifferentFolder() {
-        Node left = readReport("merge-duplicate-a.xml");
-        Node right = readReport("merge-duplicate-b.xml");
+        var left = readReport("merge-duplicate-a.xml");
+        var right = readReport("merge-duplicate-b.xml");
 
         var aggregation = left.merge(right);
         assertThat(aggregation.getAllFileNodes()).hasSize(2)
@@ -65,7 +65,7 @@ class CoberturaParserTest extends AbstractParserTest {
     @Test
     @Issue("JENKINS-73175")
     void shouldAutoGenerateNamesForRuby() {
-        Node root = readReport("cobertura-ruby.xml");
+        var root = readReport("cobertura-ruby.xml");
 
         assertThat(root.getAllFileNodes()).hasSize(3)
                 .satisfiesExactlyInAnyOrder(
@@ -76,7 +76,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("JENKINS-73175")
     void shouldAutoGenerateNamesForJavaScript() {
-        Node root = readReport("cobertura-js.xml", ProcessingMode.IGNORE_ERRORS);
+        var root = readReport("cobertura-js.xml", ProcessingMode.IGNORE_ERRORS);
 
         assertThat(root.getAllMethodNodes()).hasSize(3).map(Node::getName).satisfiesExactly(
                 first -> assertThat(first).isEqualTo("Foo()V"),
@@ -86,7 +86,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("JENKINS-73175")
     void shouldAutoGenerateNamesForCpp() {
-        Node root = readReport("cobertura-cpp.xml", ProcessingMode.IGNORE_ERRORS);
+        var root = readReport("cobertura-cpp.xml", ProcessingMode.IGNORE_ERRORS);
 
         assertThat(root.getAllMethodNodes()).hasSize(2).map(Node::getName).satisfiesExactly(
                 first -> assertThat(first).isEqualTo("calculate::[lambda][](int)"),
@@ -95,14 +95,14 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("JENKINS-72757")
     void shouldMergeIfCountersAreNotCompatible() {
-        Node left = readReport("merge-a.xml");
+        var left = readReport("merge-a.xml");
         assertThat(left.getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
                     assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(2);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
                 });
 
-        Node right = readReport("merge-b.xml");
+        var right = readReport("merge-b.xml");
         assertThat(right.getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
                     assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
@@ -123,7 +123,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldIgnoreMissingConditionAttribute() {
-        Node missingCondition = readReport("cobertura-missing-condition-coverage.xml");
+        var missingCondition = readReport("cobertura-missing-condition-coverage.xml");
 
         assertThat(missingCondition.getAll(FILE)).extracting(Node::getName)
                 .containsExactly("DataSourceProvider.cs");
@@ -145,7 +145,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldIgnoreDuplicateClasses() {
-        Node duplicateClasses = readReport("cobertura-duplicate-classes.xml",
+        var duplicateClasses = readReport("cobertura-duplicate-classes.xml",
                 new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
 
         assertThat(duplicateClasses.getAll(FILE)).extracting(Node::getName)
@@ -166,7 +166,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldIgnoreDuplicateMethods() {
-        Node duplicateMethods = readReport("cobertura-duplicate-methods.xml",
+        var duplicateMethods = readReport("cobertura-duplicate-methods.xml",
                 new CoberturaParser(ProcessingMode.IGNORE_ERRORS));
 
         assertThat(duplicateMethods.getAll(FILE)).extracting(Node::getName)
@@ -191,7 +191,7 @@ class CoberturaParserTest extends AbstractParserTest {
     void shouldMergeCorrectly() {
         var builder = new CoverageBuilder();
 
-        Node a = readReport("cobertura-merge-a.xml");
+        var a = readReport("cobertura-merge-a.xml");
         assertThat(a.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
@@ -203,7 +203,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 new Value(LOC, 22));
         verifyMissedAndCoveredLines(a);
 
-        Node b = readReport("cobertura-merge-b.xml");
+        var b = readReport("cobertura-merge-b.xml");
         assertThat(b.aggregateValues()).containsExactly(
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
@@ -219,7 +219,7 @@ class CoberturaParserTest extends AbstractParserTest {
                         .doesNotHaveCoveredLines(36, 37, 38, 40, 41, 42)
                         .hasCoveredLines(1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 45, 54, 60, 66, 71, 72));
 
-        var expectedValuesAfterMerge = new Value[] {
+        var expectedValuesAfterMerge = new Value[]{
                 builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
@@ -248,7 +248,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#625")
     void shouldCountCorrectly() {
-        Node tree = readReport("cobertura-counter-aggregation.xml");
+        var tree = readReport("cobertura-counter-aggregation.xml");
 
         var expectedValue = new CoverageBuilder().withCovered(31).withMissed(1).withMetric(BRANCH).build();
         assertThat(tree.getValue(BRANCH)).isPresent().contains(expectedValue);
@@ -335,7 +335,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#473")
     void shouldReadCoberturaNpe() {
-        Node tree = readReport("cobertura-npe.xml");
+        var tree = readReport("cobertura-npe.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("CoverageTest.Service");
@@ -362,7 +362,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#551")
     void shouldReadCoberturaAbsolutePath() {
-        Node tree = readReport("cobertura-absolute-path.xml");
+        var tree = readReport("cobertura-absolute-path.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsOnly("-");
         assertThat(tree.getAll(PACKAGE)).hasSize(1).extracting(Node::getName).containsOnly("Numbers");
@@ -397,7 +397,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertCoberturaBigToTree() {
-        Node root = readExampleReport();
+        var root = readExampleReport();
 
         assertThat(root.getAll(MODULE)).hasSize(1);
         assertThat(root.getAll(PACKAGE)).hasSize(5);
@@ -492,7 +492,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldHaveOneSource() {
-        ModuleNode tree = readExampleReport();
+        var tree = readExampleReport();
 
         assertThat(tree.getSourceFolders())
                 .hasSize(1)
@@ -500,7 +500,7 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private Node readCoberturaReport(final String fileName) {
-        Node tree = readReport(fileName);
+        var tree = readReport(fileName);
 
         assertThat(tree.getAll(MODULE)).hasSize(1).extracting(Node::getName).containsExactly("-");
         return tree;
@@ -537,7 +537,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromCoberturaReport() {
-        Node result = readReport("cobertura-lots-of-data.xml");
+        var result = readReport("cobertura-lots-of-data.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(19)
                 .extracting(FileNode::getRelativePath)
@@ -564,7 +564,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldReturnCorrectPathsInFileCoverageNodesFromPythonCoberturaReport() {
-        Node result = readReport("cobertura-python.xml");
+        var result = readReport("cobertura-python.xml");
         assertThat(result.getAllFileNodes())
                 .hasSize(1)
                 .extracting(FileNode::getRelativePath)

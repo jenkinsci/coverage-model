@@ -57,7 +57,7 @@ public class NunitParser extends AbstractTestParser {
         readStatus(testCaseElement, builder);
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement() && isFailure(event)) {
                 readFailure(reader, builder);
@@ -100,7 +100,7 @@ public class NunitParser extends AbstractTestParser {
 
         var aggregatedContent = new StringBuilder();
         while (true) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
             }

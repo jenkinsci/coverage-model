@@ -1,11 +1,11 @@
 package edu.hm.hafner.coverage;
 
 import java.io.Reader;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.xml.namespace.QName;
-import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -22,6 +22,7 @@ import edu.hm.hafner.util.TreeStringBuilder;
  * @author Ullrich Hafner
  */
 public abstract class CoverageParser implements Serializable {
+    @Serial
     private static final long serialVersionUID = 3941742254762282096L;
 
     /** Toplevel module name. */
@@ -111,7 +112,7 @@ public abstract class CoverageParser implements Serializable {
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log, final boolean isEmpty) {
         if (isEmpty) {
-            var emptyMessage = String.format("[%s] The processed file '%s' does not contain data.", getClass().getSimpleName(), fileName);
+            var emptyMessage = "[%s] The processed file '%s' does not contain data.".formatted(getClass().getSimpleName(), fileName);
             if (ignoreErrors()) {
                 log.logError(emptyMessage);
             }
@@ -166,7 +167,7 @@ public abstract class CoverageParser implements Serializable {
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 
     protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
-        Attribute value = element.getAttributeByName(attribute);
+        var value = element.getAttributeByName(attribute);
         if (value == null) {
             return Optional.empty();
         }
@@ -185,8 +186,7 @@ public abstract class CoverageParser implements Serializable {
 
     protected static String getValueOf(final StartElement element, final QName attribute) {
         return getOptionalValueOf(element, attribute).orElseThrow(
-                () -> new NoSuchElementException(String.format(
-                        "Could not obtain attribute '%s' from element '%s'", attribute, element)));
+                () -> new NoSuchElementException("Could not obtain attribute '%s' from element '%s'".formatted(attribute, element)));
     }
 
     protected static int parseInteger(final String value) {
@@ -208,6 +208,7 @@ public abstract class CoverageParser implements Serializable {
      * @author Ullrich Hafner
      */
     public static class ParsingException extends RuntimeException {
+        @Serial
         private static final long serialVersionUID = -9016364685084958944L;
 
         /**
@@ -237,7 +238,7 @@ public abstract class CoverageParser implements Serializable {
          */
         @FormatMethod
         public ParsingException(final Throwable cause, final String messageFormat, final Object... args) {
-            super(createMessage(cause, String.format(messageFormat, args)), cause);
+            super(createMessage(cause, messageFormat.formatted(args)), cause);
         }
 
         /**
@@ -255,11 +256,11 @@ public abstract class CoverageParser implements Serializable {
          */
         @FormatMethod
         public ParsingException(final String messageFormat, final Object... args) {
-            super(String.format(messageFormat, args));
+            super(messageFormat.formatted(args));
         }
 
         private static String createMessage(final Throwable cause, final String message) {
-            return String.format("%s%n%s%n%s", message,
+            return "%s%n%s%n%s".formatted(message,
                     ExceptionUtils.getMessage(cause), ExceptionUtils.getStackTrace(cause));
         }
     }

@@ -66,7 +66,7 @@ class XunitParserTest extends AbstractParserTest {
     }
 
     private ModuleNode readXunitReport(final String fileName) {
-        ModuleNode tree = readReport(fileName);
+        var tree = readReport(fileName);
         assertThat(tree).hasName(fileName);
         return tree;
     }

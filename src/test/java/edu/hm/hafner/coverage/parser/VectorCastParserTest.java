@@ -35,7 +35,7 @@ class VectorCastParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertVectorCASTStatementBranchToTree() {
-        Node root = readReport("vectorcast-statement-branch.xml");
+        var root = readReport("vectorcast-statement-branch.xml");
 
         assertThat(root.getAll(MODULE)).hasSize(1);
         assertThat(root.getAll(PACKAGE)).hasSize(3);
@@ -108,7 +108,7 @@ class VectorCastParserTest extends AbstractParserTest {
         verifyCoverageMetrics(root);
 
         var lineCoverage = builder.withMetric(LINE).withCovered(52).withMissed(28).build();
-        Value aggregation = root.getAll(FILE).stream()
+        var aggregation = root.getAll(FILE).stream()
                 .map(node -> node.getValue(LINE))
                 .flatMap(Optional::stream)
                 .reduce(Value::add).get();
@@ -118,7 +118,7 @@ class VectorCastParserTest extends AbstractParserTest {
 
     @Test
     void shouldHaveOneSource() {
-        ModuleNode tree = readExampleReport();
+        var tree = readExampleReport();
 
         assertThat(tree.getSourceFolders())
                 .hasSize(1)
@@ -232,7 +232,7 @@ class VectorCastParserTest extends AbstractParserTest {
     private void verifyMcdcFccMetrics(final Node root, final Metric metric, final int covered, final int missed) {
         var builder = new CoverageBuilder();
         var coverage = builder.withMetric(metric).withCovered(covered).withMissed(missed).build();
-        Value aggregation = root.getAll(FILE).stream()
+        var aggregation = root.getAll(FILE).stream()
                 .map(node -> node.getValue(metric))
                 .flatMap(Optional::stream)
                 .reduce(Value::add).get();
@@ -278,7 +278,7 @@ class VectorCastParserTest extends AbstractParserTest {
 
     @Test
     void verifyMcdcFunctionCallCoverage() {
-        Node root = readReport("vectorcast-statement-mcdc-fcc.xml");
+        var root = readReport("vectorcast-statement-mcdc-fcc.xml");
 
         assertThat(root.getAll(MODULE)).hasSize(1);
         assertThat(root.getAll(PACKAGE)).hasSize(5);

@@ -52,7 +52,7 @@ public class JunitParser extends AbstractTestParser {
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement() && isFailure(event)) {
                 readFailure(reader, event.asStartElement(), builder);
@@ -98,7 +98,7 @@ public class JunitParser extends AbstractTestParser {
         var aggregatedContent = new StringBuilder();
 
         while (true) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
             }

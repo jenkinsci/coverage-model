@@ -65,7 +65,7 @@ public class VectorCastParser extends CoberturaParser {
         var localFunctionCoverage = functionCoverage;
 
         if (nextElement.getName().equals(METHOD)) {
-            Coverage functionMethodCoverage = readFunctionCoverage(nextElement);
+            var functionMethodCoverage = readFunctionCoverage(nextElement);
             localFunctionCoverage = localFunctionCoverage.add(functionMethodCoverage);
         }
 
@@ -79,8 +79,8 @@ public class VectorCastParser extends CoberturaParser {
         if (LINE.equals(nextElement.getName())) {
             Coverage lineBranchCoverage;
             Coverage currentLineCoverage;
-            Coverage mcdcPairLineCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
-            Coverage functionCallLineCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
+            var mcdcPairLineCoverage = Coverage.nullObject(Metric.MCDC_PAIR);
+            var functionCallLineCoverage = Coverage.nullObject(Metric.FUNCTION_CALL);
             if (isBranchCoverage(nextElement)) {
                 lineBranchCoverage = readBranchCoverage(nextElement);
                 currentLineCoverage = computeLineCoverage(lineBranchCoverage.getCovered());
@@ -168,7 +168,7 @@ public class VectorCastParser extends CoberturaParser {
         coverageMap.put(Metric.FUNCTION_CALL, Coverage.nullObject(Metric.FUNCTION_CALL));
         coverageMap.put(Metric.METHOD, Coverage.nullObject(Metric.METHOD));
 
-        Node node = createNode(parentNode, element, log);
+        var node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
         getOptionalValueOf(element, FUNCTION_COVERAGE).map(this::fromFunctionCoverage).ifPresent(node::addValue);

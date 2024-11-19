@@ -6,7 +6,6 @@ import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.coverage.Node;
@@ -33,7 +32,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadAllMutationProperties() {
-        ModuleNode tree = readReport("mutation.xml");
+        var tree = readReport("mutation.xml");
         assertThat(tree.getAllFileNodes()).first()
                 .satisfies(file -> assertThat(file.getMutations())
                         .first().satisfies(mutation ->
@@ -51,7 +50,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldReadAllMutationPropertiesEvenIfXmlContainsBlocksAndIndexes() {
-        ModuleNode tree = readReport("mutation-with-blocks-and-indexes.xml");
+        var tree = readReport("mutation-with-blocks-and-indexes.xml");
         assertThat(tree.getAllFileNodes()).first()
                 .satisfies(file -> assertThat(file.getMutations())
                         .first().satisfies(mutation ->
@@ -67,7 +66,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldMapLineCoveragesForPainting() {
-        ModuleNode tree = readReport("mutations-codingstyle.xml");
+        var tree = readReport("mutations-codingstyle.xml");
 
         assertThat(tree.getAllFileNodes()).extracting(FileNode::getName).containsExactly("PathUtil.java",
                 "SecureXmlParserFactory.java",
@@ -146,7 +145,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldConvertMutationsToTree() {
-        ModuleNode tree = readReport("mutations.xml");
+        var tree = readReport("mutations.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(3).extracting(Node::getName)
@@ -190,7 +189,7 @@ class PitestParserTest extends AbstractParserTest {
 
     @Test
     void shouldMapTimeouts() {
-        ModuleNode tree = readReport("mutations-with-timeout.xml");
+        var tree = readReport("mutations-with-timeout.xml");
 
         assertThat(tree.getAll(MODULE)).hasSize(1);
         assertThat(tree.getAll(PACKAGE)).hasSize(18).extracting(Node::getName)
