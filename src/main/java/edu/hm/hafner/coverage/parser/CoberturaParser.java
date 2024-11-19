@@ -65,6 +65,9 @@ public class CoberturaParser extends CoverageParser {
     private static final QName BRANCH = new QName("branch");
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
+    private static final String DETERMINISTIC_PATH_PREFIX = "/_/";
+    private static final String RELATIVE_PATH_PREFIX = "./";
+
     /**
      * Creates a new instance of {@link CoberturaParser}.
      */
@@ -142,17 +145,20 @@ public class CoberturaParser extends CoverageParser {
 
     private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
-        var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
-
-        return packageNode.findOrCreateFileNode(getFileName(fileName), path);
+        var relativePath = PATH_UTIL.getRelativePath(fileName);
+        var actualPath = processFileName(relativePath);
+        var finalPath = getTreeStringBuilder().intern(actualPath);
+        return packageNode.findOrCreateFileNode(getFileName(fileName), finalPath);
+    }
+    
+    private String getFileName(final String relativePath) {
+        var fileName = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
+        return (fileName != null) ? processFileName(fileName.toString()) : relativePath;
     }
 
-    private String getFileName(final String relativePath) {
-        var path = Paths.get(PATH_UTIL.getAbsolutePath(relativePath)).getFileName();
-        if (path == null) {
-            return relativePath;
-        }
-        return path.toString();
+    private String processFileName(final String fileName) {
+        return (fileName != null && fileName.startsWith(DETERMINISTIC_PATH_PREFIX)) ? 
+                fileName.replaceFirst("^" + DETERMINISTIC_PATH_PREFIX, RELATIVE_PATH_PREFIX) : fileName;
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
