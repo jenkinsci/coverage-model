@@ -49,6 +49,7 @@ public final class MethodNode extends Node {
         this.lineNumber = lineNumber;
     }
 
+    @Serial
     @SuppressFBWarnings(value = "RCN", justification = "Value might be null in old serializations")
     private Object readResolve() {
         if (methodName == null) { // serialization of old versions

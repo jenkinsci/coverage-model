@@ -135,10 +135,11 @@ public abstract class CoverageParser implements Serializable {
     }
 
     /**
-     * Called after de-serialization to restore transient fields.
+     * Called after deserialization to restore transient fields.
      *
      * @return this
      */
+    @Serial
     @SuppressWarnings("PMD.NullAssignment")
     protected Object readResolve() {
         treeStringBuilder = new TreeStringBuilder();

@@ -56,6 +56,7 @@ public final class ClassNode extends Node {
      *
      * @return this
      */
+    @Serial
     @SuppressFBWarnings(value = "RCN", justification = "Value might be null in old serializations")
     private Object readResolve() {
         if (testCases == null) {
