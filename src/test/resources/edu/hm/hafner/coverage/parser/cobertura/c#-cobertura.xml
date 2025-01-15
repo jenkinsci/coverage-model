@@ -1,0 +1,1828 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.7189" branch-rate="0.5117" version="1.9" timestamp="1736950923" lines-covered="289" lines-valid="402" branches-covered="87" branches-valid="170">
+  <sources />
+  <packages>
+    <package name="Lib.LicenseScanner" line-rate="0.7189" branch-rate="0.5117" complexity="230">
+      <classes>
+        <class name="Lib.LicenseScanner.IssueKeys" filename="/_/Lib.LicenseScanner/IssueKeys.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="1" branch="False" />
+                <line number="11" hits="1" branch="False" />
+                <line number="13" hits="1" branch="False" />
+                <line number="15" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="9" hits="1" branch="False" />
+            <line number="11" hits="1" branch="False" />
+            <line number="13" hits="1" branch="False" />
+            <line number="15" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Reporting.CycloneDxReportGenerator" filename="/_/Lib.LicenseScanner/Reporting/CycloneDxReportGenerator.cs" line-rate="0" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_DefaultFileName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="20" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FileExtension" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="22" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="SaveInternal" signature="(CycloneDX.Models.Bom,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="27" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.IO.Abstractions.IFileSystem)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="0" branch="False" />
+                <line number="16" hits="0" branch="False" />
+                <line number="17" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="20" hits="0" branch="False" />
+            <line number="22" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="14" hits="0" branch="False" />
+            <line number="16" hits="0" branch="False" />
+            <line number="17" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Reporting.HtmlReportGenerator" filename="/_/Lib.LicenseScanner/Reporting/HtmlReportGenerator.cs" line-rate="0" branch-rate="0" complexity="26">
+          <methods>
+            <method name="SaveInternal" signature="(CycloneDX.Models.Bom,System.String)" line-rate="0" branch-rate="0" complexity="22">
+              <lines>
+                <line number="22" hits="0" branch="False" />
+                <line number="24" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+                <line number="30" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
+                <line number="32" hits="0" branch="False" />
+                <line number="33" hits="0" branch="False" />
+                <line number="34" hits="0" branch="False" />
+                <line number="35" hits="0" branch="False" />
+                <line number="36" hits="0" branch="False" />
+                <line number="37" hits="0" branch="False" />
+                <line number="38" hits="0" branch="False" />
+                <line number="40" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="628" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="42" hits="0" branch="False" />
+                <line number="43" hits="0" branch="False" />
+                <line number="44" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="247" type="jump" coverage="0%" />
+                    <condition number="259" type="jump" coverage="0%" />
+                    <condition number="271" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="45" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="289" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="47" hits="0" branch="False" />
+                <line number="50" hits="0" branch="False" />
+                <line number="52" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="330" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="54" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="467" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="371" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="57" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+                <line number="62" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="518" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="604" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="66" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="569" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DefaultFileName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="75" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FileExtension" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="77" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="TextToHtml" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="82" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.IO.Abstractions.IFileSystem)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="0" branch="False" />
+                <line number="16" hits="0" branch="False" />
+                <line number="17" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="22" hits="0" branch="False" />
+            <line number="24" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
+            <line number="32" hits="0" branch="False" />
+            <line number="33" hits="0" branch="False" />
+            <line number="34" hits="0" branch="False" />
+            <line number="35" hits="0" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="37" hits="0" branch="False" />
+            <line number="38" hits="0" branch="False" />
+            <line number="40" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="628" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="42" hits="0" branch="False" />
+            <line number="43" hits="0" branch="False" />
+            <line number="44" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="247" type="jump" coverage="0%" />
+                <condition number="259" type="jump" coverage="0%" />
+                <condition number="271" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="45" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="289" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="47" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="52" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="330" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="54" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="467" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="371" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="57" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="62" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="518" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="64" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="604" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="66" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="569" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="14" hits="0" branch="False" />
+            <line number="16" hits="0" branch="False" />
+            <line number="17" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Reporting.LicenseReportGeneratorBase" filename="/_/Lib.LicenseScanner/Reporting/LicenseReportGeneratorBase.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="Save" signature="(CycloneDX.Models.Bom,System.String)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="19" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="20" hits="0" branch="False" />
+                <line number="22" hits="0" branch="False" />
+                <line number="23" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="39" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="24" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="19" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="20" hits="0" branch="False" />
+            <line number="22" hits="0" branch="False" />
+            <line number="23" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="39" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="24" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Reporting.SpdxLicenseRepository" filename="/_/Lib.LicenseScanner/Reporting/SpdxLicenseRepository.cs" line-rate="1" branch-rate="1" complexity="3">
+          <methods>
+            <method name="GetLicenseText" signature="(System.String)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="24" hits="2" branch="False" />
+                <line number="27" hits="2" branch="False" />
+                <line number="28" hits="2" branch="False" />
+                <line number="29" hits="2" branch="False" />
+                <line number="30" hits="2" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="70" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="32" hits="1" branch="False" />
+                <line number="33" hits="1" branch="False" />
+                <line number="36" hits="1" branch="False" />
+                <line number="37" hits="1" branch="False" />
+                <line number="38" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Lib.LicenseScanner.Logging.ILogger)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="2" branch="False" />
+                <line number="15" hits="2" branch="False" />
+                <line number="16" hits="2" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="24" hits="2" branch="False" />
+            <line number="27" hits="2" branch="False" />
+            <line number="28" hits="2" branch="False" />
+            <line number="29" hits="2" branch="False" />
+            <line number="30" hits="2" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="70" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="32" hits="1" branch="False" />
+            <line number="33" hits="1" branch="False" />
+            <line number="36" hits="1" branch="False" />
+            <line number="37" hits="1" branch="False" />
+            <line number="38" hits="2" branch="False" />
+            <line number="13" hits="2" branch="False" />
+            <line number="15" hits="2" branch="False" />
+            <line number="16" hits="2" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Reporting.TxtReportGenerator" filename="/_/Lib.LicenseScanner/Reporting/TxtReportGenerator.cs" line-rate="0" branch-rate="0" complexity="27">
+          <methods>
+            <method name="SaveInternal" signature="(CycloneDX.Models.Bom,System.String)" line-rate="0" branch-rate="0" complexity="24">
+              <lines>
+                <line number="22" hits="0" branch="False" />
+                <line number="23" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="28" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="322" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="30" hits="0" branch="False" />
+                <line number="31" hits="0" branch="False" />
+                <line number="32" hits="0" branch="True" condition-coverage="0% (0/8)">
+                  <conditions>
+                    <condition number="101" type="jump" coverage="0%" />
+                    <condition number="113" type="jump" coverage="0%" />
+                    <condition number="125" type="jump" coverage="0%" />
+                    <condition number="137" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="33" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="166" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="34" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="212" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="35" hits="0" branch="False" />
+                <line number="36" hits="0" branch="False" />
+                <line number="37" hits="0" branch="False" />
+                <line number="38" hits="0" branch="True" condition-coverage="0% (0/10)">
+                  <conditions>
+                    <condition number="255" type="jump" coverage="0%" />
+                    <condition number="267" type="jump" coverage="0%" />
+                    <condition number="279" type="jump" coverage="0%" />
+                    <condition number="291" type="jump" coverage="0%" />
+                    <condition number="303" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="40" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DefaultFileName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FileExtension" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.IO.Abstractions.IFileSystem)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="0" branch="False" />
+                <line number="16" hits="0" branch="False" />
+                <line number="17" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="22" hits="0" branch="False" />
+            <line number="23" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="28" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="322" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="0" branch="False" />
+            <line number="32" hits="0" branch="True" condition-coverage="0% (0/8)">
+              <conditions>
+                <condition number="101" type="jump" coverage="0%" />
+                <condition number="113" type="jump" coverage="0%" />
+                <condition number="125" type="jump" coverage="0%" />
+                <condition number="137" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="33" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="166" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="34" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="212" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="35" hits="0" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="37" hits="0" branch="False" />
+            <line number="38" hits="0" branch="True" condition-coverage="0% (0/10)">
+              <conditions>
+                <condition number="255" type="jump" coverage="0%" />
+                <condition number="267" type="jump" coverage="0%" />
+                <condition number="279" type="jump" coverage="0%" />
+                <condition number="291" type="jump" coverage="0%" />
+                <condition number="303" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="40" hits="0" branch="False" />
+            <line number="44" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="14" hits="0" branch="False" />
+            <line number="16" hits="0" branch="False" />
+            <line number="17" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.PackageScanning.PackageInfo" filename="/_/Lib.LicenseScanner/PackageScanning/PackageInfo.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Type" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="12" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="12" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.PackageScanning.PackageScanner" filename="/_/Lib.LicenseScanner/PackageScanning/PackageScanner.cs" line-rate="0.6923" branch-rate="0.8" complexity="14">
+          <methods>
+            <method name="Scan" signature="(System.IO.Abstractions.IDirectoryInfo)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="26" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ScanNugetPackages" signature="(System.IO.Abstractions.IDirectoryInfo)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="32" hits="0" branch="False" />
+                <line number="34" hits="0" branch="False" />
+                <line number="36" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetNugetPackagesFromCsProject" signature="(System.IO.Abstractions.IFileInfo)" line-rate="0.7333" branch-rate="0.8" complexity="10">
+              <lines>
+                <line number="42" hits="1" branch="False" />
+                <line number="46" hits="1" branch="False" />
+                <line number="47" hits="1" branch="False" />
+                <line number="48" hits="3" branch="False" />
+                <line number="50" hits="8" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="175" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="52" hits="3" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="106" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="53" hits="3" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="134" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="55" hits="3" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="148" type="jump" coverage="100%" />
+                    <condition number="152" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="56" hits="3" branch="False" />
+                <line number="58" hits="1" branch="False" />
+                <line number="59" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+                <line number="62" hits="0" branch="False" />
+                <line number="63" hits="0" branch="False" />
+                <line number="65" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="GetAllCsProjectFiles" signature="(System.IO.Abstractions.IDirectoryInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="71" hits="1" branch="False" />
+                <line number="72" hits="5" branch="False" />
+                <line number="74" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(IssueHandling.IIssueHandler,System.Collections.Generic.IEnumerable`1&lt;System.Text.RegularExpressions.Regex&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="2" branch="False" />
+                <line number="19" hits="2" branch="False" />
+                <line number="20" hits="2" branch="False" />
+                <line number="21" hits="2" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="26" hits="0" branch="False" />
+            <line number="32" hits="0" branch="False" />
+            <line number="34" hits="0" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="42" hits="1" branch="False" />
+            <line number="46" hits="1" branch="False" />
+            <line number="47" hits="1" branch="False" />
+            <line number="48" hits="3" branch="False" />
+            <line number="50" hits="8" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="175" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="52" hits="3" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="106" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="53" hits="3" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="134" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="55" hits="3" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="148" type="jump" coverage="100%" />
+                <condition number="152" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="56" hits="3" branch="False" />
+            <line number="58" hits="1" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="62" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
+            <line number="65" hits="1" branch="False" />
+            <line number="71" hits="1" branch="False" />
+            <line number="72" hits="5" branch="False" />
+            <line number="74" hits="1" branch="False" />
+            <line number="17" hits="2" branch="False" />
+            <line number="19" hits="2" branch="False" />
+            <line number="20" hits="2" branch="False" />
+            <line number="21" hits="2" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Logging.Logger" filename="/_/Lib.LicenseScanner/Logging/Logger.cs" line-rate="0" branch-rate="1" complexity="3">
+          <methods>
+            <method name="WriteLine" signature="(Logging.LogLevels,System.String,System.ConsoleColor)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="0" branch="False" />
+                <line number="10" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteLine" signature="(Logging.LogLevels,System.Func`1&lt;System.String&gt;,System.ConsoleColor)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="15" hits="0" branch="False" />
+                <line number="16" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteLine" signature="(System.String,System.ConsoleColor)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="21" hits="0" branch="False" />
+                <line number="22" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="9" hits="0" branch="False" />
+            <line number="10" hits="0" branch="False" />
+            <line number="15" hits="0" branch="False" />
+            <line number="16" hits="0" branch="False" />
+            <line number="21" hits="0" branch="False" />
+            <line number="22" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileTypes.CycloneDx.ComponentExtensions" filename="/_/Lib.LicenseScanner/FileTypes/CycloneDx/ComponentExtensions.cs" line-rate="0.4827" branch-rate="0.15" complexity="22">
+          <methods>
+            <method name="GetMentionInDocumentation" signature="(CycloneDX.Models.Component)" line-rate="0" branch-rate="0" complexity="12">
+              <lines>
+                <line number="18" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                    <condition number="50" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="20" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="63" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="21" hits="0" branch="False" />
+                <line number="23" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="78" type="jump" coverage="0%" />
+                    <condition number="91" type="jump" coverage="0%" />
+                    <condition number="104" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="24" hits="0" branch="False" />
+                <line number="25" hits="0" branch="False" />
+                <line number="26" hits="0" branch="False" />
+                <line number="27" hits="0" branch="False" />
+                <line number="28" hits="0" branch="False" />
+                <line number="29" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="SetMentionInDocumentation" signature="(CycloneDX.Models.Component,Lib.LicenseScanner.FileTypes.License.MentionPolicies)" line-rate="0.8332999999999999" branch-rate="0.5" complexity="4">
+              <lines>
+                <line number="38" hits="3" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="8" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="40" hits="3" branch="False" />
+                <line number="41" hits="3" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="67" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="43" hits="0" branch="False" />
+                <line number="47" hits="3" branch="False" />
+                <line number="49" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="ToBeMentioned" signature="(System.Collections.Generic.IEnumerable`1&lt;CycloneDX.Models.Component&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="58" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="CreateMentionProperty" signature="(Lib.LicenseScanner.FileTypes.License.MentionPolicies)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="67" hits="3" branch="False" />
+                <line number="68" hits="3" branch="False" />
+                <line number="69" hits="3" branch="False" />
+                <line number="70" hits="3" branch="False" />
+                <line number="71" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="PolicyToString" signature="(Lib.LicenseScanner.FileTypes.License.MentionPolicies)" line-rate="0.5714" branch-rate="0.25" complexity="4">
+              <lines>
+                <line number="77" hits="3" branch="True" condition-coverage="25% (1/4)">
+                  <conditions>
+                    <condition number="1" type="switch" coverage="25%" />
+                  </conditions>
+                </line>
+                <line number="78" hits="3" branch="False" />
+                <line number="79" hits="3" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="False" />
+                <line number="82" hits="0" branch="False" />
+                <line number="83" hits="3" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="18" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+                <condition number="50" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="20" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="63" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="21" hits="0" branch="False" />
+            <line number="23" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="78" type="jump" coverage="0%" />
+                <condition number="91" type="jump" coverage="0%" />
+                <condition number="104" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="24" hits="0" branch="False" />
+            <line number="25" hits="0" branch="False" />
+            <line number="26" hits="0" branch="False" />
+            <line number="27" hits="0" branch="False" />
+            <line number="28" hits="0" branch="False" />
+            <line number="29" hits="0" branch="False" />
+            <line number="38" hits="3" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="8" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="40" hits="3" branch="False" />
+            <line number="41" hits="3" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="67" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="43" hits="0" branch="False" />
+            <line number="47" hits="3" branch="False" />
+            <line number="49" hits="3" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="67" hits="3" branch="False" />
+            <line number="68" hits="3" branch="False" />
+            <line number="69" hits="3" branch="False" />
+            <line number="70" hits="3" branch="False" />
+            <line number="71" hits="3" branch="False" />
+            <line number="77" hits="3" branch="True" condition-coverage="25% (1/4)">
+              <conditions>
+                <condition number="1" type="switch" coverage="25%" />
+              </conditions>
+            </line>
+            <line number="78" hits="3" branch="False" />
+            <line number="79" hits="3" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="83" hits="3" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileTypes.License.LicenseInfoReader" filename="/_/Lib.LicenseScanner/FileTypes/License/LicenseInfoReader.cs" line-rate="0.8" branch-rate="0.5832999999999999" complexity="12">
+          <methods>
+            <method name="ReadYaml" signature="(System.IO.Abstractions.IFileInfo)" line-rate="0.8" branch-rate="0.5832999999999999" complexity="12">
+              <lines>
+                <line number="14" hits="6" branch="False" />
+                <line number="15" hits="6" branch="False" />
+                <line number="16" hits="6" branch="False" />
+                <line number="18" hits="6" branch="False" />
+                <line number="19" hits="6" branch="False" />
+                <line number="20" hits="6" branch="False" />
+                <line number="22" hits="5" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="50" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="23" hits="0" branch="False" />
+                <line number="25" hits="5" branch="False" />
+                <line number="27" hits="5" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="130" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="28" hits="0" branch="False" />
+                <line number="30" hits="5" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="155" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="32" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="169" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="33" hits="0" branch="False" />
+                <line number="35" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="189" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="36" hits="1" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="229" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="37" hits="0" branch="False" />
+                <line number="38" hits="1" branch="False" />
+                <line number="41" hits="5" branch="False" />
+                <line number="42" hits="5" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="14" hits="6" branch="False" />
+            <line number="15" hits="6" branch="False" />
+            <line number="16" hits="6" branch="False" />
+            <line number="18" hits="6" branch="False" />
+            <line number="19" hits="6" branch="False" />
+            <line number="20" hits="6" branch="False" />
+            <line number="22" hits="5" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="50" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="23" hits="0" branch="False" />
+            <line number="25" hits="5" branch="False" />
+            <line number="27" hits="5" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="130" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="28" hits="0" branch="False" />
+            <line number="30" hits="5" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="155" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="32" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="169" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="33" hits="0" branch="False" />
+            <line number="35" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="189" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="36" hits="1" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="229" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="37" hits="0" branch="False" />
+            <line number="38" hits="1" branch="False" />
+            <line number="41" hits="5" branch="False" />
+            <line number="42" hits="5" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileTypes.License.LicenseInfo" filename="/_/Lib.LicenseScanner/FileTypes/License/LicenseInfo.cs" line-rate="1" branch-rate="1" complexity="10">
+          <methods>
+            <method name="get_LibraryName" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="16" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Source" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="9" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LicenseType" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="11" hits="13" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Copyright" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="get_MentionInDocumentation" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="15" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SpecialNotice" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LicenseText" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="19" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LibraryVersion" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="21" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Cpe" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="23" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LicenseFile" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="26" hits="7" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="7" hits="16" branch="False" />
+            <line number="9" hits="10" branch="False" />
+            <line number="11" hits="13" branch="False" />
+            <line number="13" hits="10" branch="False" />
+            <line number="15" hits="10" branch="False" />
+            <line number="17" hits="4" branch="False" />
+            <line number="19" hits="10" branch="False" />
+            <line number="21" hits="6" branch="False" />
+            <line number="23" hits="3" branch="False" />
+            <line number="26" hits="7" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.BomExtractor" filename="/_/Lib.LicenseScanner/FileScanning/BomExtractor.cs" line-rate="0.9142" branch-rate="1" complexity="11">
+          <methods>
+            <method name="GetBomFromFiles" signature="(System.Collections.Generic.List`1&lt;System.IO.Abstractions.IFileInfo&gt;)" line-rate="0.647" branch-rate="1" complexity="4">
+              <lines>
+                <line number="41" hits="4" branch="False" />
+                <line number="43" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="47" hits="2" branch="False" />
+                <line number="48" hits="2" branch="False" />
+                <line number="51" hits="2" branch="False" />
+                <line number="53" hits="2" branch="False" />
+                <line number="55" hits="0" branch="False" />
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="False" />
+                <line number="62" hits="2" branch="False" />
+                <line number="63" hits="2" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="103" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="67" hits="1" branch="False" />
+                <line number="69" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="75" hits="1" branch="False" />
+                <line number="76" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteToCycloneBom" signature="(CycloneDX.Models.Bom,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="81" hits="2" branch="False" />
+                <line number="82" hits="2" branch="False" />
+                <line number="83" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="OpenYamlFile" signature="(System.IO.Abstractions.IFileInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="88" hits="2" branch="False" />
+                <line number="89" hits="2" branch="False" />
+                <line number="90" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ConvertYamlToBom" signature="(Lib.LicenseScanner.FileTypes.License.LicenseInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="96" hits="3" branch="False" />
+                <line number="97" hits="3" branch="False" />
+                <line number="98" hits="3" branch="False" />
+                <line number="99" hits="3" branch="False" />
+                <line number="100" hits="3" branch="False" />
+                <line number="101" hits="3" branch="False" />
+                <line number="102" hits="3" branch="False" />
+                <line number="103" hits="3" branch="False" />
+                <line number="104" hits="3" branch="False" />
+                <line number="105" hits="3" branch="False" />
+                <line number="106" hits="3" branch="False" />
+                <line number="107" hits="3" branch="False" />
+                <line number="108" hits="3" branch="False" />
+                <line number="109" hits="3" branch="False" />
+                <line number="110" hits="3" branch="False" />
+                <line number="111" hits="3" branch="False" />
+                <line number="112" hits="3" branch="False" />
+                <line number="113" hits="3" branch="False" />
+                <line number="114" hits="3" branch="False" />
+                <line number="115" hits="3" branch="False" />
+                <line number="116" hits="3" branch="False" />
+                <line number="117" hits="3" branch="False" />
+                <line number="118" hits="3" branch="False" />
+                <line number="119" hits="3" branch="False" />
+                <line number="120" hits="3" branch="False" />
+                <line number="122" hits="3" branch="False" />
+                <line number="124" hits="3" branch="False" />
+                <line number="125" hits="3" branch="False" />
+                <line number="126" hits="3" branch="False" />
+                <line number="127" hits="3" branch="False" />
+                <line number="128" hits="3" branch="False" />
+                <line number="129" hits="3" branch="False" />
+                <line number="130" hits="3" branch="False" />
+                <line number="132" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="FindLicenseYaml" signature="(System.Collections.Generic.IEnumerable`1&lt;System.IO.Abstractions.IFileInfo&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="137" hits="24" branch="False" />
+              </lines>
+            </method>
+            <method name="GetBomContent" signature="(System.IO.Abstractions.IFileInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="143" hits="1" branch="False" />
+                <line number="144" hits="1" branch="False" />
+                <line number="145" hits="1" branch="False" />
+                <line number="147" hits="1" branch="False" />
+                <line number="148" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="FindCycloneBom" signature="(System.Collections.Generic.IEnumerable`1&lt;System.IO.Abstractions.IFileInfo&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="152" hits="9" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Lib.LicenseScanner.FileTypes.License.ILicenseInfoReader,System.IO.Abstractions.IFileSystem,Lib.LicenseScanner.Logging.ILogger,IssueHandling.IIssueHandler)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="21" hits="4" branch="False" />
+                <line number="23" hits="4" branch="False" />
+                <line number="24" hits="4" branch="False" />
+                <line number="25" hits="4" branch="False" />
+                <line number="26" hits="4" branch="False" />
+                <line number="27" hits="4" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="41" hits="4" branch="False" />
+            <line number="43" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="47" hits="2" branch="False" />
+            <line number="48" hits="2" branch="False" />
+            <line number="51" hits="2" branch="False" />
+            <line number="53" hits="2" branch="False" />
+            <line number="55" hits="0" branch="False" />
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="62" hits="2" branch="False" />
+            <line number="63" hits="2" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="103" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="67" hits="1" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="75" hits="1" branch="False" />
+            <line number="76" hits="3" branch="False" />
+            <line number="81" hits="2" branch="False" />
+            <line number="82" hits="2" branch="False" />
+            <line number="83" hits="2" branch="False" />
+            <line number="88" hits="2" branch="False" />
+            <line number="89" hits="2" branch="False" />
+            <line number="90" hits="2" branch="False" />
+            <line number="96" hits="3" branch="False" />
+            <line number="97" hits="3" branch="False" />
+            <line number="98" hits="3" branch="False" />
+            <line number="99" hits="3" branch="False" />
+            <line number="100" hits="3" branch="False" />
+            <line number="101" hits="3" branch="False" />
+            <line number="102" hits="3" branch="False" />
+            <line number="103" hits="3" branch="False" />
+            <line number="104" hits="3" branch="False" />
+            <line number="105" hits="3" branch="False" />
+            <line number="106" hits="3" branch="False" />
+            <line number="107" hits="3" branch="False" />
+            <line number="108" hits="3" branch="False" />
+            <line number="109" hits="3" branch="False" />
+            <line number="110" hits="3" branch="False" />
+            <line number="111" hits="3" branch="False" />
+            <line number="112" hits="3" branch="False" />
+            <line number="113" hits="3" branch="False" />
+            <line number="114" hits="3" branch="False" />
+            <line number="115" hits="3" branch="False" />
+            <line number="116" hits="3" branch="False" />
+            <line number="117" hits="3" branch="False" />
+            <line number="118" hits="3" branch="False" />
+            <line number="119" hits="3" branch="False" />
+            <line number="120" hits="3" branch="False" />
+            <line number="122" hits="3" branch="False" />
+            <line number="124" hits="3" branch="False" />
+            <line number="125" hits="3" branch="False" />
+            <line number="126" hits="3" branch="False" />
+            <line number="127" hits="3" branch="False" />
+            <line number="128" hits="3" branch="False" />
+            <line number="129" hits="3" branch="False" />
+            <line number="130" hits="3" branch="False" />
+            <line number="132" hits="3" branch="False" />
+            <line number="137" hits="24" branch="False" />
+            <line number="143" hits="1" branch="False" />
+            <line number="144" hits="1" branch="False" />
+            <line number="145" hits="1" branch="False" />
+            <line number="147" hits="1" branch="False" />
+            <line number="148" hits="1" branch="False" />
+            <line number="152" hits="9" branch="False" />
+            <line number="21" hits="4" branch="False" />
+            <line number="23" hits="4" branch="False" />
+            <line number="24" hits="4" branch="False" />
+            <line number="25" hits="4" branch="False" />
+            <line number="26" hits="4" branch="False" />
+            <line number="27" hits="4" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.BomMerger" filename="/_/Lib.LicenseScanner/FileScanning/BomMerger.cs" line-rate="0.9687" branch-rate="0.7777" complexity="19">
+          <methods>
+            <method name="MergeBoms" signature="(System.Collections.Generic.List`1&lt;CycloneDX.Models.Bom&gt;)" line-rate="0.9444" branch-rate="0.8" complexity="10">
+              <lines>
+                <line number="11" hits="2" branch="False" />
+                <line number="13" hits="12" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="247" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="15" hits="4" branch="True" condition-coverage="50% (2/4)">
+                  <conditions>
+                    <condition number="33" type="jump" coverage="50%" />
+                    <condition number="44" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="16" hits="0" branch="False" />
+                <line number="18" hits="4" branch="False" />
+                <line number="21" hits="4" branch="False" />
+                <line number="23" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="92" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="26" hits="4" branch="False" />
+                <line number="29" hits="4" branch="False" />
+                <line number="30" hits="4" branch="False" />
+                <line number="31" hits="4" branch="False" />
+                <line number="32" hits="4" branch="False" />
+                <line number="33" hits="4" branch="False" />
+                <line number="34" hits="10" branch="False" />
+                <line number="35" hits="4" branch="False" />
+                <line number="38" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="221" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="39" hits="2" branch="False" />
+                <line number="42" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="CreateBomAndInitializeLists" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="48" hits="2" branch="False" />
+                <line number="49" hits="2" branch="False" />
+                <line number="50" hits="2" branch="False" />
+                <line number="51" hits="2" branch="False" />
+                <line number="52" hits="2" branch="False" />
+                <line number="53" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="EnsureAllComponentsHaveBomRefs" signature="(CycloneDX.Models.Bom)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="59" hits="4" branch="False" />
+                <line number="61" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="22" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="63" hits="20" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="57" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="65" hits="6" branch="False" />
+                <line number="68" hits="4" branch="False" />
+              </lines>
+            </method>
+            <method name="EnsureComponentHasBomRef" signature="(CycloneDX.Models.Component)" line-rate="1" branch-rate="0.5" complexity="4">
+              <lines>
+                <line number="73" hits="10" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="8" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="74" hits="10" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="32" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="75" hits="10" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="11" hits="2" branch="False" />
+            <line number="13" hits="12" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="247" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="15" hits="4" branch="True" condition-coverage="50% (2/4)">
+              <conditions>
+                <condition number="33" type="jump" coverage="50%" />
+                <condition number="44" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="16" hits="0" branch="False" />
+            <line number="18" hits="4" branch="False" />
+            <line number="21" hits="4" branch="False" />
+            <line number="23" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="92" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="26" hits="4" branch="False" />
+            <line number="29" hits="4" branch="False" />
+            <line number="30" hits="4" branch="False" />
+            <line number="31" hits="4" branch="False" />
+            <line number="32" hits="4" branch="False" />
+            <line number="33" hits="4" branch="False" />
+            <line number="34" hits="10" branch="False" />
+            <line number="35" hits="4" branch="False" />
+            <line number="38" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="221" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="39" hits="2" branch="False" />
+            <line number="42" hits="2" branch="False" />
+            <line number="48" hits="2" branch="False" />
+            <line number="49" hits="2" branch="False" />
+            <line number="50" hits="2" branch="False" />
+            <line number="51" hits="2" branch="False" />
+            <line number="52" hits="2" branch="False" />
+            <line number="53" hits="2" branch="False" />
+            <line number="59" hits="4" branch="False" />
+            <line number="61" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="22" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="63" hits="20" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="57" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="65" hits="6" branch="False" />
+            <line number="68" hits="4" branch="False" />
+            <line number="73" hits="10" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="8" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="74" hits="10" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="32" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="75" hits="10" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.DirectoryResult" filename="/_/Lib.LicenseScanner/FileScanning/DirectoryResult.cs" line-rate="1" branch-rate="1" complexity="11">
+          <methods>
+            <method name="get_Path" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="28" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Files" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="60" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Directories" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="10" hits="50" branch="False" />
+              </lines>
+            </method>
+            <method name="get_LicenseInfos" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="31" branch="False" />
+              </lines>
+            </method>
+            <method name="AddFile" signature="(Lib.LicenseScanner.FileScanning.FileResult)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="16" hits="17" branch="False" />
+                <line number="17" hits="17" branch="False" />
+              </lines>
+            </method>
+            <method name="AddDirectory" signature="(Lib.LicenseScanner.FileScanning.DirectoryResult)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="23" hits="6" branch="False" />
+                <line number="24" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="GetAllBomsFromTree" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="29" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="GetAllBomsFromTreeRecursive" signature="(Lib.LicenseScanner.FileScanning.DirectoryResult)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="35" hits="7" branch="False" />
+                <line number="37" hits="7" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="38" hits="5" branch="False" />
+                <line number="39" hits="24" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="68" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="40" hits="5" branch="False" />
+                <line number="42" hits="7" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="5" hits="28" branch="False" />
+            <line number="7" hits="60" branch="False" />
+            <line number="10" hits="50" branch="False" />
+            <line number="12" hits="31" branch="False" />
+            <line number="16" hits="17" branch="False" />
+            <line number="17" hits="17" branch="False" />
+            <line number="23" hits="6" branch="False" />
+            <line number="24" hits="6" branch="False" />
+            <line number="29" hits="2" branch="False" />
+            <line number="35" hits="7" branch="False" />
+            <line number="37" hits="7" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="38" hits="5" branch="False" />
+            <line number="39" hits="24" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="68" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="40" hits="5" branch="False" />
+            <line number="42" hits="7" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.FileResult" filename="/_/Lib.LicenseScanner/FileScanning/FileResult.cs" line-rate="1" branch-rate="1" complexity="3">
+          <methods>
+            <method name="get_Path" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="3" hits="45" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IsFile" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="49" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Copyright" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="38" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="3" hits="45" branch="False" />
+            <line number="5" hits="49" branch="False" />
+            <line number="7" hits="38" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.FileScanner" filename="/_/Lib.LicenseScanner/FileScanning/FileScanner.cs" line-rate="1" branch-rate="1" complexity="29">
+          <methods>
+            <method name="Scan" signature="(System.IO.Abstractions.IDirectoryInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ScanDirectoryRecursively" signature="(System.IO.Abstractions.IDirectoryInfo)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="50" hits="8" branch="False" />
+                <line number="51" hits="8" branch="False" />
+                <line number="53" hits="8" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="30" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="54" hits="8" branch="False" />
+                <line number="56" hits="8" branch="False" />
+                <line number="58" hits="8" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="59" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="60" hits="3" branch="False" />
+                <line number="61" hits="3" branch="False" />
+                <line number="64" hits="8" branch="False" />
+                <line number="65" hits="28" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="123" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="67" hits="6" branch="False" />
+                <line number="68" hits="6" branch="False" />
+                <line number="71" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="AugmentBomWithMetadataFromDirectory" signature="(CycloneDX.Models.Bom,System.IO.Abstractions.IDirectoryInfo)" line-rate="1" branch-rate="1" complexity="10">
+              <lines>
+                <line number="77" hits="3" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="100%" />
+                    <condition number="18" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="78" hits="1" branch="False" />
+                <line number="80" hits="3" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="65" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="81" hits="3" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="93" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="82" hits="3" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="126" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="83" hits="3" branch="False" />
+                <line number="84" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="ScanSourceFiles" signature="(System.Collections.Generic.IEnumerable`1&lt;System.IO.Abstractions.IFileInfo&gt;,Lib.LicenseScanner.FileScanning.DirectoryResult)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="89" hits="80" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="102" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="91" hits="32" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="49" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="94" hits="30" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="74" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="98" hits="17" branch="False" />
+                <line number="99" hits="17" branch="False" />
+                <line number="101" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="CheckFileHeader" signature="(System.IO.Abstractions.IFileInfo)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="106" hits="17" branch="False" />
+                <line number="107" hits="17" branch="False" />
+                <line number="108" hits="17" branch="False" />
+                <line number="109" hits="17" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="66" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="110" hits="11" branch="False" />
+                <line number="112" hits="17" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="81" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="114" hits="11" branch="False" />
+                <line number="118" hits="6" branch="False" />
+                <line number="121" hits="17" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Lib.LicenseScanner.FileScanning.ScannerSettings,System.Text.RegularExpressions.Regex,System.Collections.Generic.IEnumerable`1&lt;System.Text.RegularExpressions.Regex&gt;,Lib.LicenseScanner.Logging.ILogger,IssueHandling.IIssueHandler,Lib.LicenseScanner.FileScanning.HeaderExtractor,Lib.LicenseScanner.FileScanning.IBomExtractor)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="24" hits="2" branch="False" />
+                <line number="25" hits="2" branch="False" />
+                <line number="26" hits="2" branch="False" />
+                <line number="27" hits="2" branch="False" />
+                <line number="28" hits="2" branch="False" />
+                <line number="29" hits="2" branch="False" />
+                <line number="30" hits="2" branch="False" />
+                <line number="32" hits="2" branch="False" />
+                <line number="33" hits="2" branch="False" />
+                <line number="34" hits="2" branch="False" />
+                <line number="35" hits="2" branch="False" />
+                <line number="36" hits="2" branch="False" />
+                <line number="37" hits="2" branch="False" />
+                <line number="38" hits="2" branch="False" />
+                <line number="39" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="14" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="44" hits="2" branch="False" />
+            <line number="50" hits="8" branch="False" />
+            <line number="51" hits="8" branch="False" />
+            <line number="53" hits="8" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="30" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="54" hits="8" branch="False" />
+            <line number="56" hits="8" branch="False" />
+            <line number="58" hits="8" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="59" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="60" hits="3" branch="False" />
+            <line number="61" hits="3" branch="False" />
+            <line number="64" hits="8" branch="False" />
+            <line number="65" hits="28" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="123" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="67" hits="6" branch="False" />
+            <line number="68" hits="6" branch="False" />
+            <line number="71" hits="8" branch="False" />
+            <line number="77" hits="3" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="7" type="jump" coverage="100%" />
+                <condition number="18" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="78" hits="1" branch="False" />
+            <line number="80" hits="3" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="65" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="81" hits="3" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="93" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="82" hits="3" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="126" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="83" hits="3" branch="False" />
+            <line number="84" hits="3" branch="False" />
+            <line number="89" hits="80" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="102" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="91" hits="32" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="49" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="94" hits="30" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="74" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="98" hits="17" branch="False" />
+            <line number="99" hits="17" branch="False" />
+            <line number="101" hits="8" branch="False" />
+            <line number="106" hits="17" branch="False" />
+            <line number="107" hits="17" branch="False" />
+            <line number="108" hits="17" branch="False" />
+            <line number="109" hits="17" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="66" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="110" hits="11" branch="False" />
+            <line number="112" hits="17" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="81" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="114" hits="11" branch="False" />
+            <line number="118" hits="6" branch="False" />
+            <line number="121" hits="17" branch="False" />
+            <line number="24" hits="2" branch="False" />
+            <line number="25" hits="2" branch="False" />
+            <line number="26" hits="2" branch="False" />
+            <line number="27" hits="2" branch="False" />
+            <line number="28" hits="2" branch="False" />
+            <line number="29" hits="2" branch="False" />
+            <line number="30" hits="2" branch="False" />
+            <line number="32" hits="2" branch="False" />
+            <line number="33" hits="2" branch="False" />
+            <line number="34" hits="2" branch="False" />
+            <line number="35" hits="2" branch="False" />
+            <line number="36" hits="2" branch="False" />
+            <line number="37" hits="2" branch="False" />
+            <line number="38" hits="2" branch="False" />
+            <line number="39" hits="2" branch="False" />
+            <line number="14" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.HeaderExtractor" filename="/_/Lib.LicenseScanner/FileScanning/HeaderExtractor.cs" line-rate="1" branch-rate="1" complexity="9">
+          <methods>
+            <method name="ExtractFromFile" signature="(System.IO.Abstractions.IFileInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="22" hits="22" branch="False" />
+                <line number="24" hits="22" branch="False" />
+                <line number="26" hits="22" branch="False" />
+              </lines>
+            </method>
+            <method name="FindCopyright" signature="(System.Collections.Generic.IEnumerable`1&lt;System.String&gt;)" line-rate="1" branch-rate="1" complexity="6">
+              <lines>
+                <line number="32" hits="2415" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="109" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="34" hits="11847" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="85" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="36" hits="4738" branch="False" />
+                <line number="37" hits="4738" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="50" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="39" hits="15" branch="False" />
+                <line number="44" hits="7" branch="False" />
+                <line number="45" hits="15" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="1" branch="False" />
+                <line number="13" hits="1" branch="False" />
+                <line number="14" hits="1" branch="False" />
+                <line number="15" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="22" hits="22" branch="False" />
+            <line number="24" hits="22" branch="False" />
+            <line number="26" hits="22" branch="False" />
+            <line number="32" hits="2415" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="109" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="34" hits="11847" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="85" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="36" hits="4738" branch="False" />
+            <line number="37" hits="4738" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="50" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="39" hits="15" branch="False" />
+            <line number="44" hits="7" branch="False" />
+            <line number="45" hits="15" branch="False" />
+            <line number="17" hits="7" branch="False" />
+            <line number="12" hits="1" branch="False" />
+            <line number="13" hits="1" branch="False" />
+            <line number="14" hits="1" branch="False" />
+            <line number="15" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.HeaderExtractor/&lt;GetFileLineByLine&gt;d__8" filename="/_/Lib.LicenseScanner/FileScanning/HeaderExtractor.cs" line-rate="1" branch-rate="1" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="50" hits="22" branch="False" />
+                <line number="51" hits="22" branch="False" />
+                <line number="53" hits="22" branch="False" />
+                <line number="54" hits="1200" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="98" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="56" hits="1193" branch="False" />
+                <line number="57" hits="1178" branch="False" />
+                <line number="58" hits="1178" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="154" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="61" hits="7" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="50" hits="22" branch="False" />
+            <line number="51" hits="22" branch="False" />
+            <line number="53" hits="22" branch="False" />
+            <line number="54" hits="1200" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="98" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="56" hits="1193" branch="False" />
+            <line number="57" hits="1178" branch="False" />
+            <line number="58" hits="1178" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="154" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="61" hits="7" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.FileScanning.ScannerSettings" filename="/_/Lib.LicenseScanner/FileScanning/ScannerSettings.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_ScanFileHeaders" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="10" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="7" hits="10" branch="False" />
+          </lines>
+        </class>
+        <class name="Lib.LicenseScanner.Analyzing.UnlicensedFileFinder" filename="/_/Lib.LicenseScanner/Analyzing/UnlicensedFileFinder.cs" line-rate="1" branch-rate="0.6428" complexity="16">
+          <methods>
+            <method name="Find" signature="(Lib.LicenseScanner.FileScanning.DirectoryResult)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="32" hits="2" branch="False" />
+                <line number="33" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ScanForProblemsRecursively" signature="(Lib.LicenseScanner.FileScanning.DirectoryResult)" line-rate="1" branch-rate="0.6428" complexity="14">
+              <lines>
+                <line number="38" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="40" hits="1" branch="False" />
+                <line number="41" hits="1" branch="True" condition-coverage="37.5% (3/8)">
+                  <conditions>
+                    <condition number="35" type="jump" coverage="50%" />
+                    <condition number="47" type="jump" coverage="0%" />
+                    <condition number="59" type="jump" coverage="0%" />
+                    <condition number="71" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="42" hits="1" branch="False" />
+                <line number="45" hits="1" branch="False" />
+                <line number="48" hits="14" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="381" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="50" hits="1" branch="False" />
+                <line number="51" hits="1" branch="False" />
+                <line number="52" hits="1" branch="False" />
+                <line number="53" hits="1" branch="False" />
+                <line number="54" hits="1" branch="False" />
+                <line number="55" hits="1" branch="False" />
+                <line number="56" hits="1" branch="False" />
+                <line number="57" hits="1" branch="False" />
+                <line number="60" hits="10" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="434" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="62" hits="2" branch="False" />
+                <line number="64" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Lib.LicenseScanner.Logging.ILogger,IssueHandling.IIssueHandler,System.IO.Abstractions.IFileSystem)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="17" hits="2" branch="False" />
+                <line number="19" hits="2" branch="False" />
+                <line number="20" hits="2" branch="False" />
+                <line number="21" hits="2" branch="False" />
+                <line number="22" hits="2" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="32" hits="2" branch="False" />
+            <line number="33" hits="2" branch="False" />
+            <line number="38" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="40" hits="1" branch="False" />
+            <line number="41" hits="1" branch="True" condition-coverage="37.5% (3/8)">
+              <conditions>
+                <condition number="35" type="jump" coverage="50%" />
+                <condition number="47" type="jump" coverage="0%" />
+                <condition number="59" type="jump" coverage="0%" />
+                <condition number="71" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="42" hits="1" branch="False" />
+            <line number="45" hits="1" branch="False" />
+            <line number="48" hits="14" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="381" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="50" hits="1" branch="False" />
+            <line number="51" hits="1" branch="False" />
+            <line number="52" hits="1" branch="False" />
+            <line number="53" hits="1" branch="False" />
+            <line number="54" hits="1" branch="False" />
+            <line number="55" hits="1" branch="False" />
+            <line number="56" hits="1" branch="False" />
+            <line number="57" hits="1" branch="False" />
+            <line number="60" hits="10" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="434" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="62" hits="2" branch="False" />
+            <line number="64" hits="3" branch="False" />
+            <line number="17" hits="2" branch="False" />
+            <line number="19" hits="2" branch="False" />
+            <line number="20" hits="2" branch="False" />
+            <line number="21" hits="2" branch="False" />
+            <line number="22" hits="2" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

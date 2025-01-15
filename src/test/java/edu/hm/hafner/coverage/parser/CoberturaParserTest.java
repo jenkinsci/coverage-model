@@ -39,6 +39,24 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    @Issue("JENKINS-73635")
+    void shouldRemovePrefixOfDeterministicCoverageReport() {
+        var root = readReport("c#-cobertura.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(20).map(FileNode::getRelativePath)
+                .allSatisfy(
+                        file -> assertThat(file)
+                                .doesNotStartWith("/_/")
+                                .startsWith("Lib.LicenseScanner/"));
+
+        assertThat(root.getAllFileNodes()).hasSize(20)
+                .first().satisfies(
+                        file -> assertThat(file)
+                                .hasName("IssueKeys.cs")
+                                .hasRelativePath("Lib.LicenseScanner/IssueKeys.cs"));
+    }
+
+    @Test
     @Issue("JENKINS-73325")
     void shouldUseFullPathWhenParsingFileNodes() {
         var root = readReport("cobertura-same-filename.xml");
