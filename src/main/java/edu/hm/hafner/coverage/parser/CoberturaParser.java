@@ -41,6 +41,8 @@ public class CoberturaParser extends CoverageParser {
     private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
     private static final PathUtil PATH_UTIL = new PathUtil();
 
+    private static final String DETERMINISTIC_PATH_PREFIX = "/_/";
+
     private static final Coverage DEFAULT_BRANCH_COVERAGE = new CoverageBuilder(Metric.BRANCH).withCovered(2).withMissed(0).build();
     private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).withCovered(1).withMissed(0).build();
     private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).withCovered(0).withMissed(1).build();
@@ -141,7 +143,8 @@ public class CoberturaParser extends CoverageParser {
 
     private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
-        var path = getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(fileName));
+        var relativePath = StringUtils.removeStart(PATH_UTIL.getRelativePath(fileName), DETERMINISTIC_PATH_PREFIX);
+        var path = getTreeStringBuilder().intern(relativePath);
 
         return packageNode.findOrCreateFileNode(getFileName(fileName), path);
     }
