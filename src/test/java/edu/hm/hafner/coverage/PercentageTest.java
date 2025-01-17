@@ -69,4 +69,32 @@ class PercentageTest {
         assertThatIllegalArgumentException().isThrownBy(() -> Percentage.valueOf("1/0"));
         assertThatIllegalArgumentException().isThrownBy(() -> Percentage.valueOf("2/1"));
     }
+
+    @Test
+    void shouldRoundCorrectly() {
+        var oneThird = Percentage.valueOf(1, 3);
+
+        assertThat(oneThird.serializeToString()).isEqualTo("1/3");
+        assertThat(oneThird.formatPercentage(Locale.GERMAN)).isEqualTo("33,33%");
+        assertThat(oneThird.formatPercentage()).isEqualTo("33.33%");
+
+        var twoThirds = Percentage.valueOf(2, 3);
+
+        assertThat(twoThirds.serializeToString()).isEqualTo("2/3");
+        assertThat(twoThirds.formatPercentage(Locale.GERMAN)).isEqualTo("66,67%");
+        assertThat(twoThirds.formatPercentage()).isEqualTo("66.67%");
+        assertThat(twoThirds.toInt()).isEqualTo(67);
+        assertThat(twoThirds.toRounded()).isEqualTo(66.67);
+    }
+
+    @Test
+    void shouldHandle100PercentCorrectly() {
+        var oneMissing = Percentage.valueOf(1_000_000 - 1, 1_000_000);
+
+        assertThat(oneMissing.formatPercentage(Locale.GERMAN)).isEqualTo("99,99%");
+        assertThat(oneMissing.formatPercentage()).isEqualTo("99.99%");
+        assertThat(oneMissing.toInt()).isEqualTo(99);
+        assertThat(oneMissing.toDouble()).isEqualTo(99.9999);
+        assertThat(oneMissing.toRounded()).isEqualTo(99.99);
+    }
 }
