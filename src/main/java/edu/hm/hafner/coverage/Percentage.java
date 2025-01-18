@@ -17,14 +17,13 @@ import org.apache.commons.lang3.math.Fraction;
  *
  * @author Florian Orendi
  */
-// FIXME: implement correct rounding here
 public final class Percentage implements Serializable {
     @Serial
     private static final long serialVersionUID = 3324942976687883481L;
 
     /** null value. */
     public static final Percentage ZERO = new Percentage(0, 1);
-    private static final Percentage ALMOST_HUNDRED = new Percentage(9999, 10000);
+    private static final Percentage ALMOST_HUNDRED = new Percentage(9_999, 10_000);
 
     static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
     private static final int ALMOST_PERFECT_INTEGER = 99;

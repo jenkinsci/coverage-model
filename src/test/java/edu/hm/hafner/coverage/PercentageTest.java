@@ -77,6 +77,8 @@ class PercentageTest {
         assertThat(oneThird.serializeToString()).isEqualTo("1/3");
         assertThat(oneThird.formatPercentage(Locale.GERMAN)).isEqualTo("33,33%");
         assertThat(oneThird.formatPercentage()).isEqualTo("33.33%");
+        assertThat(oneThird.toInt()).isEqualTo(33);
+        assertThat(oneThird.toRounded()).isEqualTo(33.33);
 
         var twoThirds = Percentage.valueOf(2, 3);
 

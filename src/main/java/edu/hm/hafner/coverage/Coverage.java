@@ -220,6 +220,21 @@ public final class Coverage extends Value {
         return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
     }
 
+    @Override
+    public int asInteger() {
+        return getCoveredPercentage().toInt();
+    }
+
+    @Override
+    public double asDouble() {
+        return getCoveredPercentage().toDouble();
+    }
+
+    @Override
+    public double asRounded() {
+        return getCoveredPercentage().toRounded();
+    }
+
     /**
      * Builder to create cached {@link Coverage} instances.
      */

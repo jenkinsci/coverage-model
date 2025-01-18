@@ -31,6 +31,23 @@ class CoverageTest {
             .build();
 
     @Test
+    void shouldHandlePercentageRounding() {
+        var builder = new CoverageBuilder().withMetric(Metric.LINE);
+
+        var oneThird = builder.withCovered(1).withMissed(2).build();
+
+        assertThat(oneThird.asInteger()).isEqualTo(33);
+        assertThat(oneThird.asDouble()).isEqualTo(100.0 / 3);
+        assertThat(oneThird.asRounded()).isEqualTo(33.33);
+
+        var twoThirds = builder.withCovered(2).withMissed(1).build();
+
+        assertThat(twoThirds.asInteger()).isEqualTo(67);
+        assertThat(twoThirds.asDouble()).isEqualTo(200.0 / 3);
+        assertThat(twoThirds.asRounded()).isEqualTo(66.67);
+    }
+
+    @Test
     void shouldComputeDelta() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 

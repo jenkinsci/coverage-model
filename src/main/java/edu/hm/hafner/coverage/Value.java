@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -276,6 +278,17 @@ public class Value implements Serializable {
      */
     public double asDouble() {
         return fraction.doubleValue();
+    }
+
+    /**
+     * Returns this value as rounded double.
+     *
+     * @return this value as a double
+     */
+    public double asRounded() {
+        var value = BigDecimal.valueOf(fraction.doubleValue());
+
+        return value.setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
