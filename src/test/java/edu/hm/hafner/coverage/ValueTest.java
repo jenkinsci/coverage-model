@@ -12,11 +12,31 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ValueTest {
     @Test
+    void shouldHandlePercentageRounding() {
+        var oneThird = new Value(Metric.COHESION, 1, 3);
+
+        assertThat(oneThird.asInteger()).isZero();
+        assertThat(oneThird.asDouble()).isEqualTo(1.0 / 3);
+        assertThat(oneThird.asRounded()).isEqualTo(0.33);
+
+        var twoThirds = new Value(Metric.COHESION, 2, 3);
+
+        assertThat(twoThirds.asInteger()).isEqualTo(0);
+        assertThat(twoThirds.asDouble()).isEqualTo(2.0 / 3);
+        assertThat(twoThirds.asRounded()).isEqualTo(0.67);
+    }
+
+    @Test
     void shouldReturnCorrectValueOfCoverage() {
         var container = Value.valueOf("CONTAINER: 1/1");
 
         assertThat(container)
-                .isInstanceOf(Coverage.class);
+                .isInstanceOfSatisfying(Coverage.class, coverage -> {
+                    assertThat(coverage.getMetric()).isEqualTo(Metric.CONTAINER);
+                    assertThat(coverage.getCovered()).isOne();
+                    assertThat(coverage.getMissed()).isZero();
+                });
+
         assertThat(Value.valueOf("MODULE: 1/1"))
                 .isInstanceOf(Coverage.class);
         assertThat(Value.valueOf("PACKAGE: 1/1"))
@@ -35,10 +55,6 @@ class ValueTest {
                 .isInstanceOf(Coverage.class);
         assertThat(Value.valueOf("MUTATION: 1/1"))
                 .isInstanceOf(Coverage.class);
-
-        assertThat((Coverage) container)
-                .hasCovered(1)
-                .hasMissed(0);
     }
 
     @Test
@@ -80,9 +96,9 @@ class ValueTest {
         var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 20);
         var ncss = new Value(Metric.NCSS, 30);
         var npathComplexity = new Value(Metric.NPATH_COMPLEXITY, 40);
-        var coginitiveComplexity = new Value(Metric.COGNITIVE_COMPLEXITY, 50);
+        var cognitiveComplexity = new Value(Metric.COGNITIVE_COMPLEXITY, 50);
 
-        List<Value> values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, coginitiveComplexity);
+        List<Value> values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, cognitiveComplexity);
 
         assertThat(Value.getValue(Metric.LOC, values))
                 .isEqualTo(linesOfCode);
@@ -93,7 +109,7 @@ class ValueTest {
         assertThat(Value.getValue(Metric.NPATH_COMPLEXITY, values))
                 .isEqualTo(npathComplexity);
         assertThat(Value.getValue(Metric.COGNITIVE_COMPLEXITY, values))
-                .isEqualTo(coginitiveComplexity);
+                .isEqualTo(cognitiveComplexity);
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> Value.getValue(Metric.LINE, values))
                 .withMessageContaining("No value for metric");
