@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -754,13 +753,13 @@ class NodeTest {
                 coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
         ));
 
-        NavigableMap<Metric, Fraction> delta = fileA.computeDelta(fileB);
+        NavigableMap<Metric, Value> delta = fileA.computeDelta(fileB);
 
         assertThat(delta)
                 .containsKeys(FILE, LINE, BRANCH)
                 .doesNotContainKey(MUTATION);
-        assertThat(delta.getOrDefault(LINE, Fraction.ZERO)).isEqualTo(Fraction.getFraction(10, 10));
-        assertThat(delta.getOrDefault(BRANCH, Fraction.ZERO)).isEqualTo(Fraction.getFraction(1, 2));
+        assertThat(delta.getOrDefault(LINE, Value.nullObject(LINE)).asDouble()).isEqualTo(100);
+        assertThat(delta.getOrDefault(BRANCH, Value.nullObject(BRANCH)).asDouble()).isEqualTo(50);
     }
 
     @Test

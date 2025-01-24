@@ -45,20 +45,30 @@ public enum Metric {
     MUTATION("Mutation Coverage", new ValuesAggregator()),
     TEST_STRENGTH("Test Strength", new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    LOC("Lines of Code", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    TESTS("Number of Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC),
-    NCSS("Non Commenting Source Statements", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COGNITIVE_COMPLEXITY("Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    NPATH_COMPLEXITY("N-Path Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    LOC("Lines of Code", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    TESTS("Number of Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    NCSS("Non Commenting Source Statements", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    COGNITIVE_COMPLEXITY("Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    NPATH_COMPLEXITY("N-Path Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
     COHESION("Class Cohesion", new ValuesAggregator(Value::max, "maximum"),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new DoubleFormatter()),
+    FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
     WEIGHT_OF_CLASS("Weight of Class", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC);
+    WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new DoubleFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -117,7 +127,7 @@ public enum Metric {
     }
 
     Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
-        this(displayName, evaluator, tendency, type, new IntegerFormatter());
+        this(displayName, evaluator, tendency, type, new CoverageFormatter());
     }
 
     Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
@@ -198,25 +208,29 @@ public enum Metric {
     /**
      * Formats the specified value according to the metrics formatter.
      *
+     * @param locale
+     *         the locale to use
      * @param value
      *         the value to format
      *
      * @return the formatted value
      */
-    public String format(final double value) {
-        return formatter.format(value);
+    public String format(final Locale locale, final double value) {
+        return formatter.format(locale, value);
     }
 
     /**
      * Formats the specified mean value according to the metrics formatter.
      *
+     * @param locale
+     *         the locale to use
      * @param value
      *         the mean value to format
      *
      * @return the formatted mean value
      */
-    public String formatMean(final double value) {
-        return formatter.formatMean(value);
+    public String formatMean(final Locale locale, final double value) {
+        return formatter.formatMean(locale, value);
     }
 
     public String getAggregationType() {
@@ -404,32 +418,56 @@ public enum Metric {
     }
 
     private interface MetricFormatter {
-        String format(double value);
+        String format(Locale locale, double value);
 
-        String formatMean(double value);
+        String formatMean(Locale locale, double value);
     }
 
-    private static class IntegerFormatter implements MetricFormatter {
+    private static class CoverageFormatter implements MetricFormatter {
         @Override
-        public String format(final double value) {
-            return String.valueOf(Math.round(value));
+        public String format(final Locale locale, final double value) {
+            return String.format(locale, "%.2f%%", value);
         }
 
         @Override
-        public String formatMean(final double value) {
-            return String.format(Locale.ENGLISH, "%.2f", value);
+        public String formatMean(final Locale locale, final double value) {
+            return format(locale, value);
         }
     }
 
     private static class PercentageFormatter implements MetricFormatter {
         @Override
-        public String format(final double value) {
-            return String.format(Locale.ENGLISH, "%.2f%%", value * 100);
+        public String format(final Locale locale, final double value) {
+            return String.format(locale, "%.2f%%", value * 100);
         }
 
         @Override
-        public String formatMean(final double value) {
-            return format(value);
+        public String formatMean(final Locale locale, final double value) {
+            return format(locale, value);
+        }
+    }
+
+    private static class DoubleFormatter implements MetricFormatter {
+        @Override
+        public String format(final Locale locale, final double value) {
+            return String.format(locale, "%.2f", value);
+        }
+
+        @Override
+        public String formatMean(final Locale locale, final double value) {
+            return format(locale, value);
+        }
+    }
+
+    private static class IntegerFormatter implements MetricFormatter {
+        @Override
+        public String format(final Locale locale, final double value) {
+            return String.format(locale, "%d", Math.round(value));
+        }
+
+        @Override
+        public String formatMean(final Locale locale, final double value) {
+            return String.format(locale, "%.2f", value);
         }
     }
 }

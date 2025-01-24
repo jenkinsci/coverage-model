@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage;
 import java.io.IOException;
 import java.util.NavigableMap;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
@@ -128,8 +127,7 @@ class FileNodeTest extends AbstractNodeTest {
 
         assertThat(fileB.hasDelta(Metric.LINE)).isTrue();
         assertThat(fileB.hasDelta(Metric.BRANCH)).isFalse();
-        assertThat(fileB.getDelta(Metric.LINE))
-                .isEqualTo(Fraction.getFraction(20 - 10, 20).reduce());
+        assertThat(fileB.getDelta(Metric.LINE).asDouble()).isEqualTo(50);
     }
 
     @Test

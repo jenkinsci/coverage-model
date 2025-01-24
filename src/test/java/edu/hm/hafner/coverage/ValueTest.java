@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.math.Fraction;
@@ -11,6 +12,35 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ValueTest {
+    @Test
+    void shouldProvideNullObject() {
+        var zero = Value.nullObject(Metric.COHESION);
+
+        assertThat(zero)
+                .hasMetric(Metric.COHESION)
+                .hasFraction(Fraction.ZERO);
+
+        assertThat(zero.add(zero)).isEqualTo(zero);
+        assertThat(zero.subtract(zero)).isEqualTo(zero);
+        assertThat(zero.max(zero)).isEqualTo(zero);
+
+        assertThat(zero.asInteger()).isZero();
+        assertThat(zero.asDouble()).isEqualTo(0);
+        assertThat(zero.asRounded()).isEqualTo(0);
+
+        assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("0.00");
+        assertThat(zero.getSummary(Locale.ENGLISH)).isEqualTo("Class Cohesion: 0.00");
+        assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("0.00");
+        assertThat(zero.getDetails(Locale.ENGLISH)).isEqualTo("Class Cohesion: 0.00");
+        assertThat(zero.serialize()).isEqualTo("COHESION: 0");
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(zero);
+    }
+
+    private void assertThatInstanceIsCorrectlySerializedAndDeserialized(final Value value) {
+        assertThat(Value.valueOf(value.serialize())).isEqualTo(value);
+    }
+
     @Test
     void shouldHandlePercentageRounding() {
         var oneThird = new Value(Metric.COHESION, 1, 3);
@@ -24,6 +54,29 @@ class ValueTest {
         assertThat(twoThirds.asInteger()).isEqualTo(0);
         assertThat(twoThirds.asDouble()).isEqualTo(2.0 / 3);
         assertThat(twoThirds.asRounded()).isEqualTo(0.67);
+
+        assertThat(twoThirds.asText(Locale.ENGLISH)).isEqualTo("0.67");
+        assertThat(twoThirds.asInformativeText(Locale.ENGLISH)).isEqualTo("0.67");
+        assertThat(twoThirds.serialize()).isEqualTo("COHESION: 2:3");
+
+        assertThat(oneThird.max(twoThirds)).isEqualTo(twoThirds);
+        assertThat(twoThirds.max(oneThird)).isEqualTo(twoThirds);
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(oneThird);
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(twoThirds);
+    }
+
+    @Test
+    void shouldHandleDoubleValues() {
+        var fraction = new Value(Metric.COHESION, 1, 3);
+        var value = new Value(Metric.COHESION, 1.0 / 3.0);
+
+        assertThat(value.asInteger()).isZero();
+        assertThat(value.asDouble()).isEqualTo(1.0 / 3);
+        assertThat(value.asRounded()).isEqualTo(0.33);
+        assertThat(value.asDouble()).isEqualTo(fraction.asDouble());
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(value);
     }
 
     @Test
@@ -59,12 +112,20 @@ class ValueTest {
 
     @Test
     void shouldReturnCorrectValueOfFractionValue() {
-        var fractionValue = Value.valueOf("COMPLEXITY: 1/1");
+        var complexity = Value.valueOf("COMPLEXITY: 1");
 
-        assertThat(fractionValue)
+        assertThat(complexity)
                 .isInstanceOf(Value.class)
                 .hasMetric(Metric.CYCLOMATIC_COMPLEXITY)
                 .hasFraction(Fraction.getFraction(1, 1));
+
+        assertThat(complexity.asText(Locale.ENGLISH)).isEqualTo("1");
+        assertThat(complexity.getSummary(Locale.ENGLISH)).isEqualTo("Cyclomatic Complexity: 1");
+        assertThat(complexity.asInformativeText(Locale.ENGLISH)).isEqualTo("1");
+        assertThat(complexity.getDetails(Locale.ENGLISH)).isEqualTo("Cyclomatic Complexity: 1");
+        assertThat(complexity.serialize()).isEqualTo("CYCLOMATIC_COMPLEXITY: 1");
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(complexity);
     }
 
     @Test
@@ -73,25 +134,48 @@ class ValueTest {
 
         assertThat(linesOfCode).isInstanceOf(Value.class).hasMetric(Metric.LOC);
         assertThat(linesOfCode.asInteger()).isEqualTo(1);
-        assertThat(linesOfCode.asText()).isEqualTo("1");
+        assertThat(linesOfCode.asText(Locale.ENGLISH)).isEqualTo("1");
+
+        assertThat(linesOfCode.asText(Locale.ENGLISH)).isEqualTo("1");
+        assertThat(linesOfCode.getSummary(Locale.ENGLISH)).isEqualTo("Lines of Code: 1");
+        assertThat(linesOfCode.asInformativeText(Locale.ENGLISH)).isEqualTo("1");
+        assertThat(linesOfCode.getDetails(Locale.ENGLISH)).isEqualTo("Lines of Code: 1");
+        assertThat(linesOfCode.serialize()).isEqualTo("LOC: 1");
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(linesOfCode);
     }
 
     @Test
     void shouldThrowExceptionOnInvalidStringRepresentation() {
         var badRepresentation = "Bad representation";
-        var badNumber = "COMPLEXITY: BadNumber";
-
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Value.valueOf(badRepresentation))
                 .withMessageContaining("Cannot convert '%s' to a valid Value instance.".formatted(badRepresentation));
+
+        var badNumber = "COMPLEXITY: BadNumber";
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Value.valueOf(badNumber))
                 .withMessageContaining("Cannot convert '%s' to a valid Value instance.".formatted(badNumber));
     }
 
     @Test
-    @SuppressWarnings("Varifier")
-    void shouldGetValue() {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    void shouldThrowExceptionWhenUsingDifferentType() {
+        var linesOfCode = new Value(Metric.LOC, 10);
+        var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var coverage = Coverage.nullObject(Metric.LOC);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> linesOfCode.add(complexity))
+                .withMessageContaining("Cannot calculate with different metrics");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> linesOfCode.add(coverage))
+                .withMessageContaining("Cannot calculate with different types");
+    }
+
+    @Test
+    void shouldFindValueInCollection() {
         var linesOfCode = new Value(Metric.LOC, 10);
         var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 20);
         var ncss = new Value(Metric.NCSS, 30);
@@ -102,14 +186,27 @@ class ValueTest {
 
         assertThat(Value.getValue(Metric.LOC, values))
                 .isEqualTo(linesOfCode);
+        assertThat(Value.findValue(Metric.LOC, values))
+                .contains(linesOfCode);
         assertThat(Value.getValue(Metric.CYCLOMATIC_COMPLEXITY, values))
                 .isEqualTo(cyclomaticComplexity);
+        assertThat(Value.findValue(Metric.CYCLOMATIC_COMPLEXITY, values))
+                .contains(cyclomaticComplexity);
         assertThat(Value.getValue(Metric.NCSS, values))
                 .isEqualTo(ncss);
+        assertThat(Value.findValue(Metric.NCSS, values))
+                .contains(ncss);
         assertThat(Value.getValue(Metric.NPATH_COMPLEXITY, values))
                 .isEqualTo(npathComplexity);
+        assertThat(Value.findValue(Metric.NPATH_COMPLEXITY, values))
+                .contains(npathComplexity);
         assertThat(Value.getValue(Metric.COGNITIVE_COMPLEXITY, values))
                 .isEqualTo(cognitiveComplexity);
+        assertThat(Value.findValue(Metric.COGNITIVE_COMPLEXITY, values))
+                .contains(cognitiveComplexity);
+
+        assertThat(Value.findValue(Metric.LINE, values))
+                .isEmpty();
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> Value.getValue(Metric.LINE, values))
                 .withMessageContaining("No value for metric");

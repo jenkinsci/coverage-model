@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.math.Fraction;
+import java.util.Locale;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,11 +25,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 @DefaultLocale("en")
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
 class CoverageTest {
-    private static final Coverage NO_COVERAGE = new CoverageBuilder()
-            .withMetric(Metric.LINE)
-            .withCovered(0)
-            .withMissed(0)
-            .build();
+    private static final Coverage NO_COVERAGE = Coverage.nullObject(Metric.LINE);
 
     @Test
     void shouldHandlePercentageRounding() {
@@ -45,20 +42,24 @@ class CoverageTest {
         assertThat(twoThirds.asInteger()).isEqualTo(67);
         assertThat(twoThirds.asDouble()).isEqualTo(200.0 / 3);
         assertThat(twoThirds.asRounded()).isEqualTo(66.67);
+
+        assertThat(twoThirds.asText(Locale.ENGLISH)).isEqualTo("66.67%");
+        assertThat(twoThirds.asInformativeText(Locale.ENGLISH)).isEqualTo("66.67% (2/3)");
+        assertThat(twoThirds.serialize()).isEqualTo("LINE: 2/3");
     }
 
     @Test
     void shouldComputeDelta() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        var worse = builder.withCovered(0).withMissed(2).build();
-        var ok = builder.withCovered(1).withMissed(1).build();
-        var better = builder.withCovered(2).withMissed(0).build();
+        var worse = builder.withCovered(0).withMissed(2).build();  // 0%
+        var ok = builder.withCovered(1).withMissed(1).build();     // 50%
+        var better = builder.withCovered(2).withMissed(0).build(); // 100%
 
-        assertThat(worse.delta(better).doubleValue()).isEqualTo(getDelta("-1/1"));
-        assertThat(better.delta(worse).doubleValue()).isEqualTo(getDelta("1/1"));
-        assertThat(worse.delta(ok).doubleValue()).isEqualTo(getDelta("-1/2"));
-        assertThat(ok.delta(worse).doubleValue()).isEqualTo(getDelta("1/2"));
+        assertThat(worse.subtract(better).asDouble()).isEqualTo(-100);
+        assertThat(better.subtract(worse).asDouble()).isEqualTo(100);
+        assertThat(worse.subtract(ok).asDouble()).isEqualTo(-50);
+        assertThat(ok.subtract(worse).asDouble()).isEqualTo(50);
     }
 
     @Test
@@ -75,10 +76,6 @@ class CoverageTest {
         assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
         assertThat(hundred.isOutOfValidRange(100)).isFalse();
         assertThat(hundred.isOutOfValidRange(100.1)).isTrue();
-    }
-
-    private double getDelta(final String value) {
-        return Fraction.getFraction(value).doubleValue();
     }
 
     @Test
@@ -129,13 +126,13 @@ class CoverageTest {
 
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(loc));
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.max(loc));
-        assertThatIllegalArgumentException().isThrownBy(() -> coverage.delta(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.subtract(loc));
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.add(wrongMetric));
         assertThatIllegalArgumentException().isThrownBy(() -> coverage.max(wrongMetric));
-        assertThatIllegalArgumentException().isThrownBy(() -> coverage.delta(wrongMetric));
+        assertThatIllegalArgumentException().isThrownBy(() -> coverage.subtract(wrongMetric));
         assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.add(loc));
         assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.max(loc));
-        assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.delta(loc));
+        assertThatIllegalArgumentException().isThrownBy(() -> wrongMetric.subtract(loc));
     }
 
     @Test

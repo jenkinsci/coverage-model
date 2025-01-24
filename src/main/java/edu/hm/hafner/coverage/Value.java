@@ -19,7 +19,7 @@ import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 /**
  * A leaf in the tree that contains a value. The value is for a coverage metric like line, instruction, branch, or
- * mutation coverage or a software-metric like loc or complexity.
+ * mutation coverage, or a software-metric like loc or complexity.
  *
  * @author Ullrich Hafner
  */
@@ -87,10 +87,10 @@ public class Value implements Serializable {
             if (StringUtils.contains(cleanedFormat, METRIC_SEPARATOR)) {
                 var metric = Metric.fromName(StringUtils.substringBefore(cleanedFormat, METRIC_SEPARATOR));
                 var value = StringUtils.substringAfter(cleanedFormat, METRIC_SEPARATOR);
-                if (metric.isCoverage()) {
+                if (value.contains("/")) {
                     return Coverage.valueOf(metric, value);
                 }
-                return new Value(metric, Fraction.getFraction(value));
+                return new Value(metric, Fraction.getFraction(value.replace(':', '/')));
             }
         }
         catch (NumberFormatException exception) {
@@ -128,6 +128,18 @@ public class Value implements Serializable {
     }
 
     /**
+     * Creates a new leaf with the given value for the specified metric.
+     *
+     * @param metric
+     *         the coverage metric
+     * @param value
+     *         the value to store
+     */
+    public Value(final Metric metric, final double value) {
+        this(metric, Fraction.getFraction(value));
+    }
+
+    /**
      * Creates a new leaf with the given value (a fraction) for the specified metric.
      *
      * @param metric
@@ -161,7 +173,7 @@ public class Value implements Serializable {
         return fraction;
     }
 
-    protected void ensureSameMetric(final Value other) {
+    protected void ensureSameMetricAndType(final Value other) {
         if (!hasSameMetric(other)) {
             throw new IllegalArgumentException(
                     "Cannot calculate with different metrics: %s and %s".formatted(this, other));
@@ -184,9 +196,9 @@ public class Value implements Serializable {
      */
     @CheckReturnValue
     public Value add(final Value other) {
-        ensureSameMetric(other);
+        ensureSameMetricAndType(other);
 
-        return new Value(getMetric(), asSafeFraction().add(other.fraction));
+        return create(asSafeFraction().add(other.fraction));
     }
 
     /**
@@ -200,10 +212,10 @@ public class Value implements Serializable {
      *         if the metrics of the two instances are different
      */
     @CheckReturnValue
-    public Fraction delta(final Value other) {
-        ensureSameMetric(other);
+    public Value subtract(final Value other) {
+        ensureSameMetricAndType(other);
 
-        return asSafeFraction().subtract(other.fraction);
+        return create(asSafeFraction().subtract(other.fraction));
     }
 
     /**
@@ -214,12 +226,24 @@ public class Value implements Serializable {
      *
      * @return the maximum value
      */
+    @CheckReturnValue
     public Value max(final Value other) {
-        ensureSameMetric(other);
+        ensureSameMetricAndType(other);
+
         if (fraction.doubleValue() < other.fraction.doubleValue()) {
             return other;
         }
         return this;
+    }
+
+    /**
+     * Creates a new instance of the same {@link Metric} with the specified fraction.
+     *
+     * @param newFraction the new fraction
+     * @return the new instance
+     */
+    protected Value create(final Fraction newFraction) {
+        return new Value(getMetric(), newFraction);
     }
 
     /**
@@ -250,16 +274,63 @@ public class Value implements Serializable {
      * @return serialization of this value as a String
      */
     public final String serialize() {
-        return String.format(Locale.ENGLISH, "%s: %s", getMetric(), asText());
+        return String.format(Locale.ENGLISH, "%s: %s", getMetric(), serializeValue());
+    }
+
+    /**
+     * Serializes the value of this instance into a String (without the metric).
+     *
+     * @return the value of this instance as a String
+     */
+    protected String serializeValue() {
+        if (fraction.getDenominator() == 1) {
+            return String.valueOf(fraction.getNumerator());
+        }
+        return String.format(Locale.ENGLISH, "%d:%d", fraction.getNumerator(), fraction.getDenominator());
     }
 
     /**
      * Returns this value as a text.
      *
+     * @param locale
+     *         the locale to use
+     *
      * @return this value formatted as a String
      */
-    public String asText() {
-        return getMetric().format(asDouble());
+    public String asText(final Locale locale) {
+        return getMetric().format(locale, asDouble());
+    }
+
+    /**
+     * Returns this value as an informative text.
+     *
+     * @param locale
+     *         the locale to use
+     *
+     * @return this value formatted as a String
+     */
+    public String asInformativeText(final Locale locale) {
+        return getMetric().format(locale, asDouble());
+    }
+
+    /**
+     * Returns a short summary of this value as a human-readable text.
+     *
+     * @param locale the locale to use
+     * @return the summary of this value as a human-readable text
+     */
+    public String getSummary(final Locale locale) {
+        return String.format(locale, "%s: %s", getMetric().getDisplayName(), asText(locale));
+    }
+
+    /**
+     * Returns the details of this value as a human-readable text.
+     *
+     * @param locale the locale to use
+     * @return the details of this value as a human-readable text
+     */
+    public String getDetails(final Locale locale) {
+        return String.format(locale, "%s: %s", getMetric().getDisplayName(), asInformativeText(locale));
     }
 
     /**
