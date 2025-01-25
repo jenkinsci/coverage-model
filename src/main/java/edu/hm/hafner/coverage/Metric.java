@@ -60,7 +60,7 @@ public enum Metric {
     ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
     COHESION("Class Cohesion", new ValuesAggregator(Value::max, "maximum"),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new DoubleFormatter()),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
     FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
     NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
@@ -68,7 +68,7 @@ public enum Metric {
     WEIGHT_OF_CLASS("Weight of Class", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
     WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new DoubleFormatter());
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.

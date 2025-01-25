@@ -119,12 +119,12 @@ class MetricTest {
         var cohesion = Metric.COHESION;
         assertThat(cohesion).hasTendency(MetricTendency.LARGER_IS_BETTER)
                 .isNotContainer().isNotCoverage().hasDisplayName("Class Cohesion");
-        assertThat(cohesion.format(Locale.ENGLISH, 0.355)).isEqualTo("0.36");
-        assertThat(cohesion.formatMean(Locale.ENGLISH, 0.355)).isEqualTo("0.36");
+        assertThat(cohesion.format(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
+        assertThat(cohesion.formatMean(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
         assertThat(cohesion.getAggregationType()).isEqualTo("maximum");
         assertThat(cohesion.getType()).isEqualTo(MetricValueType.CLASS_METRIC);
         assertThat(cohesion.parseValue("0.355")).satisfies(value ->
-                assertThat(value.asText(Locale.ENGLISH)).isEqualTo("0.36"));
+                assertThat(value.asText(Locale.ENGLISH)).isEqualTo("35.50%"));
 
         assertThat(cohesion.getTargetNodes(root)).hasSize(1)
                 .first().extracting(Node::getName).isEqualTo("class");

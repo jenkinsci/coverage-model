@@ -14,10 +14,10 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 class ValueTest {
     @Test
     void shouldProvideNullObject() {
-        var zero = Value.nullObject(Metric.COHESION);
+        var zero = Value.nullObject(Metric.LOC);
 
         assertThat(zero)
-                .hasMetric(Metric.COHESION)
+                .hasMetric(Metric.LOC)
                 .hasFraction(Fraction.ZERO);
 
         assertThat(zero.add(zero)).isEqualTo(zero);
@@ -28,11 +28,11 @@ class ValueTest {
         assertThat(zero.asDouble()).isEqualTo(0);
         assertThat(zero.asRounded()).isEqualTo(0);
 
-        assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("0.00");
-        assertThat(zero.getSummary(Locale.ENGLISH)).isEqualTo("Class Cohesion: 0.00");
-        assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("0.00");
-        assertThat(zero.getDetails(Locale.ENGLISH)).isEqualTo("Class Cohesion: 0.00");
-        assertThat(zero.serialize()).isEqualTo("COHESION: 0");
+        assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("0");
+        assertThat(zero.getSummary(Locale.ENGLISH)).isEqualTo("Lines of Code: 0");
+        assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("0");
+        assertThat(zero.getDetails(Locale.ENGLISH)).isEqualTo("Lines of Code: 0");
+        assertThat(zero.serialize()).isEqualTo("LOC: 0");
 
         assertThatInstanceIsCorrectlySerializedAndDeserialized(zero);
     }
@@ -55,8 +55,8 @@ class ValueTest {
         assertThat(twoThirds.asDouble()).isEqualTo(2.0 / 3);
         assertThat(twoThirds.asRounded()).isEqualTo(0.67);
 
-        assertThat(twoThirds.asText(Locale.ENGLISH)).isEqualTo("0.67");
-        assertThat(twoThirds.asInformativeText(Locale.ENGLISH)).isEqualTo("0.67");
+        assertThat(twoThirds.asText(Locale.ENGLISH)).isEqualTo("66.67%");
+        assertThat(twoThirds.asInformativeText(Locale.ENGLISH)).isEqualTo("66.67%");
         assertThat(twoThirds.serialize()).isEqualTo("COHESION: 2:3");
 
         assertThat(oneThird.max(twoThirds)).isEqualTo(twoThirds);
