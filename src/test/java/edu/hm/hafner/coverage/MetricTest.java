@@ -75,9 +75,26 @@ class MetricTest {
      */
     @Test
     void shouldCorrectlyImplementIsContainer() {
-        assertThat(Metric.MODULE).isContainer().isCoverage().hasDisplayName("Module Coverage");
-        assertThat(Metric.FILE).isContainer().isCoverage().hasDisplayName("File Coverage");
-        assertThat(Metric.LINE).isNotContainer().isCoverage().hasDisplayName("Line Coverage");
+        assertThat(Metric.MODULE)
+                .isContainer()
+                .isCoverage()
+                .hasDisplayName("Module Coverage")
+                .hasLabel("Module");
+        assertThat(Metric.FILE)
+                .isContainer()
+                .isCoverage()
+                .hasDisplayName("File Coverage")
+                .hasLabel("File");
+        assertThat(Metric.LINE)
+                .isNotContainer()
+                .isCoverage()
+                .hasDisplayName("Line Coverage")
+                .hasLabel("Line");
+        assertThat(Metric.LOC)
+                .isNotContainer()
+                .isNotCoverage()
+                .hasDisplayName("Lines of Code")
+                .hasLabel("LOC");
     }
 
     @Test

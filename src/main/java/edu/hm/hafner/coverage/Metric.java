@@ -27,47 +27,47 @@ public enum Metric {
      * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
      * coverage.
      */
-    CONTAINER("Container Coverage", new CoverageOfChildrenEvaluator()),
-    MODULE("Module Coverage", new CoverageOfChildrenEvaluator()),
-    PACKAGE("Package Coverage", new CoverageOfChildrenEvaluator()),
-    FILE("File Coverage", new CoverageOfChildrenEvaluator()),
-    CLASS("Class Coverage", new CoverageOfChildrenEvaluator()),
-    METHOD("Method Coverage", new CoverageOfChildrenEvaluator()),
+    CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
+    MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
+    PACKAGE("Package Coverage", "Pacakge", new CoverageOfChildrenEvaluator()),
+    FILE("File Coverage", "File", new CoverageOfChildrenEvaluator()),
+    CLASS("Class Coverage", "Class", new CoverageOfChildrenEvaluator()),
+    METHOD("Method Coverage", "Method", new CoverageOfChildrenEvaluator()),
 
     /** Coverage values that are leaves in the tree. */
-    LINE("Line Coverage", new ValuesAggregator()),
-    BRANCH("Branch Coverage", new ValuesAggregator()),
-    INSTRUCTION("Instruction Coverage", new ValuesAggregator()),
-    MCDC_PAIR("Modified Condition and Decision Coverage", new ValuesAggregator()),
-    FUNCTION_CALL("Function Call Coverage", new ValuesAggregator()),
+    LINE("Line Coverage", "Line", new ValuesAggregator()),
+    BRANCH("Branch Coverage", "Branch", new ValuesAggregator()),
+    INSTRUCTION("Instruction Coverage", "Instruction", new ValuesAggregator()),
+    MCDC_PAIR("Modified Condition and Decision Coverage", "MC/DC Pair", new ValuesAggregator()),
+    FUNCTION_CALL("Function Call Coverage", "Function Call", new ValuesAggregator()),
 
     /** Additional coverage values obtained from mutation testing. */
-    MUTATION("Mutation Coverage", new ValuesAggregator()),
-    TEST_STRENGTH("Test Strength", new ValuesAggregator()),
+    MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
+    TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    LOC("Lines of Code", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
+    LOC("Lines of Code", "LOC", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
-    TESTS("Number of Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
+    TESTS("Number of Tests", "Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
             MetricValueType.CLASS_METRIC, new IntegerFormatter()),
-    NCSS("Non Commenting Source Statements", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
-    COGNITIVE_COMPLEXITY("Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    NPATH_COMPLEXITY("N-Path Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", "Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
-    COHESION("Class Cohesion", new ValuesAggregator(Value::max, "maximum"),
+    COHESION("Class Cohesion", "Cohesion", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    FAN_OUT("Fan Out", "Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
-    NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+    NUMBER_OF_ACCESSORS("Number of Accessors", "Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.CLASS_METRIC, new IntegerFormatter()),
-    WEIGHT_OF_CLASS("Weight of Class", new ValuesAggregator(Value::max, "maximum"),
+    WEIGHT_OF_CLASS("Weight of Class", "Weigth", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(),
+    WEIGHED_METHOD_COUNT("Weighted Method Count", "Methods", new ValuesAggregator(),
             MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter());
 
     /**
@@ -112,27 +112,29 @@ public enum Metric {
     }
 
     private final String displayName;
+    private final String label;
     @SuppressFBWarnings("SE_BAD_FIELD")
     private final MetricEvaluator evaluator;
     private final MetricTendency tendency;
     private final MetricValueType type;
     private final MetricFormatter formatter;
 
-    Metric(final String displayName, final MetricEvaluator evaluator) {
-        this(displayName, evaluator, MetricTendency.LARGER_IS_BETTER);
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator) {
+        this(displayName, label, evaluator, MetricTendency.LARGER_IS_BETTER);
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency) {
-        this(displayName, evaluator, tendency, MetricValueType.COVERAGE);
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency) {
+        this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
-        this(displayName, evaluator, tendency, type, new CoverageFormatter());
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
+        this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
             final MetricFormatter formatter) {
         this.displayName = displayName;
+        this.label = label;
         this.evaluator = evaluator;
         this.tendency = tendency;
         this.type = type;
@@ -141,6 +143,10 @@ public enum Metric {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public MetricTendency getTendency() {
