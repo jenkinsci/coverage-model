@@ -51,7 +51,7 @@ class ValueTest {
 
         var twoThirds = new Value(Metric.COHESION, 2, 3);
 
-        assertThat(twoThirds.asInteger()).isEqualTo(0);
+        assertThat(twoThirds.asInteger()).isEqualTo(1);
         assertThat(twoThirds.asDouble()).isEqualTo(2.0 / 3);
         assertThat(twoThirds.asRounded()).isEqualTo(0.67);
 

@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -226,6 +228,20 @@ public enum Metric {
     }
 
     /**
+     * Formats the specified value according to the metrics formatter.
+     *
+     * @param locale
+     *         the locale to use
+     * @param value
+     *         the value to format
+     *
+     * @return the formatted value
+     */
+    public String formatDelta(final Locale locale, final double value) {
+        return formatter.formatDelta(locale, value);
+    }
+
+    /**
      * Formats the specified mean value according to the metrics formatter.
      *
      * @param locale
@@ -423,57 +439,83 @@ public enum Metric {
         }
     }
 
-    private interface MetricFormatter {
-        String format(Locale locale, double value);
-
-        String formatMean(Locale locale, double value);
-    }
-
-    private static class CoverageFormatter implements MetricFormatter {
-        @Override
-        public String format(final Locale locale, final double value) {
-            return String.format(locale, "%.2f%%", value);
+    private static class MetricFormatter {
+        String format(final Locale locale, final double value) {
+            return formatDouble(locale, value);
         }
 
-        @Override
-        public String formatMean(final Locale locale, final double value) {
-            return format(locale, value);
-        }
-    }
-
-    private static class PercentageFormatter implements MetricFormatter {
-        @Override
-        public String format(final Locale locale, final double value) {
-            return String.format(locale, "%.2f%%", value * 100);
+        String formatMean(final Locale locale, final double value) {
+            return formatDouble(locale, value);
         }
 
-        @Override
-        public String formatMean(final Locale locale, final double value) {
-            return format(locale, value);
+        String formatDelta(final Locale locale, final double value) {
+            var rounded = toRounded(value, 2);
+            if (rounded == 0) {
+                return "±0";
+            }
+            return String.format(locale, "%+.2f", rounded);
         }
-    }
 
-    private static class DoubleFormatter implements MetricFormatter {
-        @Override
-        public String format(final Locale locale, final double value) {
+        final String formatDouble(final Locale locale, final double value) {
             return String.format(locale, "%.2f", value);
         }
 
-        @Override
-        public String formatMean(final Locale locale, final double value) {
-            return format(locale, value);
+        final double toRounded(final double value, final int scale) {
+            return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP).doubleValue();
+        }
+
+        String percentage(final String value) {
+            return value + "%";
         }
     }
 
-    private static class IntegerFormatter implements MetricFormatter {
+    private static class CoverageFormatter extends MetricFormatter {
         @Override
-        public String format(final Locale locale, final double value) {
-            return String.format(locale, "%d", Math.round(value));
+        String formatMean(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value));
         }
 
         @Override
-        public String formatMean(final Locale locale, final double value) {
-            return String.format(locale, "%.2f", value);
+        String format(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            return percentage(super.formatDelta(locale, value));
+        }
+    }
+
+    private static class PercentageFormatter extends MetricFormatter {
+        @Override
+        String format(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value * 100));
+        }
+
+        @Override
+        String formatMean(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value * 100));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            return percentage(super.formatDelta(locale, value * 100));
+        }
+    }
+
+    private static class IntegerFormatter extends MetricFormatter {
+        @Override
+        String format(final Locale locale, final double value) {
+            return String.format(locale, "%d", Math.round(toRounded(value, 0)));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            var rounded = toRounded(value, 0);
+            if (rounded == 0) {
+                return "±0";
+            }
+            return String.format(locale, "%+d", Math.round(toRounded(value, 0)));
         }
     }
 }

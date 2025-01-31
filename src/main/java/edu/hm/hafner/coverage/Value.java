@@ -18,8 +18,8 @@ import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 
 /**
- * A leaf in the tree that contains a value. The value is for a coverage metric like line, instruction, branch, or
- * mutation coverage, or a software-metric like loc or complexity.
+ * A leaf in the tree that contains a numeric value. Such values are used for arbitrary software-metric like
+ * loc or complexity. The value is stored as a fraction to allow exact calculations.
  *
  * @author Ullrich Hafner
  */
@@ -339,7 +339,7 @@ public class Value implements Serializable {
      * @return this value as an integer
      */
     public int asInteger() {
-        return fraction.getProperWhole();
+        return (int) round(fraction.doubleValue(), 0);
     }
 
     /**
@@ -357,9 +357,13 @@ public class Value implements Serializable {
      * @return this value as a double
      */
     public double asRounded() {
-        var value = BigDecimal.valueOf(fraction.doubleValue());
+        return round(fraction.doubleValue(), 2);
+    }
 
-        return value.setScale(2, RoundingMode.HALF_UP).doubleValue();
+    private double round(final double value, final int scale) {
+        return BigDecimal.valueOf(value)
+                .setScale(scale, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     /**
