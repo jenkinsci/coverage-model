@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
@@ -31,7 +33,7 @@ public enum Metric {
      */
     CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
     MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
-    PACKAGE("Package Coverage", "Pacakge", new CoverageOfChildrenEvaluator()),
+    PACKAGE("Package Coverage", "Package", new CoverageOfChildrenEvaluator()),
     FILE("File Coverage", "File", new CoverageOfChildrenEvaluator()),
     CLASS("Class Coverage", "Class", new CoverageOfChildrenEvaluator()),
     METHOD("Method Coverage", "Method", new CoverageOfChildrenEvaluator()),
@@ -115,7 +117,6 @@ public enum Metric {
 
     private final String displayName;
     private final String label;
-    @SuppressFBWarnings("SE_BAD_FIELD")
     private final MetricEvaluator evaluator;
     private final MetricTendency tendency;
     private final MetricValueType type;
@@ -302,7 +303,10 @@ public enum Metric {
         CLASS_METRIC
     }
 
-    private abstract static class MetricEvaluator {
+    private abstract static class MetricEvaluator implements Serializable {
+        @Serial
+        private static final long serialVersionUID = -537814226149186300L;
+
         final Optional<Value> compute(final Node node, final Metric searchMetric) {
             return getValue(node, searchMetric).or(() -> computeDerivedValue(node, searchMetric));
         }
@@ -324,6 +328,9 @@ public enum Metric {
     }
 
     private static class CoverageOfChildrenEvaluator extends MetricEvaluator {
+        @Serial
+        private static final long serialVersionUID = 8788686429559762490L;
+
         @Override
         public boolean isAggregatingChildren() {
             return true;
@@ -387,6 +394,9 @@ public enum Metric {
     }
 
     private static class ValuesAggregator extends MetricEvaluator {
+        @Serial
+        private static final long serialVersionUID = 7908490688181149667L;
+        
         private final BinaryOperator<Value> accumulator;
         private final String name;
 
@@ -427,6 +437,9 @@ public enum Metric {
     }
 
     private static class LocEvaluator extends ValuesAggregator {
+        @Serial
+        private static final long serialVersionUID = 8819577749737375989L;
+
         @Override
         protected Optional<Value> getDefaultValue(final Node node) {
             return LINE.getValueFor(node).map(this::getTotal);
@@ -439,7 +452,10 @@ public enum Metric {
         }
     }
 
-    private static class MetricFormatter {
+    private static class MetricFormatter implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 7402798036375016965L;
+
         String format(final Locale locale, final double value) {
             return formatDouble(locale, value);
         }
@@ -470,6 +486,9 @@ public enum Metric {
     }
 
     private static class CoverageFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = 4337117939462815181L;
+
         @Override
         String formatMean(final Locale locale, final double value) {
             return percentage(formatDouble(locale, value));
@@ -487,6 +506,9 @@ public enum Metric {
     }
 
     private static class PercentageFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = -4995914265987128828L;
+
         @Override
         String format(final Locale locale, final double value) {
             return percentage(formatDouble(locale, value * 100));
@@ -504,6 +526,9 @@ public enum Metric {
     }
 
     private static class IntegerFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = 8053070560640902081L;
+
         @Override
         String format(final Locale locale, final double value) {
             return String.format(locale, "%d", Math.round(toRounded(value, 0)));
