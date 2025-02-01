@@ -21,7 +21,7 @@ class ValueTest {
                 .hasFraction(Fraction.ZERO);
 
         assertThat(zero.add(zero)).isEqualTo(zero);
-        assertThat(zero.subtract(zero)).isEqualTo(zero);
+        assertThat(zero.subtract(zero)).isEqualTo(Difference.nullObject(Metric.LOC));
         assertThat(zero.max(zero)).isEqualTo(zero);
 
         assertThat(zero.asInteger()).isZero();

@@ -198,7 +198,7 @@ public class Value implements Serializable {
     public Value add(final Value other) {
         ensureSameMetricAndType(other);
 
-        return create(asSafeFraction().add(other.fraction));
+        return new Value(getMetric(), asSafeFraction().add(other.fraction));
     }
 
     /**
@@ -212,10 +212,10 @@ public class Value implements Serializable {
      *         if the metrics of the two instances are different
      */
     @CheckReturnValue
-    public Value subtract(final Value other) {
+    public Difference subtract(final Value other) {
         ensureSameMetricAndType(other);
 
-        return create(asSafeFraction().subtract(other.fraction));
+        return new Difference(getMetric(), asSafeFraction().subtract(other.fraction));
     }
 
     /**
@@ -234,16 +234,6 @@ public class Value implements Serializable {
             return other;
         }
         return this;
-    }
-
-    /**
-     * Creates a new instance of the same {@link Metric} with the specified fraction.
-     *
-     * @param newFraction the new fraction
-     * @return the new instance
-     */
-    protected Value create(final Fraction newFraction) {
-        return new Value(getMetric(), newFraction);
     }
 
     /**

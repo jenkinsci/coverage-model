@@ -753,13 +753,13 @@ class NodeTest {
                 coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
         ));
 
-        NavigableMap<Metric, Value> delta = fileA.computeDelta(fileB);
+        NavigableMap<Metric, Difference> delta = fileA.computeDelta(fileB);
 
         assertThat(delta)
                 .containsKeys(FILE, LINE, BRANCH)
                 .doesNotContainKey(MUTATION);
-        assertThat(delta.getOrDefault(LINE, Value.nullObject(LINE)).asDouble()).isEqualTo(100);
-        assertThat(delta.getOrDefault(BRANCH, Value.nullObject(BRANCH)).asDouble()).isEqualTo(50);
+        assertThat(delta.getOrDefault(LINE, Difference.nullObject(LINE)).asDouble()).isEqualTo(100);
+        assertThat(delta.getOrDefault(BRANCH, Difference.nullObject(BRANCH)).asDouble()).isEqualTo(50);
     }
 
     @Test

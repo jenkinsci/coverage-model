@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
-class DeltaTest {
+class DifferenceTest {
     @Test
     void shouldFormatPercentageWithSign() {
-        var positive = new Delta(Metric.COHESION, 2, 3);
+        var positive = new Difference(Metric.COHESION, 2, 3);
 
         assertThat(positive.asInteger()).isEqualTo(1);
         assertThat(positive.asDouble()).isEqualTo(2.0 / 3);
@@ -19,7 +19,7 @@ class DeltaTest {
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+66.67%");
         assertThat(positive.serialize()).isEqualTo("COHESION: 2:3");
 
-        var negative = new Delta(Metric.COHESION, -2, 3);
+        var negative = new Difference(Metric.COHESION, -2, 3);
 
         assertThat(negative.asInteger()).isEqualTo(-1);
         assertThat(negative.asDouble()).isEqualTo(-2.0 / 3);
@@ -29,7 +29,7 @@ class DeltaTest {
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-66.67%");
         assertThat(negative.serialize()).isEqualTo("COHESION: -2:3");
 
-        var zero = new Delta(Metric.COHESION, 0);
+        var zero = new Difference(Metric.COHESION, 0);
 
         assertThat(zero.asInteger()).isEqualTo(0);
         assertThat(zero.asDouble()).isEqualTo(0);
@@ -42,7 +42,7 @@ class DeltaTest {
 
     @Test
     void shouldFormatCoverageWithSign() {
-        var positive = new Delta(Metric.LINE, 200, 3);
+        var positive = new Difference(Metric.LINE, 200, 3);
 
         assertThat(positive.asInteger()).isEqualTo(67);
         assertThat(positive.asDouble()).isEqualTo(200.0 / 3);
@@ -52,7 +52,7 @@ class DeltaTest {
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+66.67%");
         assertThat(positive.serialize()).isEqualTo("LINE: 200:3");
 
-        var negative = new Delta(Metric.LINE, -200, 3);
+        var negative = new Difference(Metric.LINE, -200, 3);
 
         assertThat(negative.asInteger()).isEqualTo(-67);
         assertThat(negative.asDouble()).isEqualTo(-200.0 / 3);
@@ -62,7 +62,7 @@ class DeltaTest {
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-66.67%");
         assertThat(negative.serialize()).isEqualTo("LINE: -200:3");
 
-        var zero = new Delta(Metric.LINE, 0);
+        var zero = new Difference(Metric.LINE, 0);
 
         assertThat(zero.asInteger()).isEqualTo(0);
         assertThat(zero.asDouble()).isEqualTo(0);
@@ -75,7 +75,7 @@ class DeltaTest {
 
     @Test
     void shouldFormatIntegerWithSign() {
-        var positive = new Delta(Metric.LOC, 2);
+        var positive = new Difference(Metric.LOC, 2);
 
         assertThat(positive.asInteger()).isEqualTo(2);
         assertThat(positive.asDouble()).isEqualTo(2.0);
@@ -85,7 +85,7 @@ class DeltaTest {
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+2");
         assertThat(positive.serialize()).isEqualTo("LOC: 2");
 
-        var negative = new Delta(Metric.LOC, -2);
+        var negative = new Difference(Metric.LOC, -2);
 
         assertThat(negative.asInteger()).isEqualTo(-2);
         assertThat(negative.asDouble()).isEqualTo(-2.0);
@@ -95,7 +95,7 @@ class DeltaTest {
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-2");
         assertThat(negative.serialize()).isEqualTo("LOC: -2");
 
-        var zero = new Delta(Metric.LOC, 0);
+        var zero = new Difference(Metric.LOC, 0);
 
         assertThat(zero.asInteger()).isEqualTo(0);
         assertThat(zero.asDouble()).isEqualTo(0);

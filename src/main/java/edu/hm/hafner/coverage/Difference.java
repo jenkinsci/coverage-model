@@ -12,9 +12,21 @@ import org.apache.commons.lang3.math.Fraction;
  *
  * @author Ullrich Hafner
  */
-public class Delta extends Value {
+public class Difference extends Value {
     @Serial
     private static final long serialVersionUID = -1115727256219835389L;
+
+    /**
+     * Returns a {@code null} object that indicates that no value has been recorded.
+     *
+     * @param metric
+     *         the coverage metric
+     *
+     * @return the {@code null} object
+     */
+    public static Difference nullObject(final Metric metric) {
+        return new Difference(metric, 0);
+    }
 
     /**
      * Creates a new leaf with the given value for the specified metric.
@@ -24,7 +36,7 @@ public class Delta extends Value {
      * @param value
      *         the value to store
      */
-    public Delta(final Metric metric, final Fraction value) {
+    public Difference(final Metric metric, final Fraction value) {
         super(metric, value);
     }
 
@@ -36,7 +48,7 @@ public class Delta extends Value {
      * @param value
      *         the value to store
      */
-    public Delta(final Metric metric, final double value) {
+    public Difference(final Metric metric, final double value) {
         super(metric, value);
     }
 
@@ -50,7 +62,7 @@ public class Delta extends Value {
      * @param denominator
      *         the denominator, i.ee, the seven in 'three sevenths'
      */
-    public Delta(final Metric metric, final int numerator, final int denominator) {
+    public Difference(final Metric metric, final int numerator, final int denominator) {
         super(metric, numerator, denominator);
     }
 
@@ -62,7 +74,7 @@ public class Delta extends Value {
      * @param value
      *         the value
      */
-    public Delta(final Metric metric, final int value) {
+    public Difference(final Metric metric, final int value) {
         super(metric, value);
     }
 

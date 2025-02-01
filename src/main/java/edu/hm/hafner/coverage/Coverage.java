@@ -139,10 +139,10 @@ public final class Coverage extends Value {
     }
 
     @Override
-    public Value subtract(final Value other) {
+    public Difference subtract(final Value other) {
         ensureSameMetricAndType(other);
 
-        return new Value(getMetric(), asDouble() - other.asDouble());
+        return new Difference(getMetric(), asDouble() - other.asDouble());
     }
 
     @Override
