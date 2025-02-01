@@ -152,6 +152,15 @@ public final class Percentage implements Serializable {
     }
 
     /**
+     * Formats a percentage to plain text and rounds the value to two decimals. By default, the English locale is used.
+     *
+     * @return the formatted percentage as plain text
+     */
+    public String formatPercentage() {
+        return formatPercentage(Locale.ENGLISH);
+    }
+
+    /**
      * Formats a percentage to plain text and rounds the value to two decimals.
      *
      * @param locale
@@ -169,15 +178,6 @@ public final class Percentage implements Serializable {
 
     private boolean isNotPerfect() {
         return items != total;
-    }
-
-    /**
-     * Formats a percentage to plain text and rounds the value to two decimals. By default, the English locale is used.
-     *
-     * @return the formatted percentage as plain text
-     */
-    public String formatPercentage() {
-        return formatPercentage(Locale.ENGLISH);
     }
 
     /**
