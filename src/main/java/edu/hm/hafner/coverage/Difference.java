@@ -15,6 +15,8 @@ import org.apache.commons.lang3.math.Fraction;
 public class Difference extends Value {
     @Serial
     private static final long serialVersionUID = -1115727256219835389L;
+    /** Serialization prefix for delta values. */
+    public static final String DELTA = "Δ";
 
     /**
      * Returns a {@code null} object that indicates that no value has been recorded.
@@ -86,5 +88,10 @@ public class Difference extends Value {
     @Override
     public String asInformativeText(final Locale locale) {
         return getMetric().formatDelta(locale, asDouble());
+    }
+
+    @Override
+    protected String serializeValue() {
+        return DELTA + super.serializeValue();
     }
 }

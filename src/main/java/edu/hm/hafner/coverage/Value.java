@@ -90,13 +90,20 @@ public class Value implements Serializable {
                 if (value.contains("/")) {
                     return Coverage.valueOf(metric, value);
                 }
-                return new Value(metric, Fraction.getFraction(value.replace(':', '/')));
+                if (value.startsWith(Difference.DELTA)) {
+                    return new Difference(metric, readFraction(value, 1));
+                }
+                return new Value(metric, readFraction(value, 0));
             }
         }
         catch (NumberFormatException exception) {
             throw new IllegalArgumentException(errorMessage, exception);
         }
         throw new IllegalArgumentException(errorMessage);
+    }
+
+    private static Fraction readFraction(final String value, final int beginIndex) {
+        return Fraction.getFraction(value.substring(beginIndex).replace(':', '/'));
     }
 
     /**
