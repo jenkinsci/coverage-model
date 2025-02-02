@@ -17,7 +17,8 @@ class DifferenceTest {
 
         assertThat(positive.asText(Locale.ENGLISH)).isEqualTo("+66.67%");
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+66.67%");
-        assertThat(positive.serialize()).isEqualTo("COHESION: 2:3");
+        assertThat(positive.serialize()).isEqualTo("COHESION: Δ2:3");
+        assertThat(positive).isEqualTo(Value.valueOf("COHESION: Δ2:3"));
 
         var negative = new Difference(Metric.COHESION, -2, 3);
 
@@ -27,7 +28,8 @@ class DifferenceTest {
 
         assertThat(negative.asText(Locale.ENGLISH)).isEqualTo("-66.67%");
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-66.67%");
-        assertThat(negative.serialize()).isEqualTo("COHESION: -2:3");
+        assertThat(negative.serialize()).isEqualTo("COHESION: Δ-2:3");
+        assertThat(negative).isEqualTo(Value.valueOf("COHESION: Δ-2:3"));
 
         var zero = new Difference(Metric.COHESION, 0);
 
@@ -37,7 +39,8 @@ class DifferenceTest {
 
         assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("±0%");
         assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("±0%");
-        assertThat(zero.serialize()).isEqualTo("COHESION: 0");
+        assertThat(zero.serialize()).isEqualTo("COHESION: Δ0");
+        assertThat(zero).isEqualTo(Value.valueOf("COHESION: Δ0"));
     }
 
     @Test
@@ -50,7 +53,8 @@ class DifferenceTest {
 
         assertThat(positive.asText(Locale.ENGLISH)).isEqualTo("+66.67%");
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+66.67%");
-        assertThat(positive.serialize()).isEqualTo("LINE: 200:3");
+        assertThat(positive.serialize()).isEqualTo("LINE: Δ200:3");
+        assertThat(positive).isEqualTo(Value.valueOf("LINE: Δ200:3"));
 
         var negative = new Difference(Metric.LINE, -200, 3);
 
@@ -60,7 +64,8 @@ class DifferenceTest {
 
         assertThat(negative.asText(Locale.ENGLISH)).isEqualTo("-66.67%");
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-66.67%");
-        assertThat(negative.serialize()).isEqualTo("LINE: -200:3");
+        assertThat(negative.serialize()).isEqualTo("LINE: Δ-200:3");
+        assertThat(negative).isEqualTo(Value.valueOf("LINE: Δ-200:3"));
 
         var zero = new Difference(Metric.LINE, 0);
 
@@ -70,7 +75,8 @@ class DifferenceTest {
 
         assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("±0%");
         assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("±0%");
-        assertThat(zero.serialize()).isEqualTo("LINE: 0");
+        assertThat(zero.serialize()).isEqualTo("LINE: Δ0");
+        assertThat(zero).isEqualTo(Value.valueOf("LINE: Δ0"));
     }
 
     @Test
@@ -83,7 +89,8 @@ class DifferenceTest {
 
         assertThat(positive.asText(Locale.ENGLISH)).isEqualTo("+2");
         assertThat(positive.asInformativeText(Locale.ENGLISH)).isEqualTo("+2");
-        assertThat(positive.serialize()).isEqualTo("LOC: 2");
+        assertThat(positive.serialize()).isEqualTo("LOC: Δ2");
+        assertThat(positive).isEqualTo(Value.valueOf("LOC: Δ2"));
 
         var negative = new Difference(Metric.LOC, -2);
 
@@ -93,7 +100,8 @@ class DifferenceTest {
 
         assertThat(negative.asText(Locale.ENGLISH)).isEqualTo("-2");
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-2");
-        assertThat(negative.serialize()).isEqualTo("LOC: -2");
+        assertThat(negative.serialize()).isEqualTo("LOC: Δ-2");
+        assertThat(negative).isEqualTo(Value.valueOf("LOC: Δ-2"));
 
         var zero = new Difference(Metric.LOC, 0);
 
@@ -103,6 +111,7 @@ class DifferenceTest {
 
         assertThat(zero.asText(Locale.ENGLISH)).isEqualTo("±0");
         assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("±0");
-        assertThat(zero.serialize()).isEqualTo("LOC: 0");
+        assertThat(zero.serialize()).isEqualTo("LOC: Δ0");
+        assertThat(zero).isEqualTo(Value.valueOf("LOC: Δ0"));
     }
 }
