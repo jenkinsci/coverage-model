@@ -396,7 +396,8 @@ public enum Metric {
     private static class ValuesAggregator extends MetricEvaluator {
         @Serial
         private static final long serialVersionUID = 7908490688181149667L;
-        
+
+        @SuppressFBWarnings("SE_BAD_FIELD")
         private final BinaryOperator<Value> accumulator;
         private final String name;
 
