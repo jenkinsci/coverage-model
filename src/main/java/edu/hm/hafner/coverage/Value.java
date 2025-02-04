@@ -43,7 +43,7 @@ public class Value implements Serializable {
      *         if the value is not found
      * @see #findValue(Metric, Collection)
      */
-    public static Value getValue(final Metric metric, final Collection<Value> values) {
+    public static Value getValue(final Metric metric, final Collection<? extends Value> values) {
         return findValue(metric, values)
                 .orElseThrow(() -> new NoSuchElementException("No value for metric " + metric + " in " + values));
     }
@@ -59,10 +59,11 @@ public class Value implements Serializable {
      * @return the value with the specified metric, or an empty optional if the value is not found
      * @see #getValue(Metric, Collection)
      */
-    public static Optional<Value> findValue(final Metric metric, final Collection<Value> values) {
+    public static Optional<Value> findValue(final Metric metric, final Collection<? extends Value> values) {
         return values.stream()
                 .filter(v -> metric.equals(v.getMetric()))
-                .findAny();
+                .findAny()
+                .map(Value.class::cast);
     }
 
     /**

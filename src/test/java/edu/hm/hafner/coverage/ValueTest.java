@@ -176,7 +176,7 @@ class ValueTest {
 
     @Test
     void shouldFindValueInCollection() {
-        var linesOfCode = new Value(Metric.LOC, 10);
+        Value linesOfCode = new Value(Metric.LOC, 10);
         var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 20);
         var ncss = new Value(Metric.NCSS, 30);
         var npathComplexity = new Value(Metric.NPATH_COMPLEXITY, 40);

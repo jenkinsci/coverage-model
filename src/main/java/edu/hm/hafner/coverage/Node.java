@@ -374,15 +374,15 @@ public abstract class Node implements Serializable {
      *
      * @return the delta coverage for each available metric
      */
-    public NavigableMap<Metric, Difference> computeDelta(final Node reference) {
-        NavigableMap<Metric, Difference> deltaPercentages = new TreeMap<>();
+    public List<Difference> computeDelta(final Node reference) {
+        List<Difference> deltaPercentages = new ArrayList<>();
         NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
         NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
 
         for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
             var key = entry.getKey();
             if (referencePercentages.containsKey(key)) {
-                deltaPercentages.put(key, entry.getValue().subtract(referencePercentages.get(key)));
+                deltaPercentages.add(entry.getValue().subtract(referencePercentages.get(key)));
             }
         }
         return deltaPercentages;

@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 
 import org.assertj.core.api.ThrowingConsumer;
@@ -753,13 +752,12 @@ class NodeTest {
                 coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
         ));
 
-        NavigableMap<Metric, Difference> delta = fileA.computeDelta(fileB);
+        List<Difference> delta = fileA.computeDelta(fileB);
 
-        assertThat(delta)
-                .containsKeys(FILE, LINE, BRANCH)
-                .doesNotContainKey(MUTATION);
-        assertThat(delta.getOrDefault(LINE, Difference.nullObject(LINE)).asDouble()).isEqualTo(100);
-        assertThat(delta.getOrDefault(BRANCH, Difference.nullObject(BRANCH)).asDouble()).isEqualTo(50);
+        assertThat(delta).map(Difference::getMetric)
+                .containsExactly(FILE, LINE, BRANCH, LOC).doesNotContain(MUTATION);
+        assertThat(delta.get(1).asDouble()).isEqualTo(100);
+        assertThat(delta.get(2).asDouble()).isEqualTo(50);
     }
 
     @Test
