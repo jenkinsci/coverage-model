@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.math.Fraction;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -367,23 +366,23 @@ public abstract class Node implements Serializable {
 
     /**
      * Computes the delta of all metrics between this node and the specified reference node as fractions. Each delta
-     * value is computed by the value specific {@link Value#delta(Value)} method. If the reference node does not contain
+     * value is computed by the value specific {@link Value#subtract(Value)} method. If the reference node does not contain
      * a specific metric, then no delta is computed and the metric is omitted in the result map.
      *
      * @param reference
      *         the reference node
      *
-     * @return the delta coverage for each available metric as fraction
+     * @return the delta coverage for each available metric
      */
-    public NavigableMap<Metric, Fraction> computeDelta(final Node reference) {
-        NavigableMap<Metric, Fraction> deltaPercentages = new TreeMap<>();
+    public List<Difference> computeDelta(final Node reference) {
+        List<Difference> deltaPercentages = new ArrayList<>();
         NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
         NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
 
         for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
             var key = entry.getKey();
             if (referencePercentages.containsKey(key)) {
-                deltaPercentages.put(key, entry.getValue().delta(referencePercentages.get(key)));
+                deltaPercentages.add(entry.getValue().subtract(referencePercentages.get(key)));
             }
         }
         return deltaPercentages;

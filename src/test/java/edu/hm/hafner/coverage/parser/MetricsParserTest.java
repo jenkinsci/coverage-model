@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -58,7 +60,7 @@ class MetricsParserTest extends AbstractParserTest {
                 new Value(WEIGHED_METHOD_COUNT, 354));
 
         assertThat(tree.getValue(CYCLOMATIC_COMPLEXITY)).hasValueSatisfying(value -> {
-            assertThat(value.asText()).isEqualTo("355");
+            assertThat(value.asText(Locale.ENGLISH)).isEqualTo("355");
             assertThat(value.asInteger()).isEqualTo(355);
             assertThat(value.asDouble()).isEqualTo(355.0);
         });

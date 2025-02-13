@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import java.util.Locale;
 import java.util.NavigableSet;
 
 import org.apache.commons.lang3.math.Fraction;
@@ -74,9 +75,26 @@ class MetricTest {
      */
     @Test
     void shouldCorrectlyImplementIsContainer() {
-        assertThat(Metric.MODULE).isContainer().isCoverage().hasDisplayName("Module Coverage");
-        assertThat(Metric.FILE).isContainer().isCoverage().hasDisplayName("File Coverage");
-        assertThat(Metric.LINE).isNotContainer().isCoverage().hasDisplayName("Line Coverage");
+        assertThat(Metric.MODULE)
+                .isContainer()
+                .isCoverage()
+                .hasDisplayName("Module Coverage")
+                .hasLabel("Module");
+        assertThat(Metric.FILE)
+                .isContainer()
+                .isCoverage()
+                .hasDisplayName("File Coverage")
+                .hasLabel("File");
+        assertThat(Metric.LINE)
+                .isNotContainer()
+                .isCoverage()
+                .hasDisplayName("Line Coverage")
+                .hasLabel("Line");
+        assertThat(Metric.LOC)
+                .isNotContainer()
+                .isNotCoverage()
+                .hasDisplayName("Lines of Code")
+                .hasLabel("LOC");
     }
 
     @Test
@@ -90,7 +108,7 @@ class MetricTest {
 
         assertThat(Metric.LOC.getValueFor(node)).hasValueSatisfying(loc -> {
             assertThat(loc.asInteger()).isEqualTo(10);
-            assertThat(loc.asText()).isEqualTo("10");
+            assertThat(loc.asText(Locale.ENGLISH)).isEqualTo("10");
             assertThat(loc)
                     .hasMetric(Metric.LOC)
                     .hasFraction(Fraction.getFraction(10, 1));
@@ -105,12 +123,12 @@ class MetricTest {
         var complexity = Metric.CYCLOMATIC_COMPLEXITY;
         assertThat(complexity).hasTendency(MetricTendency.SMALLER_IS_BETTER)
                 .isNotContainer().isNotCoverage().hasDisplayName("Cyclomatic Complexity");
-        assertThat(complexity.format(355)).isEqualTo("355");
-        assertThat(complexity.formatMean(355)).isEqualTo("355.00");
+        assertThat(complexity.format(Locale.ENGLISH, 355)).isEqualTo("355");
+        assertThat(complexity.formatMean(Locale.ENGLISH, 355)).isEqualTo("355.00");
         assertThat(complexity.getAggregationType()).isEqualTo("total");
         assertThat(complexity.getType()).isEqualTo(MetricValueType.METHOD_METRIC);
         assertThat(complexity.parseValue("355.7")).satisfies(value ->
-                assertThat(value.asText()).isEqualTo("356"));
+                assertThat(value.asText(Locale.ENGLISH)).isEqualTo("356"));
 
         assertThat(complexity.getTargetNodes(root)).hasSize(1)
                 .first().extracting(Node::getName).isEqualTo("method()");
@@ -118,12 +136,12 @@ class MetricTest {
         var cohesion = Metric.COHESION;
         assertThat(cohesion).hasTendency(MetricTendency.LARGER_IS_BETTER)
                 .isNotContainer().isNotCoverage().hasDisplayName("Class Cohesion");
-        assertThat(cohesion.format(0.355)).isEqualTo("35.50%");
-        assertThat(cohesion.formatMean(0.355)).isEqualTo("35.50%");
+        assertThat(cohesion.format(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
+        assertThat(cohesion.formatMean(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
         assertThat(cohesion.getAggregationType()).isEqualTo("maximum");
         assertThat(cohesion.getType()).isEqualTo(MetricValueType.CLASS_METRIC);
         assertThat(cohesion.parseValue("0.355")).satisfies(value ->
-                assertThat(value.asText()).isEqualTo("35.50%"));
+                assertThat(value.asText(Locale.ENGLISH)).isEqualTo("35.50%"));
 
         assertThat(cohesion.getTargetNodes(root)).hasSize(1)
                 .first().extracting(Node::getName).isEqualTo("class");

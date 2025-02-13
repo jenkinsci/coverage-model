@@ -1,5 +1,9 @@
 package edu.hm.hafner.coverage;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -27,38 +31,48 @@ public enum Metric {
      * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
      * coverage.
      */
-    CONTAINER("Container Coverage", new CoverageOfChildrenEvaluator()),
-    MODULE("Module Coverage", new CoverageOfChildrenEvaluator()),
-    PACKAGE("Package Coverage", new CoverageOfChildrenEvaluator()),
-    FILE("File Coverage", new CoverageOfChildrenEvaluator()),
-    CLASS("Class Coverage", new CoverageOfChildrenEvaluator()),
-    METHOD("Method Coverage", new CoverageOfChildrenEvaluator()),
+    CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
+    MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
+    PACKAGE("Package Coverage", "Package", new CoverageOfChildrenEvaluator()),
+    FILE("File Coverage", "File", new CoverageOfChildrenEvaluator()),
+    CLASS("Class Coverage", "Class", new CoverageOfChildrenEvaluator()),
+    METHOD("Method Coverage", "Method", new CoverageOfChildrenEvaluator()),
 
     /** Coverage values that are leaves in the tree. */
-    LINE("Line Coverage", new ValuesAggregator()),
-    BRANCH("Branch Coverage", new ValuesAggregator()),
-    INSTRUCTION("Instruction Coverage", new ValuesAggregator()),
-    MCDC_PAIR("Modified Condition and Decision Coverage", new ValuesAggregator()),
-    FUNCTION_CALL("Function Call Coverage", new ValuesAggregator()),
+    LINE("Line Coverage", "Line", new ValuesAggregator()),
+    BRANCH("Branch Coverage", "Branch", new ValuesAggregator()),
+    INSTRUCTION("Instruction Coverage", "Instruction", new ValuesAggregator()),
+    MCDC_PAIR("Modified Condition and Decision Coverage", "MC/DC Pair", new ValuesAggregator()),
+    FUNCTION_CALL("Function Call Coverage", "Function Call", new ValuesAggregator()),
 
     /** Additional coverage values obtained from mutation testing. */
-    MUTATION("Mutation Coverage", new ValuesAggregator()),
-    TEST_STRENGTH("Test Strength", new ValuesAggregator()),
+    MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
+    TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    LOC("Lines of Code", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    TESTS("Number of Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC),
-    NCSS("Non Commenting Source Statements", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COGNITIVE_COMPLEXITY("Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    NPATH_COMPLEXITY("N-Path Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC),
-    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    COHESION("Class Cohesion", new ValuesAggregator(Value::max, "maximum"),
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    LOC("Lines of Code", "LOC", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    TESTS("Number of Tests", "Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", "Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    COHESION("Class Cohesion", "Cohesion", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT("Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC),
-    NUMBER_OF_ACCESSORS("Number of Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC),
-    WEIGHT_OF_CLASS("Weight of Class", new ValuesAggregator(Value::max, "maximum"),
+    FAN_OUT("Fan Out", "Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
+    NUMBER_OF_ACCESSORS("Number of Accessors", "Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    WEIGHT_OF_CLASS("Weight of Class", "Weigth", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    WEIGHED_METHOD_COUNT("Weighted Method Count", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC);
+    WEIGHED_METHOD_COUNT("Weighted Method Count", "Methods", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -102,27 +116,28 @@ public enum Metric {
     }
 
     private final String displayName;
-    @SuppressFBWarnings("SE_BAD_FIELD")
+    private final String label;
     private final MetricEvaluator evaluator;
     private final MetricTendency tendency;
     private final MetricValueType type;
     private final MetricFormatter formatter;
 
-    Metric(final String displayName, final MetricEvaluator evaluator) {
-        this(displayName, evaluator, MetricTendency.LARGER_IS_BETTER);
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator) {
+        this(displayName, label, evaluator, MetricTendency.LARGER_IS_BETTER);
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency) {
-        this(displayName, evaluator, tendency, MetricValueType.COVERAGE);
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency) {
+        this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
-        this(displayName, evaluator, tendency, type, new IntegerFormatter());
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
+        this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
     }
 
-    Metric(final String displayName, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
             final MetricFormatter formatter) {
         this.displayName = displayName;
+        this.label = label;
         this.evaluator = evaluator;
         this.tendency = tendency;
         this.type = type;
@@ -131,6 +146,10 @@ public enum Metric {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public MetricTendency getTendency() {
@@ -198,25 +217,43 @@ public enum Metric {
     /**
      * Formats the specified value according to the metrics formatter.
      *
+     * @param locale
+     *         the locale to use
      * @param value
      *         the value to format
      *
      * @return the formatted value
      */
-    public String format(final double value) {
-        return formatter.format(value);
+    public String format(final Locale locale, final double value) {
+        return formatter.format(locale, value);
+    }
+
+    /**
+     * Formats the specified value according to the metrics formatter.
+     *
+     * @param locale
+     *         the locale to use
+     * @param value
+     *         the value to format
+     *
+     * @return the formatted value
+     */
+    public String formatDelta(final Locale locale, final double value) {
+        return formatter.formatDelta(locale, value);
     }
 
     /**
      * Formats the specified mean value according to the metrics formatter.
      *
+     * @param locale
+     *         the locale to use
      * @param value
      *         the mean value to format
      *
      * @return the formatted mean value
      */
-    public String formatMean(final double value) {
-        return formatter.formatMean(value);
+    public String formatMean(final Locale locale, final double value) {
+        return formatter.formatMean(locale, value);
     }
 
     public String getAggregationType() {
@@ -266,7 +303,10 @@ public enum Metric {
         CLASS_METRIC
     }
 
-    private abstract static class MetricEvaluator {
+    private abstract static class MetricEvaluator implements Serializable {
+        @Serial
+        private static final long serialVersionUID = -537814226149186300L;
+
         final Optional<Value> compute(final Node node, final Metric searchMetric) {
             return getValue(node, searchMetric).or(() -> computeDerivedValue(node, searchMetric));
         }
@@ -288,6 +328,9 @@ public enum Metric {
     }
 
     private static class CoverageOfChildrenEvaluator extends MetricEvaluator {
+        @Serial
+        private static final long serialVersionUID = 8788686429559762490L;
+
         @Override
         public boolean isAggregatingChildren() {
             return true;
@@ -351,6 +394,10 @@ public enum Metric {
     }
 
     private static class ValuesAggregator extends MetricEvaluator {
+        @Serial
+        private static final long serialVersionUID = 7908490688181149667L;
+
+        @SuppressFBWarnings("SE_BAD_FIELD")
         private final BinaryOperator<Value> accumulator;
         private final String name;
 
@@ -391,6 +438,9 @@ public enum Metric {
     }
 
     private static class LocEvaluator extends ValuesAggregator {
+        @Serial
+        private static final long serialVersionUID = 8819577749737375989L;
+
         @Override
         protected Optional<Value> getDefaultValue(final Node node) {
             return LINE.getValueFor(node).map(this::getTotal);
@@ -403,33 +453,95 @@ public enum Metric {
         }
     }
 
-    private interface MetricFormatter {
-        String format(double value);
+    private static class MetricFormatter implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 7402798036375016965L;
 
-        String formatMean(double value);
+        String format(final Locale locale, final double value) {
+            return formatDouble(locale, value);
+        }
+
+        String formatMean(final Locale locale, final double value) {
+            return formatDouble(locale, value);
+        }
+
+        String formatDelta(final Locale locale, final double value) {
+            var rounded = toRounded(value, 2);
+            if (rounded == 0) {
+                return "±0";
+            }
+            return String.format(locale, "%+.2f", rounded);
+        }
+
+        final String formatDouble(final Locale locale, final double value) {
+            return String.format(locale, "%.2f", value);
+        }
+
+        final double toRounded(final double value, final int scale) {
+            return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP).doubleValue();
+        }
+
+        String percentage(final String value) {
+            return value + "%";
+        }
     }
 
-    private static class IntegerFormatter implements MetricFormatter {
+    private static class CoverageFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = 4337117939462815181L;
+
         @Override
-        public String format(final double value) {
-            return String.valueOf(Math.round(value));
+        String formatMean(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value));
         }
 
         @Override
-        public String formatMean(final double value) {
-            return String.format(Locale.ENGLISH, "%.2f", value);
+        String format(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            return percentage(super.formatDelta(locale, value));
         }
     }
 
-    private static class PercentageFormatter implements MetricFormatter {
+    private static class PercentageFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = -4995914265987128828L;
+
         @Override
-        public String format(final double value) {
-            return String.format(Locale.ENGLISH, "%.2f%%", value * 100);
+        String format(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value * 100));
         }
 
         @Override
-        public String formatMean(final double value) {
-            return format(value);
+        String formatMean(final Locale locale, final double value) {
+            return percentage(formatDouble(locale, value * 100));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            return percentage(super.formatDelta(locale, value * 100));
+        }
+    }
+
+    private static class IntegerFormatter extends MetricFormatter {
+        @Serial
+        private static final long serialVersionUID = 8053070560640902081L;
+
+        @Override
+        String format(final Locale locale, final double value) {
+            return String.format(locale, "%d", Math.round(toRounded(value, 0)));
+        }
+
+        @Override
+        String formatDelta(final Locale locale, final double value) {
+            var rounded = toRounded(value, 0);
+            if (rounded == 0) {
+                return "±0";
+            }
+            return String.format(locale, "%+d", Math.round(toRounded(value, 0)));
         }
     }
 }

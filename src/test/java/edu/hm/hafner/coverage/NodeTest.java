@@ -3,10 +3,8 @@ package edu.hm.hafner.coverage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.lang3.math.Fraction;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -754,13 +752,12 @@ class NodeTest {
                 coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
         ));
 
-        NavigableMap<Metric, Fraction> delta = fileA.computeDelta(fileB);
+        List<Difference> delta = fileA.computeDelta(fileB);
 
-        assertThat(delta)
-                .containsKeys(FILE, LINE, BRANCH)
-                .doesNotContainKey(MUTATION);
-        assertThat(delta.getOrDefault(LINE, Fraction.ZERO)).isEqualTo(Fraction.getFraction(10, 10));
-        assertThat(delta.getOrDefault(BRANCH, Fraction.ZERO)).isEqualTo(Fraction.getFraction(1, 2));
+        assertThat(delta).map(Difference::getMetric)
+                .containsExactly(FILE, LINE, BRANCH, LOC).doesNotContain(MUTATION);
+        assertThat(delta.get(1).asDouble()).isEqualTo(100);
+        assertThat(delta.get(2).asDouble()).isEqualTo(50);
     }
 
     @Test

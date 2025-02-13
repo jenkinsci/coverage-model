@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.Fraction;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -58,7 +57,7 @@ public final class FileNode extends Node {
 
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
-    private final NavigableMap<Metric, Fraction> coverageDelta = new TreeMap<>();
+    private final NavigableMap<Metric, Value> coverageDelta = new TreeMap<>();
 
     private TreeString relativePath; // @since 0.22.0
 
@@ -536,7 +535,7 @@ public final class FileNode extends Node {
         NavigableMap<Metric, Value> referenceCoverage = referenceFile.getMetricsDistribution();
         getMetricsDistribution().forEach((metric, value) -> {
             if (referenceCoverage.containsKey(metric)) {
-                coverageDelta.put(metric, value.delta(referenceCoverage.get(metric)));
+                coverageDelta.put(metric, value.subtract(referenceCoverage.get(metric)));
             }
         });
     }
@@ -550,8 +549,8 @@ public final class FileNode extends Node {
      *
      * @return the delta for the specified metric
      */
-    public Fraction getDelta(final Metric metric) {
-        return coverageDelta.getOrDefault(metric, Fraction.ZERO);
+    public Value getDelta(final Metric metric) {
+        return coverageDelta.getOrDefault(metric, Value.nullObject(metric));
     }
 
     /**

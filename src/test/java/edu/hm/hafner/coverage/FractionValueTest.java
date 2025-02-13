@@ -42,8 +42,8 @@ class FractionValueTest {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.add(hundred));
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> fifty.add(loc));
 
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.delta(fifty));
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.delta(loc));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.subtract(fifty));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> hundred.subtract(loc));
 
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> loc.max(hundred));
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> loc.max(fifty));
@@ -57,6 +57,6 @@ class FractionValueTest {
         assertThat(fifty.isOutOfValidRange(50.1)).isTrue();
         assertThat(fifty.isOutOfValidRange(50)).isFalse();
 
-        assertThat(hundred.delta(fifty)).isEqualTo(Fraction.getFraction(50, 1));
+        assertThat(hundred.subtract(fifty).asDouble()).isEqualTo(50);
     }
 }

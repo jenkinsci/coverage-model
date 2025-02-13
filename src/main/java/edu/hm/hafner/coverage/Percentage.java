@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -21,8 +23,11 @@ public final class Percentage implements Serializable {
 
     /** null value. */
     public static final Percentage ZERO = new Percentage(0, 1);
+    private static final Percentage ALMOST_HUNDRED = new Percentage(9_999, 10_000);
 
     static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
+    private static final int ALMOST_PERFECT_INTEGER = 99;
+    private static final double ALMOST_PERFECT_DOUBLE = 99.99;
 
     /**
      * Creates an instance of {@link Percentage} in the range [0,100] from a {@link Fraction fraction} within the range
@@ -120,12 +125,39 @@ public final class Percentage implements Serializable {
     }
 
     /**
+     * Returns this percentage as a double value in the interval [0, 100]. The returned value is rounded to 2 digits aft
+     *
+     * @return the coverage percentage
+     */
+    public double toRounded() {
+        var value = BigDecimal.valueOf(toDouble());
+        var rounded = value.setScale(2, RoundingMode.HALF_UP).doubleValue();
+        if (rounded == 100.0 && isNotPerfect()) {
+            return ALMOST_PERFECT_DOUBLE;
+        }
+        return rounded;
+    }
+
+    /**
      * Returns this percentage as an int value in the interval [0, 100].
      *
      * @return the coverage percentage
      */
     public int toInt() {
-        return Math.round(items * 100.0f / total);
+        var value = Math.round(items * 100.0f / total);
+        if (value == 100 && isNotPerfect()) {
+            return ALMOST_PERFECT_INTEGER;
+        }
+        return value;
+    }
+
+    /**
+     * Formats a percentage to plain text and rounds the value to two decimals. By default, the English locale is used.
+     *
+     * @return the formatted percentage as plain text
+     */
+    public String formatPercentage() {
+        return formatPercentage(Locale.ENGLISH);
     }
 
     /**
@@ -137,7 +169,15 @@ public final class Percentage implements Serializable {
      * @return the formatted percentage as plain text
      */
     public String formatPercentage(final Locale locale) {
-        return String.format(locale, "%.2f%%", toDouble());
+        var formatted = String.format(locale, "%.2f%%", toDouble());
+        if (formatted.startsWith("100") && isNotPerfect()) {
+            return ALMOST_HUNDRED.formatPercentage(locale);
+        }
+        return formatted;
+    }
+
+    private boolean isNotPerfect() {
+        return items != total;
     }
 
     /**

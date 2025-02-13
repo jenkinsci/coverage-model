@@ -24,6 +24,7 @@ public final class Coverage extends Value {
     @Serial
     private static final long serialVersionUID = -3802318446471137305L;
     private static final String FRACTION_SEPARATOR = "/";
+    private static final String N_A = "n/a";
 
     /**
      * Creates a new {@link Coverage} instance from the provided string representation. The string representation is
@@ -129,7 +130,7 @@ public final class Coverage extends Value {
 
     @Override
     public Coverage add(final Value other) {
-        var otherCoverage = ensureSameMetricAndType(other);
+        var otherCoverage = castValue(other);
 
         return new CoverageBuilder().withMetric(getMetric())
                 .withCovered(getCovered() + otherCoverage.getCovered())
@@ -138,15 +139,15 @@ public final class Coverage extends Value {
     }
 
     @Override
-    public Fraction delta(final Value other) {
-        var otherCoverage = ensureSameMetricAndType(other);
+    public Difference subtract(final Value other) {
+        ensureSameMetricAndType(other);
 
-        return getCoveredPercentage().subtract(otherCoverage.getCoveredPercentage());
+        return new Difference(getMetric(), asDouble() - other.asDouble());
     }
 
     @Override
     public Coverage max(final Value other) {
-        var otherCoverage = ensureSameMetricAndType(other);
+        var otherCoverage = castValue(other);
         Ensure.that(getTotal() == otherCoverage.getTotal())
                 .isTrue("Cannot compute maximum of coverages %s and %s since total differs",
                         this, other);
@@ -157,8 +158,9 @@ public final class Coverage extends Value {
         return otherCoverage;
     }
 
-    private Coverage ensureSameMetricAndType(final Value other) {
-        ensureSameMetric(other);
+    private Coverage castValue(final Value other) {
+        ensureSameMetricAndType(other);
+
         return (Coverage) other; // the type is checked in ensureSameMetric
     }
 
@@ -182,6 +184,37 @@ public final class Coverage extends Value {
 
     public boolean isSet() {
         return getTotal() > 0;
+    }
+
+    @Override
+    public String asText(final Locale locale) {
+        if (isSet()) {
+            return String.format(locale, "%.2f%%", asRounded());
+        }
+        return N_A;
+    }
+
+    @Override
+    public String asInformativeText(final Locale locale) {
+        if (isSet()) {
+            return String.format(locale, "%.2f%% (%d/%d)", asRounded(), getCovered(), getTotal());
+        }
+        return N_A;
+    }
+
+    @Override
+    public int asInteger() {
+        return getCoveredPercentage().toInt();
+    }
+
+    @Override
+    public double asDouble() {
+        return getCoveredPercentage().toDouble();
+    }
+
+    @Override
+    protected String serializeValue() {
+        return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
     }
 
     @Override
@@ -216,8 +249,8 @@ public final class Coverage extends Value {
     }
 
     @Override
-    public String asText() {
-        return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
+    public double asRounded() {
+        return getCoveredPercentage().toRounded();
     }
 
     /**
