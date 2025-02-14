@@ -1,12 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -215,5 +214,25 @@ class ValueTest {
     @Test
     void shouldAdhereToEquals() {
         EqualsVerifier.simple().forClass(Value.class).verify();
+    }
+
+    @Test
+    @SuppressWarnings("EqualsWithItself")
+    void shouldCompareValues() {
+        var one = new Value(Metric.LOC, 1);
+        var two = new Value(Metric.LOC, 2);
+
+        assertThat(one.compareTo(one)).isZero();
+
+        assertThat(one.compareTo(two)).isNegative();
+        assertThat(two.compareTo(one)).isPositive();
+
+        var ncss = new Value(Metric.NCSS, 1);
+        assertThat(one.compareTo(ncss)).isNegative();
+        assertThat(ncss.compareTo(one)).isPositive();
+
+        var line = new Value(Metric.LINE, 0);
+        assertThat(one.compareTo(line)).isPositive();
+        assertThat(line.compareTo(one)).isNegative();
     }
 }

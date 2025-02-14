@@ -1,9 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +19,13 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Percentage;
 import edu.hm.hafner.coverage.Value;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
@@ -233,8 +233,8 @@ class JacocoParserTest extends AbstractParserTest {
                 builder.withMetric(LINE).withCovered(294).withMissed(29).build(),
                 builder.withMetric(BRANCH).withCovered(109).withMissed(7).build(),
                 builder.withMetric(INSTRUCTION).withCovered(1260).withMissed(90).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 160),
-                new Value(LOC, 294 + 29));
+                new Value(LOC, 294 + 29),
+                new Value(CYCLOMATIC_COMPLEXITY, 160));
 
         assertThat(tree.getChildren()).hasSize(1)
                 .element(0)

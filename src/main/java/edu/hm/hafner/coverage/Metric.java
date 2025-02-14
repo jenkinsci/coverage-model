@@ -1,5 +1,11 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,12 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.Fraction;
-
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A metric to identify the type of the results. The enum order will be used to sort the values for display purposes.
@@ -49,14 +49,14 @@ public enum Metric {
     MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
     TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator()),
 
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    LOC("Lines of Code", "LOC", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC, new IntegerFormatter()),
     TESTS("Number of Tests", "Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
             MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    LOC("Lines of Code", "LOC", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC, new IntegerFormatter()),
     NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC, new IntegerFormatter()),
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
     COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC, new IntegerFormatter()),
     NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,

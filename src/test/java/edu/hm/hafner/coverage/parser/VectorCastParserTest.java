@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -16,9 +14,11 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Percentage;
 import edu.hm.hafner.coverage.Value;
 
+import java.util.Optional;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
@@ -102,8 +102,8 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(CLASS).withCovered(3).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(52).withMissed(28).build(),
                 builder.withMetric(BRANCH).withCovered(23).withMissed(11).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 25),
-                new Value(LOC, 80));
+                new Value(LOC, 80),
+                new Value(CYCLOMATIC_COMPLEXITY, 25));
 
         verifyCoverageMetrics(root);
 
@@ -260,8 +260,8 @@ class VectorCastParserTest extends AbstractParserTest {
                 builder.withMetric(BRANCH).withCovered(180).withMissed(92).build(),
                 builder.withMetric(MCDC_PAIR).withCovered(24).withMissed(35).build(),
                 builder.withMetric(FUNCTION_CALL).withCovered(62).withMissed(17).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 100),
-                new Value(LOC, 294));
+                new Value(LOC, 294),
+                new Value(CYCLOMATIC_COMPLEXITY, 100));
     }
 
     private void verifyMcdcFccClassFileNodeMetrics(final Node root) {
