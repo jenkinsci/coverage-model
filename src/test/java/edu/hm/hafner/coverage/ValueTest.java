@@ -1,12 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -159,18 +158,17 @@ class ValueTest {
     }
 
     @Test
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     void shouldThrowExceptionWhenUsingDifferentType() {
         var linesOfCode = new Value(Metric.LOC, 10);
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var coverage = Coverage.nullObject(Metric.LOC);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(complexity))
+                .isThrownBy(() -> assertThat(linesOfCode.add(complexity)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different metrics");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(coverage))
+                .isThrownBy(() -> assertThat(linesOfCode.add(coverage)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different types");
     }
 
