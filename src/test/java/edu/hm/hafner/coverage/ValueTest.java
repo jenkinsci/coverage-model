@@ -1,14 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.math.Fraction;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-
-import org.apache.commons.lang3.math.Fraction;
-import org.junit.jupiter.api.Test;
-
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -161,19 +158,17 @@ class ValueTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "Exception is thrown anyway")
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     void shouldThrowExceptionWhenUsingDifferentType() {
         var linesOfCode = new Value(Metric.LOC, 10);
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var coverage = Coverage.nullObject(Metric.LOC);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(complexity))
+                .isThrownBy(() -> assertThat(linesOfCode.add(complexity)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different metrics");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(coverage))
+                .isThrownBy(() -> assertThat(linesOfCode.add(coverage)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different types");
     }
 
