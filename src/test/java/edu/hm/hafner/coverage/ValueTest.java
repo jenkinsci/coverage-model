@@ -158,18 +158,17 @@ class ValueTest {
     }
 
     @Test
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     void shouldThrowExceptionWhenUsingDifferentType() {
         var linesOfCode = new Value(Metric.LOC, 10);
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var coverage = Coverage.nullObject(Metric.LOC);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(complexity))
+                .isThrownBy(() -> assertThat(linesOfCode.add(complexity)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different metrics");
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> linesOfCode.add(coverage))
+                .isThrownBy(() -> assertThat(linesOfCode.add(coverage)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different types");
     }
 
