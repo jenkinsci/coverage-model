@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -159,6 +161,7 @@ class ValueTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "Exception is thrown anyway")
     @SuppressWarnings("ResultOfMethodCallIgnored")
     void shouldThrowExceptionWhenUsingDifferentType() {
         var linesOfCode = new Value(Metric.LOC, 10);
