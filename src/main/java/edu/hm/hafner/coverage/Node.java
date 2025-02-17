@@ -1,5 +1,15 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.TreeString;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,16 +29,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.util.Ensure;
-import edu.hm.hafner.util.TreeString;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A hierarchical decomposition of coverage results.
@@ -360,7 +360,10 @@ public abstract class Node implements Serializable {
      * @return aggregation of values below this tree
      */
     public List<Value> aggregateValues() {
-        return getMetrics().stream().map(this::getValue).flatMap(Optional::stream)
+        return getMetrics().stream()
+                .sorted()
+                .map(this::getValue)
+                .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }
 
@@ -708,8 +711,10 @@ public abstract class Node implements Serializable {
      * @return a new tree with the merged {@link Node nodes}
      */
     public static Node merge(final List<? extends Node> nodes) {
+        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
+
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
+            return container; // Null object
         }
         if (nodes.size() == 1) {
             return nodes.get(0); // No merge required
@@ -725,7 +730,6 @@ public abstract class Node implements Serializable {
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
-        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
         for (List<Node> matching : grouped.values()) {
             container.addChild(merge(matching));
         }

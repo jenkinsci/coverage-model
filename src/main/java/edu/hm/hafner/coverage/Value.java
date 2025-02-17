@@ -1,5 +1,12 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
+
+import edu.hm.hafner.coverage.Metric.MetricTendency;
+import edu.hm.hafner.util.Generated;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,13 +17,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.Fraction;
-
-import edu.hm.hafner.coverage.Metric.MetricTendency;
-import edu.hm.hafner.util.Generated;
-import edu.umd.cs.findbugs.annotations.CheckReturnValue;
-
 /**
  * A leaf in the tree that contains a numeric value. Such values are used for arbitrary software-metric like
  * loc or complexity. The value is stored as a fraction to allow exact calculations.
@@ -24,7 +24,7 @@ import edu.umd.cs.findbugs.annotations.CheckReturnValue;
  * @author Ullrich Hafner
  */
 @SuppressWarnings("PMD.GodClass") // this is a data class
-public class Value implements Serializable {
+public class Value implements Serializable, Comparable<Value> {
     @Serial
     private static final long serialVersionUID = -1062406664372222691L;
 
@@ -71,7 +71,7 @@ public class Value implements Serializable {
      * expected to start with the metric, written in all caps characters and followed by a colon. Then the {@link Value}
      * specific serialization is following. Whitespace characters will be ignored.
      *
-     * <p>Examples: LINE: 10/100, BRANCH: 0/5, COMPLEXITY: 160</p>
+     * <p>Examples: LINE: 10/100, BRANCH: 0/5, LOC: 160</p>
      *
      * @param stringRepresentation
      *         string representation to convert from
@@ -399,5 +399,14 @@ public class Value implements Serializable {
     @Generated
     public int hashCode() {
         return Objects.hash(metric, fraction);
+    }
+
+    @Override
+    public int compareTo(final Value o) {
+        var metricComparison = getMetric().compareTo(o.getMetric());
+        if (metricComparison != 0) {
+            return metricComparison;
+        }
+        return getFraction().compareTo(o.getFraction());
     }
 }

@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 import org.junitpioneer.jupiter.Issue;
@@ -18,9 +16,11 @@ import edu.hm.hafner.coverage.Percentage;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.coverage.assertions.Assertions;
 
+import java.util.List;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
@@ -374,8 +374,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(4).withMissed(1).build(),
                 builder.withMetric(LINE).withCovered(44).withMissed(9).build(),
                 builder.withMetric(BRANCH).withCovered(3).withMissed(1).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 8),
-                new Value(LOC, 44 + 9));
+                new Value(LOC, 44 + 9),
+                new Value(CYCLOMATIC_COMPLEXITY, 8));
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#551")
@@ -409,8 +409,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(1).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(12).withMissed(0).build(),
                 builder.withMetric(BRANCH).withCovered(6).withMissed(0).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 0),
-                new Value(LOC, 12));
+                new Value(LOC, 12),
+                new Value(CYCLOMATIC_COMPLEXITY, 0));
     }
 
     @Test
@@ -489,8 +489,8 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(METHOD).withCovered(7).withMissed(3).build(),
                 builder.withMetric(LINE).withCovered(COVERED_LINES).withMissed(MISSED_LINES).build(),
                 builder.withMetric(BRANCH).withCovered(2).withMissed(2).build(),
-                new Value(CYCLOMATIC_COMPLEXITY, 22),
-                new Value(LOC, 63 + 19));
+                new Value(LOC, 63 + 19),
+                new Value(CYCLOMATIC_COMPLEXITY, 22));
 
         verifyCoverageMetrics(root);
 

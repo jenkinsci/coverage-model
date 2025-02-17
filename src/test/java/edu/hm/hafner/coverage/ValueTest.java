@@ -214,4 +214,24 @@ class ValueTest {
     void shouldAdhereToEquals() {
         EqualsVerifier.simple().forClass(Value.class).verify();
     }
+
+    @Test
+    @SuppressWarnings("EqualsWithItself")
+    void shouldCompareValues() {
+        var one = new Value(Metric.LOC, 1);
+        var two = new Value(Metric.LOC, 2);
+
+        assertThat(one.compareTo(one)).isZero();
+
+        assertThat(one.compareTo(two)).isNegative();
+        assertThat(two.compareTo(one)).isPositive();
+
+        var ncss = new Value(Metric.NCSS, 1);
+        assertThat(one.compareTo(ncss)).isNegative();
+        assertThat(ncss.compareTo(one)).isPositive();
+
+        var line = new Value(Metric.LINE, 0);
+        assertThat(one.compareTo(line)).isPositive();
+        assertThat(line.compareTo(one)).isNegative();
+    }
 }
