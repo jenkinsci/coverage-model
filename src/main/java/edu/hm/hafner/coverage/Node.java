@@ -711,8 +711,10 @@ public abstract class Node implements Serializable {
      * @return a new tree with the merged {@link Node nodes}
      */
     public static Node merge(final List<? extends Node> nodes) {
+        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
+
         if (nodes.isEmpty()) {
-            throw new IllegalArgumentException("Cannot merge an empty list of nodes");
+            return container; // Null object
         }
         if (nodes.size() == 1) {
             return nodes.get(0); // No merge required
@@ -728,7 +730,6 @@ public abstract class Node implements Serializable {
                     .orElseThrow(() -> new NoSuchElementException("No node found"));
         }
 
-        var container = new ContainerNode("Container"); // non-compatible nodes will be added to a new container node
         for (List<Node> matching : grouped.values()) {
             container.addChild(merge(matching));
         }

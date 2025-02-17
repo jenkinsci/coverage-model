@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
@@ -13,9 +8,14 @@ import org.junitpioneer.jupiter.Issue;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -638,10 +638,8 @@ class NodeTest {
     }
 
     @Test
-    void shouldThrowExceptionOnMergeWithEmptyList() {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> Node.merge(List.of()))
-                .withMessageContaining("Cannot merge an empty list of nodes");
+    void shouldMergeEmptyNodes() {
+        assertThat(Node.merge(List.of())).isEmpty();
     }
 
     @Test
