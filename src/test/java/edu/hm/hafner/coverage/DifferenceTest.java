@@ -1,12 +1,22 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Locale;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.Locale;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class DifferenceTest {
+    @Test
+    void shouldThrowExceptionOnInvalidDifference() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> Difference.valueOf("COHESION: 2:3"))
+                .withMessageContaining("Cannot convert 'COHESION: 2:3' to a valid Difference instance.");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> Difference.valueOf("BROKEN"))
+                .withMessageContaining("Cannot convert 'BROKEN' to a valid Value instance.");
+    }
+
     @Test
     void shouldFormatPercentageWithSign() {
         var positive = new Difference(Metric.COHESION, 2, 3);
@@ -30,6 +40,7 @@ class DifferenceTest {
         assertThat(negative.asInformativeText(Locale.ENGLISH)).isEqualTo("-66.67%");
         assertThat(negative.serialize()).isEqualTo("COHESION: Δ-2:3");
         assertThat(negative).isEqualTo(Value.valueOf("COHESION: Δ-2:3"));
+        assertThat(negative).isEqualTo(Difference.valueOf("COHESION: Δ-2:3"));
 
         var zero = new Difference(Metric.COHESION, 0);
 
@@ -41,6 +52,7 @@ class DifferenceTest {
         assertThat(zero.asInformativeText(Locale.ENGLISH)).isEqualTo("±0%");
         assertThat(zero.serialize()).isEqualTo("COHESION: Δ0");
         assertThat(zero).isEqualTo(Value.valueOf("COHESION: Δ0"));
+        assertThat(zero).isEqualTo(Difference.valueOf("COHESION: Δ0"));
     }
 
     @Test

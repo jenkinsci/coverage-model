@@ -1,9 +1,9 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.math.Fraction;
+
 import java.io.Serial;
 import java.util.Locale;
-
-import org.apache.commons.lang3.math.Fraction;
 
 /**
  * A leaf in the tree that represents a delta of two {@link Value} instances. Such values are used to show the
@@ -28,6 +28,30 @@ public class Difference extends Value {
      */
     public static Difference nullObject(final Metric metric) {
         return new Difference(metric, 0);
+    }
+
+    /**
+     * Creates a new {@link Difference} instance from the provided string representation. The string representation is
+     * expected to start with the metric, written in all caps characters and followed by a colon.
+     * Then the {@link Difference} specific serialization is following. Whitespace characters will be ignored.
+     *
+     * <p>Examples: LINE: Δ10/100, BRANCH: Δ0/5, LOC: Δ160</p>
+     *
+     * @param stringRepresentation
+     *         string representation to convert from
+     *
+     * @return the created difference
+     * @throws IllegalArgumentException
+     *         if the string is not a valid cov instance
+     */
+    @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
+    public static Difference valueOf(final String stringRepresentation) {
+        var value = Value.valueOf(stringRepresentation);
+
+        if (value instanceof Difference delta) {
+            return delta;
+        }
+        throw new IllegalArgumentException("Cannot convert '%s' to a valid Difference instance.".formatted(stringRepresentation));
     }
 
     /**

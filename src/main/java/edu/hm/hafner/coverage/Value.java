@@ -71,7 +71,7 @@ public class Value implements Serializable, Comparable<Value> {
      * expected to start with the metric, written in all caps characters and followed by a colon. Then the {@link Value}
      * specific serialization is following. Whitespace characters will be ignored.
      *
-     * <p>Examples: LINE: 10/100, BRANCH: 0/5, COMPLEXITY: 160</p>
+     * <p>Examples: LINE: 10/100, BRANCH: 0/5, LOC: 160</p>
      *
      * @param stringRepresentation
      *         string representation to convert from
