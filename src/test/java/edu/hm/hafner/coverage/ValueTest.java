@@ -174,13 +174,13 @@ class ValueTest {
 
     @Test
     void shouldFindValueInCollection() {
-        Value linesOfCode = new Value(Metric.LOC, 10);
+        var linesOfCode = new Value(Metric.LOC, 10);
         var cyclomaticComplexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 20);
         var ncss = new Value(Metric.NCSS, 30);
         var npathComplexity = new Value(Metric.NPATH_COMPLEXITY, 40);
         var cognitiveComplexity = new Value(Metric.COGNITIVE_COMPLEXITY, 50);
 
-        List<Value> values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, cognitiveComplexity);
+        var values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, cognitiveComplexity);
 
         assertThat(Value.getValue(Metric.LOC, values))
                 .isEqualTo(linesOfCode);
@@ -216,7 +216,7 @@ class ValueTest {
     }
 
     @Test
-    @SuppressWarnings("EqualsWithItself")
+    @SuppressWarnings({"EqualsWithItself", "SelfComparison"})
     void shouldCompareValues() {
         var one = new Value(Metric.LOC, 1);
         var two = new Value(Metric.LOC, 2);
