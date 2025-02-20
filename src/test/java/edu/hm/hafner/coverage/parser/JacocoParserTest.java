@@ -79,6 +79,23 @@ class JacocoParserTest extends AbstractParserTest {
                         new Value(CYCLOMATIC_COMPLEXITY, 14));
     }
 
+    @Test
+    void shouldMergeBranchesScenario() {
+        final ModuleNode md = readReport("jacoco-merge-d.xml");
+        FileNode d = md.getAllFileNodes().get(0);
+        assertThat(d).hasMissedLines(55, 81, 85).hasCoveredLines(43, 46, 58, 61, 64, 68, 71, 75, 79, 92);
+
+        final ModuleNode me = readReport("jacoco-merge-e.xml");
+        FileNode e = me.getAllFileNodes().get(0);
+        assertThat(e).hasMissedLines(81, 85).hasCoveredLines(43, 46, 55, 58, 61, 64, 68, 71, 75, 79, 92);
+
+        var de = (FileNode)d.merge(e);
+        assertThat(de)
+                .hasMissedLines(81, 85)
+                .doesNotHaveMissedLines(43, 46, 55, 58, 61, 64, 68, 71, 75, 79, 92)
+                .hasCoveredLines(43, 46, 55, 58, 61, 64, 68, 71, 75, 79, 92);
+    }
+
     private void verifyLineCoverage(final FileNode a, final int missed) {
         var children = a.getAll(METHOD).stream()
                 .filter(m -> "<init>(II)V".equals(m.getName()))
