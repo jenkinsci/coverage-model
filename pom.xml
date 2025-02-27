@@ -58,6 +58,7 @@
     <scmTag>HEAD</scmTag>
     <revision>0.54.0</revision>
     <changelist>-SNAPSHOT</changelist>
+    <previousVersion>0.53.0</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
@@ -111,6 +112,23 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.6.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.18.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.revapi</groupId>
+        <artifactId>revapi-maven-plugin</artifactId>
+        <configuration>
+          <oldVersion>${previousVersion}</oldVersion>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -174,6 +192,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-release-plugin</artifactId>
             <configuration>
+              <preparationGoals>build-helper:parse-version versions:set-property -Dproperty=previousVersion -DnewVersion=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</preparationGoals>
               <completionGoals>incrementals:reincrementalify</completionGoals>
             </configuration>
           </plugin>
