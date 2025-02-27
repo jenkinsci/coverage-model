@@ -197,11 +197,13 @@ public final class FileNode extends Node {
                     left.clearMissed();
                     left.setTotalFromCovered();
                 }
-                else {
-                    throw new IllegalArgumentException(
-                            String.format(Locale.ENGLISH, "Cannot merge coverage information for line %d in %s",
-                                    line, this));
-                }
+                // Commenting out the following lines to avoid throwing an exception when merging coverage information
+                // from Jacoco. This is a temporary solution until we have a better way to handle this.
+//                else {
+//                    throw new IllegalArgumentException(
+//                            String.format("Cannot merge coverage information for line %d in %s",
+//                                    line, this));
+//                }
             }
             else if (leftMcdcPair.totalsNotEqual(rightMcdcPair) || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {
                 throw new IllegalArgumentException(
@@ -643,6 +645,26 @@ public final class FileNode extends Node {
         functionCallCoveredPerLine.put(lineNumber, covered);
         functionCallMissedPerLine.put(lineNumber, missed);
 
+        return this;
+    }
+
+    /**
+     * Increase the counter based on covered or misses lines.
+     *
+     * @param lineNumber line number
+     * @param covered covered lines
+     * @param missed missed lines
+     * @return fileNode
+     */
+    @CanIgnoreReturnValue
+    public FileNode addCounterIncremental(final int lineNumber, final int covered, final int missed) {
+        coveredPerLine.merge(lineNumber, covered, Integer::sum);
+        if (coveredPerLine.get(lineNumber) > 0) {
+            missedPerLine.put(lineNumber, 0);
+        }
+        else {
+            missedPerLine.merge(lineNumber, missed, Integer::sum);
+        }
         return this;
     }
 
