@@ -1,9 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serial;
-import java.util.Locale;
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
@@ -13,6 +9,10 @@ import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.Generated;
 import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
+
+import java.io.Serial;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Value of a code coverage metric. The code coverage is measured using the number of covered and missed items. The type
@@ -44,6 +44,9 @@ public final class Coverage extends Value {
         var errorMessage = "Cannot convert %s to a valid Coverage instance.".formatted(stringRepresentation);
         try {
             var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
+            if (N_A.equals(cleanedFormat)) {
+                return nullObject(metric);
+            }
             if (StringUtils.contains(cleanedFormat, FRACTION_SEPARATOR)) {
                 var extractedCovered = StringUtils.substringBefore(cleanedFormat, FRACTION_SEPARATOR);
                 var extractedTotal = StringUtils.substringAfter(cleanedFormat, FRACTION_SEPARATOR);
@@ -214,7 +217,10 @@ public final class Coverage extends Value {
 
     @Override
     protected String serializeValue() {
-        return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
+        if (isSet()) {
+            return String.format(Locale.ENGLISH, "%d/%d", getCovered(), getTotal());
+        }
+        return N_A;
     }
 
     @Override
