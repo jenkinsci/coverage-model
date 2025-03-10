@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Locale;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,6 +10,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import java.util.Locale;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -143,6 +142,11 @@ class CoverageTest {
                 .hasTotal(0)
                 .hasCoveredPercentage(Percentage.ZERO)
                 .hasToString("LINE: n/a");
+
+        var nullSerialization = "LINE: n/a";
+        assertThat(NO_COVERAGE.serialize()).isEqualTo(nullSerialization);
+        assertThat(Value.valueOf(nullSerialization)).isEqualTo(NO_COVERAGE);
+
         assertThat(NO_COVERAGE.add(NO_COVERAGE)).isEqualTo(NO_COVERAGE);
     }
 
