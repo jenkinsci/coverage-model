@@ -16,6 +16,7 @@ import java.io.Reader;
 /**
  * Clover parser that parses coverage clover generated coverage files.
  */
+@SuppressWarnings("PMD.GodClass")
 public class CloverParser extends CoverageParser {
     private static final long serialVersionUID = -1903059983931698657L;
 
@@ -57,8 +58,8 @@ public class CloverParser extends CoverageParser {
                     var startElement = event.asStartElement();
                     var tagName = startElement.getName();
                     if (COVERAGE.equals(tagName)) {
-                        ModuleNode root = readCoverage(fileName, eventReader);
-                        if(root.hasChildren()) {
+                        ModuleNode root = readCoverage(fileName, eventReader, log);
+                        if (root.hasChildren()) {
                             return root;
                         }
                         else {
@@ -76,9 +77,8 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readCoverage(final String fileName, final XMLEventReader reader) throws XMLStreamException {
-        ModuleNode root = new ModuleNode("");
-
+    private ModuleNode readCoverage(final String fileName, final XMLEventReader reader,
+                                    final FilteredLog log) throws XMLStreamException {
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
 
@@ -87,18 +87,14 @@ public class CloverParser extends CoverageParser {
                 if (PROJECT.equals(startElement.getName())) {
                     //Initializing the project node
                     String projectName = getValueOf(startElement, NAME);
-                    root = new ModuleNode(projectName);
+                    ModuleNode root = new ModuleNode(projectName);
                     readProject(fileName, reader, root);
-                }
-            }
-            else if (event.isEndElement()) {
-                var endElement = event.asEndElement();
-                if (COVERAGE.equals(endElement.getName())) {
                     return root;
                 }
             }
         }
-        throw createEofException(fileName);
+        handleEmptyResults(fileName, log);
+        return new ModuleNode("empty");
     }
 
     @CanIgnoreReturnValue
@@ -159,20 +155,22 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    @SuppressWarnings("PMD.CognitiveComplexity")
+    @SuppressWarnings({"PMD.CognitiveComplexity", "PMD.CyclomaticComplexity"})
     private FileNode readFile(final String parserFileName, final XMLEventReader reader, final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
         String fileName = getValueOf(fileElement, NAME);
         String filePath = getValueOf(fileElement, PATH);
         var fileNode = packageNode.findOrCreateFileNode(fileName, TreeString.valueOf(filePath));
-        var classNode = readClass(reader, fileElement, fileName, fileNode);
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isStartElement()) {
                 var e = event.asStartElement();
-                if (METRICS.equals(e.getName())) {
-                    addBranchCoverage(classNode, e);
-                    addInstructionCoverage(classNode, e);
+                if (CLASS.equals(e.getName())) {
+                    readClass(reader, e, fileNode);
+                }
+                else if (METRICS.equals(e.getName())) {
+                    addBranchCoverage(fileNode, e);
+                    addInstructionCoverage(fileNode, e);
                 }
                 else if (LINE.equals(e.getName())) {
                     int line = getIntegerValueOf(e, NUM);
@@ -196,23 +194,20 @@ public class CloverParser extends CoverageParser {
         throw createEofException(parserFileName);
     }
 
-    private ClassNode readClass(final XMLEventReader reader, final StartElement fileElement,
-                                final String fileName, final Node fileNode) throws XMLStreamException {
-        String className = fileName.substring(0, fileName.lastIndexOf('.'));
+    private void readClass(final XMLEventReader reader, final StartElement fileElement,
+                                final Node fileNode) throws XMLStreamException {
+        String className = getValueOf(fileElement, NAME);
         var classNode = fileNode.findOrCreateClassNode(className);
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isStartElement()) {
                 var e = event.asStartElement();
-                if (CLASS.equals(e.getName())) {
-                    className = getValueOf(fileElement, NAME);
-                    classNode = fileNode.findOrCreateClassNode(className);
+                if (METRICS.equals(e.getName())) {
+                    addBranchCoverage(classNode, e);
+                    addInstructionCoverage(classNode, e);
                 }
-                //Exit the loop after finding class elemenet in the first place
-                break;
             }
         }
-        return classNode;
     }
 
     private void resolveLines(final FileNode fileNode) {

@@ -36,7 +36,7 @@ class CloverParserTest extends AbstractParserTest {
                     addRange(covered, 24, 43);
                     addRange(covered, 45, 77);
                     addRange(covered, 79, 77);
-                    assertThat(f).hasMissedLines().hasCoveredLines(covered.toArray(new Integer[covered.size()]));
+                    Assertions.assertThat(f).hasMissedLines().hasCoveredLines(covered.toArray(new Integer[covered.size()]));
 
                     break;
                 case "File2.js":
