@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.TreeString;
 
@@ -11,7 +12,13 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.File;
 import java.io.Reader;
+import java.nio.file.Path;
+import java.util.Optional;
+import org.apache.commons.io.FilenameUtils;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Clover parser that parses coverage clover generated coverage files.
@@ -35,6 +42,14 @@ public class CloverParser extends CoverageParser {
     private static final QName LINE = new QName("line");
     private static final QName NUM = new QName("num");
     private static final QName COUNT = new QName("count");
+    private static final QName TURE_COUNT = new QName("truecount");
+    private static final QName FALSE_COUNT = new QName("falsecount");
+    private static final QName TYPE = new QName("type");
+    private static final String COND = "cond";
+    private static final String STMT = "stmt";
+    private static final PathUtil PATH_UTIL = new PathUtil();
+    private static final String VALUE_LINE = "LINE";
+
 
     /**
      * Creates a new instance of {@link CloverParser}.
@@ -156,31 +171,24 @@ public class CloverParser extends CoverageParser {
 
     @CanIgnoreReturnValue
     @SuppressWarnings({"PMD.CognitiveComplexity", "PMD.CyclomaticComplexity"})
-    private FileNode readFile(final String parserFileName, final XMLEventReader reader, final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
+    private FileNode readFile(final String parserFileName, final XMLEventReader reader,
+                              final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
         String fileName = getValueOf(fileElement, NAME);
-        String filePath = getValueOf(fileElement, PATH);
-        var fileNode = packageNode.findOrCreateFileNode(fileName, TreeString.valueOf(filePath));
+        var fileNode = packageNode.findOrCreateFileNode(fileName, constructPathForFile(fileElement, packageNode.getName(), fileName));
 
         while (reader.hasNext()) {
             XMLEvent event = reader.nextEvent();
             if (event.isStartElement()) {
                 var e = event.asStartElement();
                 if (CLASS.equals(e.getName())) {
-                    readClass(reader, e, fileNode);
+                    readClass(parserFileName, reader, e, fileNode);
                 }
                 else if (METRICS.equals(e.getName())) {
                     addBranchCoverage(fileNode, e);
                     addInstructionCoverage(fileNode, e);
                 }
                 else if (LINE.equals(e.getName())) {
-                    int line = getIntegerValueOf(e, NUM);
-                    int count = getIntegerValueOf(e, COUNT);
-                    if (count > 0) {
-                        fileNode.addCounters(line, 1, 0);
-                    }
-                    else {
-                        fileNode.addCounters(line, 0, 1);
-                    }
+                    addLineCoverage(e, fileNode);
                 }
             }
             else if (event.isEndElement()) {
@@ -194,7 +202,65 @@ public class CloverParser extends CoverageParser {
         throw createEofException(parserFileName);
     }
 
-    private void readClass(final XMLEventReader reader, final StartElement fileElement,
+    private void addLineCoverage(final StartElement e, final FileNode fileNode) {
+        String type = getValueOf(e, TYPE);
+        int line = getIntegerValueOf(e, NUM);
+        if (type.equals(STMT)) {
+            int count = getIntegerValueOf(e, COUNT);
+            addCountersToFile(count, fileNode, line);
+        } else if(type.equals(COND)) {
+            Optional<String> countVal = getOptionalValueOf(e, COUNT);
+            if (countVal.isPresent()) {
+                //If count exists, using it to decide the line coverage
+                int count = parseInteger(countVal.get());
+                addCountersToFile(count, fileNode, line);
+            }
+            else {
+                //If no count, then using trueCount or falseCount to decide on the line coverage
+                addCountersUsingConditional(fileNode, line, e);
+            }
+        }
+    }
+
+    private void addCountersToFile(final int count, final FileNode fileNode, final int line) {
+        if (count > 0) {
+            fileNode.addCounters(line, 1, 0);
+        }
+        else {
+            fileNode.addCounters(line, 0, 1);
+        }
+    }
+
+    private void addCountersUsingConditional(final FileNode fileNode, final int line, final StartElement e) {
+        int trueCount = getIntegerValueOf(e, TURE_COUNT);
+        int falseCount = getIntegerValueOf(e, FALSE_COUNT);
+        if (trueCount > 0 || falseCount > 0) {
+            fileNode.addCounters(line, 1, 0);
+        } else {
+            fileNode.addCounters(line, 0, 1);
+        }
+    }
+
+
+    private TreeString internPath(final String packageName, final String fileName) {
+        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(packageName, fileName)));
+    }
+
+    private TreeString constructPathForFile(final StartElement fileElement, final String packageName, final String fileName) {
+        Optional<String> possibleFilePath = getOptionalValueOf(fileElement, PATH);
+        if (possibleFilePath.isPresent()) {
+            return TreeString.valueOf(possibleFilePath.get());
+        } else {
+            if (fileName.contains("\\") || fileName.contains("/")) {
+                //fileName contains relative or absolute path
+                return TreeString.valueOf(fileName);
+            } else {
+                return internPath(packageName, fileName);
+            }
+        }
+    }
+
+    private ClassNode readClass(final String parserFileName, final XMLEventReader reader, final StartElement fileElement,
                                 final Node fileNode) throws XMLStreamException {
         String className = getValueOf(fileElement, NAME);
         var classNode = fileNode.findOrCreateClassNode(className);
@@ -207,11 +273,18 @@ public class CloverParser extends CoverageParser {
                     addInstructionCoverage(classNode, e);
                 }
             }
+            else if (event.isEndElement()) {
+                var endElement = event.asEndElement();
+                if (CLASS.equals(endElement.getName())) {
+                    return classNode;
+                }
+            }
         }
+        throw createEofException(parserFileName);
     }
 
     private void resolveLines(final FileNode fileNode) {
-        var val = createValue("LINE", fileNode.getCoveredLines().size(), fileNode.getMissedLines().size());
+        var val = createValue(VALUE_LINE, fileNode.getCoveredLines().size(), fileNode.getMissedLines().size());
         fileNode.addValue(val);
         for (ClassNode c : fileNode.getAllClassNodes()) {
             c.addValue(val);
@@ -221,18 +294,18 @@ public class CloverParser extends CoverageParser {
     private void addBranchCoverage(final Node node, final StartElement e) {
         int condTotal = getIntegerValueOf(e, CONDITIONALS);
         int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
-        addCoverage(node, "BRANCH", condCovered, condTotal);
+        addCoverage(node, Metric.BRANCH, condCovered, condTotal);
     }
 
     private void addInstructionCoverage(final Node node, final StartElement e) {
         int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
         int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
-        addCoverage(node, "INSTRUCTION", stmntsCovered, stmntsTotal);
+        addCoverage(node, Metric.INSTRUCTION, stmntsCovered, stmntsTotal);
     }
 
-    private void addCoverage(final Node node, final String metricName, final int covered, final int total) {
+    private void addCoverage(final Node node, final Metric metric, final int covered, final int total) {
         var builder = new Coverage.CoverageBuilder();
-        node.addValue(builder.withMetric(Metric.valueOf(metricName))
+        node.addValue(builder.withMetric(metric)
                 .withCovered(covered)
                 .withMissed(total - covered).build());
     }

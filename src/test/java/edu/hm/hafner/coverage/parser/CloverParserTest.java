@@ -37,7 +37,6 @@ class CloverParserTest extends AbstractParserTest {
                     addRange(covered, 45, 77);
                     addRange(covered, 79, 77);
                     Assertions.assertThat(f).hasMissedLines().hasCoveredLines(covered.toArray(new Integer[covered.size()]));
-
                     break;
                 case "File2.js":
                     Assertions.assertThat(f).hasMissedLines(92, 127, 204, 369, 492, 503, 515).hasCoveredLines(21, 38, 51, 65, 79, 105, 117, 138, 151, 164, 176, 190, 215, 228, 243, 257, 268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467, 480);
@@ -59,6 +58,29 @@ class CloverParserTest extends AbstractParserTest {
             }
         }
     }
+
+    @Test
+    void testCloverWithClasses() {
+        var root = readReport("clover-java.xml");
+        for (FileNode f : root.getAllFileNodes()) {
+            switch (f.getFileName()) {
+                case "CloverPublisher.java":
+                    Assertions.assertThat(f).hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
+                    break;
+                case "PluginImpl.java":
+                    Assertions.assertThat(f).hasMissedLines(21);
+                    break;
+                case "CloverCoverageParser.java":
+                    Assertions.assertThat(f)
+                            .hasMissedLines(18, 19, 20, 22)
+                            .hasCoveredLines(17, 18);
+                    break;
+                default:
+                    return;
+            }
+        }
+    }
+
 
     private static void addRange(final Set<Integer> collection, final int start, final int end) {
         // generate a range of integers from start to end (inclusive)
