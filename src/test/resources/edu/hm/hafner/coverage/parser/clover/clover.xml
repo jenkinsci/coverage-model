@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <coverage generated="1695944532781" clover="3.2.0">
     <project timestamp="1695944532781" name="All files">
-        <metrics statements="3057" coveredstatements="2578" conditionals="1444" coveredconditionals="1068" methods="1003" coveredmethods="736" elements="5504" coveredelements="4382" complexity="0" loc="3057" ncloc="3057" packages="68" files="170" classes="170"/>
+        <metrics statements="193" coveredstatements="169" conditionals="1444" coveredconditionals="1068" methods="1003" coveredmethods="736" elements="5504" coveredelements="4382" complexity="0" loc="3057" ncloc="3057" packages="68" files="170" classes="170"/>
         <package name="actions">
             <metrics statements="108" coveredstatements="101" conditionals="17" coveredconditionals="12" methods="115" coveredmethods="93"/>
             <file name="File1.js" path="/home/jenkins/agent/workspace/dir/src/js/actions/File1.js">
@@ -178,7 +178,7 @@
             </file>
         </package>
         <package name="components.AddEditCategories">
-            <metrics statements="39" coveredstatements="33" conditionals="4" coveredconditionals="1" methods="12" coveredmethods="7"/>
+            <metrics statements="11" coveredstatements="7" conditionals="4" coveredconditionals="1" methods="12" coveredmethods="7"/>
             <file name="File6.jsx" path="/home/jenkins/agent/workspace/dir/src/js/components/AddEditCategories/File6.jsx">
                 <metrics statements="11" coveredstatements="7" conditionals="4" coveredconditionals="1" methods="5" coveredmethods="2"/>
                 <line num="23" count="1" type="stmt"/>

@@ -25,17 +25,22 @@ class CloverParserTest extends AbstractParserTest {
     @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testBasic() {
         var root = readReport("clover.xml");
+        //Verifying package level coverage
+        var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+        assertThat(root.getValue(LINE)).contains(
+                builder.withCovered(143).withTotal(165).build());
+
         for (Node packageNode : root.getChildren()) {
             if (packageNode.getName().equals("actions")) {
                 verifyCoverage(BRANCH, 12, 5, packageNode);
                 verifyCoverage(INSTRUCTION, 101, 7, packageNode);
                 //Verifying package level coverage
-                var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
                         builder.withCovered(101).withTotal(108).build());
             } else if (packageNode.getName().equals("components")) {
                 //Verifying package level coverage
-                var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
                         builder.withCovered(35).withTotal(46).build());
             }
@@ -79,6 +84,12 @@ class CloverParserTest extends AbstractParserTest {
     @Test
     void testCloverWithClasses() {
         var root = readReport("clover-java.xml");
+        //Verifying package level coverage
+        var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+        assertThat(root.getValue(LINE)).contains(
+                builder.withCovered(1).withTotal(17).build());
+        verifyCoverage(BRANCH, 1, 1, root);
+        verifyCoverage(INSTRUCTION, 2, 16, root);
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
                 case "CloverPublisher.java":
