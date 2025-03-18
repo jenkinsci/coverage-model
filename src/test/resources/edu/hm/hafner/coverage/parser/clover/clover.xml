@@ -3,7 +3,7 @@
     <project timestamp="1695944532781" name="All files">
         <metrics statements="3057" coveredstatements="2578" conditionals="1444" coveredconditionals="1068" methods="1003" coveredmethods="736" elements="5504" coveredelements="4382" complexity="0" loc="3057" ncloc="3057" packages="68" files="170" classes="170"/>
         <package name="actions">
-            <metrics statements="234" coveredstatements="212" conditionals="17" coveredconditionals="12" methods="115" coveredmethods="93"/>
+            <metrics statements="108" coveredstatements="101" conditionals="17" coveredconditionals="12" methods="115" coveredmethods="93"/>
             <file name="File1.js" path="/home/jenkins/agent/workspace/dir/src/js/actions/File1.js">
                 <metrics statements="68" coveredstatements="68" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
                 <line num="4" count="18" type="stmt"/>

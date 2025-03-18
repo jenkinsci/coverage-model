@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static edu.hm.hafner.coverage.Metric.BRANCH;
-import static edu.hm.hafner.coverage.Metric.INSTRUCTION;
+import static edu.hm.hafner.coverage.Metric.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CloverParserTest extends AbstractParserTest {
@@ -26,6 +25,25 @@ class CloverParserTest extends AbstractParserTest {
     @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testBasic() {
         var root = readReport("clover.xml");
+        for (Node packageNode : root.getChildren()) {
+            if (packageNode.getName().equals("actions")) {
+                verifyCoverage(BRANCH, 12, 5, packageNode);
+                verifyCoverage(INSTRUCTION, 101, 7, packageNode);
+                //Verifying package level coverage
+                var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                assertThat(packageNode.getValue(LINE)).contains(
+                        builder.withCovered(101).withTotal(108).build());
+            } else if (packageNode.getName().equals("components")) {
+                //Verifying package level coverage
+                var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                assertThat(packageNode.getValue(LINE)).contains(
+                        builder.withCovered(35).withTotal(46).build());
+            }
+        }
+        verifyFileCoverage(root);
+    }
+
+    void verifyFileCoverage(Node root) {
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
                 case "File1.js":
@@ -116,26 +134,35 @@ class CloverParserTest extends AbstractParserTest {
             switch (pacageNode.getName()) {
                 case "hudson.plugins.clover":
                     for (Node f : pacageNode.getChildren()) {
-                        switch (f.getName()) {
+                        switch (((FileNode)f).getFileName()) {
                             case "CloverCoverageParser.java":
                                 verifyCoverage(BRANCH, 2, 0, f);
                                 verifyCoverage(INSTRUCTION, 12, 1, f);
+                                verifyCoverage(LINE, 11, 1, f);
                                 Assertions.assertThat((FileNode) f)
                                         .hasCoveredLines(20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
                                         .hasMissedLines(32);
                                 break;
                             case "PluginImpl.java":
+                                verifyCoverage(LINE, 0, 1, f);
                                 Assertions.assertThat((FileNode) f)
                                         .hasMissedLines(21);
                                 break;
                             case "CloverPublisher.java":
+                                verifyCoverage(LINE, 0, 11, f);
                                 Assertions.assertThat((FileNode) f)
-                                        .hasCoveredLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
+                                        .hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
                                 break;
                             default:
                                 break;
                         }
                     }
+                    //Verifying package level coverage
+                    var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                    assertThat(pacageNode.getValue(LINE)).contains(
+                                    builder.withCovered(11).withTotal(24).build());
+
+                    //verifyCoverage(LINE, 11, 13, pacageNode);
                     verifyCoverage(BRANCH, 2, 0, pacageNode);
                     verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
                     break;
@@ -147,12 +174,7 @@ class CloverParserTest extends AbstractParserTest {
 
     private void verifyCoverage(Metric metric, final int covered, final int missed, Node node) {
         Assertions.assertThat(node).hasValueMetrics(metric);
-        if (INSTRUCTION.equals(metric)) {
-            Assertions.assertThat(node).hasValues(createInstructionCoverage(covered, missed));
-        }
-        else if (BRANCH.equals(metric)) {
-            Assertions.assertThat(node).hasValues(createBranchCoverage(covered, missed));
-        }
+        Assertions.assertThat(node).hasValues(createCoverage(metric, covered, missed));
     }
 
     private static void addRange(final Set<Integer> collection, final int start, final int end) {
@@ -185,11 +207,7 @@ class CloverParserTest extends AbstractParserTest {
         );
     }
 
-    private Coverage createBranchCoverage(final int covered, final int missed) {
-        return new Coverage.CoverageBuilder().withMetric(BRANCH).withCovered(covered).withMissed(missed).build();
-    }
-
-    private Coverage createInstructionCoverage(final int covered, final int missed) {
-        return new Coverage.CoverageBuilder().withMetric(INSTRUCTION).withCovered(covered).withMissed(missed).build();
+    private Coverage createCoverage(Metric metric, final int covered, final int missed) {
+        return new Coverage.CoverageBuilder().withMetric(metric).withCovered(covered).withMissed(missed).build();
     }
 }
