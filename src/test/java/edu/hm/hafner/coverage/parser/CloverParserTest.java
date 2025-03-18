@@ -1,15 +1,14 @@
 package edu.hm.hafner.coverage.parser;
 
-import edu.hm.hafner.coverage.Coverage;
-import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.FileNode;
-import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.assertions.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import static edu.hm.hafner.coverage.Metric.BRANCH;
+import static edu.hm.hafner.coverage.Metric.INSTRUCTION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CloverParserTest extends AbstractParserTest {
@@ -81,6 +80,80 @@ class CloverParserTest extends AbstractParserTest {
         }
     }
 
+    @Test
+    void testCloverWithDeclarative() {
+        var root = readReport("clover-declarative.xml");
+        for (FileNode f : root.getAllFileNodes()) {
+            switch (f.getFileName()) {
+                case "CloverPublisher.java":
+                    verifyCoverage(BRANCH, 0, 0, f);
+                    verifyCoverage(INSTRUCTION, 0, 11, f);
+                    f.getAllClassNodes().forEach(classNode -> {
+                        if (classNode.getName().equals("CloverPublisher")) {
+                            verifyCoverage(BRANCH, 0, 0, classNode);
+                            verifyCoverage(INSTRUCTION, 0, 5, classNode);
+                        }
+                    });
+                    break;
+                case "CloverPublisher.DescriptorImpl":
+                    f.getAllClassNodes().forEach(classNode -> {
+                        if (classNode.getName().equals("CloverPublisher.DescriptorImpl")) {
+                            verifyCoverage(BRANCH, 0, 0, classNode);
+                            verifyCoverage(INSTRUCTION, 0, 6, classNode);
+                        }
+                    });
+                    break;
+                default:
+                    return;
+            }
+        }
+    }
+
+    @Test
+    void testCloverWithMultiplePackages() {
+        var root = readReport("clover-two-packages.xml");
+        for( Node pacageNode : root.getChildren()) {
+            switch (pacageNode.getName()) {
+                case "hudson.plugins.clover":
+                    for (Node f : pacageNode.getChildren()) {
+                        switch (f.getName()) {
+                            case "CloverCoverageParser.java":
+                                verifyCoverage(BRANCH, 2, 0, f);
+                                verifyCoverage(INSTRUCTION, 12, 1, f);
+                                Assertions.assertThat((FileNode) f)
+                                        .hasCoveredLines(20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+                                        .hasMissedLines(32);
+                                break;
+                            case "PluginImpl.java":
+                                Assertions.assertThat((FileNode) f)
+                                        .hasMissedLines(21);
+                                break;
+                            case "CloverPublisher.java":
+                                Assertions.assertThat((FileNode) f)
+                                        .hasCoveredLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    verifyCoverage(BRANCH, 2, 0, pacageNode);
+                    verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
+                    break;
+                default:
+                   break;
+            }
+        }
+    }
+
+    private void verifyCoverage(Metric metric, final int covered, final int missed, Node node) {
+        Assertions.assertThat(node).hasValueMetrics(metric);
+        if (INSTRUCTION.equals(metric)) {
+            Assertions.assertThat(node).hasValues(createInstructionCoverage(covered, missed));
+        }
+        else if (BRANCH.equals(metric)) {
+            Assertions.assertThat(node).hasValues(createBranchCoverage(covered, missed));
+        }
+    }
 
     private static void addRange(final Set<Integer> collection, final int start, final int end) {
         // generate a range of integers from start to end (inclusive)
@@ -110,5 +183,13 @@ class CloverParserTest extends AbstractParserTest {
                         .hasCoveredLines(9, 13, 17, 22, 29, 30, 31, 32, 33, 34, 35, 36, 42, 45, 49, 58, 62, 65, 66, 68, 72, 79, 83, 86, 87, 95, 96, 98, 99, 103, 104, 105, 106, 109, 110, 111, 115, 116, 124, 131, 133, 166)
                         .hasValues(line.withCovered(42).withTotal(42).build())
         );
+    }
+
+    private Coverage createBranchCoverage(final int covered, final int missed) {
+        return new Coverage.CoverageBuilder().withMetric(BRANCH).withCovered(covered).withMissed(missed).build();
+    }
+
+    private Coverage createInstructionCoverage(final int covered, final int missed) {
+        return new Coverage.CoverageBuilder().withMetric(INSTRUCTION).withCovered(covered).withMissed(missed).build();
     }
 }

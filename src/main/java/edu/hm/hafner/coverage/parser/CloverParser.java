@@ -12,13 +12,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.File;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Optional;
-import org.apache.commons.io.FilenameUtils;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Clover parser that parses coverage clover generated coverage files.
@@ -49,7 +45,6 @@ public class CloverParser extends CoverageParser {
     private static final String STMT = "stmt";
     private static final PathUtil PATH_UTIL = new PathUtil();
     private static final String VALUE_LINE = "LINE";
-
 
     /**
      * Creates a new instance of {@link CloverParser}.
@@ -208,7 +203,8 @@ public class CloverParser extends CoverageParser {
         if (type.equals(STMT)) {
             int count = getIntegerValueOf(e, COUNT);
             addCountersToFile(count, fileNode, line);
-        } else if(type.equals(COND)) {
+        }
+        else if (type.equals(COND)) {
             Optional<String> countVal = getOptionalValueOf(e, COUNT);
             if (countVal.isPresent()) {
                 //If count exists, using it to decide the line coverage
@@ -236,11 +232,11 @@ public class CloverParser extends CoverageParser {
         int falseCount = getIntegerValueOf(e, FALSE_COUNT);
         if (trueCount > 0 || falseCount > 0) {
             fileNode.addCounters(line, 1, 0);
-        } else {
+        }
+        else {
             fileNode.addCounters(line, 0, 1);
         }
     }
-
 
     private TreeString internPath(final String packageName, final String fileName) {
         return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(packageName, fileName)));
@@ -250,18 +246,20 @@ public class CloverParser extends CoverageParser {
         Optional<String> possibleFilePath = getOptionalValueOf(fileElement, PATH);
         if (possibleFilePath.isPresent()) {
             return TreeString.valueOf(possibleFilePath.get());
-        } else {
+        }
+        else {
             if (fileName.contains("\\") || fileName.contains("/")) {
                 //fileName contains relative or absolute path
                 return TreeString.valueOf(fileName);
-            } else {
+            }
+            else {
                 return internPath(packageName, fileName);
             }
         }
     }
 
-    private ClassNode readClass(final String parserFileName, final XMLEventReader reader, final StartElement fileElement,
-                                final Node fileNode) throws XMLStreamException {
+    private void readClass(final String parserFileName, final XMLEventReader reader, final StartElement fileElement,
+                           final Node fileNode) throws XMLStreamException {
         String className = getValueOf(fileElement, NAME);
         var classNode = fileNode.findOrCreateClassNode(className);
         while (reader.hasNext()) {
@@ -276,7 +274,7 @@ public class CloverParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName())) {
-                    return classNode;
+                    return;
                 }
             }
         }
