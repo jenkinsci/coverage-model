@@ -35,6 +35,8 @@ public class CloverParser extends CoverageParser {
     private static final QName COVERED_STATEMENTS = new QName("coveredstatements");
     private static final QName CONDITIONALS = new QName("conditionals");
     private static final QName COVERED_CONDITIONALS = new QName("coveredconditionals");
+    private static final QName METHODS = new QName("methods");
+    private static final QName COVERED_METHODS = new QName("coveredmethods");
     private static final QName LINE = new QName("line");
     private static final QName NUM = new QName("num");
     private static final QName COUNT = new QName("count");
@@ -115,8 +117,7 @@ public class CloverParser extends CoverageParser {
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
                 if (METRICS.equals(startElement.getName())) {
-                    addBranchCoverage(root, startElement);
-                    addInstructionCoverage(root, startElement);
+                    readCoverageMetrics(root, startElement);
                 }
                 else if (PACKAGE.equals(startElement.getName())) {
                     readPackage(fileName, reader, root, startElement);
@@ -147,8 +148,7 @@ public class CloverParser extends CoverageParser {
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
                 if (METRICS.equals(startElement.getName())) {
-                    addBranchCoverage(packageNode, startElement);
-                    addInstructionCoverage(packageNode, startElement);
+                    readCoverageMetrics(packageNode, startElement);
                 }
                 else if (FILE.equals(startElement.getName())) {
                     readFile(fileName, reader, packageNode, startElement);
@@ -179,8 +179,7 @@ public class CloverParser extends CoverageParser {
                     readClass(parserFileName, reader, e, fileNode);
                 }
                 else if (METRICS.equals(e.getName())) {
-                    addBranchCoverage(fileNode, e);
-                    addInstructionCoverage(fileNode, e);
+                    readCoverageMetrics(fileNode, e);
                 }
                 else if (LINE.equals(e.getName())) {
                     addLineCoverage(e, fileNode);
@@ -267,8 +266,7 @@ public class CloverParser extends CoverageParser {
             if (event.isStartElement()) {
                 var e = event.asStartElement();
                 if (METRICS.equals(e.getName())) {
-                    addBranchCoverage(classNode, e);
-                    addInstructionCoverage(classNode, e);
+                    readCoverageMetrics(classNode, e);
                 }
             }
             else if (event.isEndElement()) {
@@ -289,22 +287,20 @@ public class CloverParser extends CoverageParser {
         }
     }
 
-    private void addBranchCoverage(final Node node, final StartElement e) {
-        int condTotal = getIntegerValueOf(e, CONDITIONALS);
-        int condCovered = getIntegerValueOf(e, COVERED_CONDITIONALS);
-        addCoverage(node, Metric.BRANCH, condCovered, condTotal);
+    private void readCoverageMetrics(final Node node, final StartElement e) {
+
+        addCoverage(node, Metric.BRANCH, CONDITIONALS, COVERED_CONDITIONALS, e);
+        addCoverage(node, Metric.INSTRUCTION, STATEMENTS, COVERED_STATEMENTS, e);
+        addCoverage(node, Metric.METHOD, METHODS, COVERED_METHODS, e);
     }
 
-    private void addInstructionCoverage(final Node node, final StartElement e) {
-        int stmntsTotal = getIntegerValueOf(e, STATEMENTS);
-        int stmntsCovered = getIntegerValueOf(e, COVERED_STATEMENTS);
-        addCoverage(node, Metric.INSTRUCTION, stmntsCovered, stmntsTotal);
-    }
-
-    private void addCoverage(final Node node, final Metric metric, final int covered, final int total) {
+    private void addCoverage(final Node node, final Metric metric,
+                             final QName coveredElement, final QName totalElement, final StartElement e) {
+        int condTotal = getIntegerValueOf(e, coveredElement);
+        int condCovered = getIntegerValueOf(e, totalElement);
         var builder = new Coverage.CoverageBuilder();
         node.addValue(builder.withMetric(metric)
-                .withCovered(covered)
-                .withMissed(total - covered).build());
+                .withCovered(condCovered)
+                .withMissed(condTotal - condCovered).build());
     }
 }

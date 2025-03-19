@@ -34,6 +34,7 @@ class CloverParserTest extends AbstractParserTest {
             if (packageNode.getName().equals("actions")) {
                 verifyCoverage(BRANCH, 12, 5, packageNode);
                 verifyCoverage(INSTRUCTION, 101, 7, packageNode);
+                verifyCoverage(METHOD, 93, 22, packageNode);
                 //Verifying package level coverage
                 builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
@@ -52,6 +53,9 @@ class CloverParserTest extends AbstractParserTest {
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
                 case "File1.js":
+                    verifyCoverage(BRANCH, 0, 0, f);
+                    verifyCoverage(INSTRUCTION, 68, 0, f);
+                    verifyCoverage(METHOD, 0, 0, f);
                     Set<Integer> covered = new HashSet<>();
                     addRange(covered, 4, 7);
                     addRange(covered, 12, 22);
@@ -61,6 +65,9 @@ class CloverParserTest extends AbstractParserTest {
                     Assertions.assertThat(f).hasMissedLines().hasCoveredLines(covered.toArray(new Integer[covered.size()]));
                     break;
                 case "File2.js":
+                    verifyCoverage(BRANCH, 12, 5, f);
+                    verifyCoverage(INSTRUCTION, 33, 7, f);
+                    verifyCoverage(METHOD, 93, 22, f);
                     Assertions.assertThat(f).hasMissedLines(92, 127, 204, 369, 492, 503, 515).hasCoveredLines(21, 38, 51, 65, 79, 105, 117, 138, 151, 164, 176, 190, 215, 228, 243, 257, 268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467, 480);
                     break;
                 case "File3.jsx":
@@ -90,6 +97,7 @@ class CloverParserTest extends AbstractParserTest {
                 builder.withCovered(1).withTotal(17).build());
         verifyCoverage(BRANCH, 1, 1, root);
         verifyCoverage(INSTRUCTION, 2, 16, root);
+        verifyCoverage(METHOD, 1, 9, root);
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
                 case "CloverPublisher.java":
@@ -113,28 +121,28 @@ class CloverParserTest extends AbstractParserTest {
     void testCloverWithDeclarative() {
         var root = readReport("clover-declarative.xml");
         for (FileNode f : root.getAllFileNodes()) {
-            switch (f.getFileName()) {
-                case "CloverPublisher.java":
-                    verifyCoverage(BRANCH, 0, 0, f);
-                    verifyCoverage(INSTRUCTION, 0, 11, f);
-                    f.getAllClassNodes().forEach(classNode -> {
-                        if (classNode.getName().equals("CloverPublisher")) {
+            if (f.getFileName().equals("CloverPublisher.java")) {
+                verifyCoverage(BRANCH, 0, 0, f);
+                verifyCoverage(INSTRUCTION, 0, 11, f);
+                verifyCoverage(METHOD, 0, 8, f);
+                for (ClassNode classNode : f.getAllClassNodes()) {
+                    switch (classNode.getName()) {
+                        case "CloverPublisher":
                             verifyCoverage(BRANCH, 0, 0, classNode);
                             verifyCoverage(INSTRUCTION, 0, 5, classNode);
-                        }
-                    });
-                    break;
-                case "CloverPublisher.DescriptorImpl":
-                    f.getAllClassNodes().forEach(classNode -> {
-                        if (classNode.getName().equals("CloverPublisher.DescriptorImpl")) {
+                            verifyCoverage(METHOD, 0, 4, classNode);
+                            break;
+                        case "CloverPublisher.DescriptorImpl":
                             verifyCoverage(BRANCH, 0, 0, classNode);
                             verifyCoverage(INSTRUCTION, 0, 6, classNode);
-                        }
-                    });
-                    break;
-                default:
-                    return;
+                            verifyCoverage(METHOD, 0, 4, classNode);
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
+            return;
         }
     }
 
@@ -148,6 +156,7 @@ class CloverParserTest extends AbstractParserTest {
                         switch (((FileNode)f).getFileName()) {
                             case "CloverCoverageParser.java":
                                 verifyCoverage(BRANCH, 2, 0, f);
+                                verifyCoverage(METHOD, 1, 0, f);
                                 verifyCoverage(INSTRUCTION, 12, 1, f);
                                 verifyCoverage(LINE, 11, 1, f);
                                 Assertions.assertThat((FileNode) f)
@@ -176,6 +185,7 @@ class CloverParserTest extends AbstractParserTest {
                     //verifyCoverage(LINE, 11, 13, pacageNode);
                     verifyCoverage(BRANCH, 2, 0, pacageNode);
                     verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
+                    verifyCoverage(METHOD, 1, 9, pacageNode);
                     break;
                 default:
                    break;
