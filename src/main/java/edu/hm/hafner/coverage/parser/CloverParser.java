@@ -238,7 +238,7 @@ public class CloverParser extends CoverageParser {
     }
 
     private TreeString internPath(final String packageName, final String fileName) {
-        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(packageName, fileName)));
+        return getTreeStringBuilder().intern(PATH_UTIL.getRelativePath(Path.of(packageName.replace(".", "/"), fileName)));
     }
 
     private TreeString constructPathForFile(final StartElement fileElement, final String packageName, final String fileName) {
@@ -288,7 +288,6 @@ public class CloverParser extends CoverageParser {
     }
 
     private void readCoverageMetrics(final Node node, final StartElement e) {
-
         addCoverage(node, Metric.BRANCH, CONDITIONALS, COVERED_CONDITIONALS, e);
         addCoverage(node, Metric.INSTRUCTION, STATEMENTS, COVERED_STATEMENTS, e);
         addCoverage(node, Metric.METHOD, METHODS, COVERED_METHODS, e);

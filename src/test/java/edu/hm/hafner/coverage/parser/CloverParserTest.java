@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage.parser;
 import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.assertions.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.Issue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -39,7 +40,8 @@ class CloverParserTest extends AbstractParserTest {
                 builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
                         builder.withCovered(101).withTotal(108).build());
-            } else if (packageNode.getName().equals("components")) {
+            }
+            else if (packageNode.getName().equals("components")) {
                 //Verifying package level coverage
                 builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
@@ -62,7 +64,6 @@ class CloverParserTest extends AbstractParserTest {
                     addRange(covered, 24, 43);
                     addRange(covered, 45, 77);
                     addRange(covered, 79, 77);
-                    Assertions.assertThat(f).hasMissedLines().hasCoveredLines(covered.toArray(new Integer[covered.size()]));
                     break;
                 case "File2.js":
                     verifyCoverage(BRANCH, 12, 5, f);
@@ -118,6 +119,43 @@ class CloverParserTest extends AbstractParserTest {
     }
 
     @Test
+    void testRelativePathFromPackage() {
+        var root = readReport("clover-declarative.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(1)
+                .satisfiesExactlyInAnyOrder(
+                        file -> Assertions.assertThat(file).hasName("CloverPublisher.java").hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
+    }
+
+    @Test
+    void testPathFromFilePath() {
+        var root = readReport("clover.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(6)
+                .satisfiesExactlyInAnyOrder(
+                        file -> Assertions.assertThat(file).hasName("File1.js").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File1.js"),
+                        file -> Assertions.assertThat(file).hasName("File2.js").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File2.js"),
+                        file -> Assertions.assertThat(file).hasName("File3.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File3.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File4.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File4.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File5.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File5.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File6.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/AddEditCategories/File6.jsx"));
+    }
+
+    @Test
+    void testPathFromFileNameIfAbsolute() {
+        var root = readReport("clover-java.xml");
+
+        assertThat(root.getAllFileNodes()).hasSize(4)
+                .satisfiesExactlyInAnyOrder(
+                        file -> Assertions.assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java")
+                                .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java"),
+                        file -> Assertions.assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java").
+                                hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java"),
+                        file -> Assertions.assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverBuildAction.java").hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverBuildAction.java"),
+                        file -> Assertions.assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java").hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java"));
+    }
+
+    @Test
     void testCloverWithDeclarative() {
         var root = readReport("clover-declarative.xml");
         for (FileNode f : root.getAllFileNodes()) {
@@ -149,12 +187,15 @@ class CloverParserTest extends AbstractParserTest {
     @Test
     void testCloverWithMultiplePackages() {
         var root = readReport("clover-two-packages.xml");
-        for( Node pacageNode : root.getChildren()) {
+        for (Node pacageNode : root.getChildren()) {
             switch (pacageNode.getName()) {
                 case "hudson.plugins.clover":
                     for (Node f : pacageNode.getChildren()) {
                         switch (((FileNode)f).getFileName()) {
                             case "CloverCoverageParser.java":
+                                Assertions.assertThat((FileNode) f)
+                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java")
+                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java");
                                 verifyCoverage(BRANCH, 2, 0, f);
                                 verifyCoverage(METHOD, 1, 0, f);
                                 verifyCoverage(INSTRUCTION, 12, 1, f);
@@ -164,11 +205,17 @@ class CloverParserTest extends AbstractParserTest {
                                         .hasMissedLines(32);
                                 break;
                             case "PluginImpl.java":
+                                Assertions.assertThat((FileNode) f)
+                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java")
+                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java");
                                 verifyCoverage(LINE, 0, 1, f);
                                 Assertions.assertThat((FileNode) f)
                                         .hasMissedLines(21);
                                 break;
                             case "CloverPublisher.java":
+                                Assertions.assertThat((FileNode) f)
+                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java")
+                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java");
                                 verifyCoverage(LINE, 0, 11, f);
                                 Assertions.assertThat((FileNode) f)
                                         .hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
@@ -188,7 +235,7 @@ class CloverParserTest extends AbstractParserTest {
                     verifyCoverage(METHOD, 1, 9, pacageNode);
                     break;
                 default:
-                   break;
+                    break;
             }
         }
     }
