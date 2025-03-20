@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage.parser;
 import edu.hm.hafner.coverage.*;
 import edu.hm.hafner.coverage.assertions.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.Issue;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,7 +50,7 @@ class CloverParserTest extends AbstractParserTest {
         verifyFileCoverage(root);
     }
 
-    void verifyFileCoverage(Node root) {
+    void verifyFileCoverage(final Node root) {
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
                 case "File1.js":
@@ -180,7 +179,6 @@ class CloverParserTest extends AbstractParserTest {
                     }
                 }
             }
-            return;
         }
     }
 
@@ -188,59 +186,42 @@ class CloverParserTest extends AbstractParserTest {
     void testCloverWithMultiplePackages() {
         var root = readReport("clover-two-packages.xml");
         for (Node pacageNode : root.getChildren()) {
-            switch (pacageNode.getName()) {
-                case "hudson.plugins.clover":
-                    for (Node f : pacageNode.getChildren()) {
-                        switch (((FileNode)f).getFileName()) {
-                            case "CloverCoverageParser.java":
-                                Assertions.assertThat((FileNode) f)
-                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java")
-                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java");
-                                verifyCoverage(BRANCH, 2, 0, f);
-                                verifyCoverage(METHOD, 1, 0, f);
-                                verifyCoverage(INSTRUCTION, 12, 1, f);
-                                verifyCoverage(LINE, 11, 1, f);
-                                Assertions.assertThat((FileNode) f)
-                                        .hasCoveredLines(20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
-                                        .hasMissedLines(32);
-                                break;
-                            case "PluginImpl.java":
-                                Assertions.assertThat((FileNode) f)
-                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java")
-                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java");
-                                verifyCoverage(LINE, 0, 1, f);
-                                Assertions.assertThat((FileNode) f)
-                                        .hasMissedLines(21);
-                                break;
-                            case "CloverPublisher.java":
-                                Assertions.assertThat((FileNode) f)
-                                        .hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java")
-                                        .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java");
-                                verifyCoverage(LINE, 0, 11, f);
-                                Assertions.assertThat((FileNode) f)
-                                        .hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
-                                break;
-                            default:
-                                break;
-                        }
+            if (pacageNode.getName().equals("hudson.plugins.clover")) {
+                for (Node f : pacageNode.getChildren()) {
+                    if (f.getName().equals("CloverCoverageParser.java")) {
+                        verifyCoverage(BRANCH, 2, 0, f);
+                        verifyCoverage(METHOD, 1, 0, f);
+                        verifyCoverage(INSTRUCTION, 12, 1, f);
+                        verifyCoverage(LINE, 11, 1, f);
+                        Assertions.assertThat((FileNode) f)
+                                .hasCoveredLines(20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
+                                .hasMissedLines(32);
                     }
-                    //Verifying package level coverage
-                    var builder = new Coverage.CoverageBuilder().withMetric(LINE);
-                    assertThat(pacageNode.getValue(LINE)).contains(
-                                    builder.withCovered(11).withTotal(24).build());
+                    else if (f.getName().equals("PluginImpl.java")) {
+                        verifyCoverage(LINE, 0, 1, f);
+                        Assertions.assertThat((FileNode) f)
+                                .hasMissedLines(21);
+                    }
+                    else if (f.getName().equals("CloverPublisher.java")) {
+                        verifyCoverage(LINE, 0, 11, f);
+                        Assertions.assertThat((FileNode) f)
+                                .hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
+                    }
+                }
+                //Verifying package level coverage
+                var builder = new Coverage.CoverageBuilder().withMetric(LINE);
+                assertThat(pacageNode.getValue(LINE)).contains(
+                                builder.withCovered(11).withTotal(24).build());
 
-                    //verifyCoverage(LINE, 11, 13, pacageNode);
-                    verifyCoverage(BRANCH, 2, 0, pacageNode);
-                    verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
-                    verifyCoverage(METHOD, 1, 9, pacageNode);
-                    break;
-                default:
-                    break;
+                //verifyCoverage(LINE, 11, 13, pacageNode);
+                verifyCoverage(BRANCH, 2, 0, pacageNode);
+                verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
+                verifyCoverage(METHOD, 1, 9, pacageNode);
             }
         }
     }
 
-    private void verifyCoverage(Metric metric, final int covered, final int missed, Node node) {
+    private void verifyCoverage(final Metric metric, final int covered, final int missed, final Node node) {
         Assertions.assertThat(node).hasValueMetrics(metric);
         Assertions.assertThat(node).hasValues(createCoverage(metric, covered, missed));
     }
@@ -255,7 +236,7 @@ class CloverParserTest extends AbstractParserTest {
     @Test
     void shouldCreateEmptyPackage() {
         var root = readReport("clover-empty-package.xml");
-        var line = new Coverage.CoverageBuilder().withMetric(Metric.LINE);
+        var line = new Coverage.CoverageBuilder().withMetric(LINE);
         assertThat(root.getAllFileNodes()).satisfiesExactlyInAnyOrder(
                 file -> Assertions.assertThat(file)
                         .hasFileName("HelloWidget.jsx")
@@ -275,7 +256,7 @@ class CloverParserTest extends AbstractParserTest {
         );
     }
 
-    private Coverage createCoverage(Metric metric, final int covered, final int missed) {
+    private Coverage createCoverage(final Metric metric, final int covered, final int missed) {
         return new Coverage.CoverageBuilder().withMetric(metric).withCovered(covered).withMissed(missed).build();
     }
 }
