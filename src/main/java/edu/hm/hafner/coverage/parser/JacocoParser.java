@@ -15,15 +15,12 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ClassNode;
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
-import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -62,9 +59,6 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
     private static final QName MISSED_BRANCHES = new QName("mb");
     private static final QName COVERED_BRANCHED = new QName("cb");
-
-    private static final String VALUE_COMPLEXITY = "COMPLEXITY";
-
     private static final PathUtil PATH_UTIL = new PathUtil();
     private static final String VALUE_BRANCH = "BRANCH";
     private static final String VALUE_INSTRUCTION = "INSTRUCTION";
@@ -313,18 +307,6 @@ public class JacocoParser extends CoverageParser {
             if (!node.isAggregation()) {
                 node.addValue(createValue(currentType, covered, missed));
             }
-        }
-    }
-
-    private Value createValue(final String currentType, final int covered, final int missed) {
-        if (VALUE_COMPLEXITY.equals(currentType)) {
-            return new Value(Metric.CYCLOMATIC_COMPLEXITY, covered + missed);
-        }
-        else {
-            var builder = new CoverageBuilder();
-            return builder.withMetric(Metric.valueOf(currentType))
-                        .withCovered(covered)
-                        .withMissed(missed).build();
         }
     }
 }
