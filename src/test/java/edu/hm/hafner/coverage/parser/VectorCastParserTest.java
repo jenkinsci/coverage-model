@@ -6,6 +6,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
@@ -302,5 +303,10 @@ class VectorCastParserTest extends AbstractParserTest {
 
     private ModuleNode readExampleReport() {
         return readReport("vectorcast-statement-branch.xml");
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }

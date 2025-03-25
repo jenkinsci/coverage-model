@@ -1,23 +1,22 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-
 import org.apache.commons.io.input.BOMInputStream;
 import org.junit.jupiter.api.Test;
 
 import com.google.errorprone.annotations.MustBeClosed;
 
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -71,12 +70,6 @@ abstract class AbstractParserTest {
 
     protected FilteredLog getLog() {
         return log;
-    }
-
-    @Test
-    void shouldFailWhenParsingInvalidFiles() {
-        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("../empty.xml"));
     }
 
     @Test

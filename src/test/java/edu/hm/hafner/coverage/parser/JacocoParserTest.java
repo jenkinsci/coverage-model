@@ -10,6 +10,7 @@ import org.junitpioneer.jupiter.DefaultLocale;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
@@ -444,5 +445,10 @@ class JacocoParserTest extends AbstractParserTest {
 
     private ModuleNode readExampleReport() {
         return readReport("jacoco-codingstyle.xml");
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }

@@ -1,8 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -12,6 +9,7 @@ import org.junitpioneer.jupiter.Issue;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
@@ -19,9 +17,12 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
@@ -219,5 +220,10 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Override
     protected String getFolder() {
         return "opencover";
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }
