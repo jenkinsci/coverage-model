@@ -28,13 +28,13 @@ This library consists basically of two separate parts:
     * [Cobertura](https://cobertura.github.io/cobertura/) code coverage results
     * [Open Clover](https://openclover.org/) code coverage results
     * [Go Coverage](https://go.dev/doc/build-cover) results
-    * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
+    * [JaCoCo](https://www.jacoco.org/) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
     * [PIT](https://pitest.org/) mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results
     * [XUnit](https://xunit.net) test results
-    * [PMD](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) software metrics  
+    * [PMD software metrics](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) via a patched version of [PMD](https://pmd.github.io/)
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
