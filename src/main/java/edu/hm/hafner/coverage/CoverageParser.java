@@ -148,7 +148,7 @@ public abstract class CoverageParser implements Serializable {
         return this;
     }
 
-    public final TreeStringBuilder getTreeStringBuilder() {
+    protected final TreeStringBuilder getTreeStringBuilder() {
         return treeStringBuilder;
     }
 

@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 /**
  * A parser for Go coverage reports.
  *
+ * @see <a href="https://go.dev/doc/build-cover">Go coverage profiling support</a>
  * @author Ullrich Hafner
  */
 public class GoCovParser extends CoverageParser {
