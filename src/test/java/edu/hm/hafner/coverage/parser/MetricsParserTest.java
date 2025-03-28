@@ -1,20 +1,21 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.Locale;
-
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 
+import java.util.Locale;
+
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
@@ -171,5 +172,10 @@ class MetricsParserTest extends AbstractParserTest {
     private void checkMethod(final Node methodNode, final String name, final Metric metric, final int expected) {
         assertThat(methodNode).hasName(name).hasValueMetrics(metric);
         assertThat(methodNode.getValue(metric)).contains(new Value(metric, expected));
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }

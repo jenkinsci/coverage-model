@@ -7,6 +7,7 @@ import org.junitpioneer.jupiter.Issue;
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
@@ -607,5 +608,10 @@ class CoberturaParserTest extends AbstractParserTest {
 
     private ModuleNode readExampleReport() {
         return readReport("cobertura.xml");
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }

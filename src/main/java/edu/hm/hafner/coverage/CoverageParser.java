@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -16,6 +11,12 @@ import com.google.errorprone.annotations.FormatMethod;
 
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.TreeStringBuilder;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 /**
  * Parses a file and returns the code coverage information in a tree of {@link Node} instances.
@@ -151,7 +152,7 @@ public abstract class CoverageParser implements Serializable {
         return this;
     }
 
-    public final TreeStringBuilder getTreeStringBuilder() {
+    protected final TreeStringBuilder getTreeStringBuilder() {
         return treeStringBuilder;
     }
 
@@ -167,7 +168,7 @@ public abstract class CoverageParser implements Serializable {
      *
      * @return the root of the created tree
      * @throws ParsingException
-     *         if the content cannot be read by the parser
+     *         if the parser cannot read the content
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 

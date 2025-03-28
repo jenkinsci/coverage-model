@@ -4,7 +4,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
+import edu.hm.hafner.coverage.parser.CloverParser;
 import edu.hm.hafner.coverage.parser.CoberturaParser;
+import edu.hm.hafner.coverage.parser.GoCovParser;
 import edu.hm.hafner.coverage.parser.JacocoParser;
 import edu.hm.hafner.coverage.parser.JunitParser;
 import edu.hm.hafner.coverage.parser.MetricsParser;
@@ -19,18 +21,21 @@ import edu.hm.hafner.coverage.parser.XunitParser;
  *
  * @author Ullrich Hafner
  */
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class ParserRegistry {
     /** Supported parsers. */
     public enum CoverageParserType {
         COBERTURA,
+        CLOVER,
+        GO_COV,
+        JACOCO,
+        JUNIT,
+        METRICS,
         NUNIT,
         OPENCOVER,
-        JACOCO,
         PIT,
-        JUNIT,
         VECTORCAST,
-        XUNIT,
-        METRICS
+        XUNIT
     }
 
     /**
@@ -65,15 +70,17 @@ public class ParserRegistry {
     @SuppressWarnings("PMD.CyclomaticComplexity")
     public CoverageParser get(final CoverageParserType parser, final ProcessingMode processingMode) {
         return switch (parser) {
+            case CLOVER -> new CloverParser(processingMode);
             case COBERTURA -> new CoberturaParser(processingMode);
-            case OPENCOVER -> new OpenCoverParser(processingMode);
-            case NUNIT -> new NunitParser(processingMode);
+            case GO_COV -> new GoCovParser(processingMode);
             case JACOCO -> new JacocoParser(processingMode);
-            case PIT -> new PitestParser(processingMode);
             case JUNIT -> new JunitParser(processingMode);
+            case METRICS -> new MetricsParser(processingMode);
+            case NUNIT -> new NunitParser(processingMode);
+            case OPENCOVER -> new OpenCoverParser(processingMode);
+            case PIT -> new PitestParser(processingMode);
             case XUNIT -> new XunitParser(processingMode);
             case VECTORCAST -> new VectorCastParser(processingMode);
-            case METRICS -> new MetricsParser(processingMode);
         };
     }
 }

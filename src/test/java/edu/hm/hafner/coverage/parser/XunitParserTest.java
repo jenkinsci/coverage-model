@@ -1,12 +1,10 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.Collection;
-import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -15,6 +13,9 @@ import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.coverage.Value;
+
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -95,5 +96,10 @@ class XunitParserTest extends AbstractParserTest {
                 .filter(test -> test.getResult() == TestResult.FAILED)
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("No failed test found"));
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }

@@ -23,16 +23,18 @@ on these metrics: [GitHub Autograding action](https://github.com/uhafner/autogra
 
 This library consists basically of two separate parts:
 
-1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage, test strength, number of tests, lines of code, and cyclomatic complexity.
-2. Parsers for several code coverage formats:
-    * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
+1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
+2. Parsers for several code coverage and metric formats:
     * [Cobertura](https://cobertura.github.io/cobertura/) code coverage results
+    * [Open Clover](https://openclover.org/) code coverage results
+    * [Go Coverage](https://go.dev/doc/build-cover) results
+    * [JaCoCo](https://github.com/jacoco/jacoco/tree/master) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
-    * [PIT](https://pitest.org/) Mutation coverage results
+    * [PIT](https://pitest.org/) mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results
     * [XUnit](https://xunit.net) test results
-    * Metrics XML report
+    * [PMD](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) software metrics  
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 

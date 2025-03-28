@@ -4,15 +4,16 @@ import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.coverage.Node;
 
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.Metric.CLASS;
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class PitestParserTest extends AbstractParserTest {
@@ -236,5 +237,10 @@ class PitestParserTest extends AbstractParserTest {
                 .contains(Coverage.valueOf("MUTATION: 2273/2836"));
         assertThat(tree.getValue(TEST_STRENGTH))
                 .contains(Coverage.valueOf("TEST_STRENGTH: 2273/2730"));
+    }
+
+    @Test
+    void shouldFailWhenParsingInvalidFiles() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
 }
