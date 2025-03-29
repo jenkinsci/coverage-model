@@ -1,16 +1,29 @@
 package edu.hm.hafner.coverage.parser;
 
-import edu.hm.hafner.coverage.*;
-import edu.hm.hafner.coverage.assertions.Assertions;
 import org.junit.jupiter.api.Test;
+
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.assertions.Assertions;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static edu.hm.hafner.coverage.Metric.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 class CloverParserTest extends AbstractParserTest {
+    private static final String ACTIONS_PACKAGE = "actions";
+    private static final String CLOVER_PACKAGE = "hudson.plugins.clover";
+    private static final String COMPONENTS_PACKAGE = "components";
+    private static final String CLOVER_PUBLISHER = "CloverPublisher.java";
+    private static final String PLUGIN_IMPL = "PluginImpl.java";
+    private static final String CLOVER_COVERAGE_PARSER = "CloverCoverageParser.java";
+
     @Override
     protected String getFolder() {
         return "clover";
@@ -25,23 +38,23 @@ class CloverParserTest extends AbstractParserTest {
     @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testBasic() {
         var root = readReport("clover.xml");
-        //Verifying package level coverage
+        // Verifying package level coverage
         var builder = new Coverage.CoverageBuilder().withMetric(LINE);
         assertThat(root.getValue(LINE)).contains(
                 builder.withCovered(143).withTotal(165).build());
 
         for (Node packageNode : root.getChildren()) {
-            if (packageNode.getName().equals("actions")) {
+            if (ACTIONS_PACKAGE.equals(packageNode.getName())) {
                 verifyCoverage(BRANCH, 12, 5, packageNode);
                 verifyCoverage(INSTRUCTION, 101, 7, packageNode);
                 verifyCoverage(METHOD, 93, 22, packageNode);
-                //Verifying package level coverage
+                // Verifying package level coverage
                 builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
                         builder.withCovered(101).withTotal(108).build());
             }
-            else if (packageNode.getName().equals("components")) {
-                //Verifying package level coverage
+            else if (COMPONENTS_PACKAGE.equals(packageNode.getName())) {
+                // Verifying package level coverage
                 builder = new Coverage.CoverageBuilder().withMetric(LINE);
                 assertThat(packageNode.getValue(LINE)).contains(
                         builder.withCovered(35).withTotal(46).build());
@@ -68,19 +81,25 @@ class CloverParserTest extends AbstractParserTest {
                     verifyCoverage(BRANCH, 12, 5, f);
                     verifyCoverage(INSTRUCTION, 33, 7, f);
                     verifyCoverage(METHOD, 93, 22, f);
-                    Assertions.assertThat(f).hasMissedLines(92, 127, 204, 369, 492, 503, 515).hasCoveredLines(21, 38, 51, 65, 79, 105, 117, 138, 151, 164, 176, 190, 215, 228, 243, 257, 268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467, 480);
+                    Assertions.assertThat(f).hasMissedLines(92, 127, 204, 369, 492, 503, 515)
+                            .hasCoveredLines(21, 38, 51, 65, 79, 105, 117, 138, 151, 164, 176, 190, 215, 228, 243, 257,
+                                    268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467, 480);
                     break;
                 case "File3.jsx":
-                    Assertions.assertThat(f).hasMissedLines(45, 46, 78, 104, 105, 106).hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103);
+                    Assertions.assertThat(f).hasMissedLines(45, 46, 78, 104, 105, 106)
+                            .hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103);
                     break;
                 case "File4.jsx":
-                    Assertions.assertThat(f).hasMissedLines(8, 50, 51, 58).hasCoveredLines(4, 11, 14, 30, 38, 43, 46, 49, 57, 61, 68, 72, 77, 81, 85, 89, 90);
+                    Assertions.assertThat(f).hasMissedLines(8, 50, 51, 58)
+                            .hasCoveredLines(4, 11, 14, 30, 38, 43, 46, 49, 57, 61, 68, 72, 77, 81, 85, 89, 90);
                     break;
                 case "File5.jsx":
-                    Assertions.assertThat(f).hasMissedLines(25).hasCoveredLines(18, 19, 20, 24, 31, 50, 59);
+                    Assertions.assertThat(f).hasMissedLines(25)
+                            .hasCoveredLines(18, 19, 20, 24, 31, 50, 59);
                     break;
                 case "File6.jsx":
-                    Assertions.assertThat(f).hasMissedLines(32, 33, 35, 92).hasCoveredLines(23, 24, 31, 38, 72, 79, 90);
+                    Assertions.assertThat(f).hasMissedLines(32, 33, 35, 92)
+                            .hasCoveredLines(23, 24, 31, 38, 72, 79, 90);
                     break;
                 default:
                     return;
@@ -91,7 +110,7 @@ class CloverParserTest extends AbstractParserTest {
     @Test
     void testCloverWithClasses() {
         var root = readReport("clover-java.xml");
-        //Verifying package level coverage
+        // Verifying package level coverage
         var builder = new Coverage.CoverageBuilder().withMetric(LINE);
         assertThat(root.getValue(LINE)).contains(
                 builder.withCovered(1).withTotal(17).build());
@@ -100,13 +119,13 @@ class CloverParserTest extends AbstractParserTest {
         verifyCoverage(METHOD, 1, 9, root);
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
-                case "CloverPublisher.java":
+                case CLOVER_PUBLISHER:
                     Assertions.assertThat(f).hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
                     break;
-                case "PluginImpl.java":
+                case PLUGIN_IMPL:
                     Assertions.assertThat(f).hasMissedLines(21);
                     break;
-                case "CloverCoverageParser.java":
+                case CLOVER_COVERAGE_PARSER:
                     Assertions.assertThat(f)
                             .hasMissedLines(18, 19, 20, 22)
                             .hasCoveredLines(17, 18);
@@ -123,7 +142,9 @@ class CloverParserTest extends AbstractParserTest {
 
         assertThat(root.getAllFileNodes()).hasSize(1)
                 .satisfiesExactlyInAnyOrder(
-                        file -> Assertions.assertThat(file).hasName("CloverPublisher.java").hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
+                        file -> Assertions.assertThat(file)
+                                .hasName("CloverPublisher.java")
+                                .hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
     }
 
     @Test
@@ -132,12 +153,18 @@ class CloverParserTest extends AbstractParserTest {
 
         assertThat(root.getAllFileNodes()).hasSize(6)
                 .satisfiesExactlyInAnyOrder(
-                        file -> Assertions.assertThat(file).hasName("File1.js").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File1.js"),
-                        file -> Assertions.assertThat(file).hasName("File2.js").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File2.js"),
-                        file -> Assertions.assertThat(file).hasName("File3.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File3.jsx"),
-                        file -> Assertions.assertThat(file).hasName("File4.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File4.jsx"),
-                        file -> Assertions.assertThat(file).hasName("File5.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File5.jsx"),
-                        file -> Assertions.assertThat(file).hasName("File6.jsx").hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/AddEditCategories/File6.jsx"));
+                        file -> Assertions.assertThat(file).hasName("File1.js")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File1.js"),
+                        file -> Assertions.assertThat(file).hasName("File2.js")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/actions/File2.js"),
+                        file -> Assertions.assertThat(file).hasName("File3.jsx")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File3.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File4.jsx")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File4.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File5.jsx")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/File5.jsx"),
+                        file -> Assertions.assertThat(file).hasName("File6.jsx")
+                                .hasRelativePath("/home/jenkins/agent/workspace/dir/src/js/components/AddEditCategories/File6.jsx"));
     }
 
     @Test
@@ -158,7 +185,7 @@ class CloverParserTest extends AbstractParserTest {
     void testCloverWithDeclarative() {
         var root = readReport("clover-declarative.xml");
         for (FileNode f : root.getAllFileNodes()) {
-            if (f.getFileName().equals("CloverPublisher.java")) {
+            if (CLOVER_PUBLISHER.equals(f.getFileName())) {
                 verifyCoverage(BRANCH, 0, 0, f);
                 verifyCoverage(INSTRUCTION, 0, 11, f);
                 verifyCoverage(METHOD, 0, 8, f);
@@ -185,10 +212,10 @@ class CloverParserTest extends AbstractParserTest {
     @Test
     void testCloverWithMultiplePackages() {
         var root = readReport("clover-two-packages.xml");
-        for (Node pacageNode : root.getChildren()) {
-            if (pacageNode.getName().equals("hudson.plugins.clover")) {
-                for (Node f : pacageNode.getChildren()) {
-                    if (f.getName().equals("CloverCoverageParser.java")) {
+        for (Node packageNode : root.getChildren()) {
+            if (CLOVER_PACKAGE.equals(packageNode.getName())) {
+                for (Node f : packageNode.getChildren()) {
+                    if (CLOVER_COVERAGE_PARSER.equals(f.getName())) {
                         verifyCoverage(BRANCH, 2, 0, f);
                         verifyCoverage(METHOD, 1, 0, f);
                         verifyCoverage(INSTRUCTION, 12, 1, f);
@@ -197,26 +224,26 @@ class CloverParserTest extends AbstractParserTest {
                                 .hasCoveredLines(20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
                                 .hasMissedLines(32);
                     }
-                    else if (f.getName().equals("PluginImpl.java")) {
+                    else if (PLUGIN_IMPL.equals(f.getName())) {
                         verifyCoverage(LINE, 0, 1, f);
                         Assertions.assertThat((FileNode) f)
                                 .hasMissedLines(21);
                     }
-                    else if (f.getName().equals("CloverPublisher.java")) {
+                    else if (CLOVER_PUBLISHER.equals(f.getName())) {
                         verifyCoverage(LINE, 0, 11, f);
                         Assertions.assertThat((FileNode) f)
                                 .hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
                     }
                 }
-                //Verifying package level coverage
+                // Verifying package level coverage
                 var builder = new Coverage.CoverageBuilder().withMetric(LINE);
-                assertThat(pacageNode.getValue(LINE)).contains(
+                assertThat(packageNode.getValue(LINE)).contains(
                                 builder.withCovered(11).withTotal(24).build());
 
                 //verifyCoverage(LINE, 11, 13, pacageNode);
-                verifyCoverage(BRANCH, 2, 0, pacageNode);
-                verifyCoverage(INSTRUCTION, 12, 13, pacageNode);
-                verifyCoverage(METHOD, 1, 9, pacageNode);
+                verifyCoverage(BRANCH, 2, 0, packageNode);
+                verifyCoverage(INSTRUCTION, 12, 13, packageNode);
+                verifyCoverage(METHOD, 1, 9, packageNode);
             }
         }
     }

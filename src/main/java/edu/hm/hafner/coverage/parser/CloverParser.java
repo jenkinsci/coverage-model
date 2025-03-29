@@ -4,7 +4,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -77,12 +76,12 @@ public class CloverParser extends CoverageParser {
             var eventReader = factory.createXmlEventReader(reader);
 
             while (eventReader.hasNext()) {
-                XMLEvent event = eventReader.nextEvent();
+                var event = eventReader.nextEvent();
                 if (event.isStartElement()) {
                     var startElement = event.asStartElement();
                     var tagName = startElement.getName();
                     if (COVERAGE.equals(tagName)) {
-                        ModuleNode root = readCoverage(fileName, eventReader, log);
+                        var root = readCoverage(fileName, eventReader, log);
                         if (root.hasChildren()) {
                             return root;
                         }
@@ -104,7 +103,7 @@ public class CloverParser extends CoverageParser {
     private ModuleNode readCoverage(final String fileName, final XMLEventReader reader,
                                     final FilteredLog log) throws XMLStreamException {
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
@@ -126,7 +125,7 @@ public class CloverParser extends CoverageParser {
     @CanIgnoreReturnValue
     private ModuleNode readProject(final String fileName, final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
@@ -157,7 +156,7 @@ public class CloverParser extends CoverageParser {
         var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
 
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
@@ -186,7 +185,7 @@ public class CloverParser extends CoverageParser {
         var fileNode = packageNode.findOrCreateFileNode(fileName, constructPathForFile(fileElement, packageNode.getName(), fileName));
 
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var e = event.asStartElement();
                 if (CLASS.equals(e.getName())) {
@@ -213,11 +212,11 @@ public class CloverParser extends CoverageParser {
     private void addLineCoverage(final StartElement e, final FileNode fileNode) {
         String type = getValueOf(e, TYPE);
         int line = getIntegerValueOf(e, NUM);
-        if (type.equals(STMT)) {
+        if (STMT.equals(type)) {
             int count = getIntegerValueOf(e, COUNT);
             addCountersToFile(count, fileNode, line);
         }
-        else if (type.equals(COND)) {
+        else if (COND.equals(type)) {
             Optional<String> countVal = getOptionalValueOf(e, COUNT);
             if (countVal.isPresent()) {
                 // If count exists, using it to decide the line coverage
@@ -270,7 +269,7 @@ public class CloverParser extends CoverageParser {
         String className = getValueOf(fileElement, NAME);
         var classNode = fileNode.findOrCreateClassNode(className);
         while (reader.hasNext()) {
-            XMLEvent event = reader.nextEvent();
+            var event = reader.nextEvent();
             if (event.isStartElement()) {
                 var e = event.asStartElement();
                 if (METRICS.equals(e.getName())) {
