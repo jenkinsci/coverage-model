@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -15,6 +10,12 @@ import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Baseclass for test result parsers.

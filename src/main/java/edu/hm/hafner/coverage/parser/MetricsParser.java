@@ -1,8 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.nio.file.Path;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -22,6 +19,10 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.TreeString;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.nio.file.Path;
 
 /**
  * Parses Metrics reports into a hierarchical Java Object Model.
