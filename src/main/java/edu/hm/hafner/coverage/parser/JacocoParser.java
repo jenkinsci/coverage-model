@@ -1,9 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.nio.file.Path;
-import java.util.Optional;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -15,16 +11,24 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.MethodNode;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.TreeString;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Parses JaCoCo reports into a hierarchical Java Object Model.
@@ -59,7 +63,9 @@ public class JacocoParser extends CoverageParser {
     private static final QName COVERED_INSTRUCTIONS = new QName("ci");
     private static final QName MISSED_BRANCHES = new QName("mb");
     private static final QName COVERED_BRANCHED = new QName("cb");
+
     private static final PathUtil PATH_UTIL = new PathUtil();
+
     private static final String VALUE_BRANCH = "BRANCH";
     private static final String VALUE_INSTRUCTION = "INSTRUCTION";
     private static final String VALUE_LINE = "LINE";
@@ -307,6 +313,18 @@ public class JacocoParser extends CoverageParser {
             if (!node.isAggregation()) {
                 node.addValue(createValue(currentType, covered, missed));
             }
+        }
+    }
+
+    private Value createValue(final String currentType, final int covered, final int missed) {
+        if (VALUE_COMPLEXITY.equals(currentType)) {
+            return new Value(Metric.CYCLOMATIC_COMPLEXITY, covered + missed);
+        }
+        else {
+            var builder = new CoverageBuilder();
+            return builder.withMetric(Metric.valueOf(currentType))
+                    .withCovered(covered)
+                    .withMissed(missed).build();
         }
     }
 }

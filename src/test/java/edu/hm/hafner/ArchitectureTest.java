@@ -13,7 +13,7 @@ import edu.hm.hafner.util.ArchitectureRules;
  */
 @SuppressWarnings("hideutilityclassconstructor")
 @AnalyzeClasses(packages = "edu.hm.hafner.coverage")
-class ArchitectureTest {
+final class ArchitectureTest {
     @ArchTest
     static final ArchRule NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR = ArchitectureRules.NO_EXCEPTIONS_WITH_NO_ARG_CONSTRUCTOR;
 
@@ -40,4 +40,7 @@ class ArchitectureTest {
 
     @ArchTest
     static final ArchRule READ_RESOLVE_SHOULD_BE_PROTECTED = ArchitectureRules.READ_RESOLVE_SHOULD_BE_PROTECTED;
+
+    private ArchitectureTest() {
+    }
 }
