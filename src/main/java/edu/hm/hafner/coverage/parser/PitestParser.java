@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -22,6 +17,12 @@ import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Parses reports created by PITest into a Java object model.

@@ -3,7 +3,6 @@ package edu.hm.hafner.coverage;
 import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -27,7 +26,7 @@ public abstract class CoverageParser implements Serializable {
     @Serial
     private static final long serialVersionUID = 3941742254762282096L;
 
-    /** Complexity of the coverage. */
+    /** Cyclomatic complexity of a coverage counter. */
     protected static final String VALUE_COMPLEXITY = "COMPLEXITY";
 
     /** Toplevel module name. */
@@ -201,18 +200,6 @@ public abstract class CoverageParser implements Serializable {
         }
         catch (NumberFormatException ignore) {
             return 0;
-        }
-    }
-
-    protected static Value createValue(final String currentType, final int covered, final int missed) {
-        if (VALUE_COMPLEXITY.equals(currentType)) {
-            return new Value(Metric.CYCLOMATIC_COMPLEXITY, covered + missed);
-        }
-        else {
-            var builder = new CoverageBuilder();
-            return builder.withMetric(Metric.valueOf(currentType))
-                    .withCovered(covered)
-                    .withMissed(missed).build();
         }
     }
 

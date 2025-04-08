@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Reader;
-import java.io.Serial;
-import java.nio.file.Path;
-import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -26,6 +21,12 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
+
+import java.io.Reader;
+import java.io.Serial;
+import java.nio.file.Path;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Parses Cobertura reports into a hierarchical Java Object Model.
