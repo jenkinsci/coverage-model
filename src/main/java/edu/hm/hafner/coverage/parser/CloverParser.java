@@ -1,17 +1,26 @@
 package edu.hm.hafner.coverage.parser;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import edu.hm.hafner.coverage.*;
-import edu.hm.hafner.util.FilteredLog;
-import edu.hm.hafner.util.PathUtil;
-import edu.hm.hafner.util.SecureXmlParserFactory;
-import edu.hm.hafner.util.TreeString;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.Coverage;
+import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Node;
+import edu.hm.hafner.coverage.PackageNode;
+import edu.hm.hafner.util.FilteredLog;
+import edu.hm.hafner.util.PathUtil;
+import edu.hm.hafner.util.SecureXmlParserFactory;
+import edu.hm.hafner.util.TreeString;
+
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -70,7 +79,7 @@ public class CloverParser extends CoverageParser {
                     var startElement = event.asStartElement();
                     var tagName = startElement.getName();
                     if (COVERAGE.equals(tagName)) {
-                        ModuleNode root = readCoverage(fileName, eventReader, log);
+                        var root = readCoverage(fileName, eventReader, log);
                         if (root.hasChildren()) {
                             return root;
                         }
@@ -97,9 +106,7 @@ public class CloverParser extends CoverageParser {
             if (event.isStartElement()) {
                 var startElement = event.asStartElement();
                 if (PROJECT.equals(startElement.getName())) {
-                    //Initializing the project node
-                    String projectName = getValueOf(startElement, NAME);
-                    ModuleNode root = new ModuleNode(projectName);
+                    var root = new ModuleNode(getValueOf(startElement, NAME));
                     readProject(fileName, reader, root);
                     return root;
                 }
