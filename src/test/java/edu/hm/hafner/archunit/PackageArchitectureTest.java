@@ -1,4 +1,4 @@
-package edu.hm.hafner;
+package edu.hm.hafner.archunit;
 
 import com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests;
 import com.tngtech.archunit.junit.AnalyzeClasses;
