@@ -49,7 +49,6 @@ jobs:
         with:
           pr-number: ${{ steps.pr.outputs.number }}
           show-headers: true
-          skip-annotations: true
           config: >
             {
               "tests": {
