@@ -109,10 +109,10 @@ public class CloverParser extends CoverageParser {
                 var startElement = event.asStartElement();
                 if (PROJECT.equals(startElement.getName())) {
                     var projectName = "-";
-					var optionalName = getOptionalValueOf(startElement, NAME);
-					if (optionalName != null) {
-						projectName = optionalName;
-					}
+		    var optionalName = getOptionalValueOf(startElement, NAME);
+		    if (optionalName != null) {
+			projectName = optionalName;
+		    }
                     var root = new ModuleNode(projectName);
 
                     readProject(fileName, reader, root);
