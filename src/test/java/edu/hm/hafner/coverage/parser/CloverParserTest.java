@@ -22,6 +22,8 @@ class CloverParserTest extends AbstractParserTest {
     private static final String CLOVER_PUBLISHER = "CloverPublisher.java";
     private static final String PLUGIN_IMPL = "PluginImpl.java";
     private static final String CLOVER_COVERAGE_PARSER = "CloverCoverageParser.java";
+    private static final String PROJECT_NAME = "All files";
+    private static final String EMPTY = "-";
 
     @Override
     protected String getFolder() {
@@ -35,12 +37,20 @@ class CloverParserTest extends AbstractParserTest {
 
     @Test
     @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
+    void testEmptyProjectName() {
+        var root = readReport("clover-empty-project-name.xml");
+        assertThat(root.getName()).isEqualTo(EMPTY);
+    }
+
+    @Test
+    @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testBasic() {
         var root = readReport("clover.xml");
         // Verifying package level coverage
         var builder = new Coverage.CoverageBuilder().withMetric(LINE);
         assertThat(root.getValue(LINE)).contains(
                 builder.withCovered(143).withTotal(165).build());
+        assertThat(root.getName()).isEqualTo(PROJECT_NAME);
 
         for (Node packageNode : root.getChildren()) {
             if (ACTIONS_PACKAGE.equals(packageNode.getName())) {
