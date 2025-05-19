@@ -65,7 +65,7 @@ class CloverParserTest extends AbstractParserTest {
     void verifyFileCoverage(final Node root) {
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
-                case "File1.js":
+                case "File1.js" -> {
                     verifyCoverage(BRANCH, 0, 0, f);
                     verifyCoverage(INSTRUCTION, 68, 0, f);
                     verifyCoverage(METHOD, 0, 0, f);
@@ -75,33 +75,27 @@ class CloverParserTest extends AbstractParserTest {
                     addRange(covered, 24, 43);
                     addRange(covered, 45, 77);
                     addRange(covered, 79, 77);
-                    break;
-                case "File2.js":
+                }
+                case "File2.js" -> {
                     verifyCoverage(BRANCH, 12, 5, f);
                     verifyCoverage(INSTRUCTION, 33, 7, f);
                     verifyCoverage(METHOD, 93, 22, f);
                     assertThat(f).hasMissedLines(92, 127, 204, 369, 492, 503, 515)
                             .hasCoveredLines(21, 38, 51, 65, 79, 105, 117, 138, 151, 164, 176, 190, 215, 228, 243, 257,
-                                    268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467, 480);
-                    break;
-                case "File3.jsx":
-                    assertThat(f).hasMissedLines(45, 46, 78, 104, 105, 106)
-                            .hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103);
-                    break;
-                case "File4.jsx":
-                    assertThat(f).hasMissedLines(8, 50, 51, 58)
-                            .hasCoveredLines(4, 11, 14, 30, 38, 43, 46, 49, 57, 61, 68, 72, 77, 81, 85, 89, 90);
-                    break;
-                case "File5.jsx":
-                    assertThat(f).hasMissedLines(25)
-                            .hasCoveredLines(18, 19, 20, 24, 31, 50, 59);
-                    break;
-                case "File6.jsx":
-                    assertThat(f).hasMissedLines(32, 33, 35, 92)
-                            .hasCoveredLines(23, 24, 31, 38, 72, 79, 90);
-                    break;
-                default:
+                                    268, 287, 303, 317, 329, 339, 349, 359, 380, 393, 405, 416, 429, 443, 456, 467,
+                                    480);
+                }
+                case "File3.jsx" -> assertThat(f).hasMissedLines(45, 46, 78, 104, 105, 106)
+                        .hasCoveredLines(13, 21, 26, 29, 32, 60, 61, 62, 89, 93, 103);
+                case "File4.jsx" -> assertThat(f).hasMissedLines(8, 50, 51, 58)
+                        .hasCoveredLines(4, 11, 14, 30, 38, 43, 46, 49, 57, 61, 68, 72, 77, 81, 85, 89, 90);
+                case "File5.jsx" -> assertThat(f).hasMissedLines(25)
+                        .hasCoveredLines(18, 19, 20, 24, 31, 50, 59);
+                case "File6.jsx" -> assertThat(f).hasMissedLines(32, 33, 35, 92)
+                        .hasCoveredLines(23, 24, 31, 38, 72, 79, 90);
+                default -> {
                     return;
+                }
             }
         }
     }
@@ -118,19 +112,12 @@ class CloverParserTest extends AbstractParserTest {
         verifyCoverage(METHOD, 1, 9, root);
         for (FileNode f : root.getAllFileNodes()) {
             switch (f.getFileName()) {
-                case CLOVER_PUBLISHER:
-                    assertThat(f).hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
-                    break;
-                case PLUGIN_IMPL:
-                    assertThat(f).hasMissedLines(21);
-                    break;
-                case CLOVER_COVERAGE_PARSER:
-                    assertThat(f)
-                            .hasMissedLines(18, 19, 20, 22)
-                            .hasCoveredLines(17, 18);
-                    break;
-                default:
+                case CLOVER_PUBLISHER -> assertThat(f).hasMissedLines(28, 33, 37, 38, 43, 59, 64, 69, 70, 71, 76);
+                case PLUGIN_IMPL -> assertThat(f).hasMissedLines(21);
+                case CLOVER_COVERAGE_PARSER -> assertThat(f).hasMissedLines(18, 19, 20, 22).hasCoveredLines(17, 18);
+                default -> {
                     return;
+                }
             }
         }
     }
@@ -190,18 +177,19 @@ class CloverParserTest extends AbstractParserTest {
                 verifyCoverage(METHOD, 0, 8, f);
                 for (ClassNode classNode : f.getAllClassNodes()) {
                     switch (classNode.getName()) {
-                        case "CloverPublisher":
+                        case "CloverPublisher" -> {
                             verifyCoverage(BRANCH, 0, 0, classNode);
                             verifyCoverage(INSTRUCTION, 0, 5, classNode);
                             verifyCoverage(METHOD, 0, 4, classNode);
-                            break;
-                        case "CloverPublisher.DescriptorImpl":
+                        }
+                        case "CloverPublisher.DescriptorImpl" -> {
                             verifyCoverage(BRANCH, 0, 0, classNode);
                             verifyCoverage(INSTRUCTION, 0, 6, classNode);
                             verifyCoverage(METHOD, 0, 4, classNode);
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // do nothing
+                        }
                     }
                 }
             }

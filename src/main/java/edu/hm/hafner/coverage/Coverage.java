@@ -477,20 +477,27 @@ public final class Coverage extends Value {
             }
             if (covered < CACHE_SIZE && missed < CACHE_SIZE) {
                 switch (metric) {
-                    case LINE:
+                    case LINE -> {
                         return LINE_CACHE[getCacheIndex(covered, missed)];
-                    case BRANCH:
+                    }
+                    case BRANCH -> {
                         return BRANCH_CACHE[getCacheIndex(covered, missed)];
-                    case INSTRUCTION:
+                    }
+                    case INSTRUCTION -> {
                         return INSTRUCTION_CACHE[getCacheIndex(covered, missed)];
-                    case MUTATION:
+                    }
+                    case MUTATION -> {
                         return MUTATION_CACHE[getCacheIndex(covered, missed)];
-                    case MCDC_PAIR:
+                    }
+                    case MCDC_PAIR -> {
                         return MCDC_PAIR_CACHE[getCacheIndex(covered, missed)];
-                    case FUNCTION_CALL:
+                    }
+                    case FUNCTION_CALL -> {
                         return FUNCTION_CALL_CACHE[getCacheIndex(covered, missed)];
-                    default:
-                        // use constructor to create instance
+                    }
+                    default -> {
+                        // use constructor to create an instance
+                    }
                 }
             }
             return new Coverage(metric, covered, missed);
