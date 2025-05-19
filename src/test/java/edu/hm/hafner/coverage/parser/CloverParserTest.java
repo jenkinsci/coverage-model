@@ -36,7 +36,6 @@ class CloverParserTest extends AbstractParserTest {
     }
 
     @Test
-    @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testEmptyProjectName() {
         var root = readReport("clover-empty-project-name.xml");
         assertThat(root.getName()).isEqualTo(EMPTY);
