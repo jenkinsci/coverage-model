@@ -178,7 +178,6 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    @SuppressWarnings({"PMD.CognitiveComplexity", "PMD.CyclomaticComplexity"})
     private FileNode readFile(final String parserFileName, final XMLEventReader reader,
                               final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
         String fileName = getValueOf(fileElement, NAME);

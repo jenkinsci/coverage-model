@@ -1,9 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -11,12 +7,15 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.TreeStringBuilder;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Represents a mutation of the PIT Mutation Testing tool.
  *
  * @author Melissa Bauer
  */
-@SuppressWarnings("PMD.DataClass")
 public final class Mutation implements Serializable {
     @Serial
     private static final long serialVersionUID = -7725185756332899065L;

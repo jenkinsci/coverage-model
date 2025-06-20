@@ -42,7 +42,6 @@ class CloverParserTest extends AbstractParserTest {
     }
 
     @Test
-    @SuppressWarnings({"PMD.OptimizableToArrayCall", "PMD.AvoidThrowingRawExceptionTypes"})
     void testBasic() {
         var root = readReport("clover.xml");
         // Verifying package level coverage

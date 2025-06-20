@@ -23,7 +23,6 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("PMD.GodClass")
 @DefaultLocale("en")
 class NodeTest {
     private static final String COVERED_FILE = "Covered.java";
