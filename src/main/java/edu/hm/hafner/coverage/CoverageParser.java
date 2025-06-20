@@ -144,7 +144,6 @@ public abstract class CoverageParser implements Serializable {
      * @return this
      */
     @Serial
-    @SuppressWarnings("PMD.NullAssignment")
     protected Object readResolve() {
         treeStringBuilder = new TreeStringBuilder();
 

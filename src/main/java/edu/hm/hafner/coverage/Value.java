@@ -80,7 +80,6 @@ public class Value implements Serializable, Comparable<Value> {
      * @throws IllegalArgumentException
      *         if the string is not a valid cov instance
      */
-    @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
     public static Value valueOf(final String stringRepresentation) {
         var errorMessage = "Cannot convert '%s' to a valid Value instance.".formatted(stringRepresentation);
         try {

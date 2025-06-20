@@ -44,7 +44,6 @@ public class Difference extends Value {
      * @throws IllegalArgumentException
      *         if the string is not a valid cov instance
      */
-    @SuppressWarnings("PMD.CyclomaticComplexity") // this is a factory method that selects the correct metric
     public static Difference valueOf(final String stringRepresentation) {
         var value = Value.valueOf(stringRepresentation);
 

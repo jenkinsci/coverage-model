@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Serial;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -18,6 +13,12 @@ import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 
+import java.io.Serial;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 /**
  * Parses VectorCAST reports into a hierarchical Java Object Model.
  *
@@ -25,7 +26,7 @@ import edu.hm.hafner.util.FilteredLog;
  * @author Ullrich Hafner
  * @author Tim Schneider
  */
-@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
+@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class VectorCastParser extends CoberturaParser {
     @Serial
     private static final long serialVersionUID = 598117573006409816L;
@@ -155,7 +156,6 @@ public class VectorCastParser extends CoberturaParser {
     }
 
     @Override
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     protected void readClassOrMethod(final XMLEventReader reader,
             final FileNode fileNode, final Node parentNode,
             final StartElement element, final String fileName, final FilteredLog log)

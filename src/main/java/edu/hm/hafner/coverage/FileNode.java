@@ -1,5 +1,17 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.util.Ensure;
+import edu.hm.hafner.util.LineRange;
+import edu.hm.hafner.util.LineRangeList;
+import edu.hm.hafner.util.TreeString;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,18 +30,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.util.Ensure;
-import edu.hm.hafner.util.LineRange;
-import edu.hm.hafner.util.LineRangeList;
-import edu.hm.hafner.util.TreeString;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
@@ -776,7 +776,6 @@ public final class FileNode extends Node {
      *
      * @return the aggregated LineRanges that have no line coverage
      */
-    @SuppressWarnings("PMD.LooseCoupling")
     public LineRangeList getMissedLineRanges() {
         var lineRanges = new LineRangeList();
 

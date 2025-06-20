@@ -29,7 +29,6 @@ import java.nio.file.Path;
  *
  * @author Maximilian Waidelich
  */
-@SuppressWarnings("PMD.GodClass")
 public class MetricsParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = -4461747681863455621L;
