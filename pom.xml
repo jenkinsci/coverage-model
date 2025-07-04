@@ -62,7 +62,7 @@
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
-    <incrementals-plugin.version>1.8</incrementals-plugin.version>
+    <incrementals-plugin.version>1.10</incrementals-plugin.version>
   </properties>
 
   <build>
