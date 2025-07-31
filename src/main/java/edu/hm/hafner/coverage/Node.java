@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -471,7 +472,7 @@ public abstract class Node implements Serializable {
 
     private Optional<FileNode> findFile(final String fileName, final String relativePath) {
         return getAllFileNodes().stream().filter(fileNode ->
-                fileNode.getName().equals(fileName)
+                (fileNode.getName().equals(fileName) || fileNode.getFileName().equals(fileName))
                         && fileNode.getRelativePath().equals(relativePath)).findAny();
     }
 
@@ -945,7 +946,7 @@ public abstract class Node implements Serializable {
      * @return the created and linked node
      */
     public FileNode createFileNode(final String fileName, final TreeString relativePath) {
-        return addChildNode(new FileNode(fileName, relativePath));
+        return addChildNode(new FileNode(FilenameUtils.getName(fileName), relativePath));
     }
 
     /**

@@ -167,12 +167,14 @@ class CloverParserTest extends AbstractParserTest {
 
         assertThat(root.getAllFileNodes()).hasSize(4)
                 .satisfiesExactlyInAnyOrder(
-                        file -> assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java")
+                        file -> assertThat(file).hasName("CloverPublisher.java")
                                 .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java"),
-                        file -> assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java").
+                        file -> assertThat(file).hasName("PluginImpl.java").
                                 hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java"),
-                        file -> assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverBuildAction.java").hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverBuildAction.java"),
-                        file -> assertThat(file).hasName("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java").hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java"));
+                        file -> assertThat(file).hasName("CloverBuildAction.java")
+                                .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverBuildAction.java"),
+                        file -> assertThat(file).hasName("CloverCoverageParser.java")
+                                .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverCoverageParser.java"));
     }
 
     @Test
