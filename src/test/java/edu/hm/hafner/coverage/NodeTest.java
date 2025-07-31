@@ -7,6 +7,7 @@ import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
+import edu.hm.hafner.util.TreeString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,37 @@ class NodeTest {
     private static final String CLASS_WITHOUT_MODIFICATION = "classWithoutModification";
     private static final String COVERED_CLASS = "CoveredClass.class";
     private static final String MISSED_CLASS = "MissedClass.class";
+
+    @Test
+    void shouldFixFileNameAndRelativePath() {
+        var root = new ModuleNode("Root");
+
+        var fileNode = root.findOrCreateFileNode("File.java", TreeString.valueOf("relative/path/to/File.java"));
+        assertThat(fileNode).hasFileName("File.java")
+                .hasRelativePath("relative/path/to/File.java")
+                .hasName("File.java");
+
+        var other = root.findOrCreateFileNode("path/to/Other.java", TreeString.valueOf("relative/path/to/Other.java"));
+        assertThat(other).hasFileName("Other.java")
+                .hasRelativePath("relative/path/to/Other.java")
+                .hasName("Other.java");
+
+        var another = root.findOrCreateFileNode("another/path/to/Other.java", TreeString.valueOf("another/path/to/Other.java"));
+        assertThat(another).hasFileName("Other.java")
+                .hasRelativePath("another/path/to/Other.java")
+                .hasName("Other.java");
+
+        var wrongName = new FileNode("path/to/WrongName.java", "path/to/WrongName.java");
+        assertThat(wrongName).hasFileName("WrongName.java")
+                .hasRelativePath("path/to/WrongName.java")
+                .hasName("path/to/WrongName.java"); // Note: This is the original name, not fixed
+        root.addChild(wrongName);
+
+        assertThat(root.findOrCreateFileNode("WrongName.java", TreeString.valueOf("path/to/WrongName.java")))
+                .isSameAs(wrongName);
+        assertThat(root.findOrCreateFileNode("path/to/WrongName.java", TreeString.valueOf("path/to/WrongName.java")))
+                .isSameAs(wrongName);
+    }
 
     @Test
     void shouldHandleNonExistingParent() {
