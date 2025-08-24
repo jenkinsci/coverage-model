@@ -315,7 +315,7 @@ public enum Metric {
 
         abstract boolean isAggregatingChildren();
 
-        public String getAggregationType() {
+        String getAggregationType() {
             return StringUtils.EMPTY;
         }
 
@@ -413,7 +413,7 @@ public enum Metric {
         }
 
         @Override
-        public String getAggregationType() {
+        String getAggregationType() {
             return name;
         }
 
@@ -432,7 +432,7 @@ public enum Metric {
                     .reduce(accumulator));
         }
 
-        protected Optional<Value> getDefaultValue(final Node node) {
+        Optional<Value> getDefaultValue(final Node node) {
             return Optional.empty();
         }
     }
@@ -442,7 +442,7 @@ public enum Metric {
         private static final long serialVersionUID = 8819577749737375989L;
 
         @Override
-        protected Optional<Value> getDefaultValue(final Node node) {
+        Optional<Value> getDefaultValue(final Node node) {
             return LINE.getValueFor(node).map(this::getTotal);
         }
 
