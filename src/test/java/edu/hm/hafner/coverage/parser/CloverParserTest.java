@@ -137,7 +137,7 @@ class CloverParserTest extends AbstractParserTest {
         assertThat(root.getAllFileNodes()).hasSize(1)
                 .satisfiesExactlyInAnyOrder(
                         file -> assertThat(file)
-                                .hasName("CloverPublisher.java")
+                                .hasName(CLOVER_PUBLISHER)
                                 .hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
     }
 
@@ -167,7 +167,7 @@ class CloverParserTest extends AbstractParserTest {
 
         assertThat(root.getAllFileNodes()).hasSize(4)
                 .satisfiesExactlyInAnyOrder(
-                        file -> assertThat(file).hasName("CloverPublisher.java")
+                        file -> assertThat(file).hasName(CLOVER_PUBLISHER)
                                 .hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\CloverPublisher.java"),
                         file -> assertThat(file).hasName("PluginImpl.java").
                                 hasRelativePath("C:\\local\\maven\\helpers\\hudson\\clover\\src\\main\\java\\hudson\\plugins\\clover\\PluginImpl.java"),
