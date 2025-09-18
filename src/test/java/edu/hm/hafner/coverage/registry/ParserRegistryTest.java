@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage.registry;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
@@ -17,7 +17,7 @@ class ParserRegistryTest {
             var parser = registry.get(parserType.name(), ProcessingMode.FAIL_FAST);
             assertThat(parser).isNotNull();
             assertThat(parser.getClass().toString()).containsIgnoringCase(
-                    StringUtils.remove(parserType.name(), '_'));
+                    Strings.CS.remove(parserType.name(), "_"));
         }
     }
 
