@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.Fraction;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -47,7 +48,7 @@ public final class Coverage extends Value {
             if (N_A.equals(cleanedFormat)) {
                 return nullObject(metric);
             }
-            if (StringUtils.contains(cleanedFormat, FRACTION_SEPARATOR)) {
+            if (Strings.CS.contains(cleanedFormat, FRACTION_SEPARATOR)) {
                 var extractedCovered = StringUtils.substringBefore(cleanedFormat, FRACTION_SEPARATOR);
                 var extractedTotal = StringUtils.substringAfter(cleanedFormat, FRACTION_SEPARATOR);
 

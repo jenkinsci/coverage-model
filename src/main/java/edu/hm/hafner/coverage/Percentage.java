@@ -1,14 +1,15 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.math.Fraction;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.Fraction;
 
 /**
  * Represents a coverage percentage value which can be used in order to show and serialize coverage values. The class
@@ -74,7 +75,7 @@ public final class Percentage implements Serializable {
     public static Percentage valueOf(final String stringRepresentation) {
         try {
             var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
-            if (StringUtils.contains(cleanedFormat, "/")) {
+            if (Strings.CS.contains(cleanedFormat, "/")) {
                 var extractedNumerator = StringUtils.substringBefore(cleanedFormat, "/");
                 var extractedDenominator = StringUtils.substringAfter(cleanedFormat, "/");
 

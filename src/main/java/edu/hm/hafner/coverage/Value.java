@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.Fraction;
 
 import edu.hm.hafner.coverage.Metric.MetricTendency;
@@ -84,7 +85,7 @@ public class Value implements Serializable, Comparable<Value> {
         var errorMessage = "Cannot convert '%s' to a valid Value instance.".formatted(stringRepresentation);
         try {
             var cleanedFormat = StringUtils.deleteWhitespace(stringRepresentation);
-            if (StringUtils.contains(cleanedFormat, METRIC_SEPARATOR)) {
+            if (Strings.CS.contains(cleanedFormat, METRIC_SEPARATOR)) {
                 var metric = Metric.fromName(StringUtils.substringBefore(cleanedFormat, METRIC_SEPARATOR));
                 var value = StringUtils.substringAfter(cleanedFormat, METRIC_SEPARATOR);
                 if (value.contains("/")) {

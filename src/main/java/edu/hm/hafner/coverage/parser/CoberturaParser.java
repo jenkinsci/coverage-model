@@ -6,6 +6,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
@@ -144,7 +145,7 @@ public class CoberturaParser extends CoverageParser {
 
     private FileNode createFileNode(final StartElement element, final PackageNode packageNode) {
         var fileName = getValueOf(element, FILE_NAME);
-        var relativePath = StringUtils.removeStart(PATH_UTIL.getRelativePath(fileName), DETERMINISTIC_PATH_PREFIX);
+        var relativePath = Strings.CS.removeStart(PATH_UTIL.getRelativePath(fileName), DETERMINISTIC_PATH_PREFIX);
         var path = getTreeStringBuilder().intern(relativePath);
 
         return packageNode.findOrCreateFileNode(getFileName(fileName), path);
