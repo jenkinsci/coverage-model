@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -306,7 +306,7 @@ public class JacocoParser extends CoverageParser {
     private void readValueCounter(final Node node, final StartElement startElement) {
         var currentType = getValueOf(startElement, TYPE);
 
-        if (StringUtils.containsAny(currentType, VALUE_LINE, VALUE_INSTRUCTION, VALUE_BRANCH, VALUE_COMPLEXITY)) {
+        if (Strings.CS.containsAny(currentType, VALUE_LINE, VALUE_INSTRUCTION, VALUE_BRANCH, VALUE_COMPLEXITY)) {
             var covered = getIntegerValueOf(startElement, COVERED);
             var missed = getIntegerValueOf(startElement, MISSED);
 

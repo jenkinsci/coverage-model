@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -318,7 +318,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         var includedNames = root.getFiles()
                 .stream()
-                .filter(name -> StringUtils.containsAny(name, "Ensure.java", "TreeStringBuilder.java"))
+                .filter(name -> Strings.CS.containsAny(name, "Ensure.java", "TreeStringBuilder.java"))
                 .collect(Collectors.toList());
         var includedFiles = root.filterByFileNames(includedNames);
 
@@ -337,7 +337,7 @@ class JacocoParserTest extends AbstractParserTest {
 
         var excludedNames = root.getFiles()
                 .stream()
-                .filter(f -> !StringUtils.containsAny(f, "Ensure.java", "TreeStringBuilder.java"))
+                .filter(f -> !Strings.CS.containsAny(f, "Ensure.java", "TreeStringBuilder.java"))
                 .collect(Collectors.toList());
         var excludedFiles = root.filterByFileNames(excludedNames);
 

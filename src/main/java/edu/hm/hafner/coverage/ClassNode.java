@@ -1,13 +1,13 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.StringUtils;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific class.
@@ -121,7 +121,6 @@ public final class ClassNode extends Node {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + testCases.hashCode();
-        return result;
+        return 31 * result + testCases.hashCode();
     }
 }
