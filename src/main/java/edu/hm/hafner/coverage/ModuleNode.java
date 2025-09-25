@@ -1,5 +1,8 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,9 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * A {@link Node} which represents a module of a project.
  *
@@ -23,6 +23,7 @@ public final class ModuleNode extends Node {
     @Serial
     private static final long serialVersionUID = 2393265115219226404L;
 
+    @SuppressWarnings("serial")
     private final List<String> sources = new ArrayList<>();
 
     /**

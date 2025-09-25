@@ -16,6 +16,7 @@ public final class ClassNode extends Node {
     @Serial
     private static final long serialVersionUID = 1621410859864978552L;
 
+    @SuppressWarnings("serial")
     private List<TestCase> testCases = new ArrayList<>();
 
     /**

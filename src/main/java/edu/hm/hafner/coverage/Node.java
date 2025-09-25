@@ -47,7 +47,9 @@ public abstract class Node implements Serializable {
     private final Metric metric;
 
     private /* almost final */ String name;
+    @SuppressWarnings("serial")
     private final List<Node> children = new ArrayList<>();
+    @SuppressWarnings("serial")
     private final List<Value> values = new ArrayList<>();
 
     @CheckForNull
@@ -348,6 +350,7 @@ public abstract class Node implements Serializable {
      *
      * @return coverage ratio
      */
+    @SuppressWarnings("unchecked")
     public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
         var possiblyValue = searchMetric.getValueFor(this);
 

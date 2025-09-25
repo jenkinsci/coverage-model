@@ -42,21 +42,31 @@ public final class FileNode extends Node {
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
     private static final int UNSET = -1;
 
+    @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
+    @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
 
-    // metrics for MC/DC pairs per line
+    @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> mcdcPairCoveredPerLine = new TreeMap<>();
+    // metrics for MC/DC pairs per line
+    @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> mcdcPairMissedPerLine = new TreeMap<>();
 
     // metrics for function calls per line
+    @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> functionCallCoveredPerLine = new TreeMap<>();
+    @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> functionCallMissedPerLine = new TreeMap<>();
 
+    @SuppressWarnings("serial")
     private final List<Mutation> mutations = new ArrayList<>();
 
+    @SuppressWarnings("serial")
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
+    @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
+    @SuppressWarnings("serial")
     private final NavigableMap<Metric, Value> coverageDelta = new TreeMap<>();
 
     private TreeString relativePath; // @since 0.22.0
