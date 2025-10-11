@@ -31,6 +31,7 @@ public enum Metric {
      * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
      * coverage.
      */
+    // TODO: why do we need these coverages?
     CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
     MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
     PACKAGE("Package Coverage", "Package", new CoverageOfChildrenEvaluator()),
@@ -49,31 +50,52 @@ public enum Metric {
     MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
     TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator()),
 
-    TESTS("Number of Tests", "Tests", new ValuesAggregator(), MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
-    LOC("Lines of Code", "LOC", new LocEvaluator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC, new IntegerFormatter()),
-    NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC, new IntegerFormatter()),
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", "Foreign Data", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC, new IntegerFormatter()),
+    // TODO: metrics might be better placed into a class that can have new instances dynamically
+    TESTS("Number of Tests", "Tests", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+
+    /** Metrics from the PMD metrics reporter. */
+    LOC("Lines of Code", "LOC", new LocEvaluator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
+    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", "Foreign Data", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
     COHESION("Class Cohesion", "Cohesion", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT("Fan Out", "Fan Out", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC, new IntegerFormatter()),
-    NUMBER_OF_ACCESSORS("Number of Accessors", "Accessors", new ValuesAggregator(), MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    FAN_OUT("Fan Out", "Fan Out", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    NUMBER_OF_ACCESSORS("Number of Accessors", "Accessors", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
     WEIGHT_OF_CLASS("Weight of Class", "Weigth", new ValuesAggregator(Value::max, "maximum"),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
     WEIGHED_METHOD_COUNT("Weighted Method Count", "Methods", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter());
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
 
+    /** Metrics from the static analysis tools. */
+    WARNINGS("Number of Warnings", "Warnings", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    BUGS("Number of Bugs", "Bugs", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    ERRORS("Number of Errors", "Errors", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    DUPLICATIONS("Number of Duplications", "Duplications", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+
+    /** Metrics from git forensics. */
+    // TODO: should we also expose dates like age of class or date of last commit?
+    AUTHORS("Different Authors", "Authors", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    COMMITS("Number of Commits", "Commits", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    CODE_CHURN("Code Churn", "Code Churn", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter());
     /**
      * Returns the metric that belongs to the specified tag.
      *
@@ -95,6 +117,8 @@ public enum Metric {
      *         the name
      *
      * @return the metric
+     * @throws IllegalArgumentException
+     *         if the name is blank or no metric could be found for the specified name
      */
     public static Metric fromName(final String name) {
         var normalizedName = normalize(name);
@@ -126,15 +150,18 @@ public enum Metric {
         this(displayName, label, evaluator, MetricTendency.LARGER_IS_BETTER);
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency) {
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
+            final MetricTendency tendency) {
         this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type) {
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency,
+            final MetricValueType type) {
         this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency, final MetricValueType type,
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency,
+            final MetricValueType type,
             final MetricFormatter formatter) {
         this.displayName = displayName;
         this.label = label;
