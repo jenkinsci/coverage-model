@@ -35,6 +35,26 @@ class NodeTest {
     private static final String MISSED_CLASS = "MissedClass.class";
 
     @Test
+    void shouldMapPackageAndFileNameOfWarnings() {
+        var node = new PackageNode("edu.hm.hafner.grading");
+
+        var logHandler = new FileNode("LogHandler.java", "src/main/java/edu/hm/hafner/grading/LogHandler.java");
+        node.addChild(logHandler);
+
+        var value = new Value(WARNINGS, 1);
+        logHandler.addValue(value);
+
+        assertThat(logHandler)
+                .hasFileName("LogHandler.java")
+                .hasRelativePath("src/main/java/edu/hm/hafner/grading/LogHandler.java")
+                .hasName("LogHandler.java")
+                .hasValues(value);
+
+        assertThat(node).hasName("edu.hm.hafner.grading");
+        assertThat(node.aggregateValues()).containsExactly(value);
+    }
+
+    @Test
     void shouldFixFileNameAndRelativePath() {
         var root = new ModuleNode("Root");
 

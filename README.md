@@ -4,9 +4,9 @@
 [![Jenkins](https://ci.jenkins.io/job/Plugins/job/coverage-model/job/main/badge/icon?subject=Jenkins%20CI)](https://ci.jenkins.io/job/Plugins/job/coverage-model/job/main/)
 [![CI on all platforms](https://github.com/jenkinsci/coverage-model/workflows/GitHub%20CI/badge.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/jenkinsci/coverage-model/workflows/CodeQL/badge.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/codeql.yml)
-[![Line Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/line-coverage.svg)](https://github.com/uhafner/coverage-model/actions/workflows/quality-monitor-comment.yml)
-[![Branch Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/branch-coverage.svg)](https://github.com/uhafner/coverage-model/actions/workflows/quality-monitor-comment.yml)
-[![Mutation Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/mutation-coverage.svg)](https://github.com/uhafner/coverage-model/actions/workflows/quality-monitor-comment.yml)
+[![Line Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/line-coverage.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor-comment.yml)
+[![Branch Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/branch-coverage.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor-comment.yml)
+[![Mutation Coverage](https://raw.githubusercontent.com/jenkinsci/coverage-model/main/badges/mutation-coverage.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/quality-monitor-comment.yml)
 
 This library Provides a Java API to parse and collect code coverage results.
 It is used by my [Jenkins' coverage plug-in](https://github.com/jenkinsci/coverage-plugin) to visualize
