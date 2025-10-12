@@ -25,7 +25,7 @@ import java.util.stream.Stream;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings("ImmutableEnumChecker")
+@SuppressWarnings({"ImmutableEnumChecker", "PMD.ExcessivePublicCount"})
 public enum Metric {
     /**
      * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
