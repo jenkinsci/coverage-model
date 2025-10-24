@@ -28,10 +28,9 @@ import java.util.stream.Stream;
 @SuppressWarnings({"ImmutableEnumChecker", "PMD.ExcessivePublicCount"})
 public enum Metric {
     /**
-     * Nodes that can have children. These notes compute their coverage values on the fly based on their children's
-     * coverage.
+     * Coverage nodes that can have children. These nodes compute their coverage values on the fly based on
+     * their children's coverage.
      */
-    // TODO: why do we need these coverages?
     CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
     MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
     PACKAGE("Package Coverage", "Package", new CoverageOfChildrenEvaluator()),
@@ -48,7 +47,8 @@ public enum Metric {
 
     /** Additional coverage values obtained from mutation testing. */
     MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
-    TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator()),
+    TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter()),
 
     // TODO: metrics might be better placed into a class that can have new instances dynamically
     TESTS("Number of Tests", "Tests", new ValuesAggregator(),
@@ -87,6 +87,8 @@ public enum Metric {
             MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
     DUPLICATIONS("Number of Duplications", "Duplications", new ValuesAggregator(),
             MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    VULNERABILITIES("Number of Vulnerabilities", "Vulnerabilities", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
 
     /** Metrics from git forensics. */
     // TODO: should we also expose dates like age of class or date of last commit?
@@ -95,7 +97,16 @@ public enum Metric {
     COMMITS("Number of Commits", "Commits", new ValuesAggregator(),
             MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
     CODE_CHURN("Code Churn", "Code Churn", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter());
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+
+    /** Generic metrics. */
+    UNBOUNDED("Unbounded Integer Metric", "Unbounded", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    COUNT("Metric Counter", "Count", new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    PERCENTAGE("Percentage Metric", "Percentage", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter());
+
     /**
      * Returns the metric that belongs to the specified tag.
      *
@@ -155,14 +166,13 @@ public enum Metric {
         this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency,
-            final MetricValueType type) {
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
+            final MetricTendency tendency, final MetricValueType type) {
         this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator, final MetricTendency tendency,
-            final MetricValueType type,
-            final MetricFormatter formatter) {
+    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
+            final MetricTendency tendency, final MetricValueType type, final MetricFormatter formatter) {
         this.displayName = displayName;
         this.label = label;
         this.evaluator = evaluator;
