@@ -350,7 +350,7 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     /**
-     * Returns this value as rounded double.
+     * Returns this value as a rounded double.
      *
      * @return this value as a double
      */

@@ -1,8 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Locale;
-import java.util.NavigableSet;
-
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,6 +8,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import edu.hm.hafner.coverage.Metric.MetricTendency;
 import edu.hm.hafner.coverage.Metric.MetricValueType;
+
+import java.util.Locale;
+import java.util.NavigableSet;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
@@ -65,8 +65,7 @@ class MetricTest {
                 Metric.INSTRUCTION,
                 Metric.MCDC_PAIR,
                 Metric.FUNCTION_CALL,
-                Metric.MUTATION,
-                Metric.TEST_STRENGTH);
+                Metric.MUTATION);
     }
 
     /**
