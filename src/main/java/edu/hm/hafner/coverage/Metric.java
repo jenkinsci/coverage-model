@@ -105,7 +105,9 @@ public enum Metric {
     COUNT("Metric Counter", "Count", new ValuesAggregator(),
             MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
     PERCENTAGE("Percentage Metric", "Percentage", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter());
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter()),
+    RATE("Rate Metric", "Rate", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new RateFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -529,13 +531,13 @@ public enum Metric {
         private static final long serialVersionUID = 4337117939462815181L;
 
         @Override
-        String formatMean(final Locale locale, final double value) {
+        String format(final Locale locale, final double value) {
             return percentage(formatDouble(locale, value));
         }
 
         @Override
-        String format(final Locale locale, final double value) {
-            return percentage(formatDouble(locale, value));
+        String formatMean(final Locale locale, final double value) {
+            return format(locale, value);
         }
 
         @Override
@@ -555,12 +557,30 @@ public enum Metric {
 
         @Override
         String formatMean(final Locale locale, final double value) {
-            return percentage(formatDouble(locale, value * 100));
+            return format(locale, value);
         }
 
         @Override
         String formatDelta(final Locale locale, final double value) {
             return percentage(super.formatDelta(locale, value * 100));
+        }
+    }
+
+    /**
+     * A rate cannot show up as 100% unless it is exactly 1.0.
+     */
+    private static class RateFormatter extends PercentageFormatter {
+        @Serial
+        private static final long serialVersionUID = 6718758308735877295L;
+
+        @Override
+        String format(final Locale locale, final double value) {
+            var percentage = super.format(locale, value);
+            var perfect = super.format(locale, 1.0);
+            if (percentage.equals(perfect) && value != 1.0) {
+                return super.format(locale, 9_999.0 / 10_000.0);
+            }
+            return percentage;
         }
     }
 
