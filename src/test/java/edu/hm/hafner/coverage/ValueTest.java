@@ -1,8 +1,12 @@
 package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.math.Fraction;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
@@ -63,6 +67,26 @@ class ValueTest {
 
         assertThatInstanceIsCorrectlySerializedAndDeserialized(oneThird);
         assertThatInstanceIsCorrectlySerializedAndDeserialized(twoThirds);
+    }
+
+    @ParameterizedTest(name = "digits={0}")
+    @ValueSource(ints = {5, 6, 7, 8})
+    @DisplayName("Percentage values should be exactly 100% for almost perfect rates")
+    void shouldHandle100Percent(final int digits) {
+        var value = BigInteger.TEN.pow(digits).intValue();
+        var percentage = new Value(Metric.PERCENTAGE, value - 1, value);
+
+        assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("100.00%");
+    }
+
+    @ParameterizedTest(name = "digits={0}")
+    @ValueSource(ints = {5, 6, 7, 8})
+    @DisplayName("Not perfect rate values should be less than 100%")
+    void shouldHandle100Rate(final int digits) {
+        var value = BigInteger.TEN.pow(digits).intValue();
+        var percentage = new Value(Metric.RATE, value - 1, value);
+
+        assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("99.99%");
     }
 
     @Test
