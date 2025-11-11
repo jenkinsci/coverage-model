@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * @author Ullrich Hafner
  * @author Tim Schneider
  */
-@SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.AvoidDeeplyNestedIfStmts"})
 public class VectorCastParser extends CoberturaParser {
     @Serial
     private static final long serialVersionUID = 598117573006409816L;

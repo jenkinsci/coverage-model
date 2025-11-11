@@ -1,10 +1,10 @@
 /**
- * Generic model to collect and aggregate code coverage, mutation coverage, or metric results of different tools.
+ * Parsers for different coverage report formats.
  *
  * @author Ullrich Hafner
  */
 @DefaultAnnotation(NonNull.class)
-package edu.hm.hafner.coverage;
+package edu.hm.hafner.coverage.parser;
 
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;

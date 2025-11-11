@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * @author Melissa Bauer
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass"})
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.GodClass", "PMD.AvoidDeeplyNestedIfStmts"})
 public class CoberturaParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = -3625341318291829577L;
