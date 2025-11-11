@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metrics version="7.11.0-metrics" timestamp="2025-11-11T13:05:30.413" source="PMD">
+<package name="edu.hm.hafner.java2.assignment1">
+<file name="/builds/dev/gitlab-autograding-example/src/main/java/edu/hm/hafner/java2/assignment1/Assignment.java">
+<class name="Assignment">
+<metric name="ACCESS_TO_FOREIGN_DATA" value="0"/>
+<metric name="COHESION" value="0.0"/>
+<metric name="FAN_OUT" value="0"/>
+<metric name="LOC" value="5"/>
+<metric name="NCSS" value="1"/>
+<metric name="NUMBER_OF_ACCESSORS" value="0"/>
+<metric name="WEIGHED_METHOD_COUNT" value="0"/>
+<metric name="WEIGHT_OF_CLASS" value="0.0"/>
+</class>
+</file>
+<file name="/builds/dev/gitlab-autograding-example/src/main/java/edu/hm/hafner/java2/assignment1/Exam.java">
+<class name="Exam">
+<metric name="ACCESS_TO_FOREIGN_DATA" value="0"/>
+<metric name="COHESION" value="0.0"/>
+<metric name="FAN_OUT" value="0"/>
+<metric name="LOC" value="5"/>
+<metric name="NCSS" value="1"/>
+<metric name="NUMBER_OF_ACCESSORS" value="0"/>
+<metric name="WEIGHED_METHOD_COUNT" value="0"/>
+<metric name="WEIGHT_OF_CLASS" value="0.0"/>
+</class>
+</file>
+</package>
+</metrics>

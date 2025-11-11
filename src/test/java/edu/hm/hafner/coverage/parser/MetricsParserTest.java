@@ -175,6 +175,32 @@ class MetricsParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldHandleEmptyMetrics() {
+        var tree = readReport("metrics-exception.xml");
+
+        assertThat(tree.getAll(MODULE)).hasSize(1);
+        assertThat(tree.getAll(PACKAGE)).hasSize(1);
+        assertThat(tree.getAll(FILE)).hasSize(2);
+        assertThat(tree.getAll(CLASS)).hasSize(2);
+        assertThat(tree.getAll(METHOD)).isEmpty();
+
+        assertThat(tree).hasOnlyMetrics(LOC,
+                NCSS,
+                ACCESS_TO_FOREIGN_DATA,
+                COHESION,
+                FAN_OUT,
+                NUMBER_OF_ACCESSORS,
+                WEIGHT_OF_CLASS,
+                WEIGHED_METHOD_COUNT);
+
+        assertThat(tree.aggregateValues()).contains(
+                new Value(LOC, 10),
+                new Value(NCSS, 2));
+
+        assertThat(LOC.getTargetNodes(tree).stream().map(n -> n.getValue(LOC))).hasSize(2);
+    }
+
+    @Test
     void shouldFailWhenParsingInvalidFiles() {
         assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("/design.puml"));
     }
