@@ -28,7 +28,7 @@ import java.util.Optional;
 /**
  * Clover parser that parses coverage clover generated coverage files.
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.AvoidDeeplyNestedIfStmts"})
 public class CloverParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = -1903059983931698657L;
