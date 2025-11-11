@@ -151,6 +151,6 @@ class MetricTest {
         assertThat(coverage.getAggregationType()).isEmpty();
         assertThat(coverage.getType()).isEqualTo(MetricValueType.COVERAGE);
         assertThat(coverage.getTargetNodes(root)).hasSize(1)
-                .first().extracting(Node::getName).isEqualTo("method()");
+                .first().extracting(Node::getName).isEqualTo("class");
     }
 }

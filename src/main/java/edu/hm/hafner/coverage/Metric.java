@@ -247,10 +247,10 @@ public enum Metric {
      * @return the target nodes
      */
     public List<? extends Node> getTargetNodes(final Node node) {
-        if (getType() == MetricValueType.CLASS_METRIC) {
-            return node.getAllClassNodes();
+        if (getType() == MetricValueType.METHOD_METRIC) {
+            return node.getAllMethodNodes();
         }
-        return node.getAllMethodNodes();
+        return node.getAllClassNodes(); // for all other metrics
     }
 
     /**
