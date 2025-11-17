@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -183,6 +184,23 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(merged.find(PACKAGE, packageName)).isPresent()
                 .get().satisfies(p -> assertThat(p.getValue(LINE)).contains(
                         builder.withCovered(294 + 60).withTotal(323 + 62).build()));
+    }
+
+    @Test
+    @Issue("JENKINS-76044")
+    void shouldReadPesterFormat() {
+        var model = readReport("pester.xml");
+
+        assertThat(model.getAll(PACKAGE)).extracting(Node::getName).containsExactly(
+                "fooDirectory", "fooDirectory.#_child_directory");
+        assertThat(model.findPackage("fooDirectory"))
+                .hasValueSatisfying(p -> assertThat(p.getAllFileNodes())
+                        .map(FileNode::getFileName)
+                        .containsExactly("Invoke-Foo.ps1", "Invoke-FooPlain.ps1", "Invoke-FooPlain2.ps1"));
+        assertThat(model.findPackage("fooDirectory.#_child_directory"))
+                .hasValueSatisfying(p -> assertThat(p.getAllFileNodes())
+                        .map(FileNode::getFileName)
+                        .containsExactly("Invoke-ChildDir.ps1"));
     }
 
     @Test
