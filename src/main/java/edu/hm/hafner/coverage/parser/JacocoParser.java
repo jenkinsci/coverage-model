@@ -6,6 +6,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.Strings;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -223,8 +224,8 @@ public class JacocoParser extends CoverageParser {
     @CanIgnoreReturnValue
     private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
             final String packageName, final StartElement startElement, final String fileName) throws XMLStreamException {
-        var sourceFilefileName = getValueOf(startElement, NAME);
-        var fileNode = packageNode.findOrCreateFileNode(sourceFilefileName, internPath(packageName, sourceFilefileName));
+        var sourceFilename = getValueOf(startElement, NAME);
+        var fileNode = packageNode.findOrCreateFileNode(FilenameUtils.getName(sourceFilename), internPath(packageName, sourceFilename));
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
