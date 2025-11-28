@@ -29,6 +29,7 @@ This library consists basically of two separate parts:
     * [Open Clover](https://openclover.org/) code coverage results
     * [Go Coverage](https://go.dev/doc/build-cover) results
     * [JaCoCo](https://www.jacoco.org/) code coverage results
+    * [LCOV](https://wiki.documentfoundation.org/Development/Lcov) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
     * [PIT](https://pitest.org/) mutation coverage results
