@@ -1,5 +1,6 @@
 package edu.hm.hafner.coverage.registry;
 
+import edu.hm.hafner.coverage.parser.LcovParser;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.hm.hafner.coverage.CoverageParser;
@@ -30,6 +31,7 @@ public class ParserRegistry {
         GO_COV,
         JACOCO,
         JUNIT,
+        LCOV,
         METRICS,
         NUNIT,
         OPENCOVER,
@@ -75,6 +77,7 @@ public class ParserRegistry {
             case GO_COV -> new GoCovParser(processingMode);
             case JACOCO -> new JacocoParser(processingMode);
             case JUNIT -> new JunitParser(processingMode);
+            case LCOV -> new LcovParser(processingMode);
             case METRICS -> new MetricsParser(processingMode);
             case NUNIT -> new NunitParser(processingMode);
             case OPENCOVER -> new OpenCoverParser(processingMode);
