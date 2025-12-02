@@ -48,7 +48,7 @@ public class LcovParser extends CoverageParser {
     }
 
     @Override
-    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity", "NullAway"})
     protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         var root = new ModuleNode(EMPTY);
         Map<String, Map<Integer, MutablePair<Integer, Integer>>> files = new LinkedHashMap<>();
