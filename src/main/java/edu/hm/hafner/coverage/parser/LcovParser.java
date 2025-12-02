@@ -50,18 +50,15 @@ public class LcovParser extends CoverageParser {
     @Override
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
-        final var root = new ModuleNode(EMPTY);
-        final Map<String, Map<Integer, MutablePair<Integer, Integer>>> files = new LinkedHashMap<>();
-        String currentFile = null;
+        var root = new ModuleNode(EMPTY);
+        Map<String, Map<Integer, MutablePair<Integer, Integer>>> files = new LinkedHashMap<>();
+        String currentFile = "-";
 
         try (var br = new BufferedReader(reader);
                 var lines = br.lines();
                 var stream = new LookaheadStream(lines, fileName)) {
             while (stream.hasNext()) {
                 var raw = stream.next();
-                if (raw == null) {
-                    break;
-                }
                 var line = raw.trim();
                 if (line.isEmpty()) {
                     continue;
@@ -74,20 +71,20 @@ public class LcovParser extends CoverageParser {
                 }
 
                 // Instruction coverage (DA:<line number>,<execution count>[,<checksum>])
-                else if (line.startsWith("DA:") && currentFile != null) {
+                else if (line.startsWith("DA:")) {
                     String[] parts = line.substring(3).split(",", 3);
                     var ln = Integer.parseInt(parts[0]);
                     var exec = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
-                    var pair = files.get(currentFile).getOrDefault(ln, MutablePair.of(0, 0));
+                    var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
                     pair.setLeft(exec > 0 ? 1 : 0);
                     files.get(currentFile).put(ln, pair);
                 }
                 // Branch coverage (BRDA:<line>,<block>,<branch>,<taken>)
-                else if (line.startsWith("BRDA:") && currentFile != null) {
+                else if (line.startsWith("BRDA:")) {
                     String[] parts = line.substring(5).split(",", 4);
                     var ln = Integer.parseInt(parts[0]);
                     var taken = parts.length > 3 ? parts[3] : "-";
-                    var pair = files.get(currentFile).getOrDefault(ln, MutablePair.of(0, 0));
+                    var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
                     if (!"-".equals(taken) && !"0".equals(taken)) {
                         pair.setRight(pair.getRight() + 1);
                     }
@@ -95,7 +92,7 @@ public class LcovParser extends CoverageParser {
                 }
             }
         }
-        catch (IOException e) {
+        catch (IOException | NumberFormatException e) {
             throw new ParsingException(e);
         }
 
@@ -111,8 +108,8 @@ public class LcovParser extends CoverageParser {
 
     private void createCoverages(final ModuleNode root, final Map<String, Map<Integer, MutablePair<Integer, Integer>>> files) {
         // Create nodes in model
-        final var packageNode = new PackageNode(EMPTY);
-        final var moduleNode = new ModuleNode(EMPTY);
+        var packageNode = new PackageNode(EMPTY);
+        var moduleNode = new ModuleNode(EMPTY);
         moduleNode.addChild(packageNode);
         root.addChild(moduleNode);
 
@@ -178,14 +175,11 @@ public class LcovParser extends CoverageParser {
     }
 
     private static String normalizePath(final String path) {
-        if (path == null) {
-            return "";
-        }
         return path.trim().replace('\\', '/');
     }
 
     private static String baseName(final String normalizedPath) {
-        if (normalizedPath == null || normalizedPath.isEmpty()) {
+        if (normalizedPath.isEmpty()) {
             return "";
         }
         int idx = normalizedPath.lastIndexOf('/');
