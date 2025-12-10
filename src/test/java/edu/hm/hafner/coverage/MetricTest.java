@@ -15,7 +15,7 @@ import java.util.NavigableSet;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
- * TestCount the class {@link Metric}.
+ * Tests the class {@link Metric}.
  *
  * @author Ullrich Hafner
  */

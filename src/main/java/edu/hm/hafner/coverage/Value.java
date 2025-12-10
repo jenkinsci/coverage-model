@@ -19,8 +19,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * A leaf in the tree that contains a numeric value. Such values are used for arbitrary software-metric like
- * loc or complexity. The value is stored as a fraction to allow exact calculations.
+ * A leaf in the tree that contains a numeric value. Such values are used for arbitrary software-metric like loc or
+ * complexity. The value is stored as a fraction to allow exact calculations.
  *
  * @author Ullrich Hafner
  */
@@ -93,6 +93,9 @@ public class Value implements Serializable, Comparable<Value> {
                 }
                 if (value.startsWith(Difference.DELTA)) {
                     return new Difference(metric, readFraction(value, 1));
+                }
+                if (value.startsWith(Rate.PERCENTAGE)) {
+                    return new Rate(metric, readFraction(value, 1));
                 }
                 return new Value(metric, readFraction(value, 0));
             }
@@ -314,7 +317,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns a short summary of this value as a human-readable text.
      *
-     * @param locale the locale to use
+     * @param locale
+     *         the locale to use
+     *
      * @return the summary of this value as a human-readable text
      */
     public String getSummary(final Locale locale) {
@@ -324,7 +329,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns the details of this value as a human-readable text.
      *
-     * @param locale the locale to use
+     * @param locale
+     *         the locale to use
+     *
      * @return the details of this value as a human-readable text
      */
     public String getDetails(final Locale locale) {
@@ -337,7 +344,7 @@ public class Value implements Serializable, Comparable<Value> {
      * @return this value as an integer
      */
     public int asInteger() {
-        return (int) round(fraction.doubleValue(), 0);
+        return (int) round(asDouble(), 0);
     }
 
     /**
@@ -355,7 +362,7 @@ public class Value implements Serializable, Comparable<Value> {
      * @return this value as a double
      */
     public double asRounded() {
-        return round(fraction.doubleValue(), 2);
+        return round(asDouble(), 2);
     }
 
     private double round(final double value, final int scale) {
@@ -378,7 +385,7 @@ public class Value implements Serializable, Comparable<Value> {
 
     @Override
     public String toString() {
-        return serialize();
+        return asText(Locale.ENGLISH);
     }
 
     @Override

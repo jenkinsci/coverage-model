@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Serial;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -10,6 +9,8 @@ import javax.xml.stream.events.XMLEvent;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+
+import java.io.Serial;
 
 /**
  * Parses reports in the JUnit format into a Java object model.
@@ -49,6 +50,7 @@ public class JunitParser extends AbstractTestParser {
             final String suiteName, final ModuleNode root, final String fileName) throws XMLStreamException {
         var builder = new TestCaseBuilder();
 
+        // FIXME: In the end we should create metrics TESTS and TEST_SUCCESS_RATE here as well
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
 
         while (reader.hasNext()) {
