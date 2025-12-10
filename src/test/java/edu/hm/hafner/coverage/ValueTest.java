@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.apache.commons.lang3.math.Fraction;
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,6 +52,7 @@ class ValueTest {
         assertThat(oneThird.asInteger()).isZero();
         assertThat(oneThird.asDouble()).isEqualTo(1.0 / 3);
         assertThat(oneThird.asRounded()).isEqualTo(0.33);
+        assertThat(oneThird.asRoundedText(Locale.ENGLISH)).isEqualTo("0.33");
 
         var twoThirds = new Value(Metric.COHESION, 2, 3);
 
@@ -69,6 +71,31 @@ class ValueTest {
         assertThatInstanceIsCorrectlySerializedAndDeserialized(twoThirds);
     }
 
+    @Test
+    void shouldHandlePercentages() {
+        var oneThird = new Rate(Metric.COHESION, 1, 3);
+
+        assertThat(oneThird.asInteger()).isEqualTo(33);
+        assertThat(oneThird.asDouble()).isCloseTo(100 / 3.0, Percentage.withPercentage(0.01));
+        assertThat(oneThird.asRounded()).isEqualTo(33.33);
+
+        var twoThirds = new Rate(Metric.COHESION, 2, 3);
+
+        assertThat(twoThirds.asInteger()).isEqualTo(67);
+        assertThat(twoThirds.asDouble()).isCloseTo(200 / 3.0, Percentage.withPercentage(0.01));
+        assertThat(twoThirds.asRounded()).isEqualTo(66.67);
+
+        assertThat(twoThirds.asText(Locale.ENGLISH)).isEqualTo("66.67%");
+        assertThat(twoThirds.asInformativeText(Locale.ENGLISH)).isEqualTo("66.67%");
+        assertThat(twoThirds.serialize()).isEqualTo("COHESION: %2:3");
+
+        assertThat(oneThird.max(twoThirds)).isEqualTo(twoThirds);
+        assertThat(twoThirds.max(oneThird)).isEqualTo(twoThirds);
+
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(oneThird);
+        assertThatInstanceIsCorrectlySerializedAndDeserialized(twoThirds);
+    }
+
     @ParameterizedTest(name = "digits={0}")
     @ValueSource(ints = {5, 6, 7, 8})
     @DisplayName("Percentage values should be exactly 100% for almost perfect rates")
@@ -77,6 +104,7 @@ class ValueTest {
         var percentage = new Value(Metric.PERCENTAGE, value - 1, value);
 
         assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("100.00%");
+        assertThat(percentage).hasToString("100.00%");
     }
 
     @ParameterizedTest(name = "digits={0}")
@@ -84,9 +112,10 @@ class ValueTest {
     @DisplayName("Not perfect rate values should be less than 100%")
     void shouldHandle100Rate(final int digits) {
         var value = BigInteger.TEN.pow(digits).intValue();
-        var percentage = new Value(Metric.RATE, value - 1, value);
+        var rate = new Value(Metric.RATE, value - 1, value);
 
-        assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("99.99%");
+        assertThat(rate.asText(Locale.ENGLISH)).isEqualTo("99.99%");
+        assertThat(rate).hasToString("99.99%");
     }
 
     @Test
