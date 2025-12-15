@@ -50,7 +50,6 @@ public class JunitParser extends AbstractTestParser {
             final String suiteName, final ModuleNode root, final String fileName) throws XMLStreamException {
         var builder = new TestCaseBuilder();
 
-        // FIXME: In the end we should create metrics TESTS and TEST_SUCCESS_RATE here as well
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
 
         while (reader.hasNext()) {
