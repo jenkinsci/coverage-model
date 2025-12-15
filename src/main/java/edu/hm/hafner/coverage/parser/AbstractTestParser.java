@@ -6,7 +6,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
@@ -75,6 +77,16 @@ abstract class AbstractTestParser extends CoverageParser {
             else if (event.isStartElement() && getTestCase().equals(event.asStartElement().getName())) {
                 tests.add(readTestCase(eventReader, event.asStartElement(), suiteName, root, fileName));
             }
+        }
+
+        // TODO: right now the success rate is computed on the module level
+        // we should move this logic to the class and package level
+        var failed = tests.stream().filter(TestCase::isFailed).count();
+        var passed = tests.stream().filter(TestCase::isPassed).count();
+
+        var total = failed + passed;
+        if (total > 0) {
+            root.addValue(new Rate(Metric.TEST_SUCCESS_RATE, passed, total));
         }
         return tests;
     }

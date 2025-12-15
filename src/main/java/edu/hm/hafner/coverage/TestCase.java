@@ -1,14 +1,14 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Objects;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import edu.hm.hafner.util.Generated;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Represents a test case that has been executed.
@@ -46,6 +46,14 @@ public final class TestCase implements Serializable {
 
     public TestResult getResult() {
         return result;
+    }
+
+    public boolean isPassed() {
+        return result == TestResult.PASSED;
+    }
+
+    public boolean isFailed() {
+        return result == TestResult.FAILED;
     }
 
     public String getType() {

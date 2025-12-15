@@ -53,6 +53,8 @@ public enum Metric {
     // TODO: metrics might be better placed into a class that can have new instances dynamically
     TESTS("Number of Tests", "Tests", new ValuesAggregator(),
             MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    TEST_SUCCESS_RATE("Test Success Rate", "Test Success %", new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new RateFormatter()),
 
     /** Metrics from the PMD metrics reporter. */
     LOC("Lines of Code", "LOC", new LocEvaluator(),
@@ -295,6 +297,20 @@ public enum Metric {
         return formatter.formatMean(locale, value);
     }
 
+    /**
+     * Rounds and formats the specified value according to the metrics formatter.
+     *
+     * @param locale
+     *         the locale to use
+     * @param value
+     *         the value to format
+     *
+     * @return the formatted mean value
+     */
+    public String formatRounded(final Locale locale, final double value) {
+        return formatter.formatRounded(locale, value);
+    }
+
     public String getAggregationType() {
         return evaluator.getAggregationType();
     }
@@ -513,6 +529,10 @@ public enum Metric {
             return String.format(locale, "%+.2f", rounded);
         }
 
+        String formatRounded(final Locale locale, final double value) {
+            return formatDouble(locale, toRounded(value, 2));
+        }
+
         final String formatDouble(final Locale locale, final double value) {
             return String.format(locale, "%.2f", value);
         }
@@ -600,6 +620,11 @@ public enum Metric {
                 return "±0";
             }
             return String.format(locale, "%+d", Math.round(toRounded(value, 0)));
+        }
+
+        @Override
+        String formatRounded(final Locale locale, final double value) {
+            return format(locale, toRounded(value, 2));
         }
     }
 }

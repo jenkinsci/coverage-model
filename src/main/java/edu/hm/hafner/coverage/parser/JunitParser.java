@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.io.Serial;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -10,6 +9,8 @@ import javax.xml.stream.events.XMLEvent;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+
+import java.io.Serial;
 
 /**
  * Parses reports in the JUnit format into a Java object model.
