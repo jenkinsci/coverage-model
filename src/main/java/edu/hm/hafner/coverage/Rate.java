@@ -7,7 +7,7 @@ import java.util.Locale;
 
 /**
  * A leaf in the tree that represents a rate or percentage. While rates are technically represented by a value
- * between 0 and 1, users prefer a visualization in the range 0 - 100%.
+ * between 0 and 1, users prefer a visualization in the range 0% - 100%.
  *
  * @author Ullrich Hafner
  */
@@ -35,7 +35,7 @@ public class Rate extends Value {
      * expected to start with the metric, written in all caps characters and followed by a colon.
      * Then the {@link Rate} specific serialization is following. Whitespace characters will be ignored.
      *
-     * <p>Examples: LINE: Δ10/100, BRANCH: Δ0/5, LOC: Δ160</p>
+     * <p>Examples: TEST_SUCCESS_RATE: %10/100, COHESION: %0/5</p>
      *
      * @param stringRepresentation
      *         string representation to convert from
