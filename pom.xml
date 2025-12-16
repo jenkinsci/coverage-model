@@ -40,14 +40,14 @@
     <connection>scm:git:https://github.com/jenkinsci/coverage-model.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/coverage-model.git</developerConnection>
     <url>https://github.com/jenkinsci/coverage-model</url>
-    <tag>${scmTag}</tag>
+    <tag>v0.64.0</tag>
   </scm>
 
   <properties>
     <scmTag>HEAD</scmTag>
     <revision>0.64.0</revision>
-    <changelist>-SNAPSHOT</changelist>
-    <previousVersion>0.63.0</previousVersion>
+    <changelist></changelist>
+    <previousVersion>0.64.0</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
