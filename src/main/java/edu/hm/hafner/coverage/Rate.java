@@ -119,6 +119,11 @@ public class Rate extends Value {
     }
 
     @Override
+    protected Value createValue(final Fraction newFraction) {
+        return new Rate(getMetric(), newFraction);
+    }
+
+    @Override
     public double asDouble() {
         return rawValue() * 100.0;
     }
