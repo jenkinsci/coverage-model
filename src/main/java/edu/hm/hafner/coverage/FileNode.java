@@ -158,13 +158,13 @@ public final class FileNode extends Node {
 
     @Override
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return getMetric().equals(searchMetric)
+        return getMetric() == searchMetric
                 && (getRelativePath().equals(searchName) || getName().equals(searchName));
     }
 
     @Override
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return getMetric().equals(searchMetric)
+        return getMetric() == searchMetric
                 && (getRelativePath().hashCode() == searchNameHashCode || getName().hashCode() == searchNameHashCode);
     }
 

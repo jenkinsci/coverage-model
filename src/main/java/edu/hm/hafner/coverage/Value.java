@@ -62,7 +62,7 @@ public class Value implements Serializable, Comparable<Value> {
      */
     public static Optional<Value> findValue(final Metric metric, final Collection<? extends Value> values) {
         return values.stream()
-                .filter(v -> metric.equals(v.getMetric()))
+                .filter(v -> metric == v.getMetric())
                 .findAny()
                 .map(Value.class::cast);
     }
@@ -373,7 +373,7 @@ public class Value implements Serializable, Comparable<Value> {
      * @return {@code true} if this value has the same metric as the specified value, {@code false} otherwise
      */
     protected boolean hasSameMetric(final Value other) {
-        return other.getMetric().equals(getMetric());
+        return other.getMetric() == getMetric();
     }
 
     @Override
