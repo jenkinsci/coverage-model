@@ -100,7 +100,7 @@ public abstract class Node implements Serializable {
         var type = parent.getMetric();
 
         List<String> parentsOfSameType = new ArrayList<>();
-        for (var node = parent; node != null && node.getMetric().equals(type); node = node.parent) {
+        for (var node = parent; node != null && node.getMetric() == type; node = node.parent) {
             parentsOfSameType.add(0, node.getName());
         }
         return String.join(".", parentsOfSameType);
@@ -290,7 +290,7 @@ public abstract class Node implements Serializable {
      */
     public void replaceValue(final Value value) {
         values.stream()
-                .filter(v -> v.getMetric().equals(value.getMetric()))
+                .filter(v -> v.getMetric() == value.getMetric())
                 .findAny()
                 .ifPresent(values::remove);
         values.add(value);
@@ -407,7 +407,7 @@ public abstract class Node implements Serializable {
         List<Node> childNodes = children.stream()
                 .map(child -> child.getAll(searchMetric))
                 .flatMap(List::stream).collect(Collectors.toList());
-        if (metric.equals(searchMetric)) {
+        if (metric == searchMetric) {
             childNodes.add(this);
         }
         return childNodes;
@@ -563,7 +563,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return metric.equals(searchMetric) && getId().equals(searchName);
+        return metric == searchMetric && getId().equals(searchName);
     }
 
     /**
@@ -577,11 +577,11 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return metric.equals(searchMetric) && getId().hashCode() == searchNameHashCode;
+        return metric == searchMetric && getId().hashCode() == searchNameHashCode;
     }
 
     /**
-     * Creates a deep copy of the tree with this as root node.
+     * Creates a deep copy of the tree with this as a root node.
      *
      * @return the root node of the copied tree
      */

@@ -377,7 +377,7 @@ public enum Metric {
         Optional<Value> getValue(final Node node, final Metric searchMetric) {
             return node.getValues()
                     .stream()
-                    .filter(leaf -> leaf.getMetric().equals(searchMetric))
+                    .filter(leaf -> leaf.getMetric() == searchMetric)
                     .findAny();
         }
     }
@@ -404,7 +404,7 @@ public enum Metric {
         }
 
         private Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
-            if (node.getMetric().equals(searchMetric)) {
+            if (node.getMetric() == searchMetric) {
                 return getValue(node, searchMetric).or(() -> deriveFromCoverage(node, searchMetric));
             }
             return Optional.empty();

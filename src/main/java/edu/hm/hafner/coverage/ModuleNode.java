@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A {@link Node} which represents a module of a project.
@@ -76,8 +75,8 @@ public final class ModuleNode extends Node {
      */
     public void splitPackages() {
         var allPackages = getChildren().stream()
-                .filter(child -> child.getMetric().equals(Metric.PACKAGE))
-                .collect(Collectors.toList());
+                .filter(child -> child.getMetric() == Metric.PACKAGE)
+                .toList();
         allPackages.forEach(this::removeChild);
         for (Node packageNode : allPackages) {
             var packageParts = StringUtils.split(packageNode.getName(), "./\\");
@@ -116,7 +115,7 @@ public final class ModuleNode extends Node {
     }
 
     private static boolean isEqual(final Node packageNode, final Node existing) {
-        return existing.getMetric().equals(packageNode.getMetric())
+        return existing.getMetric() == packageNode.getMetric()
                 && existing.getName().equals(packageNode.getName());
     }
 

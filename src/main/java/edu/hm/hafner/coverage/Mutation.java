@@ -101,7 +101,7 @@ public final class Mutation implements Serializable {
      * @return if the mutation was killed
      */
     public boolean isKilled() {
-        return status.equals(MutationStatus.KILLED);
+        return status == MutationStatus.KILLED;
     }
 
     /**
@@ -110,7 +110,7 @@ public final class Mutation implements Serializable {
      * @return if the mutation has survived
      */
     public boolean hasSurvived() {
-        return status.equals(MutationStatus.SURVIVED);
+        return status == MutationStatus.SURVIVED;
     }
 
     @Override

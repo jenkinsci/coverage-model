@@ -212,15 +212,15 @@ class PitestParserTest extends AbstractParserTest {
                         "edu.hm.hafner.analysis.parser.dry",
                         "edu.hm.hafner.analysis.parser.dry.simian",
                         "edu.hm.hafner.analysis.parser.pylint");
-        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.TIMED_OUT))
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus() == MutationStatus.TIMED_OUT)
                 .hasSize(3)
                 .extracting(Mutation::isDetected)
                 .containsOnly(true);
-        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.KILLED))
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus() == MutationStatus.KILLED)
                 .hasSize(2270)
                 .extracting(Mutation::isDetected)
                 .containsOnly(true);
-        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus().equals(MutationStatus.NO_COVERAGE))
+        assertThat(tree.getMutations()).filteredOn(m -> m.getStatus() == MutationStatus.NO_COVERAGE)
                 .hasSize(106)
                 .extracting(Mutation::isDetected)
                 .containsOnly(false);
