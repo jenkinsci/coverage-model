@@ -124,6 +124,15 @@ public class Rate extends Value {
     }
 
     @Override
+    public Value add(final Value other) {
+        ensureSameMetricAndType(other);
+
+        int numerator = getFraction().getNumerator() + other.getFraction().getNumerator();
+        int denominator = getFraction().getDenominator() + other.getFraction().getDenominator();
+        return createValue(Fraction.getFraction(numerator, denominator));
+    }
+
+    @Override
     public double asDouble() {
         return rawValue() * 100.0;
     }

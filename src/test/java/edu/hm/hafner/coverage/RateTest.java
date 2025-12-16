@@ -16,6 +16,18 @@ class RateTest {
         assertThat(rate.asInformativeText(Locale.ENGLISH)).isEqualTo("75.00%");
         assertThat(rate.asRoundedText(Locale.ENGLISH)).isEqualTo("75.00");
         assertThat(rate.serialize()).isEqualTo("COHESION: %3:4");
+
+        assertThat(rate.add(rate).asDouble()).isCloseTo(75, withinPercentage(0.0001));
+    }
+
+    @Test
+    void shouldCorrectlyAdd() {
+        var zero = Rate.valueOf("COHESION: %0:6");
+        var hundred = Rate.valueOf("COHESION: %6:6");
+
+        var fifty = zero.add(hundred);
+        assertThat(fifty.asDouble()).isCloseTo(50, withinPercentage(0.0001));
+        assertThat(fifty.serialize()).isEqualTo("COHESION: %6:12");
     }
 
     @Test
