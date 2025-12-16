@@ -224,7 +224,11 @@ public class Value implements Serializable, Comparable<Value> {
     public Value add(final Value other) {
         ensureSameMetricAndType(other);
 
-        return new Value(getMetric(), asSafeFraction().add(other.fraction));
+        return createValue(asSafeFraction().add(other.fraction));
+    }
+
+    protected Value createValue(final Fraction newFraction) {
+        return new Value(getMetric(), newFraction);
     }
 
     /**
