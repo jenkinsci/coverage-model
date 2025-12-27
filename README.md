@@ -16,7 +16,7 @@ the coverage of individual builds.
 ![Jenkins Coverage Plug-in Files](doc/jenkins-2.png)
 
 Additionally, this library is used by my additional [Quality Monitor GitHub Action](https://github.com/uhafner/quality-monitor), that monitors the quality of projects based on a configurable set of metrics and gives feedback on pull requests (or single commits) in GitHub.
-There are also two additional actions available, to autograde student software projects based
+There are also two additional actions available to autograde student software projects based
 on these metrics: [GitHub Autograding action](https://github.com/uhafner/autograding-github-action) and [GitLab Autograding action](https://github.com/uhafner/autograding-gitlab-action).
 
 ![Quality Monitor GitHub Action](doc/quality-monitor.png)
@@ -29,7 +29,7 @@ This library consists basically of two separate parts:
     * [Open Clover](https://openclover.org/) code coverage results
     * [Go Coverage](https://go.dev/doc/build-cover) results
     * [JaCoCo](https://www.jacoco.org/) code coverage results
-    * [LCOV](https://wiki.documentfoundation.org/Development/Lcov) code coverage results
+    * [LCOV](https://github.com/linux-test-project/lcov) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
     * [PIT](https://pitest.org/) mutation coverage results
