@@ -140,7 +140,7 @@ class CoverageTest {
                 .hasCovered(0)
                 .hasMissed(0)
                 .hasTotal(0)
-                .hasCoveredPercentage(Percentage.ZERO)
+                .hasCoveredPercentage(Percentage.HUNDRED)
                 .hasToString("LINE: n/a");
 
         var nullSerialization = "LINE: n/a";

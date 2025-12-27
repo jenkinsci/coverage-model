@@ -118,7 +118,7 @@ public final class Coverage extends Value {
      */
     public Percentage getCoveredPercentage() {
         if (getTotal() == 0) {
-            return Percentage.ZERO;
+            return Percentage.HUNDRED;
         }
         return Percentage.valueOf(getCovered(), getTotal());
     }
