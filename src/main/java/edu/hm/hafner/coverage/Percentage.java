@@ -22,8 +22,10 @@ public final class Percentage implements Serializable {
     @Serial
     private static final long serialVersionUID = 3324942976687883481L;
 
-    /** null value. */
+    /** Null value. */
     public static final Percentage ZERO = new Percentage(0, 1);
+    /** Hundred percent placeholder. */
+    public static final Percentage HUNDRED = new Percentage(1, 1);
     private static final Percentage ALMOST_HUNDRED = new Percentage(9_999, 10_000);
 
     static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
