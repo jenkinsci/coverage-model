@@ -416,7 +416,7 @@ public class Value implements Serializable, Comparable<Value> {
 
     @Override
     public String toString() {
-        return asText(Locale.ENGLISH);
+        return getSummary(Locale.ENGLISH);
     }
 
     @Override

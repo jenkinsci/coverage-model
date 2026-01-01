@@ -104,7 +104,7 @@ class ValueTest {
         var percentage = new Value(Metric.PERCENTAGE, value - 1, value);
 
         assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("100.00%");
-        assertThat(percentage).hasToString("100.00%");
+        assertThat(percentage).hasToString("Percentage Metric: 100.00%");
     }
 
     @ParameterizedTest(name = "digits={0}")
@@ -115,7 +115,7 @@ class ValueTest {
         var rate = new Value(Metric.RATE, value - 1, value);
 
         assertThat(rate.asText(Locale.ENGLISH)).isEqualTo("99.99%");
-        assertThat(rate).hasToString("99.99%");
+        assertThat(rate).hasToString("Rate Metric: 99.99%");
     }
 
     @Test
