@@ -606,6 +606,26 @@ class CoberturaParserTest extends AbstractParserTest {
                 .hasCoveredLines(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
     }
 
+    @Test
+    @Issue("JENKINS-76221")
+    void shouldMergeDuplicateLineNumbers() {
+        var result = readReport("cobertura-duplicate-lines.xml");
+        
+        assertThat(result.getAllFileNodes()).hasSize(1);
+        var fileNode = result.getAllFileNodes().get(0);
+        
+        assertThat(fileNode).hasName("foobar.cc").hasRelativePath("path/to/foobar.cc");
+        
+        assertThat(fileNode.getCoveredOfLine(81)).isEqualTo(1);
+        assertThat(fileNode.getMissedOfLine(81)).isEqualTo(2);
+        
+        assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(5);
+        assertThat(fileNode.getMissedOfLine(82)).isEqualTo(7);
+        
+        assertThat(fileNode.getCoveredOfLine(83)).isEqualTo(1);
+        assertThat(fileNode.getMissedOfLine(83)).isEqualTo(0);
+    }
+
     private ModuleNode readExampleReport() {
         return readReport("cobertura.xml");
     }

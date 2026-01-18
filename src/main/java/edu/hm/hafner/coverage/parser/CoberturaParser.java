@@ -170,6 +170,8 @@ public class CoberturaParser extends CoverageParser {
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
 
+        var coveragePerLine = new java.util.HashMap<Integer, Coverage>();
+
         while (reader.hasNext()) {
             var event = reader.nextEvent();
 
@@ -193,7 +195,7 @@ public class CoberturaParser extends CoverageParser {
 
                     if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
-                        fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
+                        coveragePerLine.merge(lineNumber, coverage, Coverage::add);
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
@@ -203,6 +205,9 @@ public class CoberturaParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
+                    coveragePerLine.forEach((lineNumber, coverage) ->
+                            fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+
                     node.addValue(lineCoverage);
                     if (branchCoverage.isSet()) {
                         node.addValue(branchCoverage);

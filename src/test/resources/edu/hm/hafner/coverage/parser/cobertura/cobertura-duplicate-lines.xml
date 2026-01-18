@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="10" lines-covered="7" line-rate="0.7" branches-valid="12" branches-covered="7" branch-rate="0.583"
+          timestamp="1394890504210" complexity="0" version="0.1">
+    <sources>
+        <source>/path/to/project</source>
+    </sources>
+    <packages>
+        <package name="test" line-rate="0.7" branch-rate="0.583">
+            <classes>
+                <class name="foobar.cc" filename="path/to/foobar.cc" line-rate="0.7244729344729344" branch-rate="0.5619730941704036" complexity="0.0">
+                    <methods>
+                        <method name="templateFunction" hits="62" signature="()V">
+                            <lines>
+                                <!-- Multiple lines with the same line number 81 for templated code -->
+                                <line number="81" hits="0" branch="false"/>
+                                <line number="81" hits="14" branch="false"/>
+                                <line number="81" hits="0" branch="false"/>
+                                
+                                <!-- Multiple lines with the same line number 82 with different branch coverage -->
+                                <line number="82" hits="28" branch="true" condition-coverage="50% (2/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="50%"/>
+                                    </conditions>
+                                </line>
+                                <line number="82" hits="34" branch="true" condition-coverage="25% (1/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="25%"/>
+                                    </conditions>
+                                </line>
+                                <line number="82" hits="20" branch="true" condition-coverage="50% (2/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="50%"/>
+                                    </conditions>
+                                </line>
+                                
+                                <!-- Regular single line -->
+                                <line number="83" hits="15" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <!-- Multiple lines with the same line number 81 for templated code -->
+                        <line number="81" hits="0" branch="false"/>
+                        <line number="81" hits="14" branch="false"/>
+                        <line number="81" hits="0" branch="false"/>
+                        
+                        <!-- Multiple lines with the same line number 82 with different branch coverage -->
+                        <line number="82" hits="28" branch="true" condition-coverage="50% (2/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="50%"/>
+                            </conditions>
+                        </line>
+                        <line number="82" hits="34" branch="true" condition-coverage="25% (1/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="25%"/>
+                            </conditions>
+                        </line>
+                        <line number="82" hits="20" branch="true" condition-coverage="50% (2/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="50%"/>
+                            </conditions>
+                        </line>
+                        
+                        <!-- Regular single line -->
+                        <line number="83" hits="15" branch="false"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+    </packages>
+</coverage>
