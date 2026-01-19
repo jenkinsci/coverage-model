@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<?xml-stylesheet type="text/xsl" href="t32transform.xsl"?>
+<TRACE32 file="D:\T32\demo\coverage\multi_file_report\report_2025-11-05\coverage_riscv_rv32\main\index.xml">
+	<coverage>
+		<COVerage.EXPORT.ListFunc ts="1762355865" t32ver="S.2025.10.000184368" t32pv="RISCV" cpu="RV32" metric="call">
+			<module>
+				<addrFrom>P:80000098</addrFrom>
+				<addrTo>P:800000AF</addrTo>
+				<tree>\\main</tree>
+				<cov>incomplete</cov>
+				<exec metric="call">83.333%</exec>
+				<functions>1</functions>
+				<functionsok>0</functionsok>
+				<bytes>24</bytes>
+				<bytesok>20</bytesok>
+				<function>
+					<addrFrom>P:80000098</addrFrom>
+					<addrTo>P:800000AF</addrTo>
+					<tree uid="p-80000098-800000af">\\main\main</tree>
+					<cov>incomplete</cov>
+					<exec metric="call">83.333%</exec>
+					<functions>1</functions>
+					<functionsok>0</functionsok>
+					<bytes>24</bytes>
+					<bytesok>20</bytesok>
+				</function>
+				<total>
+					<cov>incomplete</cov>
+					<exec metric="call">83.333%</exec>
+					<functions>1</functions>
+					<functionsok>0</functionsok>
+					<bytes>24</bytes>
+					<bytesok>20</bytesok>
+				</total>
+			</module>
+			<total>
+				<cov>incomplete</cov>
+				<exec metric="call">83.333%</exec>
+				<functions>1</functions>
+				<functionsok>0</functionsok>
+				<bytes>24</bytes>
+				<bytesok>20</bytesok>
+			</total>
+		</COVerage.EXPORT.ListFunc>
+	</coverage>
+	<marker>
+		<BookMark.EXPORT ts="1762355865" t32ver="S.2025.10.000184368" t32pv="RISCV" cpu="RV32">
+		</BookMark.EXPORT>
+	</marker>
+</TRACE32>
