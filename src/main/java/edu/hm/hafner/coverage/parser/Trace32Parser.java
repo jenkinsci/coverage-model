@@ -116,7 +116,11 @@ public class Trace32Parser extends CoverageParser {
 
         // Parse main file
         try {
-            parseFile(root, '.' + File.separatorChar + fileName, Optional.of(reader), log);
+            var filePath = fileName;
+            if (Paths.get(fileName).getParent() == null) {
+                filePath = "." + File.separator + fileName;
+            }
+            parseFile(root, filePath, Optional.of(reader), log);
         }
         catch (XMLStreamException e) {
             throw new ParsingException(e);
