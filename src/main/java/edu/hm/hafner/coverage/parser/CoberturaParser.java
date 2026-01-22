@@ -7,6 +7,7 @@ import javax.xml.stream.events.StartElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import java.util.HashMap;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
@@ -170,7 +171,7 @@ public class CoberturaParser extends CoverageParser {
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
 
-        var coveragePerLine = new java.util.HashMap<Integer, Coverage>();
+        var coveragePerLine = new HashMap<Integer, Coverage>();
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
