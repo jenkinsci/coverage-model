@@ -36,6 +36,22 @@
                                 
                                 <!-- Regular single line -->
                                 <line number="83" hits="15" branch="false"/>
+                                
+                                <!-- Test case: all duplicates not covered -->
+                                <line number="84" hits="0" branch="false"/>
+                                <line number="84" hits="0" branch="false"/>
+                                
+                                <!-- Test case: equal branch coverage, should keep existing -->
+                                <line number="85" hits="10" branch="true" condition-coverage="50% (1/2)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="50%"/>
+                                    </conditions>
+                                </line>
+                                <line number="85" hits="10" branch="true" condition-coverage="50% (1/2)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="50%"/>
+                                    </conditions>
+                                </line>
                             </lines>
                         </method>
                     </methods>
@@ -64,6 +80,22 @@
                         
                         <!-- Regular single line -->
                         <line number="83" hits="15" branch="false"/>
+                        
+                        <!-- Test case: all duplicates not covered -->
+                        <line number="84" hits="0" branch="false"/>
+                        <line number="84" hits="0" branch="false"/>
+                        
+                        <!-- Test case: equal branch coverage, should keep existing -->
+                        <line number="85" hits="10" branch="true" condition-coverage="50% (1/2)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="50%"/>
+                            </conditions>
+                        </line>
+                        <line number="85" hits="10" branch="true" condition-coverage="50% (1/2)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="50%"/>
+                            </conditions>
+                        </line>
                     </lines>
                 </class>
             </classes>

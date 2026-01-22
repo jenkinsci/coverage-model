@@ -616,14 +616,25 @@ class CoberturaParserTest extends AbstractParserTest {
         
         assertThat(fileNode).hasName("foobar.cc").hasRelativePath("path/to/foobar.cc");
         
+        // Line 81: at least one entry has hits > 0 → covered
         assertThat(fileNode.getCoveredOfLine(81)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(81)).isEqualTo(0);
         
+        // Line 82: keep maximum branch coverage (2 covered)
         assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(2);
         assertThat(fileNode.getMissedOfLine(82)).isEqualTo(2);
         
+        // Line 83: single line, covered
         assertThat(fileNode.getCoveredOfLine(83)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(83)).isEqualTo(0);
+        
+        // Line 84: all duplicates not covered → not covered
+        assertThat(fileNode.getCoveredOfLine(84)).isEqualTo(0);
+        assertThat(fileNode.getMissedOfLine(84)).isEqualTo(1);
+        
+        // Line 85: equal branch coverage → keep existing
+        assertThat(fileNode.getCoveredOfLine(85)).isEqualTo(1);
+        assertThat(fileNode.getMissedOfLine(85)).isEqualTo(1);
     }
 
     private ModuleNode readExampleReport() {
