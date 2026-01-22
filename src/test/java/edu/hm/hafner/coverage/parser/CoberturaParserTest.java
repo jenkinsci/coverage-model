@@ -617,10 +617,10 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(fileNode).hasName("foobar.cc").hasRelativePath("path/to/foobar.cc");
         
         assertThat(fileNode.getCoveredOfLine(81)).isEqualTo(1);
-        assertThat(fileNode.getMissedOfLine(81)).isEqualTo(2);
+        assertThat(fileNode.getMissedOfLine(81)).isEqualTo(0);
         
-        assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(5);
-        assertThat(fileNode.getMissedOfLine(82)).isEqualTo(7);
+        assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(2);
+        assertThat(fileNode.getMissedOfLine(82)).isEqualTo(2);
         
         assertThat(fileNode.getCoveredOfLine(83)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(83)).isEqualTo(0);

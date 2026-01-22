@@ -196,7 +196,7 @@ public class CoberturaParser extends CoverageParser {
 
                     if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
-                        coveragePerLine.merge(lineNumber, coverage, Coverage::add);
+                        coveragePerLine.merge(lineNumber, coverage, this::mergeDuplicateLines);
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
@@ -218,6 +218,31 @@ public class CoberturaParser extends CoverageParser {
             }
         }
         throw createEofException(fileName);
+    }
+
+    /**
+     * Merges duplicate line coverage entries.
+     * <ul>
+     * <li>For line coverage (no branches): keeps the line as covered if any entry has hits > 0</li>
+     * <li>For branch coverage: keeps the maximum covered branches</li>
+     * </ul>
+     *
+     * @param existing the existing coverage for the line
+     * @param newCoverage the new coverage to merge
+     * @return the merged coverage
+     */
+    private Coverage mergeDuplicateLines(final Coverage existing, final Coverage newCoverage) {
+        if (existing.getTotal() == 1 && newCoverage.getTotal() == 1) {
+            if (existing.getCovered() > 0 || newCoverage.getCovered() > 0) {
+                return LINE_COVERED;
+            }
+            return LINE_MISSED;
+        }
+        
+        if (newCoverage.getCovered() > existing.getCovered()) {
+            return newCoverage;
+        }
+        return existing;
     }
 
     protected Coverage computeLineCoverage(final int coverage) {
