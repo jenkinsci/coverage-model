@@ -635,6 +635,14 @@ class CoberturaParserTest extends AbstractParserTest {
         // Line 85: equal branch coverage → keep existing
         assertThat(fileNode.getCoveredOfLine(85)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(85)).isEqualTo(1);
+        
+        // Line 86: new coverage has more covered branches → use new (3 covered)
+        assertThat(fileNode.getCoveredOfLine(86)).isEqualTo(3);
+        assertThat(fileNode.getMissedOfLine(86)).isEqualTo(1);
+        
+        // Line 87: both branch coverage with 0 covered → keep existing (0 covered)
+        assertThat(fileNode.getCoveredOfLine(87)).isEqualTo(0);
+        assertThat(fileNode.getMissedOfLine(87)).isEqualTo(4);
     }
 
     private ModuleNode readExampleReport() {

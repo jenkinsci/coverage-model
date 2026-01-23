@@ -52,6 +52,30 @@
                                         <condition number="0" type="jump" coverage="50%"/>
                                     </conditions>
                                 </line>
+                                
+                                <!-- Test case: new coverage has more covered branches than existing -->
+                                <line number="86" hits="5" branch="true" condition-coverage="25% (1/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="25%"/>
+                                    </conditions>
+                                </line>
+                                <line number="86" hits="10" branch="true" condition-coverage="75% (3/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="75%"/>
+                                    </conditions>
+                                </line>
+                                
+                                <!-- Test case: branch coverage where existing has 0 covered, new has 0 covered -->
+                                <line number="87" hits="0" branch="true" condition-coverage="0% (0/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="0%"/>
+                                    </conditions>
+                                </line>
+                                <line number="87" hits="0" branch="true" condition-coverage="0% (0/4)">
+                                    <conditions>
+                                        <condition number="0" type="jump" coverage="0%"/>
+                                    </conditions>
+                                </line>
                             </lines>
                         </method>
                     </methods>
@@ -94,6 +118,30 @@
                         <line number="85" hits="10" branch="true" condition-coverage="50% (1/2)">
                             <conditions>
                                 <condition number="0" type="jump" coverage="50%"/>
+                            </conditions>
+                        </line>
+                        
+                        <!-- Test case: new coverage has more covered branches than existing -->
+                        <line number="86" hits="5" branch="true" condition-coverage="25% (1/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="25%"/>
+                            </conditions>
+                        </line>
+                        <line number="86" hits="10" branch="true" condition-coverage="75% (3/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="75%"/>
+                            </conditions>
+                        </line>
+                        
+                        <!-- Test case: branch coverage where existing has 0 covered, new has 0 covered -->
+                        <line number="87" hits="0" branch="true" condition-coverage="0% (0/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="0%"/>
+                            </conditions>
+                        </line>
+                        <line number="87" hits="0" branch="true" condition-coverage="0% (0/4)">
+                            <conditions>
+                                <condition number="0" type="jump" coverage="0%"/>
                             </conditions>
                         </line>
                     </lines>
