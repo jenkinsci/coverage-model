@@ -184,19 +184,22 @@ public class CoberturaParser extends CoverageParser {
                     if (isBranchCoverage(nextElement)) {
                         coverage = readBranchCoverage(nextElement);
                         currentLineCoverage = computeLineCoverage(coverage.getCovered());
-
-                        branchCoverage = branchCoverage.add(coverage);
                     }
                     else {
                         int lineHits = getIntegerValueOf(nextElement, HITS);
                         currentLineCoverage = computeLineCoverage(lineHits);
                         coverage = currentLineCoverage;
                     }
-                    lineCoverage = lineCoverage.add(currentLineCoverage);
 
                     if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
                         coveragePerLine.merge(lineNumber, coverage, this::mergeDuplicateLines);
+                    }
+                    else {
+                        lineCoverage = lineCoverage.add(currentLineCoverage);
+                        if (isBranchCoverage(nextElement)) {
+                            branchCoverage = branchCoverage.add(coverage);
+                        }
                     }
                 }
                 else if (METHOD.equals(nextElement.getName())) {
@@ -206,8 +209,24 @@ public class CoberturaParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
-                    coveragePerLine.forEach((lineNumber, coverage) ->
-                            fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+                    if (CLASS.equals(endElement.getName())) {
+                        lineCoverage = Coverage.nullObject(Metric.LINE);
+                        branchCoverage = Coverage.nullObject(Metric.BRANCH);
+                        
+                        for (Coverage coverage : coveragePerLine.values()) {
+                            if (coverage.getMetric() == Metric.LINE) {
+                                lineCoverage = lineCoverage.add(coverage);
+                            }
+                            else if (coverage.getMetric() == Metric.BRANCH) {
+                                Coverage currentLineCoverage = computeLineCoverage(coverage.getCovered());
+                                lineCoverage = lineCoverage.add(currentLineCoverage);
+                                branchCoverage = branchCoverage.add(coverage);
+                            }
+                        }
+                        
+                        coveragePerLine.forEach((lineNumber, coverage) ->
+                                fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+                    }
 
                     node.addValue(lineCoverage);
                     if (branchCoverage.isSet()) {
