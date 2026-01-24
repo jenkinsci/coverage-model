@@ -178,7 +178,7 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    processLineElement(nextElement, element, coveragePerLine);
+                    processLineElement(nextElement, coveragePerLine);
                 }
                 else if (METHOD.equals(nextElement.getName())) {
                     readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
@@ -238,7 +238,7 @@ public class CoberturaParser extends CoverageParser {
         return newCoverage.getCovered() >= existing.getCovered() ? newCoverage : existing;
     }
 
-    private void processLineElement(final StartElement nextElement, final StartElement element,
+    private void processLineElement(final StartElement nextElement,
             final Map<Integer, Coverage> coveragePerLine) {
         Coverage coverage;
         if (isBranchCoverage(nextElement)) {
