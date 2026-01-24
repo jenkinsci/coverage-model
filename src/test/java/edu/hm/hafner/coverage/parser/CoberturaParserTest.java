@@ -647,8 +647,8 @@ class CoberturaParserTest extends AbstractParserTest {
         // Check overall LINE coverage for the class (should be based on merged values only)
         // Lines: 81 (covered), 82 (covered), 83 (covered), 84 (not covered), 85 (covered), 86 (covered), 87 (not covered)
         // Total: 5 covered, 2 missed = 7 total
-        var classNode = fileNode.getAll(Metric.CLASS).iterator().next();
-        assertThat(classNode.getValue(Metric.LINE))
+        var classNode = fileNode.getAll(CLASS).iterator().next();
+        assertThat(classNode.getValue(LINE))
                 .isPresent()
                 .get()
                 .isInstanceOfSatisfying(Coverage.class, 
@@ -657,7 +657,7 @@ class CoberturaParserTest extends AbstractParserTest {
         // Check overall BRANCH coverage for the class (should be based on merged values only)
         // Branches: 82 (2/4), 85 (1/2), 86 (3/4), 87 (0/4)
         // Total: 6 covered, 8 missed = 14 total
-        assertThat(classNode.getValue(Metric.BRANCH))
+        assertThat(classNode.getValue(BRANCH))
                 .isPresent()
                 .get()
                 .isInstanceOfSatisfying(Coverage.class, 
