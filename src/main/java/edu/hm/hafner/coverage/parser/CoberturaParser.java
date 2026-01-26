@@ -8,6 +8,9 @@ import javax.xml.stream.events.StartElement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -163,12 +166,11 @@ public class CoberturaParser extends CoverageParser {
     protected void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
             final Node parentNode, final StartElement element, final String fileName, final FilteredLog log)
             throws XMLStreamException {
-        var lineCoverage = Coverage.nullObject(Metric.LINE);
-        var branchCoverage = Coverage.nullObject(Metric.BRANCH);
-
         var node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
+
+        var coveragePerLine = new HashMap<Integer, Coverage>();
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
@@ -176,25 +178,7 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    Coverage coverage;
-                    Coverage currentLineCoverage;
-                    if (isBranchCoverage(nextElement)) {
-                        coverage = readBranchCoverage(nextElement);
-                        currentLineCoverage = computeLineCoverage(coverage.getCovered());
-
-                        branchCoverage = branchCoverage.add(coverage);
-                    }
-                    else {
-                        int lineHits = getIntegerValueOf(nextElement, HITS);
-                        currentLineCoverage = computeLineCoverage(lineHits);
-                        coverage = currentLineCoverage;
-                    }
-                    lineCoverage = lineCoverage.add(currentLineCoverage);
-
-                    if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
-                        int lineNumber = getIntegerValueOf(nextElement, NUMBER);
-                        fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed());
-                    }
+                    processLineElement(nextElement, coveragePerLine);
                 }
                 else if (METHOD.equals(nextElement.getName())) {
                     readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
@@ -203,15 +187,89 @@ public class CoberturaParser extends CoverageParser {
             else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
-                    node.addValue(lineCoverage);
-                    if (branchCoverage.isSet()) {
-                        node.addValue(branchCoverage);
+                    if (CLASS.equals(endElement.getName())) {
+                        coveragePerLine.forEach((lineNumber, coverage) ->
+                                fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+                    }
+
+                    var coverages = recalculateCoverageFromMergedLines(coveragePerLine);
+                    node.addValue(coverages[0]);
+                    if (coverages[1].isSet()) {
+                        node.addValue(coverages[1]);
                     }
                     return;
                 }
             }
         }
         throw createEofException(fileName);
+    }
+
+    /**
+     * Merges duplicate line coverage entries.
+     * <ul>
+     * <li>For line coverage (no branches): keeps the line as covered if any entry has hits > 0</li>
+     * <li>For branch coverage: keeps the maximum covered branches</li>
+     * </ul>
+     *
+     * @param existing the existing coverage for the line
+     * @param newCoverage the new coverage to merge
+     * @return the merged coverage
+     */
+    private Coverage mergeDuplicateLines(final Coverage existing, final Coverage newCoverage) {
+        if (isLineCoverage(existing, newCoverage)) {
+            return mergeLineCoverage(existing, newCoverage);
+        }
+        return mergeBranchCoverage(existing, newCoverage);
+    }
+
+    private boolean isLineCoverage(final Coverage existing, final Coverage newCoverage) {
+        return existing.getTotal() == 1 && newCoverage.getTotal() == 1;
+    }
+
+    private Coverage mergeLineCoverage(final Coverage existing, final Coverage newCoverage) {
+        return hasAnyCovered(existing, newCoverage) ? LINE_COVERED : LINE_MISSED;
+    }
+
+    private boolean hasAnyCovered(final Coverage existing, final Coverage newCoverage) {
+        return existing.getCovered() > 0 || newCoverage.getCovered() > 0;
+    }
+
+    private Coverage mergeBranchCoverage(final Coverage existing, final Coverage newCoverage) {
+        return newCoverage.getCovered() >= existing.getCovered() ? newCoverage : existing;
+    }
+
+    private void processLineElement(final StartElement nextElement,
+            final Map<Integer, Coverage> coveragePerLine) {
+        Coverage coverage;
+        if (isBranchCoverage(nextElement)) {
+            coverage = readBranchCoverage(nextElement);
+        }
+        else {
+            int lineHits = getIntegerValueOf(nextElement, HITS);
+            coverage = computeLineCoverage(lineHits);
+        }
+
+        int lineNumber = getIntegerValueOf(nextElement, NUMBER);
+        coveragePerLine.merge(lineNumber, coverage, this::mergeDuplicateLines);
+    }
+
+    private Coverage[] recalculateCoverageFromMergedLines(final Map<Integer, Coverage> coveragePerLine) {
+        var lineCoverage = coveragePerLine.values().stream()
+                .filter(c -> c.getMetric() == Metric.LINE)
+                .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
+        
+        var branchCoverage = coveragePerLine.values().stream()
+                .filter(c -> c.getMetric() == Metric.BRANCH)
+                .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
+        
+        var branchLineCoverage = coveragePerLine.values().stream()
+                .filter(c -> c.getMetric() == Metric.BRANCH)
+                .map(c -> computeLineCoverage(c.getCovered()))
+                .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
+        
+        lineCoverage = lineCoverage.add(branchLineCoverage);
+        
+        return new Coverage[] {lineCoverage, branchCoverage};
     }
 
     protected Coverage computeLineCoverage(final int coverage) {
