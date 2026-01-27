@@ -157,11 +157,21 @@ public class GoCovParser extends CoverageParser {
     }
 
     /**
-     * Parse a Go package path into its components.
+     * Parses a Go package path into its components.
+     * <p>
      * Examples:
-     * - "github.com/example/project/pkg/utils/file1.go" -> project: github.com/example, module: project, package: pkg.utils, file: file1.go, relativePath: pkg/utils/file1.go
-     * - "example.com/main.go" -> project: example.com, module: example.com, package: "", file: main.go, relativePath: main.go
-     * - "example/project/internal/alpha.go" -> project: example, module: project, package: internal, file: alpha.go, relativePath: internal/alpha.go
+     * <ul>
+     * <li>github.com/example/project/pkg/utils/file1.go → project: github.com/example, module: project,
+     *     package: pkg.utils, file: file1.go, relativePath: pkg/utils/file1.go</li>
+     * <li>example.com/main.go → project: example.com, module: example.com, package: "",
+     *     file: main.go, relativePath: main.go</li>
+     * <li>example/project/internal/alpha.go → project: example, module: project, package: internal,
+     *     file: alpha.go, relativePath: internal/alpha.go</li>
+     * </ul>
+     *
+     * @param fullPath
+     *         the full path from the Go coverage report
+     * @return the parsed path components
      */
     private PathParts parseGoPath(final String fullPath) {
         var normalizedPath = fullPath.replace('\\', '/');
@@ -183,34 +193,38 @@ public class GoCovParser extends CoverageParser {
             projectName = StringUtils.EMPTY;
             moduleName = StringUtils.EMPTY;
             packageStartIndex = 0;
-        } else if (parts.length == 2) {
+        } 
+        else if (parts.length == 2) {
             // domain/file.go or project/file.go
             projectName = parts[0];
             moduleName = parts[0];
             packageStartIndex = 1;
-        } else if (parts.length == 3) {
+        } 
+        else if (parts.length == 3) {
             // Could be domain/project/file.go or domain/package/file.go
             if (parts[0].contains(".")) {
-                // domain/?/file.go  
-                // Treat the middle part as a package, not a module, to handle cases like example.com/internal/file.go
+                // domain/package/file.go - treat middle part as package, not a module
+                // Example: example.com/internal/file.go
                 projectName = parts[0];
                 moduleName = parts[0];
                 packageStartIndex = 1;
-            } else {
+            } 
+            else {
                 // project/package/file.go
                 projectName = parts[0];
                 moduleName = parts[1];
                 packageStartIndex = 2;
             }
-        } else {
+        } 
+        else {
             // Longer paths: 4+ segments
             if (parts[0].contains(".")) {
-                // Starts with a domain like github.com or example.com
                 // Pattern: domain/owner/project/package.../file.go
                 projectName = parts[0] + "/" + parts[1];
                 moduleName = parts[2];
                 packageStartIndex = 3;
-            } else {
+            } 
+            else {
                 // Relative path: project/module/package.../file.go
                 projectName = parts[0];
                 moduleName = parts[1];
@@ -237,8 +251,20 @@ public class GoCovParser extends CoverageParser {
     
     /**
      * Container for parsed Go path components.
+     *
+     * @param projectName
+     *         the project name (usually domain/owner or just domain)
+     * @param moduleName
+     *         the module name (usually the repository or project name)
+     * @param packagePath
+     *         the package path (directories between module and file, dot-separated)
+     * @param fileName
+     *         the file name
+     * @param relativePath
+     *         the relative path from module root (slash-separated)
      */
-    private record PathParts(String projectName, String moduleName, String packagePath, String fileName, String relativePath) {
+    private record PathParts(String projectName, String moduleName, String packagePath, String fileName,
+                             String relativePath) {
     }
 
     private void buildCoverages(final Set<FileNode> files,
