@@ -40,15 +40,20 @@ public class GoCovParser extends CoverageParser {
     private static final long serialVersionUID = -4511292826873362408L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
+    
+    /**
+     * Pattern to match Go coverage lines.
+     * Format: package/path/to/file.go:lineStart.columnStart,lineEnd.columnEnd statements executions
+     * Examples:
+     * - github.com/example/project/pkg/utils/file1.go:5.12,8.22 3 1
+     * - example.com/main.go:3.16,5.2 1 1
+     * - project/internal/file.go:10.1,12.3 2 1
+     */
     private static final Pattern LINE_PATTERN = Pattern.compile(
-            "(?:(?<org>[^/\\\\:]+\\.[^/\\\\:]+)[/\\\\])?"
-                    + "(?<project>[^/\\\\:]+)[/\\\\]"
-                    + "(?<module>[^/\\\\:]+)[/\\\\]"
-                    + "(?<package>.*[/\\\\]?.*)[/\\\\]"
-                    + "(?<file>[^/\\\\:]+):"
+            "(?<fullPath>[^:]+):"
                     + "(?<lineStart>\\d+)\\.(?<columnStart>\\d+),"
-                    + "(?<lineEnd>\\d+)\\.(?<columnEnd>\\d+)\\s*"
-                    + "(?<statements>\\d+)\\s*"
+                    + "(?<lineEnd>\\d+)\\.(?<columnEnd>\\d+)\\s+"
+                    + "(?<statements>\\d+)\\s+"
                     + "(?<executions>\\d+)");
 
     /**
@@ -87,9 +92,17 @@ public class GoCovParser extends CoverageParser {
                 var line = stream.next();
                 var matcher = LINE_PATTERN.matcher(line);
                 if (matcher.find()) {
-                    projectName = getOrganisation(matcher) + matcher.group("project");
+                    var fullPath = matcher.group("fullPath");
+                    var pathParts = parseGoPath(fullPath);
+                    
+                    // Use parsed project name
+                    if (projectName.isEmpty() && !pathParts.projectName.isEmpty()) {
+                        projectName = pathParts.projectName;
+                    }
 
-                    var moduleName = matcher.group("module");
+                    // Find or create module
+                    var moduleName = pathParts.moduleName.isEmpty() ? projectName : pathParts.moduleName;
+                    
                     var possibleModule = modules.stream()
                             .filter(m -> m.getName().equals(moduleName))
                             .findFirst();
@@ -102,12 +115,15 @@ public class GoCovParser extends CoverageParser {
                         module = possibleModule.get();
                     }
 
-                    var packageName = matcher.group("package");
+                    // Package is everything between module and file
+                    var packageName = pathParts.packagePath;
                     var packageNode = module.findOrCreatePackageNode(packageName);
 
-                    var file = matcher.group("file");
-                    var fileNode = packageNode.findOrCreateFileNode(file,
-                            builder.intern(PATH_UTIL.getRelativePath(Path.of(packageName, file))));
+                    // File name and relative path
+                    var fileName = pathParts.fileName;
+                    var relativePath = pathParts.relativePath;
+                    var fileNode = packageNode.findOrCreateFileNode(fileName,
+                            builder.intern(PATH_UTIL.getRelativePath(Path.of(relativePath))));
 
                     var instructions = asInt(matcher, "statements");
                     var range = new LineRange(asInt(matcher, "lineStart"), asInt(matcher, "lineEnd"));
@@ -140,12 +156,89 @@ public class GoCovParser extends CoverageParser {
         }
     }
 
-    private String getOrganisation(final Matcher matcher) {
-        var org = matcher.group("org");
-        if (org == null) {
-            return StringUtils.EMPTY;
+    /**
+     * Parse a Go package path into its components.
+     * Examples:
+     * - "github.com/example/project/pkg/utils/file1.go" -> project: github.com/example, module: project, package: pkg.utils, file: file1.go, relativePath: pkg/utils/file1.go
+     * - "example.com/main.go" -> project: example.com, module: example.com, package: "", file: main.go, relativePath: main.go
+     * - "example/project/internal/alpha.go" -> project: example, module: project, package: internal, file: alpha.go, relativePath: internal/alpha.go
+     */
+    private PathParts parseGoPath(final String fullPath) {
+        var normalizedPath = fullPath.replace('\\', '/');
+        var parts = normalizedPath.split("/");
+        
+        if (parts.length == 0) {
+            return new PathParts(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY);
         }
-        return org + "/";
+        
+        var fileName = parts[parts.length - 1];
+        
+        // Determine project and module boundaries
+        String projectName;
+        String moduleName;
+        int packageStartIndex;
+        
+        if (parts.length == 1) {
+            // Just a file: file.go
+            projectName = StringUtils.EMPTY;
+            moduleName = StringUtils.EMPTY;
+            packageStartIndex = 0;
+        } else if (parts.length == 2) {
+            // domain/file.go or project/file.go
+            projectName = parts[0];
+            moduleName = parts[0];
+            packageStartIndex = 1;
+        } else if (parts.length == 3) {
+            // Could be domain/project/file.go or domain/package/file.go
+            if (parts[0].contains(".")) {
+                // domain/?/file.go  
+                // Treat the middle part as a package, not a module, to handle cases like example.com/internal/file.go
+                projectName = parts[0];
+                moduleName = parts[0];
+                packageStartIndex = 1;
+            } else {
+                // project/package/file.go
+                projectName = parts[0];
+                moduleName = parts[1];
+                packageStartIndex = 2;
+            }
+        } else {
+            // Longer paths: 4+ segments
+            if (parts[0].contains(".")) {
+                // Starts with a domain like github.com or example.com
+                // Pattern: domain/owner/project/package.../file.go
+                projectName = parts[0] + "/" + parts[1];
+                moduleName = parts[2];
+                packageStartIndex = 3;
+            } else {
+                // Relative path: project/module/package.../file.go
+                projectName = parts[0];
+                moduleName = parts[1];
+                packageStartIndex = 2;
+            }
+        }
+        
+        // Everything between module and file is the package path
+        var packageParts = new ArrayList<String>();
+        for (int i = packageStartIndex; i < parts.length - 1; i++) {
+            packageParts.add(parts[i]);
+        }
+        var packagePath = String.join(".", packageParts);
+        
+        // Relative path is everything after the module
+        var relativePathParts = new ArrayList<String>();
+        for (int i = packageStartIndex; i < parts.length; i++) {
+            relativePathParts.add(parts[i]);
+        }
+        var relativePath = String.join("/", relativePathParts);
+        
+        return new PathParts(projectName, moduleName, packagePath, fileName, relativePath);
+    }
+    
+    /**
+     * Container for parsed Go path components.
+     */
+    private record PathParts(String projectName, String moduleName, String packagePath, String fileName, String relativePath) {
     }
 
     private void buildCoverages(final Set<FileNode> files,
