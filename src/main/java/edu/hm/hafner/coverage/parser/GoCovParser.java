@@ -40,14 +40,9 @@ public class GoCovParser extends CoverageParser {
     private static final long serialVersionUID = -4511292826873362408L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
-    
-    /**
-     * Pattern to match Go coverage lines.
-     * Format: package/path/to/file.go:lineStart.columnStart,lineEnd.columnEnd statements executions
-     * Examples:
-     * - github.com/example/project/pkg/utils/file1.go:5.12,8.22 3 1
-     * - example.com/main.go:3.16,5.2 1 1
-     * - project/internal/file.go:10.1,12.3 2 1
+
+    /** 
+     * Pattern to match Go coverage lines: path/file.go:line.col,line.col statements executions. 
      */
     private static final Pattern LINE_PATTERN = Pattern.compile(
             "(?<fullPath>[^:]+):"
@@ -153,20 +148,9 @@ public class GoCovParser extends CoverageParser {
     }
 
     /**
-     * Parses a Go package path into its components.
-     * <p>
-     * Examples:
-     * <ul>
-     * <li>github.com/example/project/pkg/utils/file1.go → project: github.com/example, module: project,
-     *     package: pkg.utils, file: file1.go, relativePath: pkg/utils/file1.go</li>
-     * <li>example.com/main.go → project: example.com, module: example.com, package: "",
-     *     file: main.go, relativePath: main.go</li>
-     * <li>example/project/internal/alpha.go → project: example, module: project, package: internal,
-     *     file: alpha.go, relativePath: internal/alpha.go</li>
-     * </ul>
+     * Parses a Go package path into project, module, package, and file components.
      *
-     * @param fullPath
-     *         the full path from the Go coverage report
+     * @param fullPath the full path from the Go coverage report
      * @return the parsed path components
      */
     private PathParts parseGoPath(final String fullPath) {
