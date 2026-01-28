@@ -125,21 +125,17 @@ class GoCovParserTest extends AbstractParserTest {
 
     @Test
     void shouldHandleSimplePaths() {
-        // Test for issue #263: simple paths like example.com/main.go
         var report = readReport("go-simple-path.out");
 
         assertThat(report).hasName("example.com");
 
-        // Should have one module (example.com)
         assertThat(report.aggregateValues()).contains(
                 new CoverageBuilder().withMetric(MODULE).withCovered(2).withTotal(2).build());
 
-        // Should have two packages: root package ("-") and internal
         assertThat(report.getAll(PACKAGE)).hasSize(2)
                 .map(Node::getName)
                 .containsExactlyInAnyOrder("-", "internal");
 
-        // Should have correct file paths preserved
         assertThat(report.getFiles()).containsExactlyInAnyOrder(
                 "example.go",
                 "internal/helper.go");
@@ -151,7 +147,6 @@ class GoCovParserTest extends AbstractParserTest {
                 builder.withMetric(LINE).withCovered(6).withTotal(12).build(),
                 builder.withMetric(INSTRUCTION).withCovered(2).withTotal(4).build());
 
-        // Verify file details
         assertThat(report.getAllFileNodes()).satisfiesExactlyInAnyOrder(
                 one -> assertThat(one).hasName("example.go")
                         .hasCoveredLines(3, 4, 5)

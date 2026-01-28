@@ -95,12 +95,10 @@ public class GoCovParser extends CoverageParser {
                     var fullPath = matcher.group("fullPath");
                     var pathParts = parseGoPath(fullPath);
                     
-                    // Use parsed project name
                     if (projectName.isEmpty() && !pathParts.projectName.isEmpty()) {
                         projectName = pathParts.projectName;
                     }
 
-                    // Find or create module
                     var moduleName = pathParts.moduleName.isEmpty() ? projectName : pathParts.moduleName;
                     
                     var possibleModule = modules.stream()
@@ -115,11 +113,9 @@ public class GoCovParser extends CoverageParser {
                         module = possibleModule.get();
                     }
 
-                    // Package is everything between module and file
                     var packageName = pathParts.packagePath;
                     var packageNode = module.findOrCreatePackageNode(packageName);
 
-                    // File name and relative path
                     var fileName = pathParts.fileName;
                     var relativePath = pathParts.relativePath;
                     var fileNode = packageNode.findOrCreateFileNode(fileName,
@@ -183,63 +179,51 @@ public class GoCovParser extends CoverageParser {
         
         var fileName = parts[parts.length - 1];
         
-        // Determine project and module boundaries
         String projectName;
         String moduleName;
         int packageStartIndex;
         
         if (parts.length == 1) {
-            // Just a file: file.go
             projectName = StringUtils.EMPTY;
             moduleName = StringUtils.EMPTY;
             packageStartIndex = 0;
         } 
         else if (parts.length == 2) {
-            // domain/file.go or project/file.go
             projectName = parts[0];
             moduleName = parts[0];
             packageStartIndex = 1;
         } 
         else if (parts.length == 3) {
-            // Could be domain/project/file.go or domain/package/file.go
             if (parts[0].contains(".")) {
-                // domain/package/file.go - treat middle part as package, not a module
-                // Example: example.com/internal/file.go
                 projectName = parts[0];
                 moduleName = parts[0];
                 packageStartIndex = 1;
             } 
             else {
-                // project/package/file.go
                 projectName = parts[0];
                 moduleName = parts[1];
                 packageStartIndex = 2;
             }
         } 
         else {
-            // Longer paths: 4+ segments
             if (parts[0].contains(".")) {
-                // Pattern: domain/owner/project/package.../file.go
                 projectName = parts[0] + "/" + parts[1];
                 moduleName = parts[2];
                 packageStartIndex = 3;
             } 
             else {
-                // Relative path: project/module/package.../file.go
                 projectName = parts[0];
                 moduleName = parts[1];
                 packageStartIndex = 2;
             }
         }
         
-        // Everything between module and file is the package path
         var packageParts = new ArrayList<String>();
         for (int i = packageStartIndex; i < parts.length - 1; i++) {
             packageParts.add(parts[i]);
         }
         var packagePath = String.join(".", packageParts);
         
-        // Relative path is everything after the module
         var relativePathParts = new ArrayList<String>();
         for (int i = packageStartIndex; i < parts.length; i++) {
             relativePathParts.add(parts[i]);
