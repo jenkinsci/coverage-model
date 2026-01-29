@@ -200,20 +200,13 @@ public class GoCovParser extends CoverageParser {
                 .collect(Collectors.joining("/"));
     }
 
-    private record PathInfo(String projectName, String moduleName, int packageStartIndex) {
-    }
-
-    /**
-     * Container for parsed Go path components.
-     *
-     * @param projectName the project name (usually domain/owner or just domain)
-     * @param moduleName the module name (usually the repository or project name)
-     * @param packagePath the package path (directories between module and file, dot-separated)
-     * @param fileName the file name
-     * @param relativePath the relative path from module root (slash-separated)
-     */
-    private record PathParts(String projectName, String moduleName, String packagePath, String fileName,
-                             String relativePath) {
+    private int asInt(final Matcher matcher, final String group) {
+        try {
+            return Integer.parseInt(matcher.group(group));
+        }
+        catch (NumberFormatException exception) {
+            return 0;
+        }
     }
 
     /**
@@ -277,12 +270,19 @@ public class GoCovParser extends CoverageParser {
         }
     }
 
-    private int asInt(final Matcher matcher, final String group) {
-        try {
-            return Integer.parseInt(matcher.group(group));
-        }
-        catch (NumberFormatException exception) {
-            return 0;
-        }
+    private record PathInfo(String projectName, String moduleName, int packageStartIndex) {
+    }
+
+    /**
+     * Container for parsed Go path components.
+     *
+     * @param projectName the project name (usually domain/owner or just domain)
+     * @param moduleName the module name (usually the repository or project name)
+     * @param packagePath the package path (directories between module and file, dot-separated)
+     * @param fileName the file name
+     * @param relativePath the relative path from module root (slash-separated)
+     */
+    private record PathParts(String projectName, String moduleName, String packagePath, String fileName,
+                             String relativePath) {
     }
 }
