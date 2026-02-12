@@ -205,6 +205,7 @@ public class GoCovParser extends CoverageParser {
      * @param moduleInfo the matched module information
      * @return parsed path components
      */
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
         var moduleName = moduleInfo.name();
         var parts = Arrays.asList(PATH_SEPARATOR.split(fullPath));
@@ -239,23 +240,8 @@ public class GoCovParser extends CoverageParser {
     }
 
     /**
-     * Determines the path structure of a Go package path using heuristics.
-     * This is a fallback method used when no module information is available from go.mod files.
-     *
-     * <p><b>Limitation:</b> This heuristic approach cannot correctly handle
-     * all cases because Go module names can have arbitrary depth (e.g., "a", "a/b", "a/b/c/d/e/f/g").
-     * The reliable way to determine module boundaries is by parsing {@code go.mod} files and using
-     * longest-prefix matching, which is implemented in {@link ModuleRegistry}.</p>
-     *
-     * <p>Current heuristic rules (used as fallback only):</p>
-     * <ul>
-     *   <li>Single part (file.go): No module/project structure</li>
-     *   <li>2-3 parts (module/file.go or module/pkg/file.go): First part is both project and module</li>
-     *   <li>First part contains dot (domain.com/project/module/file.go): Assumes org/project/module structure</li>
-     *   <li>Otherwise (project/module/pkg/file.go): First part is project, second is module</li>
-     * </ul>
-     *
-     * <p>For accurate parsing, provide module information via {@link ModuleRegistry} in the constructor.</p>
+     * Determines path structure using heuristics. Fallback when no {@link ModuleRegistry} is available.
+     * Note: Cannot handle arbitrary Go module depths; use ModuleRegistry for accurate parsing.
      *
      * @param parts the path segments split by '/'
      * @return path information containing project name, module name, and package start index
