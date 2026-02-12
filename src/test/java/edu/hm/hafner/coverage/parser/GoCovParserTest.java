@@ -155,4 +155,25 @@ class GoCovParserTest extends AbstractParserTest {
                         .hasCoveredLines(5, 6, 7)
                         .hasMissedLines(9, 10, 11));
     }
+
+    @Test
+    void shouldHandleDemoExample() {
+        var report = readReport("go-demo.coverprofile");
+
+        assertThat(report).hasName("ext");
+
+        assertThat(report.aggregateValues()).contains(
+                new CoverageBuilder().withMetric(MODULE).withCovered(3).withTotal(3).build());
+
+        assertThat(report.getAll(PACKAGE)).hasSize(4);
+        
+        assertThat(report.getFiles()).containsExactlyInAnyOrder(
+                "sum.go",
+                "stat/minmax.go",
+                "main.go",
+                "cpu/main.go");
+
+        assertThat(report.getAllFileNodes()).map(FileNode::getFileName).containsExactlyInAnyOrder(
+                "sum.go", "minmax.go", "main.go", "main.go");
+    }
 }

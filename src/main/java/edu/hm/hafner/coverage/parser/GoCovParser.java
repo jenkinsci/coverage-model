@@ -184,7 +184,7 @@ public class GoCovParser extends CoverageParser {
         if (parts.size() == 3) {
             return parts.get(0).contains(".")
                     ? new PathInfo(parts.get(0), parts.get(0), 1)
-                    : new PathInfo(parts.get(0), parts.get(1), 2);
+                    : new PathInfo(parts.get(0), parts.get(0), 1);
         }
         return parts.get(0).contains(".")
                 ? new PathInfo(parts.get(0) + "/" + parts.get(1), parts.get(2), 3)
