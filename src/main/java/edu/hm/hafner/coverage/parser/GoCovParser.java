@@ -94,14 +94,18 @@ public class GoCovParser extends CoverageParser {
                 var stream = new LookaheadStream(lines, reportFile)) {
             var fileData = new FileDataCollector();
             var modules = new HashSet<ModuleNode>();
-            var projectName = StringUtils.EMPTY;
+            var containerName = new StringBuilder();
             var builder = new TreeStringBuilder();
 
             while (stream.hasNext()) {
                 var line = stream.next();
                 var matcher = LINE_PATTERN.matcher(line);
                 if (matcher.find()) {
-                    projectName = processLine(matcher, modules, projectName, builder, fileData);
+                    var fullPath = matcher.group("fullPath");
+                    if (containerName.isEmpty()) {
+                        containerName.append(determineContainerName(fullPath));
+                    }
+                    processLine(matcher, modules, builder, fileData);
                 }
             }
 
@@ -109,7 +113,7 @@ public class GoCovParser extends CoverageParser {
             fileData.buildCoverages();
             handleEmptyResults(reportFile, log, modules.isEmpty());
 
-            var container = new ModuleNode(projectName);
+            var container = new ModuleNode(containerName.isEmpty() ? StringUtils.EMPTY : containerName.toString());
             container.addAllChildren(modules);
             return container;
         }
@@ -118,16 +122,27 @@ public class GoCovParser extends CoverageParser {
         }
     }
 
-    private String processLine(final Matcher matcher, final Set<ModuleNode> modules, final String projectName,
+    private String determineContainerName(final String fullPath) {
+        var normalizedPath = fullPath.replace('\\', '/');
+        var parts = Arrays.stream(PATH_SEPARATOR.split(normalizedPath)).toList();
+        
+        if (parts.isEmpty()) {
+            return StringUtils.EMPTY;
+        }
+        
+        if (parts.size() >= 3 && parts.get(0).contains(".")) {
+            return parts.get(0) + "/" + parts.get(1);
+        }
+        
+        return parts.get(0);
+    }
+
+    private void processLine(final Matcher matcher, final Set<ModuleNode> modules,
             final TreeStringBuilder builder, final FileDataCollector fileData) {
         var fullPath = matcher.group("fullPath");
         var pathParts = parseGoPath(fullPath);
 
-        var updatedProjectName = projectName.isEmpty() && !pathParts.projectName.isEmpty()
-                ? pathParts.projectName
-                : projectName;
-
-        var moduleName = pathParts.moduleName.isEmpty() ? updatedProjectName : pathParts.moduleName;
+        var moduleName = pathParts.moduleName;
         var module = findOrCreateModule(modules, moduleName);
         if (module == null) {
             module = new ModuleNode(moduleName);
@@ -140,8 +155,6 @@ public class GoCovParser extends CoverageParser {
 
         fileData.addFile(fileNode);
         recordCoverage(matcher, fileNode, fileData);
-
-        return updatedProjectName;
     }
 
     @CheckForNull
@@ -166,7 +179,7 @@ public class GoCovParser extends CoverageParser {
     }
 
     /**
-     * Parses a Go package path into project, module, package, and file components.
+     * Parses a Go package path into module, package, and file components.
      * Uses module registry for accurate module detection via longest-prefix matching when available.
      *
      * @param fullPath the full path from the Go coverage report
@@ -183,7 +196,7 @@ public class GoCovParser extends CoverageParser {
         var parts = Arrays.stream(PATH_SEPARATOR.split(normalizedPath)).toList();
 
         if (parts.isEmpty()) {
-            return new PathParts(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, 
+            return new PathParts(StringUtils.EMPTY, StringUtils.EMPTY, 
                     StringUtils.EMPTY, StringUtils.EMPTY);
         }
 
@@ -193,7 +206,7 @@ public class GoCovParser extends CoverageParser {
         var packagePath = buildPackagePath(parts, pathInfo.packageStartIndex());
         var relativePath = buildRelativePath(parts, pathInfo.packageStartIndex());
 
-        return new PathParts(pathInfo.projectName(), pathInfo.moduleName(), packagePath, fileName, relativePath);
+        return new PathParts(pathInfo.moduleName(), packagePath, fileName, relativePath);
     }
 
     /**
@@ -205,7 +218,6 @@ public class GoCovParser extends CoverageParser {
      * @param moduleInfo the matched module information
      * @return parsed path components
      */
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
         var moduleName = moduleInfo.name();
         var parts = Arrays.stream(PATH_SEPARATOR.split(fullPath)).toList();
@@ -233,10 +245,7 @@ public class GoCovParser extends CoverageParser {
             packagePath = StringUtils.EMPTY;
         }
         
-        var moduleParts = Arrays.stream(PATH_SEPARATOR.split(moduleName)).toList();
-        var projectName = moduleParts.isEmpty() ? moduleName : moduleParts.get(0);
-        
-        return new PathParts(projectName, moduleName, packagePath, fileName, relativePath);
+        return new PathParts(moduleName, packagePath, fileName, relativePath);
     }
 
     /**
@@ -244,19 +253,18 @@ public class GoCovParser extends CoverageParser {
      * Note: Cannot handle arbitrary Go module depths; use ModuleRegistry for accurate parsing.
      *
      * @param parts the path segments split by '/'
-     * @return path information containing project name, module name, and package start index
+     * @return path information containing module name and package start index
      */
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathInfo determinePathStructure(final List<String> parts) {
         if (parts.size() == 1) {
-            return new PathInfo(StringUtils.EMPTY, StringUtils.EMPTY, 0);
+            return new PathInfo(StringUtils.EMPTY, 0);
         }
         if (parts.size() == 2 || parts.size() == 3) {
-            return new PathInfo(parts.get(0), parts.get(0), 1);
+            return new PathInfo(parts.get(0), 1);
         }
         return parts.get(0).contains(".")
-                ? new PathInfo(parts.get(0) + "/" + parts.get(1), parts.get(2), 3)
-                : new PathInfo(parts.get(0), parts.get(1), 2);
+                ? new PathInfo(parts.get(2), 3)
+                : new PathInfo(parts.get(1), 2);
     }
 
     private String buildPackagePath(final List<String> parts, final int startIndex) {
@@ -342,19 +350,18 @@ public class GoCovParser extends CoverageParser {
         }
     }
 
-    private record PathInfo(String projectName, String moduleName, int packageStartIndex) {
+    private record PathInfo(String moduleName, int packageStartIndex) {
     }
 
     /**
      * Container for parsed Go path components.
      *
-     * @param projectName the project name (usually domain/owner or just domain)
      * @param moduleName the module name (usually the repository or project name)
      * @param packagePath the package path (directories between module and file, dot-separated)
      * @param fileName the file name
      * @param relativePath the relative path from module root (slash-separated)
      */
-    private record PathParts(String projectName, String moduleName, String packagePath, String fileName,
+    private record PathParts(String moduleName, String packagePath, String fileName,
                              String relativePath) {
     }
 
@@ -366,7 +373,7 @@ public class GoCovParser extends CoverageParser {
         @Serial
         private static final long serialVersionUID = 1L;
         
-        private final ArrayList<ModuleInfo> modules;
+        private final List<ModuleInfo> modules;
 
         /**
          * Creates an empty module registry.
@@ -405,8 +412,8 @@ public class GoCovParser extends CoverageParser {
          * @param modulePath the relative path where this module is located
          */
         public void parseAndAddGoMod(final String goModContent, final String modulePath) {
-            for (String line : goModContent.lines().toList()) {
-                line = line.trim();
+            for (String rawLine : goModContent.lines().toList()) {
+                var line = rawLine.trim();
                 if (line.isEmpty() || line.startsWith("//")) {
                     continue;
                 }
