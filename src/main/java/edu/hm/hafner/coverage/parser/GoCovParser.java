@@ -180,7 +180,7 @@ public class GoCovParser extends CoverageParser {
             return createPathPartsFromModule(normalizedPath, moduleMatch);
         }
         
-        var parts = Arrays.asList(PATH_SEPARATOR.split(normalizedPath));
+        var parts = Arrays.stream(PATH_SEPARATOR.split(normalizedPath)).toList();
 
         if (parts.isEmpty()) {
             return new PathParts(StringUtils.EMPTY, StringUtils.EMPTY, StringUtils.EMPTY, 
@@ -208,7 +208,7 @@ public class GoCovParser extends CoverageParser {
     @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
         var moduleName = moduleInfo.name();
-        var parts = Arrays.asList(PATH_SEPARATOR.split(fullPath));
+        var parts = Arrays.stream(PATH_SEPARATOR.split(fullPath)).toList();
         var fileName = parts.get(parts.size() - 1);
         
         String relativePath;
@@ -216,7 +216,7 @@ public class GoCovParser extends CoverageParser {
         
         if (fullPath.startsWith(moduleName + "/")) {
             relativePath = fullPath.substring(moduleName.length() + 1);
-            var relParts = Arrays.asList(PATH_SEPARATOR.split(relativePath));
+            var relParts = Arrays.stream(PATH_SEPARATOR.split(relativePath)).toList();
             if (relParts.size() > 1) {
                 packagePath = String.join(".", relParts.subList(0, relParts.size() - 1));
             } 
@@ -233,8 +233,8 @@ public class GoCovParser extends CoverageParser {
             packagePath = StringUtils.EMPTY;
         }
         
-        var moduleparts = Arrays.asList(PATH_SEPARATOR.split(moduleName));
-        var projectName = moduleparts.isEmpty() ? moduleName : moduleparts.get(0);
+        var moduleParts = Arrays.stream(PATH_SEPARATOR.split(moduleName)).toList();
+        var projectName = moduleParts.isEmpty() ? moduleName : moduleParts.get(0);
         
         return new PathParts(projectName, moduleName, packagePath, fileName, relativePath);
     }
@@ -398,18 +398,30 @@ public class GoCovParser extends CoverageParser {
 
         /**
          * Parses a go.mod file and extracts the module name.
+         * According to Go spec, there should be exactly one module declaration per go.mod file.
+         * This implementation processes only the first module line found and handles inline comments.
          *
          * @param goModContent the content of the go.mod file
          * @param modulePath the relative path where this module is located
          */
         public void parseAndAddGoMod(final String goModContent, final String modulePath) {
-            var lines = goModContent.lines();
-            lines.forEach(line -> {
+            for (String line : goModContent.lines().toList()) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("//")) {
+                    continue;
+                }
+                
                 var matcher = GO_MOD_MODULE_PATTERN.matcher(line);
                 if (matcher.find()) {
-                    addModule(matcher.group(1), modulePath);
+                    String moduleName = matcher.group(1);
+                    int commentIndex = moduleName.indexOf("//");
+                    if (commentIndex >= 0) {
+                        moduleName = moduleName.substring(0, commentIndex).trim();
+                    }
+                    addModule(moduleName, modulePath);
+                    break;
                 }
-            });
+            }
         }
 
         /**
