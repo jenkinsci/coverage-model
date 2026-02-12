@@ -12,6 +12,7 @@ import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LookaheadStream;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeStringBuilder;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,8 +42,6 @@ public class GoCovParser extends CoverageParser {
     private static final long serialVersionUID = -4511292826873362408L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
-    private static final int PATH_LENGTH_TWO = 2;
-    private static final int PATH_LENGTH_THREE = 3;
     private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
 
     /** 
@@ -114,6 +113,10 @@ public class GoCovParser extends CoverageParser {
 
         var moduleName = pathParts.moduleName.isEmpty() ? updatedProjectName : pathParts.moduleName;
         var module = findOrCreateModule(modules, moduleName);
+        if (module == null) {
+            module = new ModuleNode(moduleName);
+            modules.add(module);
+        }
 
         var packageNode = module.findOrCreatePackageNode(pathParts.packagePath);
         var fileNode = packageNode.findOrCreateFileNode(pathParts.fileName,
@@ -125,15 +128,12 @@ public class GoCovParser extends CoverageParser {
         return updatedProjectName;
     }
 
+    @CheckForNull
     private ModuleNode findOrCreateModule(final Set<ModuleNode> modules, final String moduleName) {
         return modules.stream()
                 .filter(m -> m.getName().equals(moduleName))
                 .findFirst()
-                .orElseGet(() -> {
-                    var module = new ModuleNode(moduleName);
-                    modules.add(module);
-                    return module;
-                });
+                .orElse(null);
     }
 
     private void recordCoverage(final Matcher matcher, final FileNode fileNode, final FileDataCollector fileData) {
@@ -173,31 +173,35 @@ public class GoCovParser extends CoverageParser {
         return new PathParts(pathInfo.projectName(), pathInfo.moduleName(), packagePath, fileName, relativePath);
     }
 
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathInfo determinePathStructure(final List<String> parts) {
         if (parts.size() == 1) {
             return new PathInfo(StringUtils.EMPTY, StringUtils.EMPTY, 0);
         }
-        if (parts.size() == PATH_LENGTH_TWO) {
+        if (parts.size() == 2) {
             return new PathInfo(parts.get(0), parts.get(0), 1);
         }
-        if (parts.size() == PATH_LENGTH_THREE) {
+        if (parts.size() == 3) {
             return parts.get(0).contains(".")
                     ? new PathInfo(parts.get(0), parts.get(0), 1)
-                    : new PathInfo(parts.get(0), parts.get(1), PATH_LENGTH_TWO);
+                    : new PathInfo(parts.get(0), parts.get(1), 2);
         }
         return parts.get(0).contains(".")
-                ? new PathInfo(parts.get(0) + "/" + parts.get(1), parts.get(PATH_LENGTH_TWO), PATH_LENGTH_THREE)
-                : new PathInfo(parts.get(0), parts.get(1), PATH_LENGTH_TWO);
+                ? new PathInfo(parts.get(0) + "/" + parts.get(1), parts.get(2), 3)
+                : new PathInfo(parts.get(0), parts.get(1), 2);
     }
 
     private String buildPackagePath(final List<String> parts, final int startIndex) {
-        return parts.subList(startIndex, parts.size() - 1).stream()
-                .collect(Collectors.joining("."));
+        return buildPath(parts, startIndex, parts.size() - 1, ".");
     }
 
     private String buildRelativePath(final List<String> parts, final int startIndex) {
-        return parts.subList(startIndex, parts.size()).stream()
-                .collect(Collectors.joining("/"));
+        return buildPath(parts, startIndex, parts.size(), "/");
+    }
+
+    private String buildPath(final List<String> parts, final int startIndex, final int endIndex, 
+            final String separator) {
+        return String.join(separator, parts.subList(startIndex, endIndex));
     }
 
     private int asInt(final Matcher matcher, final String group) {
