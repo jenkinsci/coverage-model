@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Serial;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * A parser for Go coverage reports.
@@ -43,6 +43,7 @@ public class GoCovParser extends CoverageParser {
 
     private static final PathUtil PATH_UTIL = new PathUtil();
     private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
+    private static final Pattern GO_MOD_MODULE_PATTERN = Pattern.compile("^\\s*module\\s+([^\\s]+)");
 
     /** 
      * Pattern to match Go coverage lines: path/file.go:line.col,line.col statements executions. 
@@ -54,11 +55,13 @@ public class GoCovParser extends CoverageParser {
                     + "(?<statements>\\d+)\\s+"
                     + "(?<executions>\\d+)");
 
+    private final transient ModuleRegistry moduleRegistry;
+
     /**
      * Creates a new instance of {@link GoCovParser}.
      */
     public GoCovParser() {
-        super(ProcessingMode.FAIL_FAST);
+        this(ProcessingMode.FAIL_FAST);
     }
 
     /**
@@ -68,7 +71,20 @@ public class GoCovParser extends CoverageParser {
      *         determines whether to ignore errors
      */
     public GoCovParser(final ProcessingMode processingMode) {
+        this(processingMode, new ModuleRegistry());
+    }
+
+    /**
+     * Creates a new instance of {@link GoCovParser} with module information.
+     *
+     * @param processingMode
+     *         determines whether to ignore errors
+     * @param moduleRegistry
+     *         registry containing known Go module names for accurate path resolution
+     */
+    public GoCovParser(final ProcessingMode processingMode, final ModuleRegistry moduleRegistry) {
         super(processingMode);
+        this.moduleRegistry = moduleRegistry;
     }
 
     @Override
@@ -151,12 +167,19 @@ public class GoCovParser extends CoverageParser {
 
     /**
      * Parses a Go package path into project, module, package, and file components.
+     * Uses module registry for accurate module detection via longest-prefix matching when available.
      *
      * @param fullPath the full path from the Go coverage report
      * @return the parsed path components
      */
     private PathParts parseGoPath(final String fullPath) {
         var normalizedPath = fullPath.replace('\\', '/');
+        
+        var moduleMatch = moduleRegistry.findModuleForPath(normalizedPath);
+        if (moduleMatch != null) {
+            return createPathPartsFromModule(normalizedPath, moduleMatch);
+        }
+        
         var parts = Arrays.asList(PATH_SEPARATOR.split(normalizedPath));
 
         if (parts.isEmpty()) {
@@ -173,6 +196,71 @@ public class GoCovParser extends CoverageParser {
         return new PathParts(pathInfo.projectName(), pathInfo.moduleName(), packagePath, fileName, relativePath);
     }
 
+    /**
+     * Creates path parts from a matched module using Go module semantics.
+     * The coverage path format is: module_name/relative_path
+     * We extract the relative path after the module name and parse it accordingly.
+     *
+     * @param fullPath the complete coverage path
+     * @param moduleInfo the matched module information
+     * @return parsed path components
+     */
+    private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
+        var moduleName = moduleInfo.name();
+        var parts = Arrays.asList(PATH_SEPARATOR.split(fullPath));
+        var fileName = parts.get(parts.size() - 1);
+        
+        String relativePath;
+        String packagePath;
+        
+        if (fullPath.startsWith(moduleName + "/")) {
+            relativePath = fullPath.substring(moduleName.length() + 1);
+            var relParts = Arrays.asList(PATH_SEPARATOR.split(relativePath));
+            if (relParts.size() > 1) {
+                packagePath = String.join(".", relParts.subList(0, relParts.size() - 1));
+            } 
+            else {
+                packagePath = StringUtils.EMPTY;
+            }
+        } 
+        else if (fullPath.equals(moduleName)) {
+            relativePath = StringUtils.EMPTY;
+            packagePath = StringUtils.EMPTY;
+        } 
+        else {
+            relativePath = fullPath;
+            packagePath = StringUtils.EMPTY;
+        }
+        
+        var moduleparts = Arrays.asList(PATH_SEPARATOR.split(moduleName));
+        var projectName = moduleparts.isEmpty() ? moduleName : moduleparts.get(0);
+        
+        return new PathParts(projectName, moduleName, packagePath, fileName, relativePath);
+    }
+
+    /**
+     * Determines the path structure of a Go package path using heuristics.
+     * This is a fallback method used when no module information is available from go.mod files.
+     *
+     * <p><b>Limitation:</b> This heuristic approach cannot correctly handle
+     * all cases because Go module names can have arbitrary depth (e.g., "a", "a/b", "a/b/c/d/e/f/g").
+     * The reliable way to determine module boundaries is by parsing {@code go.mod} files and using
+     * longest-prefix matching, which is implemented in {@link ModuleRegistry}.</p>
+     *
+     * <p>Current heuristic rules (used as fallback only):</p>
+     * <ul>
+     *   <li>Single part (file.go): No module/project structure</li>
+     *   <li>2-3 parts (module/file.go or module/pkg/file.go): First part is both project and module</li>
+     *   <li>First part contains dot (domain.com/project/module/file.go): Assumes org/project/module structure</li>
+     *   <li>Otherwise (project/module/pkg/file.go): First part is project, second is module</li>
+     * </ul>
+     *
+     * <p>For accurate parsing, provide module information via {@link ModuleRegistry} in the constructor.</p>
+     *
+     * @param parts the path segments split by '/'
+     * @return path information containing project name, module name, and package start index
+     */
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathInfo determinePathStructure(final List<String> parts) {
         if (parts.size() == 1) {
             return new PathInfo(StringUtils.EMPTY, StringUtils.EMPTY, 0);
@@ -242,7 +330,7 @@ public class GoCovParser extends CoverageParser {
                         .withMissed(missedInstructions).build());
 
                 var coveredLines = getLines(coveredRangesPerFile, file);
-                var missedLines = getLines(missedRangesPerFile, file);
+                var missedLines = new ArrayList<>(getLines(missedRangesPerFile, file));
                 missedLines.removeAll(coveredLines);
 
                 file.addValue(lineBuilder.withCovered(coveredLines.size()).withMissed(missedLines.size()).build());
@@ -256,7 +344,7 @@ public class GoCovParser extends CoverageParser {
             return rangesPerFile.getOrDefault(file.getId(), List.of()).stream()
                     .map(LineRange::getLines)
                     .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         private void merge(final Map<String, List<LineRange>> map, final String key, final LineRange value) {
@@ -282,5 +370,107 @@ public class GoCovParser extends CoverageParser {
      */
     private record PathParts(String projectName, String moduleName, String packagePath, String fileName,
                              String relativePath) {
+    }
+
+    /**
+     * Registry of known Go modules for accurate path-to-module mapping.
+     * Implements longest-prefix matching as required by Go module resolution.
+     */
+    public static class ModuleRegistry implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
+        
+        private final ArrayList<ModuleInfo> modules;
+
+        /**
+         * Creates an empty module registry.
+         */
+        public ModuleRegistry() {
+            this.modules = new ArrayList<>();
+        }
+
+        /**
+         * Creates a registry with known modules.
+         *
+         * @param modules the list of known modules
+         */
+        public ModuleRegistry(final Collection<ModuleInfo> modules) {
+            this.modules = new ArrayList<>(modules);
+            this.modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
+        }
+
+        /**
+         * Registers a new module.
+         *
+         * @param name the module name from go.mod
+         * @param path the relative path where the module is located
+         */
+        public void addModule(final String name, final String path) {
+            modules.add(new ModuleInfo(name, path));
+            modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
+        }
+
+        /**
+         * Parses a go.mod file and extracts the module name.
+         *
+         * @param goModContent the content of the go.mod file
+         * @param modulePath the relative path where this module is located
+         */
+        public void parseAndAddGoMod(final String goModContent, final String modulePath) {
+            var lines = goModContent.lines();
+            lines.forEach(line -> {
+                var matcher = GO_MOD_MODULE_PATTERN.matcher(line);
+                if (matcher.find()) {
+                    addModule(matcher.group(1), modulePath);
+                }
+            });
+        }
+
+        /**
+         * Finds the best matching module for a coverage path using longest-prefix matching.
+         * This implements the algorithm described by egonelbre: match the longest module name
+         * that is a prefix of the coverage path.
+         *
+         * @param coveragePath the path from the coverage report (e.g., "ext/sub/sub.go")
+         * @return the matching module info, or null if no match found
+         */
+        @CheckForNull
+        public ModuleInfo findModuleForPath(final String coveragePath) {
+            for (ModuleInfo module : modules) {
+                if (coveragePath.equals(module.name()) || coveragePath.startsWith(module.name() + "/")) {
+                    return module;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Returns all registered modules.
+         *
+         * @return the list of modules
+         */
+        public List<ModuleInfo> getModules() {
+            return new ArrayList<>(modules);
+        }
+
+        /**
+         * Checks if the registry is empty.
+         *
+         * @return true if no modules are registered
+         */
+        public boolean isEmpty() {
+            return modules.isEmpty();
+        }
+    }
+
+    /**
+     * Information about a Go module extracted from go.mod.
+     *
+     * @param name the module name (e.g., "github.com/user/project", "ext", "ext/sub")
+     * @param path the relative path where this module is located (e.g., "./", "./hack/ext")
+     */
+    public record ModuleInfo(String name, String path) implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1L;
     }
 }
