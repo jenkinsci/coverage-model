@@ -173,7 +173,6 @@ public class GoCovParser extends CoverageParser {
         return new PathParts(pathInfo.projectName(), pathInfo.moduleName(), packagePath, fileName, relativePath);
     }
 
-    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private PathInfo determinePathStructure(final List<String> parts) {
         if (parts.size() == 1) {
             return new PathInfo(StringUtils.EMPTY, StringUtils.EMPTY, 0);
