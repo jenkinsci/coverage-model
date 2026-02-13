@@ -492,7 +492,7 @@ public class GoCovParser extends CoverageParser {
          * @param name the module name
          * @param path the relative path
          */
-        public ModuleInfo(String name, String path) {
+        public ModuleInfo(final String name, final String path) {
             this(name, path, name + "/");
         }
     }
