@@ -45,7 +45,7 @@ public class GoCovParser extends CoverageParser {
 
     private static final PathUtil PATH_UTIL = new PathUtil();
     private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
-    private static final Pattern GO_MOD_MODULE_PATTERN = Pattern.compile("^\\s*module\\s+([^\\s]+)");
+    private static final Pattern GO_MOD_MODULE_PATTERN = Pattern.compile("^\\s*module\\s+([^\\s]+)", Pattern.MULTILINE);
 
     /** 
      * Pattern to match Go coverage lines: path/file.go:line.col,line.col statements executions. 
@@ -217,7 +217,7 @@ public class GoCovParser extends CoverageParser {
         }
 
         var fileName = parts.get(parts.size() - 1);
-        var pathInfo = determinePathStructure(parts);
+        var pathInfo = guessPathStructure(parts);
 
         var packagePath = buildPackagePath(parts, pathInfo.packageStartIndex());
         var relativePath = buildRelativePath(parts, pathInfo.packageStartIndex());
@@ -236,42 +236,46 @@ public class GoCovParser extends CoverageParser {
      */
     private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
         var moduleName = moduleInfo.name();
-        var parts = Arrays.stream(PATH_SEPARATOR.split(fullPath)).toList();
-        var fileName = parts.get(parts.size() - 1);
         
         String relativePath;
         String packagePath;
+        String fileName;
         
-        if (fullPath.startsWith(moduleName + "/")) {
-            relativePath = fullPath.substring(moduleName.length() + 1);
-            var relParts = Arrays.stream(PATH_SEPARATOR.split(relativePath)).toList();
-            if (relParts.size() > 1) {
-                packagePath = String.join(".", relParts.subList(0, relParts.size() - 1));
+        if (fullPath.startsWith(moduleInfo.prefix())) {
+            relativePath = fullPath.substring(moduleInfo.prefix().length());
+            int lastSlash = relativePath.lastIndexOf('/');
+            if (lastSlash >= 0) {
+                packagePath = relativePath.substring(0, lastSlash);
+                fileName = relativePath.substring(lastSlash + 1);
             } 
             else {
                 packagePath = StringUtils.EMPTY;
+                fileName = relativePath;
             }
         } 
         else if (fullPath.equals(moduleName)) {
             relativePath = StringUtils.EMPTY;
             packagePath = StringUtils.EMPTY;
+            fileName = StringUtils.EMPTY;
         } 
         else {
             relativePath = fullPath;
             packagePath = StringUtils.EMPTY;
+            int lastSlash = fullPath.lastIndexOf('/');
+            fileName = lastSlash >= 0 ? fullPath.substring(lastSlash + 1) : fullPath;
         }
         
         return new PathParts(moduleName, packagePath, fileName, relativePath);
     }
 
     /**
-     * Determines path structure using heuristics. Fallback when no {@link ModuleRegistry} is available.
+     * Guesses path structure using heuristics. Fallback when no {@link ModuleRegistry} is available.
      * Note: Cannot handle arbitrary Go module depths; use ModuleRegistry for accurate parsing.
      *
      * @param parts the path segments split by '/'
      * @return path information containing module name and package start index
      */
-    private PathInfo determinePathStructure(final List<String> parts) {
+    private PathInfo guessPathStructure(final List<String> parts) {
         if (parts.size() == 1) {
             return new PathInfo(StringUtils.EMPTY, 0);
         }
@@ -284,16 +288,15 @@ public class GoCovParser extends CoverageParser {
     }
 
     private String buildPackagePath(final List<String> parts, final int startIndex) {
-        return buildPath(parts, startIndex, parts.size() - 1, ".");
+        return buildPath(parts, startIndex, parts.size() - 1);
     }
 
     private String buildRelativePath(final List<String> parts, final int startIndex) {
-        return buildPath(parts, startIndex, parts.size(), "/");
+        return buildPath(parts, startIndex, parts.size());
     }
 
-    private String buildPath(final List<String> parts, final int startIndex, final int endIndex, 
-            final String separator) {
-        return String.join(separator, parts.subList(startIndex, endIndex));
+    private String buildPath(final List<String> parts, final int startIndex, final int endIndex) {
+        return String.join("/", parts.subList(startIndex, endIndex));
     }
 
     private int asInt(final Matcher matcher, final String group) {
@@ -426,22 +429,14 @@ public class GoCovParser extends CoverageParser {
          * @param modulePath the relative path where this module is located
          */
         public void parseAndAddGoMod(final String goModContent, final String modulePath) {
-            for (String rawLine : goModContent.lines().toList()) {
-                var line = rawLine.trim();
-                if (line.isEmpty() || line.startsWith("//")) {
-                    continue;
+            var matcher = GO_MOD_MODULE_PATTERN.matcher(goModContent);
+            if (matcher.find()) {
+                String moduleName = matcher.group(1);
+                int commentIndex = moduleName.indexOf("//");
+                if (commentIndex >= 0) {
+                    moduleName = moduleName.substring(0, commentIndex).trim();
                 }
-                
-                var matcher = GO_MOD_MODULE_PATTERN.matcher(line);
-                if (matcher.find()) {
-                    String moduleName = matcher.group(1);
-                    int commentIndex = moduleName.indexOf("//");
-                    if (commentIndex >= 0) {
-                        moduleName = moduleName.substring(0, commentIndex).trim();
-                    }
-                    addModule(moduleName, modulePath);
-                    break;
-                }
+                addModule(moduleName, modulePath);
             }
         }
 
@@ -454,7 +449,7 @@ public class GoCovParser extends CoverageParser {
         @CheckForNull
         public ModuleInfo findModuleForPath(final String coveragePath) {
             for (ModuleInfo module : modules) {
-                if (coveragePath.equals(module.name()) || coveragePath.startsWith(module.name() + "/")) {
+                if (coveragePath.equals(module.name()) || coveragePath.startsWith(module.prefix())) {
                     return module;
                 }
             }
@@ -485,9 +480,20 @@ public class GoCovParser extends CoverageParser {
      *
      * @param name the module name (e.g., "github.com/user/project", "ext", "ext/sub")
      * @param path the relative path where this module is located (e.g., "./", "./hack/ext")
+     * @param prefix the precomputed prefix for matching (name + "/") to optimize findModuleForPath
      */
-    public record ModuleInfo(String name, String path) implements Serializable {
+    public record ModuleInfo(String name, String path, String prefix) implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
+        
+        /**
+         * Creates a ModuleInfo with the given name and path.
+         *
+         * @param name the module name
+         * @param path the relative path
+         */
+        public ModuleInfo(String name, String path) {
+            this(name, path, name + "/");
+        }
     }
 }
