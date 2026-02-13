@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Serial;
 import java.io.Serializable;
@@ -37,6 +38,7 @@ import java.util.regex.Pattern;
  * @see <a href="https://go.dev/doc/build-cover">Go coverage profiling support</a>
  * @author Ullrich Hafner
  */
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.CouplingBetweenObjects"})
 public class GoCovParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = -4511292826873362408L;
@@ -55,7 +57,7 @@ public class GoCovParser extends CoverageParser {
                     + "(?<statements>\\d+)\\s+"
                     + "(?<executions>\\d+)");
 
-    private final transient ModuleRegistry moduleRegistry;
+    private transient ModuleRegistry moduleRegistry;
 
     /**
      * Creates a new instance of {@link GoCovParser}.
@@ -85,6 +87,20 @@ public class GoCovParser extends CoverageParser {
     public GoCovParser(final ProcessingMode processingMode, final ModuleRegistry moduleRegistry) {
         super(processingMode);
         this.moduleRegistry = moduleRegistry;
+    }
+
+    /**
+     * Restores transient fields after deserialization.
+     *
+     * @param stream the object input stream
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if the class cannot be found
+     */
+    @Serial
+    private void readObject(final ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        moduleRegistry = new ModuleRegistry();
     }
 
     @Override
@@ -356,10 +372,10 @@ public class GoCovParser extends CoverageParser {
     /**
      * Container for parsed Go path components.
      *
-     * @param moduleName the module name (usually the repository or project name)
-     * @param packagePath the package path (directories between module and file, dot-separated)
+     * @param moduleName the module name 
+     * @param packagePath the package path 
      * @param fileName the file name
-     * @param relativePath the relative path from module root (slash-separated)
+     * @param relativePath the relative path from module root
      */
     private record PathParts(String moduleName, String packagePath, String fileName,
                              String relativePath) {
@@ -367,12 +383,12 @@ public class GoCovParser extends CoverageParser {
 
     /**
      * Registry of known Go modules for accurate path-to-module mapping.
-     * Implements longest-prefix matching as required by Go module resolution.
      */
     public static class ModuleRegistry implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         
+        @SuppressWarnings("serial")
         private final List<ModuleInfo> modules;
 
         /**
@@ -405,8 +421,6 @@ public class GoCovParser extends CoverageParser {
 
         /**
          * Parses a go.mod file and extracts the module name.
-         * According to Go spec, there should be exactly one module declaration per go.mod file.
-         * This implementation processes only the first module line found and handles inline comments.
          *
          * @param goModContent the content of the go.mod file
          * @param modulePath the relative path where this module is located
@@ -433,8 +447,6 @@ public class GoCovParser extends CoverageParser {
 
         /**
          * Finds the best matching module for a coverage path using longest-prefix matching.
-         * This implements the algorithm described by egonelbre: match the longest module name
-         * that is a prefix of the coverage path.
          *
          * @param coveragePath the path from the coverage report (e.g., "ext/sub/sub.go")
          * @return the matching module info, or null if no match found
