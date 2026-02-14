@@ -26,8 +26,8 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
 class CoberturaParserTest extends AbstractParserTest {
-    private static final int COVERED_LINES = 20 + 17 + 6 + 12 + 7;
-    private static final int MISSED_LINES = 8 + 1 + 1 + 10;
+    private static final int COVERED_LINES = 20 + 17 + 7 + 12 + 7;  // Changed 6 to 7
+    private static final int MISSED_LINES = 8 + 0 + 1 + 10;  // Changed 1 to 0
 
     @Override
     CoberturaParser createParser(final ProcessingMode processingMode) {
@@ -465,7 +465,7 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(CLASS, "Invocare.InventoryBranch.Plugin.InventoryAdminUi.SourceDataProvider.PopulateBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.withMetric(LINE).withCovered(6).withMissed(1).build(),
+                                .hasValues(builder.withMetric(LINE).withCovered(7).withMissed(0).build(),
                                         builder.withMetric(BRANCH).withCovered(2).withMissed(2).build())));
 
         assertThat(root.find(FILE, "Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php")).isNotEmpty()
@@ -662,6 +662,33 @@ class CoberturaParserTest extends AbstractParserTest {
                 .get()
                 .isInstanceOfSatisfying(Coverage.class, 
                         coverage -> assertThat(coverage).hasCovered(6).hasMissed(8));
+    }
+
+    @Test
+    @Issue("JENKINS-76232")
+    void shouldUseHitsAttributeForLineCoverageNotBranchCoverage() {
+        var root = readReport("cobertura-gcovr-issue-253.xml");
+        var builder = new CoverageBuilder();
+
+        assertThat(root.getValue(LINE))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(Coverage.class, 
+                        coverage -> assertThat(coverage).hasCovered(7).hasMissed(1));
+        
+        assertThat(root.getValue(BRANCH))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(Coverage.class, 
+                        coverage -> assertThat(coverage).hasCovered(1).hasMissed(3));
+
+        assertThat(root.getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(9)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(9)).isEqualTo(2);
+                    
+                    assertThat(fileNode.getMissedOfLine(1)).isEqualTo(0);
+                });
     }
 
     private ModuleNode readExampleReport() {
