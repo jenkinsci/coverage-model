@@ -30,7 +30,7 @@ public final class ClassNode extends Node {
     }
 
     /**
-     * Returns the package name of this class. The package name is either the package part of this class' name, or if it
+     * Returns the package name of this class. The package name is either the package part of this class' name or if it
      * does not exist, the name of the parent package node.
      *
      * @return the package name
