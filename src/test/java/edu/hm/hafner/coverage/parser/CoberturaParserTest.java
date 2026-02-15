@@ -157,7 +157,7 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private void verifyBranchCoverageOfLine61(final Node duplicateMethods) {
-        var file = duplicateMethods.getAllFileNodes().get(0);
+        var file = duplicateMethods.getAllFileNodes().getFirst();
         assertThat(file.getCoveredOfLine(61)).isEqualTo(2);
         assertThat(file.getMissedOfLine(61)).isEqualTo(0);
     }
@@ -595,7 +595,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 coverage -> assertThat(coverage).hasCovered(4).hasMissed(0));
         assertThat(result).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, LINE, BRANCH, LOC, CYCLOMATIC_COMPLEXITY);
 
-        var fileNode = result.getAllFileNodes().get(0);
+        var fileNode = result.getAllFileNodes().getFirst();
         assertThat(fileNode.getLinesWithCoverage())
                 .containsExactly(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
         assertThat(fileNode.getMissedCounters())

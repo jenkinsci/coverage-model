@@ -98,7 +98,7 @@ class MutationTest {
 
         assertThat(moduleNode.getAllFileNodes())
                 .hasSize(1);
-        assertThat(moduleNode.getAllFileNodes().get(0))
+        assertThat(moduleNode.getAllFileNodes().getFirst())
                 .hasName("Class.java")
                 .hasMutations(mutationBuilder.build());
     }

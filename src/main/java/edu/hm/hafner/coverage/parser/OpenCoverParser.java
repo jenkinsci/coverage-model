@@ -364,7 +364,7 @@ public class OpenCoverParser extends CoverageParser {
         }
 
         String getFileId() {
-            return getMethods().get(0).getFileId();
+            return getMethods().getFirst().getFileId();
         }
     }
 
