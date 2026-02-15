@@ -31,6 +31,7 @@ This library consists basically of two separate parts:
     * [LCOV](https://github.com/linux-test-project/lcov) code coverage results
     * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
+    * [TRACE32](https://www.lauterbach.com) code coverage results
     * [PIT](https://pitest.org/) mutation coverage results
     * [JUnit](https://junit.org/junit5/) test results
     * [NUnit](https://nunit.org) test results
