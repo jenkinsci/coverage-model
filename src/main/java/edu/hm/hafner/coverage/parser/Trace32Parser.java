@@ -6,7 +6,6 @@ import java.io.Serial;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -174,7 +173,7 @@ public class Trace32Parser extends CoverageParser {
                 .withCovered(map.getOrDefault(covered, 0)).build());
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private String readMetric(final XMLEventReader xml, final Node root, final String metric, final QName element, final boolean readFunction) throws XMLStreamException {
         var event = xml.nextEvent();
         var treeName = "";
@@ -256,7 +255,7 @@ public class Trace32Parser extends CoverageParser {
         return treeName;
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity")
+    @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private void parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
         final var xml = new SecureXmlParserFactory().createXmlEventReader(reader);
 
