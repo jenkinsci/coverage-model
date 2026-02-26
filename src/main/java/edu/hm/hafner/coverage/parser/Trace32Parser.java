@@ -174,6 +174,7 @@ public class Trace32Parser extends CoverageParser {
                 .withCovered(map.getOrDefault(covered, 0)).build());
     }
 
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private String readMetric(final XMLEventReader xml, final Node root, final String metric, final QName element, final boolean readFunction) throws XMLStreamException {
         var event = xml.nextEvent();
         var treeName = "";
@@ -255,6 +256,7 @@ public class Trace32Parser extends CoverageParser {
         return treeName;
     }
 
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private void parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
         final var xml = new SecureXmlParserFactory().createXmlEventReader(reader);
 
