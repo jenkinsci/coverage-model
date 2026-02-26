@@ -14,9 +14,9 @@ import edu.hm.hafner.coverage.parser.MetricsParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
+import edu.hm.hafner.coverage.parser.Trace32Parser;
 import edu.hm.hafner.coverage.parser.VectorCastParser;
 import edu.hm.hafner.coverage.parser.XunitParser;
-import edu.hm.hafner.coverage.parser.Trace32Parser;
 
 /**
  * Provides a registry for all available {@link CoverageParserType parsers}.
@@ -37,9 +37,9 @@ public class ParserRegistry {
         NUNIT,
         OPENCOVER,
         PIT,
+        TRACE32,
         VECTORCAST,
-        XUNIT,
-        TRACE32
+        XUNIT
     }
 
     /**
@@ -84,9 +84,9 @@ public class ParserRegistry {
             case NUNIT -> new NunitParser(processingMode);
             case OPENCOVER -> new OpenCoverParser(processingMode);
             case PIT -> new PitestParser(processingMode);
+            case TRACE32 -> new Trace32Parser(processingMode);
             case XUNIT -> new XunitParser(processingMode);
             case VECTORCAST -> new VectorCastParser(processingMode);
-            case TRACE32 -> new Trace32Parser(processingMode);
         };
     }
 }
