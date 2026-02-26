@@ -104,4 +104,32 @@
 		<BookMark.EXPORT ts="1762355865" t32ver="S.2025.10.000184368" t32pv="RISCV" cpu="RV32">
 		</BookMark.EXPORT>
 	</marker>
+	<listing>
+		<List.EXPORT ts="1761220984" t32ver="S.2025.10.000184368" t32pv="RISCV" order="target">
+			<mixed module="\\coverage_riscv_rv32\start" srcpath="D:\T32\demo\coverage\mcdc\riscv\start.sx">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\main" srcpath="D:\T32\demo\coverage\mcdc\main.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\main" srcpath="D:\T32\demo\coverage\mcdc\main.c">
+			</mixed>
+			<mixed module="\\DUPLICATE\main" srcpath="D:\T32\demo\coverage\mcdc\main.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\coverage" srcpath="D:\T32\demo\coverage\mcdc\coverage.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\coverage" srcpath="D:\T32\demo\coverage\mcdc\coverage.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\gesf2" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\soft-fp\gesf2.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\gesf2" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\soft-fp\gesf2.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\floatsisf" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\soft-fp\floatsisf.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\floatsisf" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\soft-fp\floatsisf.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\libgcc2" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\libgcc2.c">
+			</mixed>
+			<mixed module="\\coverage_riscv_rv32\libgcc2" srcpath="\__w\riscv-none-elf-gcc-xpack\riscv-none-elf-gcc-xpack\build\win32-x64\sources\gcc-13.2.0\libgcc\libgcc2.c">
+			</mixed>
+		</List.EXPORT>
+	</listing>
 </TRACE32>

@@ -42,7 +42,7 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-call.xml");
 
         // Check root name
-        assertThat(root.getName()).isEqualTo("Trace32 Coverage");
+        assertThat(root.getName()).isEqualTo("TRACE32 Coverage");
 
         // Check that class nodes are created
         var classes = root.getAll(Metric.CLASS);
@@ -55,10 +55,10 @@ class Trace32ParserTest extends AbstractParserTest {
         assertThat(classNames).isNotEmpty();
 
         // Check that file nodes collector exist, and verify its content
-        var filesNode = classes.get(classes.size() - 1);
-        assertThat(filesNode.getName()).isEqualTo("Trace32 Coverage Files");
-        assertThat(filesNode.getChildren()).extracting(Node::getName).containsExactlyInAnyOrder("coverage.c", "main.c", "gesf2.c", "libgcc2.c", "start.sx", "floatsisf.c");
-        assertThat(filesNode.getMetrics()).containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.FUNCTION, Metric.BYTES);
+        var filesNode = classes.stream().filter(node -> "TRACE32 Files".equals(node.getName())).findFirst();
+        assertThat(filesNode).isPresent();
+        assertThat(filesNode.get().getAllFileNodes()).extracting(Node::getName).containsExactlyInAnyOrder("coverage.c", "main.c", "gesf2.c", "libgcc2.c", "start.sx", "floatsisf.c");
+        assertThat(filesNode.get().getMetrics()).containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.FUNCTION, Metric.BYTES);
 
         // Check that package nodes are NOT created
         var packages = root.getAll(Metric.PACKAGE);
