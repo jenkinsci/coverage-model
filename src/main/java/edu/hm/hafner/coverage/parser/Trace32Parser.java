@@ -44,7 +44,6 @@ public class Trace32Parser extends CoverageParser {
     private static final QName MIXED = new QName("mixed");
     private static final QName SRCPATH = new QName("srcpath");
     private static final QName METRIC_ATTR = new QName("metric");
-    private static final Set<Metric> fileMetricsBlacklist = Set.of(Metric.FILE, Metric.MODULE, Metric.PACKAGE);
 
     @SuppressWarnings("PMD.LooseCoupling")
     private final HashMap<String, String> filesToProcess = new HashMap<>();
@@ -114,24 +113,25 @@ public class Trace32Parser extends CoverageParser {
             var fileNode = rootFiles.createFileNode(fileNodeName, TreeString.valueOf(filePath));
 
             // Renaming module name with a file name
-            getNodeTree(root, entry.getKey()).ifPresent(node -> {
+            var moduleNode = getNodeTree(root, entry.getKey()).orElse(null);
+            if (moduleNode != null) {
                 var newNode = root.createClassNode(fileNodeName);
-                newNode.addAllChildren(node.getChildren());
-                node.getValues().forEach(value -> {
+                newNode.addAllChildren(moduleNode.getChildren());
+                moduleNode.getValues().forEach(value -> {
                     newNode.addValue(value);
                     fileNode.addValue(value);
                 });
 
                 // Hide original node
-                node.getMetrics().forEach(metric -> {
-                    node.replaceValue(new CoverageBuilder(metric).withTotal(0).withCovered(0).build());
+                moduleNode.getMetrics().forEach(metric -> {
+                    moduleNode.replaceValue(new CoverageBuilder(metric).withTotal(0).withCovered(0).build());
                 });
-            });
+            }
         }
 
         // Hide file nodes
         for (var metric : rootFiles.getMetrics()) {
-            if (!fileMetricsBlacklist.contains(metric)) {
+            if (metric != Metric.FILE) {
                 rootFiles.addValue(new CoverageBuilder(metric).withTotal(0).withCovered(0).build());
             }
         }
@@ -174,26 +174,28 @@ public class Trace32Parser extends CoverageParser {
                 .withCovered(map.getOrDefault(covered, 0)).build());
     }
 
-    @SuppressWarnings({"AssignmentExpression"})
     private String readMetric(final XMLEventReader xml, final Node root, final String metric, final QName element, final boolean readFunction) throws XMLStreamException {
-        XMLEvent event;
+        var event = xml.nextEvent();
         var treeName = "";
         var map = new EnumMap<Fields, Integer>(Fields.class);
 
-        while (!endElement(event = xml.nextEvent(), element)) {
+        while (!endElement(event, element)) {
             if (!event.isStartElement()) {
+                event = xml.nextEvent();
                 continue;
             }
             var data = xml.nextEvent().asCharacters().getData().trim();
             var tag = event.asStartElement().getName();
             if (tag.equals(TREE)) {
                 treeName = data.replace("\\\\", "").replace('\\', File.separatorChar);
-            } else if (tag.equals(FUNCTION)) {
+            }
+            else if (tag.equals(FUNCTION)) {
                 if (!readFunction) {
                     break;
                 }
                 readMetric(xml, root, metric, FUNCTION, false);
-            } else {
+            }
+            else {
                 try {
                     map.put(Fields.fromTag(tag.toString()), parseInteger(data));
                 }
@@ -201,6 +203,7 @@ public class Trace32Parser extends CoverageParser {
                     // Not a metric field, just continue
                 }
             }
+            event = xml.nextEvent();
         }
 
         if (treeName.isEmpty()) {
@@ -252,7 +255,6 @@ public class Trace32Parser extends CoverageParser {
         return treeName;
     }
 
-    @SuppressWarnings({"AssignmentExpression"})
     private void parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
         final var xml = new SecureXmlParserFactory().createXmlEventReader(reader);
 
@@ -261,21 +263,26 @@ public class Trace32Parser extends CoverageParser {
             if (startElement(event, LIST_MODULE) || startElement(event, LIST_FUNC)) {
                 var metric = event.asStartElement().getAttributeByName(METRIC_ATTR).getValue();
 
-                while (!(endElement(event = xml.nextEvent(), LIST_MODULE) || endElement(event, LIST_FUNC))) {
+                event = xml.nextEvent();
+                while (!(endElement(event, LIST_MODULE) || endElement(event, LIST_FUNC))) {
                     if (startElement(event, MODULE)) {
                         readMetric(xml, root, metric, MODULE, true);
                     }
+                    event = xml.nextEvent();
                 }
             }
             else if (startElement(event, LIST_EXPORT)) {
                 // <listing><List.EXPORT>
-                while (!endElement(event = xml.nextEvent(), LIST_EXPORT)) {
+                event = xml.nextEvent();
+                while (!endElement(event, LIST_EXPORT)) {
                     if (!startElement(event, MIXED)) {
+                        event = xml.nextEvent();
                         continue;
                     }
                     var moduleAttr = event.asStartElement().getAttributeByName(MODULE);
                     var pathAttr = event.asStartElement().getAttributeByName(SRCPATH);
                     if (moduleAttr == null || pathAttr == null) {
+                        event = xml.nextEvent();
                         continue;
                     }
                     var wrongSeparator = File.separatorChar == '\\' ? '/' : '\\';
@@ -284,6 +291,8 @@ public class Trace32Parser extends CoverageParser {
                             .replace(wrongSeparator, File.separatorChar);
                     var filePath = pathAttr.getValue().replace(wrongSeparator, File.separatorChar);
                     filesToProcess.putIfAbsent(moduleName, filePath);
+
+                    event = xml.nextEvent();
                 }
                 // </List.EXPORT></listing>
             }
