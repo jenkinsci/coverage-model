@@ -358,6 +358,7 @@ public abstract class Node implements Serializable {
         return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
     }
 
+    // FIXME: when aggregating values we need to make sure that
     /**
      * Aggregates all values that are part of the subtree that is spanned by this node.
      *
