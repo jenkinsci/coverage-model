@@ -287,4 +287,61 @@ class ValueTest {
         assertThat(one.compareTo(line)).isPositive();
         assertThat(line.compareTo(one)).isNegative();
     }
+
+    @Test
+    void shouldComputeMinimum() {
+        var value1 = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var value2 = new Value(Metric.CYCLOMATIC_COMPLEXITY, 5);
+        var value3 = new Value(Metric.CYCLOMATIC_COMPLEXITY, 15);
+
+        assertThat(value1.min(value2)).isEqualTo(value2);
+        assertThat(value2.min(value1)).isEqualTo(value2);
+        assertThat(value1.min(value3)).isEqualTo(value1);
+        assertThat(value3.min(value1)).isEqualTo(value1);
+    }
+
+    @Test
+    void shouldThrowExceptionOnMinWithDifferentMetrics() {
+        var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var loc = new Value(Metric.LOC, 5);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> complexity.min(loc))
+                .withMessageContaining("Cannot calculate with different metrics");
+    }
+
+    @Test
+    void shouldDivideValue() {
+        var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var result = value.divide(2);
+
+        assertThat(result).hasMetric(Metric.CYCLOMATIC_COMPLEXITY);
+        assertThat(result.asDouble()).isEqualTo(5.0);
+    }
+
+    @Test
+    void shouldDivideValueWithFraction() {
+        var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 7);
+        var result = value.divide(2);
+
+        assertThat(result).hasMetric(Metric.CYCLOMATIC_COMPLEXITY)
+                .hasFraction(Fraction.getFraction(7, 2));
+    }
+
+    @Test
+    void shouldThrowExceptionOnDivideByZero() {
+        var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> value.divide(0))
+                .withMessageContaining("Cannot divide by zero");
+    }
+
+    @Test
+    void shouldDivideByOne() {
+        var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var result = value.divide(1);
+
+        assertThat(result).isEqualTo(value);
+    }
 }

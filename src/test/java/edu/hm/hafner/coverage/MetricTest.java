@@ -153,4 +153,31 @@ class MetricTest {
         assertThat(coverage.getTargetNodes(root)).hasSize(1)
                 .first().extracting(Node::getName).isEqualTo("class");
     }
+
+    @ValueSource(strings = {"COMPLEXITY_MAXIMUM", "complexity_maximum", "ComplexityMaximum"})
+    @ParameterizedTest(name = "{0} should be converted to CYCLOMATIC_COMPLEXITY metric")
+    void shouldMapLegacyComplexityMaximumFromName(final String name) {
+        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
+    }
+
+    @ValueSource(strings = {"COMPLEXITY_MINIMUM", "complexity_minimum", "ComplexityMinimum"})
+    @ParameterizedTest(name = "{0} should be converted to CYCLOMATIC_COMPLEXITY metric")
+    void shouldMapLegacyComplexityMinimumFromName(final String name) {
+        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
+    }
+
+    @ValueSource(strings = {"COMPLEXITY_AVERAGE", "complexity_average", "ComplexityAverage"})
+    @ParameterizedTest(name = "{0} should be converted to CYCLOMATIC_COMPLEXITY metric")
+    void shouldMapLegacyComplexityAverageFromName(final String name) {
+        assertThat(Metric.fromName(name)).isSameAs(Metric.CYCLOMATIC_COMPLEXITY);
+    }
+
+    @Test
+    void shouldExtractAggregationFromLegacyMetricNames() {
+        assertThat(Metric.extractAggregation("COMPLEXITY_MAXIMUM")).isEqualTo(MetricAggregation.MAXIMUM);
+        assertThat(Metric.extractAggregation("COMPLEXITY_MINIMUM")).isEqualTo(MetricAggregation.MINIMUM);
+        assertThat(Metric.extractAggregation("COMPLEXITY_AVERAGE")).isEqualTo(MetricAggregation.AVERAGE);
+        assertThat(Metric.extractAggregation("CYCLOMATIC_COMPLEXITY")).isEqualTo(MetricAggregation.TOTAL);
+        assertThat(Metric.extractAggregation("LINE")).isEqualTo(MetricAggregation.TOTAL);
+    }
 }
