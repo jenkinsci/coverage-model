@@ -668,7 +668,6 @@ class CoberturaParserTest extends AbstractParserTest {
     @Issue("JENKINS-76232")
     void shouldUseHitsAttributeForLineCoverageNotBranchCoverage() {
         var root = readReport("cobertura-gcovr-issue-253.xml");
-        var builder = new CoverageBuilder();
 
         assertThat(root.getValue(LINE))
                 .isPresent()
