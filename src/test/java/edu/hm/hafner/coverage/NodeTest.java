@@ -1048,12 +1048,29 @@ class NodeTest {
         var builder = new CoverageBuilder();
         var moduleNode = new ModuleNode("TestModule");
         var packageNode = new PackageNode("com.example");
-        packageNode.addValue(builder.withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
+        packageNode.addValue(builder.withMetric(LINE).withCovered(80).withMissed(20).build());
         moduleNode.addChild(packageNode);
 
-        var result = moduleNode.getValue(Metric.LINE, MetricAggregation.MAXIMUM);
-        var regularResult = moduleNode.getValue(Metric.LINE);
+        var result = moduleNode.getValue(LINE, MetricAggregation.MAXIMUM);
+        var regularResult = moduleNode.getValue(LINE);
         
         assertThat(result).isEqualTo(regularResult);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoChildrenHaveMetricForAggregation() {
+        var packageNode = new PackageNode("com.example");
+        var classNode = new ClassNode("TestClass");
+        classNode.addValue(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        packageNode.addChild(classNode);
+
+        var maximum = packageNode.getValue(LOC, MetricAggregation.MAXIMUM);
+        assertThat(maximum).isEmpty();
+
+        var minimum = packageNode.getValue(LOC, MetricAggregation.MINIMUM);
+        assertThat(minimum).isEmpty();
+
+        var average = packageNode.getValue(LOC, MetricAggregation.AVERAGE);
+        assertThat(average).isEmpty();
     }
 }

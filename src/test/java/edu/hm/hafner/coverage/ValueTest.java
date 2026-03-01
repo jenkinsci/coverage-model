@@ -301,6 +301,15 @@ class ValueTest {
     }
 
     @Test
+    void shouldReturnFirstValueWhenMinimumValuesAreEqual() {
+        var value1 = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+        var value2 = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
+
+        assertThat(value1.min(value2)).isEqualTo(value1);
+        assertThat(value2.min(value1)).isEqualTo(value2);
+    }
+
+    @Test
     @SuppressWarnings("RV_RETURN_VALUE_IGNORED")
     void shouldThrowExceptionOnMinWithDifferentMetrics() {
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
