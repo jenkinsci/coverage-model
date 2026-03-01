@@ -190,23 +190,8 @@ public class CoberturaParser extends CoverageParser {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
                     if (CLASS.equals(endElement.getName())) {
-                        coveragePerLine.forEach((lineNumber, coverages) -> {
-                            var hasBranchCoverage = coverages.stream()
-                                    .anyMatch(c -> c.getMetric() == Metric.BRANCH);
-                            
-                            if (hasBranchCoverage) {
-                                var branchCoverage = coverages.stream()
-                                        .filter(c -> c.getMetric() == Metric.BRANCH)
-                                        .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
-                                fileNode.addCounters(lineNumber, branchCoverage.getCovered(), branchCoverage.getMissed());
-                            } 
-                            else {
-                                var lineCoverage = coverages.stream()
-                                        .filter(c -> c.getMetric() == Metric.LINE)
-                                        .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-                                fileNode.addCounters(lineNumber, lineCoverage.getCovered(), lineCoverage.getMissed());
-                            }
-                        });
+                        coveragePerLine.forEach((lineNumber, coverages) ->
+                                addFileNodeCounters(fileNode, lineNumber, coverages));
                     }
 
                     var coverages = recalculateCoverageFromMergedLines(coveragePerLine);
@@ -219,6 +204,29 @@ public class CoberturaParser extends CoverageParser {
             }
         }
         throw createEofException(fileName);
+    }
+
+    private void addFileNodeCounters(final FileNode fileNode, final Integer lineNumber,
+            final List<Coverage> coverages) {
+        var hasBranchCoverage = coverages.stream()
+                .anyMatch(c -> c.getMetric() == Metric.BRANCH);
+
+        if (hasBranchCoverage) {
+            var branchCoverage = coverages.stream()
+                    .filter(c -> c.getMetric() == Metric.BRANCH)
+                    .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
+            var covered = branchCoverage.getCovered();
+            var missed = branchCoverage.getMissed();
+            fileNode.addCounters(lineNumber, covered, missed);
+        }
+        else {
+            var lineCoverage = coverages.stream()
+                    .filter(c -> c.getMetric() == Metric.LINE)
+                    .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
+            var covered = lineCoverage.getCovered();
+            var missed = lineCoverage.getMissed();
+            fileNode.addCounters(lineNumber, covered, missed);
+        }
     }
 
     /**
@@ -234,37 +242,37 @@ public class CoberturaParser extends CoverageParser {
      */
     private List<Coverage> mergeDuplicateLines(final List<Coverage> existing, final List<Coverage> newCoverages) {
         var result = new ArrayList<Coverage>();
-        
+
         var existingLine = existing.stream()
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .findFirst();
         var newLine = newCoverages.stream()
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .findFirst();
-        
+
         if (existingLine.isPresent() && newLine.isPresent()) {
             result.add(mergeLineCoverage(existingLine.get(), newLine.get()));
-        } 
+        }
         else {
             existingLine.ifPresent(result::add);
             newLine.ifPresent(result::add);
         }
-        
+
         var existingBranch = existing.stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .findFirst();
         var newBranch = newCoverages.stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .findFirst();
-        
+
         if (existingBranch.isPresent() && newBranch.isPresent()) {
             result.add(mergeBranchCoverage(existingBranch.get(), newBranch.get()));
-        } 
+        }
         else {
             existingBranch.ifPresent(result::add);
             newBranch.ifPresent(result::add);
         }
-        
+
         return result;
     }
 
@@ -284,15 +292,15 @@ public class CoberturaParser extends CoverageParser {
             final Map<Integer, List<Coverage>> coveragePerLine) {
         int lineNumber = getIntegerValueOf(nextElement, NUMBER);
         int lineHits = getIntegerValueOf(nextElement, HITS);
-        
+
         var coverages = new ArrayList<Coverage>();
-        
+
         coverages.add(computeLineCoverage(lineHits));
-        
+
         if (isBranchCoverage(nextElement)) {
             coverages.add(readBranchCoverage(nextElement));
         }
-        
+
         coveragePerLine.merge(lineNumber, coverages, this::mergeDuplicateLines);
     }
 
@@ -301,12 +309,12 @@ public class CoberturaParser extends CoverageParser {
                 .flatMap(List::stream)
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-        
+
         var branchCoverage = coveragePerLine.values().stream()
                 .flatMap(List::stream)
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
-        
+
         return new Coverage[] {lineCoverage, branchCoverage};
     }
 
