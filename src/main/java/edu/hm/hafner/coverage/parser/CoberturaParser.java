@@ -206,7 +206,7 @@ public class CoberturaParser extends CoverageParser {
         throw createEofException(fileName);
     }
 
-    private void addFileNodeCounters(final FileNode fileNode, final Integer lineNumber,
+    private void addFileNodeCounters(final FileNode fileNode, final int lineNumber,
             final List<Coverage> coverages) {
         var hasBranchCoverage = coverages.stream()
                 .anyMatch(c -> c.getMetric() == Metric.BRANCH);

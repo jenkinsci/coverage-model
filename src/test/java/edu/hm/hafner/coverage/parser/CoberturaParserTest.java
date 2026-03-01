@@ -673,21 +673,41 @@ class CoberturaParserTest extends AbstractParserTest {
                 .isPresent()
                 .get()
                 .isInstanceOfSatisfying(Coverage.class, 
-                        coverage -> assertThat(coverage).hasCovered(7).hasMissed(1));
+                        coverage -> assertThat(coverage).hasCovered(9).hasMissed(3));
         
         assertThat(root.getValue(BRANCH))
                 .isPresent()
                 .get()
                 .isInstanceOfSatisfying(Coverage.class, 
-                        coverage -> assertThat(coverage).hasCovered(1).hasMissed(3));
+                        coverage -> assertThat(coverage).hasCovered(2).hasMissed(6));
 
-        assertThat(root.getAllFileNodes()).hasSize(1)
-                .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(9)).isEqualTo(0);
-                    assertThat(fileNode.getMissedOfLine(9)).isEqualTo(2);
-                    
-                    assertThat(fileNode.getMissedOfLine(1)).isEqualTo(0);
-                });
+        assertThat(root.getAllFileNodes()).hasSize(2);
+        
+        var testCFile = root.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("test.c"))
+                .findFirst()
+                .orElseThrow();
+        
+        assertThat(testCFile.getCoveredOfLine(9)).isEqualTo(0);
+        assertThat(testCFile.getMissedOfLine(9)).isEqualTo(2);
+        assertThat(testCFile.getMissedOfLine(1)).isEqualTo(0);
+        
+        var testClassFile = root.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("TestClass.java"))
+                .findFirst()
+                .orElseThrow();
+        
+        assertThat(testClassFile.getCoveredOfLine(10)).isEqualTo(1);
+        assertThat(testClassFile.getMissedOfLine(10)).isEqualTo(0);
+        
+        assertThat(testClassFile.getCoveredOfLine(20)).isEqualTo(0);
+        assertThat(testClassFile.getMissedOfLine(20)).isEqualTo(1);
+        
+        assertThat(testClassFile.getCoveredOfLine(30)).isEqualTo(1);
+        assertThat(testClassFile.getMissedOfLine(30)).isEqualTo(1);
+        
+        assertThat(testClassFile.getCoveredOfLine(40)).isEqualTo(0);
+        assertThat(testClassFile.getMissedOfLine(40)).isEqualTo(2);
     }
 
     private ModuleNode readExampleReport() {
