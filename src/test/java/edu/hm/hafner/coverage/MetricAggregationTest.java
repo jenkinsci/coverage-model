@@ -61,9 +61,7 @@ class MetricAggregationTest {
 
     @Test
     void shouldReturnDefaultAggregation() {
-        assertThat(MetricAggregation.getDefault(Metric.CYCLOMATIC_COMPLEXITY))
-                .isEqualTo(MetricAggregation.TOTAL);
-        assertThat(MetricAggregation.getDefault(Metric.LINE))
+        assertThat(MetricAggregation.getDefault())
                 .isEqualTo(MetricAggregation.TOTAL);
     }
 

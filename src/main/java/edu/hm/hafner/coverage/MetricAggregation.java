@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Locale;
 
 /**
@@ -11,7 +9,7 @@ import java.util.Locale;
  *
  * @author Akash Manna
  */
-public enum MetricAggregation implements Serializable {
+public enum MetricAggregation {
     /** Aggregates values by summing them (default for most metrics). */
     TOTAL("Total", "total"),
     
@@ -23,9 +21,6 @@ public enum MetricAggregation implements Serializable {
     
     /** Aggregates values by computing the average. */
     AVERAGE("Average", "average");
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     private final String displayName;
     private final String id;
@@ -81,14 +76,11 @@ public enum MetricAggregation implements Serializable {
     }
 
     /**
-     * Returns the default aggregation type for the specified metric.
+     * Returns the default aggregation type for all metrics.
      *
-     * @param metric
-     *         the metric
-     *
-     * @return the default aggregation type
+     * @return the default aggregation type (always TOTAL)
      */
-    public static MetricAggregation getDefault(final Metric metric) {
+    public static MetricAggregation getDefault() {
         return TOTAL;
     }
 
