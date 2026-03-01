@@ -359,32 +359,32 @@ public abstract class Node implements Serializable {
     /**
      * Computes the aggregated value for the specified metric using the specified aggregation type.
      *
-     * @param metric
+     * @param searchMetric
      *         the metric to compute the value for
      * @param aggregation
      *         the aggregation type to use
      *
      * @return the aggregated value or an empty result if no value has been defined
      */
-    private Optional<Value> computeAggregatedValue(final Metric metric, final MetricAggregation aggregation) {
-        var targetNodes = metric.getTargetNodes(this);
+    private Optional<Value> computeAggregatedValue(final Metric searchMetric, final MetricAggregation aggregation) {
+        var targetNodes = searchMetric.getTargetNodes(this);
         if (targetNodes.isEmpty()) {
             return Optional.empty();
         }
 
-        var values = targetNodes.stream()
-                .map(node -> node.getValue(metric))
+        var metricValues = targetNodes.stream()
+                .map(node -> node.getValue(searchMetric))
                 .flatMap(Optional::stream)
                 .toList();
 
-        if (values.isEmpty()) {
+        if (metricValues.isEmpty()) {
             return Optional.empty();
         }
 
         return switch (aggregation) {
-            case MAXIMUM -> values.stream().reduce(Value::max);
-            case MINIMUM -> values.stream().reduce(Value::min);
-            case AVERAGE -> computeAverage(values);
+            case MAXIMUM -> metricValues.stream().reduce(Value::max);
+            case MINIMUM -> metricValues.stream().reduce(Value::min);
+            case AVERAGE -> computeAverage(metricValues);
             default -> Optional.empty();
         };
     }
@@ -392,21 +392,21 @@ public abstract class Node implements Serializable {
     /**
      * Computes the average of the specified values.
      *
-     * @param values
+     * @param metricValues
      *         the values to compute the average for
      *
      * @return the average value
      */
-    private Optional<Value> computeAverage(final List<Value> values) {
-        if (values.isEmpty()) {
+    private Optional<Value> computeAverage(final List<Value> metricValues) {
+        if (metricValues.isEmpty()) {
             return Optional.empty();
         }
 
-        var sum = values.stream()
+        var sum = metricValues.stream()
                 .reduce(Value::add)
                 .orElseThrow(() -> new IllegalStateException("Cannot compute average of empty list"));
 
-        var count = values.size();
+        var count = metricValues.size();
         return Optional.of(sum.divide(count));  
     }
 

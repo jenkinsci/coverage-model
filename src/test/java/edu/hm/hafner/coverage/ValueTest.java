@@ -301,6 +301,7 @@ class ValueTest {
     }
 
     @Test
+    @SuppressWarnings("RV_RETURN_VALUE_IGNORED")
     void shouldThrowExceptionOnMinWithDifferentMetrics() {
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var loc = new Value(Metric.LOC, 5);
@@ -329,6 +330,7 @@ class ValueTest {
     }
 
     @Test
+    @SuppressWarnings("RV_RETURN_VALUE_IGNORED")
     void shouldThrowExceptionOnDivideByZero() {
         var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
 

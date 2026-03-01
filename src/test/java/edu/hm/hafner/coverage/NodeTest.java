@@ -1029,4 +1029,31 @@ class NodeTest {
         assertThat(average).isPresent();
         assertThat(average.get().asDouble()).isEqualTo(10.0);
     }
+
+    @Test
+    void shouldFallBackToTotalWhenUsingTotalAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        classNode.addChild(method1);
+
+        var total = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL);
+        var regular = classNode.getValue(CYCLOMATIC_COMPLEXITY);
+        
+        assertThat(total).isEqualTo(regular);
+    }
+
+    @Test
+    void shouldFallBackToTotalForUnsupportedAggregations() {
+        var builder = new CoverageBuilder();
+        var moduleNode = new ModuleNode("TestModule");
+        var packageNode = new PackageNode("com.example");
+        packageNode.addValue(builder.withMetric(Metric.LINE).withCovered(80).withMissed(20).build());
+        moduleNode.addChild(packageNode);
+
+        var result = moduleNode.getValue(Metric.LINE, MetricAggregation.MAXIMUM);
+        var regularResult = moduleNode.getValue(Metric.LINE);
+        
+        assertThat(result).isEqualTo(regularResult);
+    }
 }

@@ -60,6 +60,13 @@ class MetricAggregationTest {
     }
 
     @Test
+    void shouldNotSupportNonTotalAggregationsForCoverageMetrics() {
+        assertThat(MetricAggregation.MAXIMUM.isSupported(Metric.LINE)).isFalse();
+        assertThat(MetricAggregation.MINIMUM.isSupported(Metric.BRANCH)).isFalse();
+        assertThat(MetricAggregation.AVERAGE.isSupported(Metric.INSTRUCTION)).isFalse();
+    }
+
+    @Test
     void shouldReturnDefaultAggregation() {
         assertThat(MetricAggregation.getDefault())
                 .isEqualTo(MetricAggregation.TOTAL);
@@ -87,6 +94,14 @@ class MetricAggregationTest {
     @ValueSource(strings = {"AVERAGE", "average", "Average"})
     void shouldParseAverage(final String value) {
         assertThat(MetricAggregation.fromString(value)).isEqualTo(MetricAggregation.AVERAGE);
+    }
+
+    @Test
+    void shouldParseFromId() {
+        assertThat(MetricAggregation.fromString("total")).isEqualTo(MetricAggregation.TOTAL);
+        assertThat(MetricAggregation.fromString("maximum")).isEqualTo(MetricAggregation.MAXIMUM);
+        assertThat(MetricAggregation.fromString("minimum")).isEqualTo(MetricAggregation.MINIMUM);
+        assertThat(MetricAggregation.fromString("average")).isEqualTo(MetricAggregation.AVERAGE);
     }
 
     @Test
