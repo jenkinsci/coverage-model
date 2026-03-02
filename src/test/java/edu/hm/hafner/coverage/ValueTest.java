@@ -13,6 +13,8 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ValueTest {
@@ -310,7 +312,7 @@ class ValueTest {
     }
 
     @Test
-    @SuppressWarnings("RV_RETURN_VALUE_IGNORED")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
     void shouldThrowExceptionOnMinWithDifferentMetrics() {
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var loc = new Value(Metric.LOC, 5);
@@ -339,7 +341,7 @@ class ValueTest {
     }
 
     @Test
-    @SuppressWarnings("RV_RETURN_VALUE_IGNORED")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
     void shouldThrowExceptionOnDivideByZero() {
         var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
 
