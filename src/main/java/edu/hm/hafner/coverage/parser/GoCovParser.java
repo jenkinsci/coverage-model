@@ -16,7 +16,6 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Reader;
 import java.io.Serial;
 import java.io.Serializable;
@@ -57,7 +56,7 @@ public class GoCovParser extends CoverageParser {
                     + "(?<statements>\\d+)\\s+"
                     + "(?<executions>\\d+)");
 
-    private transient ModuleRegistry moduleRegistry;
+    private final ModuleRegistry moduleRegistry;
 
     /**
      * Creates a new instance of {@link GoCovParser}.
@@ -89,20 +88,6 @@ public class GoCovParser extends CoverageParser {
         this.moduleRegistry = moduleRegistry;
     }
 
-    /**
-     * Restores transient fields after deserialization.
-     *
-     * @param stream the object input stream
-     * @throws IOException if an I/O error occurs
-     * @throws ClassNotFoundException if the class cannot be found
-     */
-    @Serial
-    private void readObject(final ObjectInputStream stream)
-            throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-        moduleRegistry = new ModuleRegistry();
-    }
-
     @Override
     protected ModuleNode parseReport(final Reader reader, final String reportFile, final FilteredLog log) {
         try (var bufferedReader = new BufferedReader(reader);
@@ -129,7 +114,7 @@ public class GoCovParser extends CoverageParser {
             fileData.buildCoverages();
             handleEmptyResults(reportFile, log, modules.isEmpty());
 
-            var container = new ModuleNode(containerName.isEmpty() ? StringUtils.EMPTY : containerName.toString());
+            var container = new ModuleNode(containerName.toString());
             container.addAllChildren(modules);
             return container;
         }
@@ -160,10 +145,6 @@ public class GoCovParser extends CoverageParser {
 
         var moduleName = pathParts.moduleName;
         var module = findOrCreateModule(modules, moduleName);
-        if (module == null) {
-            module = new ModuleNode(moduleName);
-            modules.add(module);
-        }
 
         var packageNode = module.findOrCreatePackageNode(pathParts.packagePath);
         var fileNode = packageNode.findOrCreateFileNode(pathParts.fileName,
@@ -173,12 +154,15 @@ public class GoCovParser extends CoverageParser {
         recordCoverage(matcher, fileNode, fileData);
     }
 
-    @CheckForNull
     private ModuleNode findOrCreateModule(final Set<ModuleNode> modules, final String moduleName) {
         return modules.stream()
                 .filter(m -> m.getName().equals(moduleName))
                 .findFirst()
-                .orElse(null);
+                .orElseGet(() -> {
+                    var module = new ModuleNode(moduleName);
+                    modules.add(module);
+                    return module;
+                });
     }
 
     private void recordCoverage(final Matcher matcher, final FileNode fileNode, final FileDataCollector fileData) {
@@ -387,7 +371,7 @@ public class GoCovParser extends CoverageParser {
     /**
      * Registry of known Go modules for accurate path-to-module mapping.
      */
-    public static class ModuleRegistry implements Serializable {
+    private static class ModuleRegistry implements Serializable {
         @Serial
         private static final long serialVersionUID = 1L;
         
@@ -397,7 +381,7 @@ public class GoCovParser extends CoverageParser {
         /**
          * Creates an empty module registry.
          */
-        public ModuleRegistry() {
+        ModuleRegistry() {
             this.modules = new ArrayList<>();
         }
 
@@ -406,7 +390,7 @@ public class GoCovParser extends CoverageParser {
          *
          * @param modules the list of known modules
          */
-        public ModuleRegistry(final Collection<ModuleInfo> modules) {
+        ModuleRegistry(final Collection<ModuleInfo> modules) {
             this.modules = new ArrayList<>(modules);
             this.modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
         }
@@ -417,7 +401,7 @@ public class GoCovParser extends CoverageParser {
          * @param name the module name from go.mod
          * @param path the relative path where the module is located
          */
-        public void addModule(final String name, final String path) {
+        void addModule(final String name, final String path) {
             modules.add(new ModuleInfo(name, path));
             modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
         }
@@ -428,7 +412,7 @@ public class GoCovParser extends CoverageParser {
          * @param goModContent the content of the go.mod file
          * @param modulePath the relative path where this module is located
          */
-        public void parseAndAddGoMod(final String goModContent, final String modulePath) {
+        void parseAndAddGoMod(final String goModContent, final String modulePath) {
             var matcher = GO_MOD_MODULE_PATTERN.matcher(goModContent);
             if (matcher.find()) {
                 String moduleName = matcher.group(1);
@@ -447,7 +431,7 @@ public class GoCovParser extends CoverageParser {
          * @return the matching module info, or null if no match found
          */
         @CheckForNull
-        public ModuleInfo findModuleForPath(final String coveragePath) {
+        ModuleInfo findModuleForPath(final String coveragePath) {
             for (ModuleInfo module : modules) {
                 if (coveragePath.equals(module.name()) || coveragePath.startsWith(module.prefix())) {
                     return module;
@@ -461,7 +445,7 @@ public class GoCovParser extends CoverageParser {
          *
          * @return the list of modules
          */
-        public List<ModuleInfo> getModules() {
+        List<ModuleInfo> getModules() {
             return new ArrayList<>(modules);
         }
 
@@ -470,7 +454,7 @@ public class GoCovParser extends CoverageParser {
          *
          * @return true if no modules are registered
          */
-        public boolean isEmpty() {
+        boolean isEmpty() {
             return modules.isEmpty();
         }
     }
