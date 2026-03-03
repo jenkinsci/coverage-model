@@ -236,8 +236,8 @@ public final class FileNode extends Node {
                 updateLineCoverage(line, lineCoverage);
             }
             
-            if (leftBranch.getCovered() > 0 || leftBranch.getMissed() > 0 || 
-                rightBranch.getCovered() > 0 || rightBranch.getMissed() > 0) {
+            if (leftBranch.getCovered() > 0 || leftBranch.getMissed() > 0
+                    || rightBranch.getCovered() > 0 || rightBranch.getMissed() > 0) {
                 mergeLeftRight(line, leftBranch.getCovered(), leftBranch.getMissed(), rightBranch.getCovered(), rightBranch.getMissed(), branchCoveredPerLine, branchMissedPerLine);
                 updateBranchCoverage(line, branchCoverage);
             }
