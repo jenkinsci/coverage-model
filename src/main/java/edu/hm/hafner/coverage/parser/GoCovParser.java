@@ -44,7 +44,6 @@ public class GoCovParser extends CoverageParser {
 
     private static final PathUtil PATH_UTIL = new PathUtil();
     private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
-    private static final Pattern GO_MOD_MODULE_PATTERN = Pattern.compile("^\\s*module\\s+([^\\s]+)", Pattern.MULTILINE);
 
     /** 
      * Pattern to match Go coverage lines: path/file.go:line.col,line.col statements executions. 
