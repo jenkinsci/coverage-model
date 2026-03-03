@@ -485,8 +485,8 @@ class NodeTest {
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
-            assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2);
-            assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2);
+            assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 1, 1);
+            assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 1, 0, 0);
             assertThat(file.getMissedLines()).containsExactly(11, 13, 14);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2));
             assertThat(file.getMutations()).extracting(Mutation::getLine)
@@ -548,8 +548,8 @@ class NodeTest {
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
-            assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 4, 2, 1, 0, 1, 0, 0, 4, 2);
-            assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2, 0, 1, 0, 1, 4, 0, 2);
+            assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1);
+            assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0);
             assertThat(file.getMissedLines()).containsExactly(11, 13, 14, 21, 23, 24);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2), entry(26, 2));
             assertThat(file.getMutations()).extracting(Mutation::getLine)
@@ -611,9 +611,12 @@ class NodeTest {
         fileNode.addCounters(12 + offset, 1, 0);
         fileNode.addCounters(13 + offset, 0, 1);
 
-        fileNode.addCounters(14 + offset, 0, 4);
-        fileNode.addCounters(15 + offset, 4, 0);
-        fileNode.addCounters(16 + offset, 2, 2);
+        fileNode.addCounters(14 + offset, 0, 1);
+        fileNode.addBranchCounters(14 + offset, 0, 4);
+        fileNode.addCounters(15 + offset, 1, 0);
+        fileNode.addBranchCounters(15 + offset, 4, 0);
+        fileNode.addCounters(16 + offset, 1, 0);
+        fileNode.addBranchCounters(16 + offset, 2, 2);
 
         var builder = new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
 
