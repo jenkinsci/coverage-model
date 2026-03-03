@@ -164,10 +164,12 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldGetPartiallyCoveredLines() {
         var fileNode = new FileNode("NoModified.java", ".");
 
-        fileNode.addCounters(1, 2, 1);
+        fileNode.addCounters(1, 1, 0);
+        fileNode.addBranchCounters(1, 2, 1);
         fileNode.addCounters(2, 1, 0);
         fileNode.addCounters(3, 0, 1);
-        fileNode.addCounters(4, 4, 3);
+        fileNode.addCounters(4, 1, 0);
+        fileNode.addBranchCounters(4, 4, 3);
 
         assertThat(fileNode.getPartiallyCoveredLines())
                 .containsOnlyKeys(1, 4)
@@ -223,9 +225,11 @@ class FileNodeTest extends AbstractNodeTest {
 
         lineCoverage.addCounters(1, 1, 0);
         lineCoverage.addIndirectCoverageChange(1, 1);
-        branchCoverage.addCounters(1, 2, 0);
+        branchCoverage.addCounters(1, 1, 0);
+        branchCoverage.addBranchCounters(1, 2, 0);
         branchCoverage.addIndirectCoverageChange(1, 3);
-        lineAndBranchCoverage.addCounters(1, 2, 0);
+        lineAndBranchCoverage.addCounters(1, 1, 0);
+        lineAndBranchCoverage.addBranchCounters(1, 2, 0);
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, 2);
 
@@ -261,9 +265,11 @@ class FileNodeTest extends AbstractNodeTest {
 
         lineCoverage.addCounters(1, 1, 0);
         lineCoverage.addIndirectCoverageChange(1, -1);
-        branchCoverage.addCounters(1, 2, 0);
+        branchCoverage.addCounters(1, 1, 0);
+        branchCoverage.addBranchCounters(1, 2, 0);
         branchCoverage.addIndirectCoverageChange(1, -3);
-        lineAndBranchCoverage.addCounters(1, 2, 0);
+        lineAndBranchCoverage.addCounters(1, 1, 0);
+        lineAndBranchCoverage.addBranchCounters(1, 2, 0);
         lineAndBranchCoverage.addCounters(2, 1, 0);
         lineAndBranchCoverage.addIndirectCoverageChange(1, -2);
 

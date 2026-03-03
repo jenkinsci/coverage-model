@@ -208,6 +208,13 @@ public class CoberturaParser extends CoverageParser {
 
     private void addFileNodeCounters(final FileNode fileNode, final int lineNumber,
             final List<Coverage> coverages) {
+        // Always add line coverage based on hits attribute
+        var lineCoverage = coverages.stream()
+                .filter(c -> c.getMetric() == Metric.LINE)
+                .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
+        fileNode.addCounters(lineNumber, lineCoverage.getCovered(), lineCoverage.getMissed());
+
+        // Separately add branch coverage if it exists
         var hasBranchCoverage = coverages.stream()
                 .anyMatch(c -> c.getMetric() == Metric.BRANCH);
 
@@ -215,17 +222,7 @@ public class CoberturaParser extends CoverageParser {
             var branchCoverage = coverages.stream()
                     .filter(c -> c.getMetric() == Metric.BRANCH)
                     .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
-            var covered = branchCoverage.getCovered();
-            var missed = branchCoverage.getMissed();
-            fileNode.addCounters(lineNumber, covered, missed);
-        }
-        else {
-            var lineCoverage = coverages.stream()
-                    .filter(c -> c.getMetric() == Metric.LINE)
-                    .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-            var covered = lineCoverage.getCovered();
-            var missed = lineCoverage.getMissed();
-            fileNode.addCounters(lineNumber, covered, missed);
+            fileNode.addBranchCounters(lineNumber, branchCoverage.getCovered(), branchCoverage.getMissed());
         }
     }
 
