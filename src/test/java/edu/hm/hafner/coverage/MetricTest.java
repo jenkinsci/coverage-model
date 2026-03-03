@@ -69,9 +69,6 @@ class MetricTest {
                 Metric.STMT_DC,
                 Metric.STMT_CC,
                 Metric.CONDITION,
-                Metric.DECISION,
-                Metric.FUNCTION,
-                Metric.OBJECT_CODE,
                 Metric.BYTES,
                 Metric.MUTATION);
     }

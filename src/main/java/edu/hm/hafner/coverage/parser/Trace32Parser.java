@@ -211,25 +211,24 @@ public class Trace32Parser extends CoverageParser {
         }
 
         var node = makeNodeTree(root, treeName);
-        addOrReplaceMetric(map, node, "object".equals(metric) ? Metric.OBJECT_CODE : Metric.BYTES, Fields.BYTES, Fields.BYTESOK);
+        addOrReplaceMetric(map, node, Metric.BYTES, Fields.BYTES, Fields.BYTESOK);
 
         switch (metric) {
             case "func" -> {
-                addOrReplaceMetric(map, node, Metric.FUNCTION, Fields.FUNCTIONS, Fields.FUNCTIONSOK);
+                addOrReplaceMetric(map, node, Metric.FUNCTION_CALL, Fields.FUNCTIONS, Fields.FUNCTIONSOK);
             }
             case "stmt" -> {
                 addOrReplaceMetric(map, node, Metric.STATEMENT, Fields.LINES, Fields.LINESOK);
             }
             case "mcdc" -> {
                 addOrReplaceMetric(map, node, Metric.MCDC_PAIR, Fields.LINES, Fields.LINESOK);
-                addOrReplaceMetric(map, node, Metric.DECISION, Fields.DECISIONS, Fields.DECISIONSOK);
+                addOrReplaceMetric(map, node, Metric.BRANCH, Fields.DECISIONS, Fields.DECISIONSOK);
                 node.replaceValue(new CoverageBuilder(Metric.CONDITION)
                         .withTotal(2 * map.getOrDefault(Fields.CONDITIONS, 0))
                         .withCovered(map.getOrDefault(Fields.TRUE, 0) + map.getOrDefault(Fields.FALSE, 0)).build());
             }
             case "call" -> {
                 addOrReplaceMetric(map, node, Metric.FUNCTION_CALL, Fields.CALLS, Fields.CALLSOK);
-                addOrReplaceMetric(map, node, Metric.FUNCTION, Fields.FUNCTIONS, Fields.FUNCTIONSOK);
             }
             case "cond" -> {
                 addOrReplaceMetric(map, node, Metric.STMT_CC, Fields.LINES, Fields.LINESOK);
@@ -239,7 +238,7 @@ public class Trace32Parser extends CoverageParser {
             }
             case "dec" -> {
                 addOrReplaceMetric(map, node, Metric.STMT_DC, Fields.LINES, Fields.LINESOK);
-                node.replaceValue(new CoverageBuilder(Metric.DECISION)
+                node.replaceValue(new CoverageBuilder(Metric.BRANCH)
                         .withTotal(2 * map.getOrDefault(Fields.DECISIONS, 0))
                         .withCovered(map.getOrDefault(Fields.TRUE, 0) + map.getOrDefault(Fields.FALSE, 0)).build());
             }
