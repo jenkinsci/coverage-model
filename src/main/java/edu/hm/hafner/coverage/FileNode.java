@@ -47,7 +47,6 @@ public final class FileNode extends Node {
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
 
-    // metrics for branch coverage per line
     @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> branchCoveredPerLine = new TreeMap<>();
     @SuppressWarnings("serial")
@@ -232,13 +231,11 @@ public final class FileNode extends Node {
                 updateLineCoverage(line, lineCoverage);
             }
             else {
-                // LINE coverage without branches: simple hit tracking (1/0 or 0/1)
                 coveredPerLine.put(line, left.getMaxCovered(right));
                 missedPerLine.put(line, left.getMinMissed(right));
                 updateLineCoverage(line, lineCoverage);
             }
             
-            // BRANCH coverage: process if either side has branch data (covered > 0 or missed > 0)
             if (leftBranch.getCovered() > 0 || leftBranch.getMissed() > 0 || 
                 rightBranch.getCovered() > 0 || rightBranch.getMissed() > 0) {
                 mergeLeftRight(line, leftBranch.getCovered(), leftBranch.getMissed(), rightBranch.getCovered(), rightBranch.getMissed(), branchCoveredPerLine, branchMissedPerLine);
@@ -392,10 +389,8 @@ public final class FileNode extends Node {
                 throw new IllegalArgumentException("No coverage for line " + line);
             }
             
-            // Always add line coverage (whether or not branches exist)
             lineCoverage = lineCoverage.add(lineBuilder.withCovered(covered).withMissed(missed).build());
             
-            // Add branch coverage if branch data exists
             if (branchCovered + branchMissed > 0) {
                 copy.addBranchCounters(line, branchCovered, branchMissed);
                 branchCoverage = branchCoverage.add(branchBuilder.withCovered(branchCovered).withMissed(branchMissed).build());

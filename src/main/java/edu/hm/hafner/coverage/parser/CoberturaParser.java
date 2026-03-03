@@ -208,13 +208,11 @@ public class CoberturaParser extends CoverageParser {
 
     private void addFileNodeCounters(final FileNode fileNode, final int lineNumber,
             final List<Coverage> coverages) {
-        // Always add line coverage based on hits attribute
         var lineCoverage = coverages.stream()
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
         fileNode.addCounters(lineNumber, lineCoverage.getCovered(), lineCoverage.getMissed());
 
-        // Separately add branch coverage if it exists
         var hasBranchCoverage = coverages.stream()
                 .anyMatch(c -> c.getMetric() == Metric.BRANCH);
 

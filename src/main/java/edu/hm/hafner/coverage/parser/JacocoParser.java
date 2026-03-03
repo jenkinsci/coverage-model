@@ -255,12 +255,10 @@ public class JacocoParser extends CoverageParser {
         int coveredBranches = getIntegerValueOf(startElement, COVERED_BRANCHED);
         int missedBranches = getIntegerValueOf(startElement, MISSED_BRANCHES);
 
-        // Always add line coverage based on instructions
         int lineCovered = coveredInstructions > 0 ? 1 : 0;
         int lineMissed = lineCovered > 0 ? 0 : 1;
         fileNode.addCounters(lineNumber, lineCovered, lineMissed);
 
-        // Separately add branch coverage if it exists
         if (missedBranches + coveredBranches > 0) {
             fileNode.addBranchCounters(lineNumber, coveredBranches, missedBranches);
         }
