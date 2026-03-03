@@ -176,7 +176,7 @@ class OpenCoverParserTest extends AbstractParserTest {
         var fileNodes = a.getAllFileNodes();
         assertThat(fileNodes).hasSize(3);
 
-        var lineRange = fileNodes.get(0);
+        var lineRange = fileNodes.getFirst();
         assertThat(lineRange)
                 .hasName("MyLogging.FancyClass.cs")
                 .hasRelativePath("C:/temp/opencovertests/MyLogging.FancyClass.cs");

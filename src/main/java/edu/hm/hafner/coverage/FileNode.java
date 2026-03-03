@@ -491,7 +491,7 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
      */
     public boolean hasCoverageForLine(final int line) {
-        return coveredPerLine.containsKey(line) ||  mcdcPairCoveredPerLine.containsKey(line) ||  functionCallCoveredPerLine.containsKey(line);
+        return coveredPerLine.containsKey(line) || mcdcPairCoveredPerLine.containsKey(line) || functionCallCoveredPerLine.containsKey(line);
     }
 
     private Coverage getLineCoverage(final int line) {
@@ -795,7 +795,7 @@ public final class FileNode extends Node {
         }
 
         if (missedLines.size() == 1) {
-            lineRanges.add(new LineRange(missedLines.first()));
+            lineRanges.add(new LineRange(missedLines.getFirst()));
 
             return lineRanges;
         }
