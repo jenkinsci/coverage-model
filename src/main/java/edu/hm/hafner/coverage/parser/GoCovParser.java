@@ -83,7 +83,7 @@ public class GoCovParser extends CoverageParser {
      * @param moduleRegistry
      *         registry containing known Go module names for accurate path resolution
      */
-    public GoCovParser(final ProcessingMode processingMode, final ModuleRegistry moduleRegistry) {
+    GoCovParser(final ProcessingMode processingMode, final ModuleRegistry moduleRegistry) {
         super(processingMode);
         this.moduleRegistry = moduleRegistry;
     }
@@ -386,45 +386,6 @@ public class GoCovParser extends CoverageParser {
         }
 
         /**
-         * Creates a registry with known modules.
-         *
-         * @param modules the list of known modules
-         */
-        ModuleRegistry(final Collection<ModuleInfo> modules) {
-            this.modules = new ArrayList<>(modules);
-            this.modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
-        }
-
-        /**
-         * Registers a new module.
-         *
-         * @param name the module name from go.mod
-         * @param path the relative path where the module is located
-         */
-        void addModule(final String name, final String path) {
-            modules.add(new ModuleInfo(name, path));
-            modules.sort((a, b) -> Integer.compare(b.name().length(), a.name().length()));
-        }
-
-        /**
-         * Parses a go.mod file and extracts the module name.
-         *
-         * @param goModContent the content of the go.mod file
-         * @param modulePath the relative path where this module is located
-         */
-        void parseAndAddGoMod(final String goModContent, final String modulePath) {
-            var matcher = GO_MOD_MODULE_PATTERN.matcher(goModContent);
-            if (matcher.find()) {
-                String moduleName = matcher.group(1);
-                int commentIndex = moduleName.indexOf("//");
-                if (commentIndex >= 0) {
-                    moduleName = moduleName.substring(0, commentIndex).trim();
-                }
-                addModule(moduleName, modulePath);
-            }
-        }
-
-        /**
          * Finds the best matching module for a coverage path using longest-prefix matching.
          *
          * @param coveragePath the path from the coverage report (e.g., "ext/sub/sub.go")
@@ -438,24 +399,6 @@ public class GoCovParser extends CoverageParser {
                 }
             }
             return null;
-        }
-
-        /**
-         * Returns all registered modules.
-         *
-         * @return the list of modules
-         */
-        List<ModuleInfo> getModules() {
-            return new ArrayList<>(modules);
-        }
-
-        /**
-         * Checks if the registry is empty.
-         *
-         * @return true if no modules are registered
-         */
-        boolean isEmpty() {
-            return modules.isEmpty();
         }
     }
 
