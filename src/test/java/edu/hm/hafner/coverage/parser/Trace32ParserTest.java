@@ -58,7 +58,7 @@ class Trace32ParserTest extends AbstractParserTest {
         var filesNode = classes.stream().filter(node -> "TRACE32 Files".equals(node.getName())).findFirst();
         assertThat(filesNode).isPresent();
         assertThat(filesNode.get().getAllFileNodes()).extracting(Node::getName).containsExactlyInAnyOrder("coverage.c", "main.c", "gesf2.c", "libgcc2.c", "start.sx", "floatsisf.c");
-        assertThat(filesNode.get().getMetrics()).containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.FUNCTION, Metric.BYTES);
+        assertThat(filesNode.get().getMetrics()).containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.BYTES);
 
         // Check that package nodes are NOT created
         var packages = root.getAll(Metric.PACKAGE);
@@ -68,12 +68,6 @@ class Trace32ParserTest extends AbstractParserTest {
     @Test
     void testCallCoverage() {
         var root = readReport("trace32-call.xml");
-
-        assertThat(root.getValue(Metric.FUNCTION)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
-            assertThat(cov.getCovered()).isEqualTo(47);
-            assertThat(cov.getMissed()).isEqualTo(6);
-        });
 
         assertThat(root.getValue(Metric.FUNCTION_CALL)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
@@ -127,7 +121,7 @@ class Trace32ParserTest extends AbstractParserTest {
             assertThat(cov.getMissed()).isEqualTo(1136);
         });
 
-        assertThat(root.getValue(Metric.DECISION)).isPresent().get().satisfies(coverage -> {
+        assertThat(root.getValue(Metric.BRANCH)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
             assertThat(cov.getCovered()).isEqualTo(123);
             assertThat(cov.getMissed()).isEqualTo(103);
@@ -138,7 +132,7 @@ class Trace32ParserTest extends AbstractParserTest {
     void testFunctionCoverage() {
         var root = readReport("trace32-func.xml");
 
-        assertThat(root.getValue(Metric.FUNCTION)).isPresent().get().satisfies(coverage -> {
+        assertThat(root.getValue(Metric.FUNCTION_CALL)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
             assertThat(cov.getCovered()).isEqualTo(52);
             assertThat(cov.getMissed()).isEqualTo(1);
@@ -155,7 +149,7 @@ class Trace32ParserTest extends AbstractParserTest {
     void testMcdcCoverage() {
         var root = readReport("trace32-mcdc.xml");
 
-        assertThat(root.getValue(Metric.DECISION)).isPresent().get().satisfies(coverage -> {
+        assertThat(root.getValue(Metric.BRANCH)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
             assertThat(cov.getCovered()).isEqualTo(53);
             assertThat(cov.getMissed()).isEqualTo(60);
@@ -201,7 +195,7 @@ class Trace32ParserTest extends AbstractParserTest {
     void testObjectCodeCoverage() {
         var root = readReport("trace32-objcode.xml");
 
-        assertThat(root.getValue(Metric.OBJECT_CODE)).isPresent().get().satisfies(coverage -> {
+        assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
             assertThat(cov.getCovered()).isEqualTo(9132);
             assertThat(cov.getMissed()).isEqualTo(1088);

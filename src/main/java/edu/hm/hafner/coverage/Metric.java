@@ -50,9 +50,6 @@ public enum Metric {
     STMT_DC("Statement + Decision Coverage", "Statement + DC", new ValuesAggregator()),
     STMT_CC("Statement + Condition Coverage", "Statement + CC", new ValuesAggregator()),
     CONDITION("Condition Coverage", "Condition", new ValuesAggregator()),
-    DECISION("Decision Coverage", "Decision", new ValuesAggregator()),
-    FUNCTION("Function Coverage", "Function", new ValuesAggregator()),
-    OBJECT_CODE("Object Code Coverage", "Object Code", new ValuesAggregator()),
     BYTES("Bytes Coverage", "Bytes", new ValuesAggregator()),
 
     /** Additional coverage values obtained from mutation testing. */
