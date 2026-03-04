@@ -8,9 +8,6 @@ import javax.xml.stream.events.StartElement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -29,6 +26,8 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -257,19 +256,19 @@ public class CoberturaParser extends CoverageParser {
         var lineCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-        
+
         var branchCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
-        
+
         var branchLineCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .map(c -> computeLineCoverage(c.getCovered()))
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-        
+
         lineCoverage = lineCoverage.add(branchLineCoverage);
-        
-        return new Coverage[] {lineCoverage, branchCoverage};
+
+        return new Coverage[]{lineCoverage, branchCoverage};
     }
 
     protected Coverage computeLineCoverage(final int coverage) {

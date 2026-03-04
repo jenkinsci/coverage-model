@@ -101,7 +101,7 @@ public abstract class Node implements Serializable {
 
         List<String> parentsOfSameType = new ArrayList<>();
         for (var node = parent; node != null && node.getMetric() == type; node = node.parent) {
-            parentsOfSameType.add(0, node.getName());
+            parentsOfSameType.addFirst(node.getName());
         }
         return String.join(".", parentsOfSameType);
     }
@@ -358,6 +358,7 @@ public abstract class Node implements Serializable {
         return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
     }
 
+    // FIXME: when aggregating values we need to make sure that
     /**
      * Aggregates all values that are part of the subtree that is spanned by this node.
      *
@@ -721,7 +722,7 @@ public abstract class Node implements Serializable {
             return container; // Null object
         }
         if (nodes.size() == 1) {
-            return nodes.get(0); // No merge required
+            return nodes.getFirst(); // No merge required
         }
 
         Map<ImmutablePair<String, Metric>, ? extends List<Node>> grouped = nodes.stream()

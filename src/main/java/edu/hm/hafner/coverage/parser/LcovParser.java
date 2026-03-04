@@ -1,5 +1,7 @@
 package edu.hm.hafner.coverage.parser;
 
+import org.apache.commons.lang3.tuple.MutablePair;
+
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
@@ -10,7 +12,6 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.LookaheadStream;
 import edu.hm.hafner.util.PathUtil;
-import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,7 +53,7 @@ public class LcovParser extends CoverageParser {
     protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         var root = new ModuleNode(EMPTY);
         Map<String, Map<Integer, MutablePair<Integer, Integer>>> files = new LinkedHashMap<>();
-        String currentFile = "-";
+        var currentFile = "-";
 
         try (var br = new BufferedReader(reader);
                 var lines = br.lines();
@@ -72,7 +73,7 @@ public class LcovParser extends CoverageParser {
 
                 // Instruction coverage (DA:<line number>,<execution count>[,<checksum>])
                 else if (line.startsWith("DA:")) {
-                    String[] parts = line.substring(3).split(",", 3);
+                    var parts = line.substring(3).split(",", 3);
                     var ln = Integer.parseInt(parts[0]);
                     var exec = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
                     var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
@@ -81,7 +82,7 @@ public class LcovParser extends CoverageParser {
                 }
                 // Branch coverage (BRDA:<line>,<block>,<branch>,<taken>)
                 else if (line.startsWith("BRDA:")) {
-                    String[] parts = line.substring(5).split(",", 4);
+                    var parts = line.substring(5).split(",", 4);
                     var ln = Integer.parseInt(parts[0]);
                     var taken = parts.length > 3 ? parts[3] : "-";
                     var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
@@ -118,7 +119,7 @@ public class LcovParser extends CoverageParser {
         var instructionBuilder = new CoverageBuilder().withMetric(Metric.INSTRUCTION);
 
         for (var entry : files.entrySet()) {
-            String path = entry.getKey();
+            var path = entry.getKey();
             String normalized = normalizePath(path);
             String filename = baseName(normalized);
             var id = builder.intern(PATH_UTIL.getRelativePath(Path.of(normalized)));

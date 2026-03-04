@@ -88,7 +88,7 @@ public final class ModuleNode extends Node {
                 var localRoot = splitPackages.get();
                 Node localTail = localRoot;
                 while (localTail.hasChildren()) {
-                    localTail = localTail.getChildren().get(0);
+                    localTail = localTail.getChildren().getFirst();
                 }
                 localTail.addAllChildren(packageNode.getChildren()); // move the children to the new tail
                 mergeSinglePackage(localRoot);
