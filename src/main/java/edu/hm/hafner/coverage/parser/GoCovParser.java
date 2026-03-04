@@ -21,7 +21,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,7 +42,6 @@ public class GoCovParser extends CoverageParser {
     private static final long serialVersionUID = -4511292826873362408L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
-    private static final Pattern PATH_SEPARATOR = Pattern.compile("/");
 
     /** 
      * Pattern to match Go coverage lines: path/file.go:line.col,line.col statements executions. 
@@ -124,17 +122,17 @@ public class GoCovParser extends CoverageParser {
 
     private String determineContainerName(final String fullPath) {
         var normalizedPath = fullPath.replace('\\', '/');
-        var parts = Arrays.stream(PATH_SEPARATOR.split(normalizedPath)).toList();
+        var parts = StringUtils.split(normalizedPath, '/');
         
-        if (parts.isEmpty()) {
+        if (parts.length == 0) {
             return StringUtils.EMPTY;
         }
         
-        if (parts.size() >= 3 && parts.get(0).contains(".")) {
-            return parts.get(0) + "/" + parts.get(1);
+        if (parts.length >= 3 && parts[0].contains(".")) {
+            return parts[0] + "/" + parts[1];
         }
         
-        return parts.get(0);
+        return parts[0];
     }
 
     private void processLine(final Matcher matcher, final Set<ModuleNode> modules,
@@ -143,7 +141,18 @@ public class GoCovParser extends CoverageParser {
         var pathParts = parseGoPath(fullPath);
 
         var moduleName = pathParts.moduleName;
-        var module = findOrCreateModule(modules, moduleName);
+        var existingModule = modules.stream()
+                .filter(m -> m.getName().equals(moduleName))
+                .findFirst();
+        
+        ModuleNode module;
+        if (existingModule.isPresent()) {
+            module = existingModule.get();
+        }
+        else {
+            module = new ModuleNode(moduleName);
+            modules.add(module);
+        }
 
         var packageNode = module.findOrCreatePackageNode(pathParts.packagePath);
         var fileNode = packageNode.findOrCreateFileNode(pathParts.fileName,
@@ -151,17 +160,6 @@ public class GoCovParser extends CoverageParser {
 
         fileData.addFile(fileNode);
         recordCoverage(matcher, fileNode, fileData);
-    }
-
-    private ModuleNode findOrCreateModule(final Set<ModuleNode> modules, final String moduleName) {
-        return modules.stream()
-                .filter(m -> m.getName().equals(moduleName))
-                .findFirst()
-                .orElseGet(() -> {
-                    var module = new ModuleNode(moduleName);
-                    modules.add(module);
-                    return module;
-                });
     }
 
     private void recordCoverage(final Matcher matcher, final FileNode fileNode, final FileDataCollector fileData) {
@@ -192,14 +190,14 @@ public class GoCovParser extends CoverageParser {
             return createPathPartsFromModule(normalizedPath, moduleMatch);
         }
         
-        var parts = Arrays.stream(PATH_SEPARATOR.split(normalizedPath)).toList();
+        var parts = StringUtils.split(normalizedPath, '/');
 
-        if (parts.isEmpty()) {
+        if (parts.length == 0) {
             return new PathParts(StringUtils.EMPTY, StringUtils.EMPTY, 
                     StringUtils.EMPTY, StringUtils.EMPTY);
         }
 
-        var fileName = parts.get(parts.size() - 1);
+        var fileName = parts[parts.length - 1];
         var pathInfo = guessPathStructure(parts);
 
         var packagePath = buildPackagePath(parts, pathInfo.packageStartIndex());
@@ -258,28 +256,35 @@ public class GoCovParser extends CoverageParser {
      * @param parts the path segments split by '/'
      * @return path information containing module name and package start index
      */
-    private PathInfo guessPathStructure(final List<String> parts) {
-        if (parts.size() == 1) {
+    private PathInfo guessPathStructure(final String[] parts) {
+        if (parts.length == 1) {
             return new PathInfo(StringUtils.EMPTY, 0);
         }
-        if (parts.size() == 2 || parts.size() == 3) {
-            return new PathInfo(parts.get(0), 1);
+        if (parts.length == 2 || parts.length == 3) {
+            return new PathInfo(parts[0], 1);
         }
-        return parts.get(0).contains(".")
-                ? new PathInfo(parts.get(2), 3)
-                : new PathInfo(parts.get(1), 2);
+        return parts[0].contains(".")
+                ? new PathInfo(parts[2], 3)
+                : new PathInfo(parts[1], 2);
     }
 
-    private String buildPackagePath(final List<String> parts, final int startIndex) {
-        return buildPath(parts, startIndex, parts.size() - 1);
+    private String buildPackagePath(final String[] parts, final int startIndex) {
+        return buildPath(parts, startIndex, parts.length - 1);
     }
 
-    private String buildRelativePath(final List<String> parts, final int startIndex) {
-        return buildPath(parts, startIndex, parts.size());
+    private String buildRelativePath(final String[] parts, final int startIndex) {
+        return buildPath(parts, startIndex, parts.length);
     }
 
-    private String buildPath(final List<String> parts, final int startIndex, final int endIndex) {
-        return String.join("/", parts.subList(startIndex, endIndex));
+    private String buildPath(final String[] parts, final int startIndex, final int endIndex) {
+        if (startIndex >= endIndex) {
+            return StringUtils.EMPTY;
+        }
+        var result = new StringBuilder(parts[startIndex]);
+        for (int i = startIndex + 1; i < endIndex; i++) {
+            result.append('/').append(parts[i]);
+        }
+        return result.toString();
     }
 
     private int asInt(final Matcher matcher, final String group) {
