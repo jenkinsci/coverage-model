@@ -256,7 +256,7 @@ public class GoCovParser extends CoverageParser {
      * @param parts the path segments split by '/'
      * @return path information containing module name and package start index
      */
-    private PathInfo guessPathStructure(final String[] parts) {
+    private PathInfo guessPathStructure(final String... parts) {
         if (parts.length == 1) {
             return new PathInfo(StringUtils.EMPTY, 0);
         }
