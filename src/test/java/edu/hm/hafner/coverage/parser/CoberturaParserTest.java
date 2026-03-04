@@ -610,57 +610,57 @@ class CoberturaParserTest extends AbstractParserTest {
     @Issue("JENKINS-76221")
     void shouldMergeDuplicateLineNumbers() {
         var result = readReport("cobertura-duplicate-lines.xml");
-        
+
         assertThat(result.getAllFileNodes()).hasSize(1);
-        var fileNode = result.getAllFileNodes().get(0);
-        
+        var fileNode = result.getAllFileNodes().getFirst();
+
         assertThat(fileNode).hasName("foobar.cc").hasRelativePath("path/to/foobar.cc");
-        
+
         // Line 81: at least one entry has hits > 0 → covered
         assertThat(fileNode.getCoveredOfLine(81)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(81)).isEqualTo(0);
-        
+
         // Line 82: keep maximum branch coverage (2 covered)
         assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(2);
         assertThat(fileNode.getMissedOfLine(82)).isEqualTo(2);
-        
+
         // Line 83: single line, covered
         assertThat(fileNode.getCoveredOfLine(83)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(83)).isEqualTo(0);
-        
+
         // Line 84: all duplicates not covered → not covered
         assertThat(fileNode.getCoveredOfLine(84)).isEqualTo(0);
         assertThat(fileNode.getMissedOfLine(84)).isEqualTo(1);
-        
+
         // Line 85: equal branch coverage → keep existing
         assertThat(fileNode.getCoveredOfLine(85)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(85)).isEqualTo(1);
-        
+
         // Line 86: new coverage has more covered branches → use new (3 covered)
         assertThat(fileNode.getCoveredOfLine(86)).isEqualTo(3);
         assertThat(fileNode.getMissedOfLine(86)).isEqualTo(1);
-        
+
         // Line 87: both branch coverage with 0 covered → keep existing (0 covered)
         assertThat(fileNode.getCoveredOfLine(87)).isEqualTo(0);
         assertThat(fileNode.getMissedOfLine(87)).isEqualTo(4);
-        
+
         // Check overall LINE coverage for the class (should be based on merged values only)
         // Lines: 81 (covered), 82 (covered), 83 (covered), 84 (not covered), 85 (covered), 86 (covered), 87 (not covered)
         // Total: 5 covered, 2 missed = 7 total
-        var classNode = fileNode.getAll(CLASS).iterator().next();
+        var classNode = fileNode.getAll(CLASS).getFirst();
         assertThat(classNode.getValue(LINE))
                 .isPresent()
                 .get()
-                .isInstanceOfSatisfying(Coverage.class, 
+                .isInstanceOfSatisfying(Coverage.class,
                         coverage -> assertThat(coverage).hasCovered(5).hasMissed(2));
-        
+
         // Check overall BRANCH coverage for the class (should be based on merged values only)
         // Branches: 82 (2/4), 85 (1/2), 86 (3/4), 87 (0/4)
         // Total: 6 covered, 8 missed = 14 total
         assertThat(classNode.getValue(BRANCH))
                 .isPresent()
                 .get()
-                .isInstanceOfSatisfying(Coverage.class, 
+                .isInstanceOfSatisfying(Coverage.class,
                         coverage -> assertThat(coverage).hasCovered(6).hasMissed(8));
     }
 
