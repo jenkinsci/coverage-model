@@ -12,13 +12,11 @@ import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LookaheadStream;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeStringBuilder;
-import edu.umd.cs.findbugs.annotations.CheckForNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Serial;
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,8 +51,6 @@ public class GoCovParser extends CoverageParser {
                     + "(?<statements>\\d+)\\s+"
                     + "(?<executions>\\d+)");
 
-    private final ModuleRegistry moduleRegistry;
-
     /**
      * Creates a new instance of {@link GoCovParser}.
      */
@@ -69,20 +65,7 @@ public class GoCovParser extends CoverageParser {
      *         determines whether to ignore errors
      */
     public GoCovParser(final ProcessingMode processingMode) {
-        this(processingMode, new ModuleRegistry());
-    }
-
-    /**
-     * Creates a new instance of {@link GoCovParser} with module information.
-     *
-     * @param processingMode
-     *         determines whether to ignore errors
-     * @param moduleRegistry
-     *         registry containing known Go module names for accurate path resolution
-     */
-    GoCovParser(final ProcessingMode processingMode, final ModuleRegistry moduleRegistry) {
         super(processingMode);
-        this.moduleRegistry = moduleRegistry;
     }
 
     @Override
@@ -184,12 +167,6 @@ public class GoCovParser extends CoverageParser {
      */
     private PathParts parseGoPath(final String fullPath) {
         var normalizedPath = fullPath.replace('\\', '/');
-        
-        var moduleMatch = moduleRegistry.findModuleForPath(normalizedPath);
-        if (moduleMatch != null) {
-            return createPathPartsFromModule(normalizedPath, moduleMatch);
-        }
-        
         var parts = StringUtils.split(normalizedPath, '/');
 
         if (parts.length == 0) {
@@ -204,49 +181,6 @@ public class GoCovParser extends CoverageParser {
         var relativePath = buildRelativePath(parts, pathInfo.packageStartIndex());
 
         return new PathParts(pathInfo.moduleName(), packagePath, fileName, relativePath);
-    }
-
-    /**
-     * Creates path parts from a matched module using Go module semantics.
-     * The coverage path format is: module_name/relative_path
-     * We extract the relative path after the module name and parse it accordingly.
-     *
-     * @param fullPath the complete coverage path
-     * @param moduleInfo the matched module information
-     * @return parsed path components
-     */
-    private PathParts createPathPartsFromModule(final String fullPath, final ModuleInfo moduleInfo) {
-        var moduleName = moduleInfo.name();
-        
-        String relativePath;
-        String packagePath;
-        String fileName;
-        
-        if (fullPath.startsWith(moduleInfo.prefix())) {
-            relativePath = fullPath.substring(moduleInfo.prefix().length());
-            int lastSlash = relativePath.lastIndexOf('/');
-            if (lastSlash >= 0) {
-                packagePath = relativePath.substring(0, lastSlash);
-                fileName = relativePath.substring(lastSlash + 1);
-            } 
-            else {
-                packagePath = StringUtils.EMPTY;
-                fileName = relativePath;
-            }
-        } 
-        else if (fullPath.equals(moduleName)) {
-            relativePath = StringUtils.EMPTY;
-            packagePath = StringUtils.EMPTY;
-            fileName = StringUtils.EMPTY;
-        } 
-        else {
-            relativePath = fullPath;
-            packagePath = StringUtils.EMPTY;
-            int lastSlash = fullPath.lastIndexOf('/');
-            fileName = lastSlash >= 0 ? fullPath.substring(lastSlash + 1) : fullPath;
-        }
-        
-        return new PathParts(moduleName, packagePath, fileName, relativePath);
     }
 
     /**
@@ -370,61 +304,5 @@ public class GoCovParser extends CoverageParser {
      */
     private record PathParts(String moduleName, String packagePath, String fileName,
                              String relativePath) {
-    }
-
-    /**
-     * Registry of known Go modules for accurate path-to-module mapping.
-     */
-    private static class ModuleRegistry implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-        
-        @SuppressWarnings("serial")
-        private final List<ModuleInfo> modules;
-
-        /**
-         * Creates an empty module registry.
-         */
-        ModuleRegistry() {
-            this.modules = new ArrayList<>();
-        }
-
-        /**
-         * Finds the best matching module for a coverage path using longest-prefix matching.
-         *
-         * @param coveragePath the path from the coverage report (e.g., "ext/sub/sub.go")
-         * @return the matching module info, or null if no match found
-         */
-        @CheckForNull
-        ModuleInfo findModuleForPath(final String coveragePath) {
-            for (ModuleInfo module : modules) {
-                if (coveragePath.equals(module.name()) || coveragePath.startsWith(module.prefix())) {
-                    return module;
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Information about a Go module extracted from go.mod.
-     *
-     * @param name the module name (e.g., "github.com/user/project", "ext", "ext/sub")
-     * @param path the relative path where this module is located (e.g., "./", "./hack/ext")
-     * @param prefix the precomputed prefix for matching (name + "/") to optimize findModuleForPath
-     */
-    public record ModuleInfo(String name, String path, String prefix) implements Serializable {
-        @Serial
-        private static final long serialVersionUID = 1L;
-        
-        /**
-         * Creates a ModuleInfo with the given name and path.
-         *
-         * @param name the module name
-         * @param path the relative path
-         */
-        public ModuleInfo(final String name, final String path) {
-            this(name, path, name + "/");
-        }
     }
 }
