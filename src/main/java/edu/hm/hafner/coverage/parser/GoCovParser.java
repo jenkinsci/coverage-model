@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @see <a href="https://go.dev/doc/build-cover">Go coverage profiling support</a>
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"checkstyle:ClassDataAbstractionCoupling"})
 public class GoCovParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = -4511292826873362408L;
