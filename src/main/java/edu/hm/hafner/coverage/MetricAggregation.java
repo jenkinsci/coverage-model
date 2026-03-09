@@ -95,11 +95,8 @@ public enum MetricAggregation {
      *         if the value is not a valid aggregation type
      */
     public static MetricAggregation fromString(final String value) {
-        String upperValue = value.toUpperCase(Locale.ROOT);
-        String lowerValue = value.toLowerCase(Locale.ROOT);
-        
         for (MetricAggregation aggregation : values()) {
-            if (aggregation.name().equals(upperValue) || aggregation.id.equals(lowerValue)) {
+            if (aggregation.name().equalsIgnoreCase(value) || aggregation.id.equalsIgnoreCase(value)) {
                 return aggregation;
             }
         }
