@@ -31,8 +31,6 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
