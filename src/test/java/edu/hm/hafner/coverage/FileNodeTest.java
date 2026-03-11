@@ -1,14 +1,13 @@
 package edu.hm.hafner.coverage;
 
-import java.io.IOException;
-import java.util.NavigableMap;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.TreeString;
 
+import java.io.IOException;
+import java.util.NavigableMap;
 import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
 
@@ -348,6 +347,7 @@ class FileNodeTest extends AbstractNodeTest {
                 .containsExactly(new LineRange(2, 5), new LineRange(7));
     }
 
+    @SuppressWarnings("PMD.PublicMemberInNonPublicType")
     public static void main(final String... args) throws IOException {
         new FileNodeTest().createSerializationFile();
     }
