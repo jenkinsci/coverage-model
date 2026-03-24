@@ -43,9 +43,7 @@ public class Trace32Parser extends CoverageParser {
     private static final QName MIXED = new QName("mixed");
     private static final QName SRCPATH = new QName("srcpath");
     private static final QName METRIC_ATTR = new QName("metric");
-
-    @SuppressWarnings("PMD.LooseCoupling")
-    private final HashMap<String, String> filesToProcess = new HashMap<>();
+    private HashMap<String, String> filesToProcess;
 
     private enum Fields {
         BYTES, BYTESOK,
@@ -81,6 +79,7 @@ public class Trace32Parser extends CoverageParser {
     @Override
     protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         var root = new ModuleNode("TRACE32 Coverage");
+        filesToProcess = new HashMap<>();
 
         try {
             parseFile(root, reader);
