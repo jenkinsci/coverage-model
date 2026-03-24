@@ -46,7 +46,6 @@ public enum Metric {
     FUNCTION_CALL("Function Call Coverage", "Function Call", new ValuesAggregator()),
 
     /** Additional metrics for TRACE32 coverage. */
-    STATEMENT("Statement Coverage", "Statement", new ValuesAggregator()),
     STMT_DC("Statement + Decision Coverage", "Statement + DC", new ValuesAggregator()),
     STMT_CC("Statement + Condition Coverage", "Statement + CC", new ValuesAggregator()),
     CONDITION("Condition Coverage", "Condition", new ValuesAggregator()),

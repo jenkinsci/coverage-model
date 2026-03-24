@@ -65,7 +65,6 @@ class MetricTest {
                 Metric.INSTRUCTION,
                 Metric.MCDC_PAIR,
                 Metric.FUNCTION_CALL,
-                Metric.STATEMENT,
                 Metric.STMT_DC,
                 Metric.STMT_CC,
                 Metric.CONDITION,
