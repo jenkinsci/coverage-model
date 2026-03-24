@@ -178,7 +178,7 @@ class Trace32ParserTest extends AbstractParserTest {
     void testStatementCoverage() {
         var root = readReport("trace32-stmt.xml");
 
-        assertThat(root.getValue(Metric.STATEMENT)).isPresent().get().satisfies(coverage -> {
+        assertThat(root.getValue(Metric.INSTRUCTION)).isPresent().get().satisfies(coverage -> {
             var cov = (Coverage)coverage;
             assertThat(cov.getCovered()).isEqualTo(618);
             assertThat(cov.getMissed()).isEqualTo(35);

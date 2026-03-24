@@ -221,7 +221,7 @@ public class Trace32Parser extends CoverageParser {
                 addOrReplaceMetric(map, node, Metric.FUNCTION_CALL, Fields.FUNCTIONS, Fields.FUNCTIONSOK);
             }
             case "stmt" -> {
-                addOrReplaceMetric(map, node, Metric.STATEMENT, Fields.LINES, Fields.LINESOK);
+                addOrReplaceMetric(map, node, Metric.INSTRUCTION, Fields.LINES, Fields.LINESOK);
             }
             case "mcdc" -> {
                 addOrReplaceMetric(map, node, Metric.MCDC_PAIR, Fields.LINES, Fields.LINESOK);
