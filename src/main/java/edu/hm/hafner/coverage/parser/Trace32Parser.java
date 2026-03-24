@@ -170,10 +170,10 @@ public class Trace32Parser extends CoverageParser {
         return lastNode;
     }
 
-    private void addOrReplaceMetric(final Map<Fields, Integer> map, final Node node, final Metric metric, final Fields total, final Fields covered) {
+    private void addOrReplaceMetric(final Map<Fields, Integer> metricsMap, final Node node, final Metric metric, final Fields total, final Fields covered) {
         node.replaceValue(new CoverageBuilder(metric)
-                .withTotal(map.getOrDefault(total, 0))
-                .withCovered(map.getOrDefault(covered, 0)).build());
+                .withTotal(metricsMap.getOrDefault(total, 0))
+                .withCovered(metricsMap.getOrDefault(covered, 0)).build());
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
