@@ -150,10 +150,11 @@ public class Trace32Parser extends CoverageParser {
     private Optional<Node> getNodeTree(final Node root, final String treeName) {
         var lastNode = root;
         for (var name : treeName.split("[\\/\\\\]")) {
-            lastNode = lastNode.findClass(name).orElse(null);
-            if (lastNode == null) {
+            var classNode = lastNode.findClass(name);
+            if (classNode.isEmpty()) {
                 return Optional.empty();
             }
+            lastNode = classNode.get();
         }
         return Optional.of(lastNode);
     }
