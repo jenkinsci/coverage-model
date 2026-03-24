@@ -15,6 +15,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
+import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.Metric;
@@ -93,7 +94,12 @@ public class Trace32Parser extends CoverageParser {
             return new ModuleNode("empty");
         }
 
-        // Add files and copy metrics
+        addFilesAndRenameModules(root, log);
+
+        return root;
+    }
+
+    private void addFilesAndRenameModules(final ModuleNode root, final FilteredLog log) {
         var rootFiles = root.createClassNode("TRACE32 Files");
 
         for (var entry : filesToProcess.entrySet()) {
@@ -110,9 +116,8 @@ public class Trace32Parser extends CoverageParser {
             root.addSource(filePath);
             var fileNode = rootFiles.createFileNode(fileNodeName, TreeString.valueOf(filePath));
 
-            // Renaming module name with a file name
-            var moduleNode = getNodeTree(root, entry.getKey()).orElse(null);
-            if (moduleNode != null) {
+            getNodeTree(root, entry.getKey()).ifPresent(moduleNode -> {
+                // Clone existing class node and rename it to a filename
                 var newNode = root.createClassNode(fileNodeName);
                 newNode.addAllChildren(moduleNode.getChildren());
                 moduleNode.getValues().forEach(value -> {
@@ -122,19 +127,17 @@ public class Trace32Parser extends CoverageParser {
 
                 // Hide original node
                 moduleNode.getMetrics().forEach(metric -> {
-                    moduleNode.replaceValue(new CoverageBuilder(metric).withTotal(0).withCovered(0).build());
+                    moduleNode.replaceValue(Coverage.nullObject(metric));
                 });
-            }
+            });
         }
 
-        // Hide file nodes
+        // Hide files node
         for (var metric : rootFiles.getMetrics()) {
             if (metric != Metric.FILE) {
-                rootFiles.addValue(new CoverageBuilder(metric).withTotal(0).withCovered(0).build());
+                rootFiles.addValue(Coverage.nullObject(metric));
             }
         }
-
-        return root;
     }
 
     private boolean startElement(final XMLEvent event, final QName name) {
