@@ -208,9 +208,8 @@ public final class FileNode extends Node {
                     left.setTotalFromCovered();
                 }
                 else {
-                    throw new IllegalArgumentException(
-                            String.format(Locale.ENGLISH, "Cannot merge coverage information for line %d in %s",
-                                    line, this));
+                    left.setBestGuessFromMaxCoveredAndTotal(right);
+                    right.setBestGuessFromMaxCoveredAndTotal(left);
                 }
             }
             else if (leftMcdcPair.totalsNotEqual(rightMcdcPair) || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {

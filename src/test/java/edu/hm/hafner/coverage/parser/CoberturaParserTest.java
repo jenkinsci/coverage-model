@@ -141,6 +141,25 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeCoberturaReportsWithDifferentBranchTotalsForSameLine() {
+        var left = readReport("merge-issue-244-a.xml");
+        var right = readReport("merge-issue-244-b.xml");
+
+        assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(39)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(39)).isEqualTo(4);
+                });
+
+        assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(39)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(39)).isEqualTo(4);
+                });
+    }
+
+    @Test
     void shouldIgnoreMissingConditionAttribute() {
         var missingCondition = readReport("cobertura-missing-condition-coverage.xml");
 
