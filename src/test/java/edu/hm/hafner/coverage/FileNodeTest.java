@@ -157,10 +157,10 @@ class FileNodeTest extends AbstractNodeTest {
         right.addCounters(79, 0, 4);
 
         assertThat((FileNode) left.merge(right))
-            .satisfies(file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
-                });
+                .satisfies(file -> {
+                assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+            });
 
         assertThat((FileNode) right.merge(left))
                 .satisfies(file -> {
@@ -179,10 +179,10 @@ class FileNodeTest extends AbstractNodeTest {
         right.addCounters(79, 1, 3);
 
         assertThat((FileNode) left.merge(right))
-            .satisfies(file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
-                });
+                .satisfies(file -> {
+                assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
+                assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+            });
 
         assertThat((FileNode) right.merge(left))
                 .satisfies(file -> {
