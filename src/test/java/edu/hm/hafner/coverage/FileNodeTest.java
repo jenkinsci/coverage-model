@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
@@ -144,6 +145,50 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasSize(3);
         assertThat(fileA).hasLinesWithCoverage(10, 15, 28);
         assertThat(fileA.hasCoverageForLine(20)).isFalse();
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeMismatchingBranchTotalsWithBestGuessIfNeitherSideIsFullyCovered() {
+        var left = new FileNode("File.java", ".");
+        left.addCounters(79, 0, 3);
+
+        var right = new FileNode("File.java", ".");
+        right.addCounters(79, 0, 4);
+
+        assertThat((FileNode) left.merge(right))
+                .satisfies(file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+                });
+
+        assertThat((FileNode) right.merge(left))
+                .satisfies(file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+                });
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeMismatchingBranchTotalsWithBestGuessCoverage() {
+        var left = new FileNode("File.java", ".");
+        left.addCounters(79, 2, 1);
+
+        var right = new FileNode("File.java", ".");
+        right.addCounters(79, 1, 3);
+
+        assertThat((FileNode) left.merge(right))
+                .satisfies(file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+                });
+
+        assertThat((FileNode) right.merge(left))
+                .satisfies(file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+                });
     }
 
     @Test
