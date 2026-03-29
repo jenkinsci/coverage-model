@@ -158,9 +158,9 @@ class FileNodeTest extends AbstractNodeTest {
 
         assertThat((FileNode) left.merge(right))
                 .satisfies(file -> {
-                assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
-                assertThat(file.getMissedOfLine(79)).isEqualTo(4);
-            });
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+                });
 
         assertThat((FileNode) right.merge(left))
                 .satisfies(file -> {
@@ -180,9 +180,9 @@ class FileNodeTest extends AbstractNodeTest {
 
         assertThat((FileNode) left.merge(right))
                 .satisfies(file -> {
-                assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
-                assertThat(file.getMissedOfLine(79)).isEqualTo(2);
-            });
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+                });
 
         assertThat((FileNode) right.merge(left))
                 .satisfies(file -> {
