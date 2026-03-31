@@ -44,7 +44,6 @@ public class Trace32Parser extends CoverageParser {
     private static final QName MIXED = new QName("mixed");
     private static final QName SRCPATH = new QName("srcpath");
     private static final QName METRIC_ATTR = new QName("metric");
-    private HashMap<String, String> filesToProcess;
 
     private enum Fields {
         BYTES, BYTESOK,
@@ -80,10 +79,10 @@ public class Trace32Parser extends CoverageParser {
     @Override
     protected ModuleNode parseReport(final Reader reader, final String fileName, final FilteredLog log) {
         var root = new ModuleNode("TRACE32 Coverage");
-        filesToProcess = new HashMap<>();
+        Map<String, String> filesToProcess;
 
         try {
-            parseFile(root, reader);
+            filesToProcess = parseFile(root, reader);
         }
         catch (XMLStreamException e) {
             throw new ParsingException(e);
@@ -94,12 +93,12 @@ public class Trace32Parser extends CoverageParser {
             return new ModuleNode("empty");
         }
 
-        addFilesAndRenameModules(root, log);
+        addFilesAndRenameModules(root, filesToProcess, log);
 
         return root;
     }
 
-    private void addFilesAndRenameModules(final ModuleNode root, final FilteredLog log) {
+    private void addFilesAndRenameModules(final ModuleNode root, final Map<String, String> filesToProcess, final FilteredLog log) {
         var rootFiles = root.createClassNode("TRACE32 Files");
 
         for (var entry : filesToProcess.entrySet()) {
@@ -258,8 +257,9 @@ public class Trace32Parser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    private void parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
+    private Map<String, String> parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
         final var xml = new SecureXmlParserFactory().createXmlEventReader(reader);
+        HashMap<String, String> filesToProcess = new HashMap<>();
 
         while (xml.hasNext()) {
             var event = xml.nextEvent();
@@ -300,6 +300,8 @@ public class Trace32Parser extends CoverageParser {
                 // </List.EXPORT></listing>
             }
         }
+
         xml.close();
+        return filesToProcess;
     }
 }
