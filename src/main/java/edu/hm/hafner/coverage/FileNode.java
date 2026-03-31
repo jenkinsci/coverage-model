@@ -9,6 +9,8 @@ import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
+import edu.hm.hafner.util.PitMutator;
+import edu.hm.hafner.util.SuppressMutation;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -178,6 +180,8 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
+    @SuppressMutation(mutator = PitMutator.CONDITIONALS_BOUNDARY,
+            justification = "False positive: For maximum calculation the boundary is irrelevant")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
 
@@ -199,7 +203,7 @@ public final class FileNode extends Node {
             var rightMcdcPair = new CoverageMetricsValues(otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0), otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
             var rightFunctionCall = new CoverageMetricsValues(otherFile.functionCallCoveredPerLine.getOrDefault(line, 0), otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
 
-            // check for errors in branch, mcdc pair and function call coverages
+            // check for errors in branch, mcdc pair and function call coverages and adjust if necessary
             if (left.totalsNotEqual(right)) {
                 if (left.getTotal() > right.getTotal()) {
                     right = left;

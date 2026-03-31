@@ -156,14 +156,14 @@ class FileNodeTest extends AbstractNodeTest {
         var right = new FileNode("File.java", ".");
         right.addCounters(79, 0, 4);
 
-        assertThat((FileNode) left.merge(right))
-                .satisfies(file -> {
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
                     assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
                     assertThat(file.getMissedOfLine(79)).isEqualTo(4);
                 });
 
-        assertThat((FileNode) right.merge(left))
-                .satisfies(file -> {
+        assertThat((FileNode) right.merge(left)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
                     assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
                     assertThat(file.getMissedOfLine(79)).isEqualTo(4);
                 });
@@ -178,14 +178,14 @@ class FileNodeTest extends AbstractNodeTest {
         var right = new FileNode("File.java", ".");
         right.addCounters(79, 1, 3);
 
-        assertThat((FileNode) left.merge(right))
-                .satisfies(file -> {
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
                     assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
                     assertThat(file.getMissedOfLine(79)).isEqualTo(3);
                 });
 
-        assertThat((FileNode) right.merge(left))
-                .satisfies(file -> {
+        assertThat(right.merge(left)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
                     assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
                     assertThat(file.getMissedOfLine(79)).isEqualTo(3);
                 });
