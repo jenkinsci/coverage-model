@@ -178,7 +178,6 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
 

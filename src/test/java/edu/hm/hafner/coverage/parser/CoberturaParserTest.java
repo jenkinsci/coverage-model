@@ -130,13 +130,13 @@ class CoberturaParserTest extends AbstractParserTest {
 
         assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                                        assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
-                                        assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
                 });
         assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                                        assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
-                                        assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
                 });
     }
 
