@@ -78,19 +78,6 @@ class CoverageMetricsValues {
     }
 
     /**
-     * Sets the counters from a best-guess normalization if two reports provide different totals.
-     * We keep the maximum number of covered branches and align the total to the maximum reported value.
-     *
-     * @param other
-     *         another CoverageMetricsValues to compare against
-     */
-    void setBestGuessFromMaxCoveredAndTotal(final CoverageMetricsValues other) {
-        this.covered = Math.max(this.covered, other.getCovered());
-        this.total = Math.max(this.total, other.getTotal());
-        this.missed = this.total - this.covered;
-    }
-
-    /**
      * Check to see if there is any total for this instance.
      *
      * @return - boolean of if total > 1

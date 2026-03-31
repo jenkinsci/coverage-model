@@ -202,14 +202,11 @@ public final class FileNode extends Node {
 
             // check for errors in branch, mcdc pair and function call coverages
             if (left.totalsNotEqual(right)) {
-                if (left.noMissing() || right.noMissing()) {
-                    left.setCoveredFromMax(right);
-                    left.clearMissed();
-                    left.setTotalFromCovered();
+                if (left.getTotal() > right.getTotal()) {
+                    right = left;
                 }
                 else {
-                    left.setBestGuessFromMaxCoveredAndTotal(right);
-                    right.setBestGuessFromMaxCoveredAndTotal(left);
+                    left = right;
                 }
             }
             else if (leftMcdcPair.totalsNotEqual(rightMcdcPair) || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {

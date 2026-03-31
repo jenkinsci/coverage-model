@@ -149,7 +149,7 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
-    void shouldMergeMismatchingBranchTotalsWithBestGuessIfNeitherSideIsFullyCovered() {
+    void shouldMergeMismatchingBranchTotalsUsingValuesWithLargerTotal() {
         var left = new FileNode("File.java", ".");
         left.addCounters(79, 0, 3);
 
@@ -171,7 +171,7 @@ class FileNodeTest extends AbstractNodeTest {
 
     @Test
     @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
-    void shouldMergeMismatchingBranchTotalsWithBestGuessCoverage() {
+    void shouldMergeMismatchingBranchTotalsBySelectingLargerTotalWithoutMixingValues() {
         var left = new FileNode("File.java", ".");
         left.addCounters(79, 2, 1);
 
@@ -180,14 +180,14 @@ class FileNodeTest extends AbstractNodeTest {
 
         assertThat((FileNode) left.merge(right))
                 .satisfies(file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
                 });
 
         assertThat((FileNode) right.merge(left))
                 .satisfies(file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(2);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(2);
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
                 });
     }
 
