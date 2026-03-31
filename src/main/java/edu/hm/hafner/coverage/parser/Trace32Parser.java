@@ -30,7 +30,7 @@ import edu.hm.hafner.util.TreeString;
  *
  * @author Igor Miksza
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity"})
+@SuppressWarnings("PMD.GodClass")
 public class Trace32Parser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -115,7 +115,9 @@ public class Trace32Parser extends CoverageParser {
             root.addSource(filePath);
             var fileNode = rootFiles.createFileNode(fileNodeName, TreeString.valueOf(filePath));
 
-            getNodeTree(root, entry.getKey()).ifPresent(moduleNode -> {
+            var optNode = getNodeTree(root, entry.getKey());
+            if (optNode.isPresent()) {
+                var moduleNode = optNode.get();
                 // Clone existing class node and rename it to a filename
                 var newNode = root.createClassNode(fileNodeName);
                 newNode.addAllChildren(moduleNode.getChildren());
@@ -128,7 +130,7 @@ public class Trace32Parser extends CoverageParser {
                 moduleNode.getMetrics().forEach(metric -> {
                     moduleNode.replaceValue(Coverage.nullObject(metric));
                 });
-            });
+            }
         }
 
         // Hide files node
@@ -259,7 +261,7 @@ public class Trace32Parser extends CoverageParser {
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     private Map<String, String> parseFile(final ModuleNode root, final Reader reader) throws XMLStreamException {
         final var xml = new SecureXmlParserFactory().createXmlEventReader(reader);
-        HashMap<String, String> filesToProcess = new HashMap<>();
+        Map<String, String> filesToProcess = new HashMap<>();
 
         while (xml.hasNext()) {
             var event = xml.nextEvent();
