@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage line-rate="0.75" branch-rate="0.33" lines-covered="9" lines-valid="12" branches-covered="2" branches-valid="6" complexity="0.0" version="gcovr 7.0">
+  <sources>
+    <source>.</source>
+  </sources>
+  <packages>
+    <package name="" line-rate="0.875" branch-rate="0.25" complexity="0.0">
+      <classes>
+        <class name="test_c" filename="test.c" line-rate="0.875" branch-rate="0.25" complexity="0.0">
+          <methods/>
+          <lines>
+            <line number="1" hits="1" branch="false"/>
+            <line number="2" hits="1" branch="false"/>
+            <line number="5" hits="1" branch="false"/>
+            <line number="7" hits="1" branch="false"/>
+            <line number="8" hits="1" branch="true" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="50%"/>
+              </conditions>
+            </line>
+            <line number="9" hits="1" branch="true" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="0%"/>
+              </conditions>
+            </line>
+            <line number="10" hits="0" branch="false"/>
+            <line number="12" hits="1" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="test.package" line-rate="0.5" branch-rate="0.5" complexity="0.0">
+      <classes>
+        <class name="TestClass" filename="TestClass.java" line-rate="0.5" branch-rate="0.5" complexity="0.0">
+          <methods>
+            <method name="method1" signature="()V" line-rate="1.0" branch-rate="1.0">
+              <lines>
+                <line number="10" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="method2" signature="()V" line-rate="0.0" branch-rate="0.0">
+              <lines>
+                <line number="20" hits="0" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="10" hits="1" branch="false"/>
+            <line number="20" hits="0" branch="false"/>
+            <line number="30" hits="1" branch="true" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="50%"/>
+              </conditions>
+            </line>
+            <line number="40" hits="0" branch="true" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="0" type="jump" coverage="0%"/>
+              </conditions>
+            </line>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

@@ -26,8 +26,8 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 @DefaultLocale("en")
 class CoberturaParserTest extends AbstractParserTest {
-    private static final int COVERED_LINES = 20 + 17 + 6 + 12 + 7;
-    private static final int MISSED_LINES = 8 + 1 + 1 + 10;
+    private static final int COVERED_LINES = 20 + 17 + 7 + 12 + 7;  // Changed 6 to 7
+    private static final int MISSED_LINES = 8 + 0 + 1 + 10;  // Changed 1 to 0
 
     @Override
     CoberturaParser createParser(final ProcessingMode processingMode) {
@@ -117,25 +117,28 @@ class CoberturaParserTest extends AbstractParserTest {
         var left = readReport("merge-a.xml");
         assertThat(left.getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(2);
+                    // Line 61: hits="1" branch="True" → LINE covered (1/0), BRANCH default (2/0)
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(1);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
                 });
 
         var right = readReport("merge-b.xml");
         assertThat(right.getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
+                    // Line 61: hits="0" condition-coverage="0% (0/4)" → LINE missed (0/1), BRANCH (0/4)
                     assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
-                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(1);
                 });
 
         assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
+                    // Merge: left has hits=1 (1/0), right has hits=0 (0/1) → any hit makes line covered (1/0)
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(1);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
                 });
         assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(1);
                     assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
                 });
     }
@@ -157,8 +160,11 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private void verifyBranchCoverageOfLine61(final Node duplicateMethods) {
-        var file = duplicateMethods.getAllFileNodes().getFirst();
-        assertThat(file.getCoveredOfLine(61)).isEqualTo(2);
+        var file = duplicateMethods.getAllFileNodes().get(0);
+        // Line 61: hits="2" condition-coverage="100% (2/2)"
+        // LINE coverage: 1 covered, 0 missed (from hits > 0)
+        // BRANCH coverage: 2 covered, 0 missed (from condition-coverage)
+        assertThat(file.getCoveredOfLine(61)).isEqualTo(1);
         assertThat(file.getMissedOfLine(61)).isEqualTo(0);
     }
 
@@ -243,7 +249,7 @@ class CoberturaParserTest extends AbstractParserTest {
                 builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
                 builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
-                builder.withMetric(BRANCH).withCovered(1).withMissed(1).build(),
+                builder.withMetric(BRANCH).withCovered(2).withMissed(1).build(),
                 new Value(LOC, 22)};
 
         var left = Node.merge(List.of(a, b));
@@ -460,12 +466,12 @@ class CoberturaParserTest extends AbstractParserTest {
         assertThat(root.find(FILE, "Plugin/InventoryAdminUi/SourceDataProvider/PopulateBranchExtensionAttributesPlugin.php")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(FileNode.class,
                         f -> assertThat(f)
-                                .hasMissedLines(38)
-                                .hasCoveredLines(28, 29, 39, 40, 41, 45)));
+                                .hasNoMissedLines()
+                                .hasCoveredLines(28, 29, 38, 39, 40, 41, 45)));
         assertThat(root.find(CLASS, "Invocare.InventoryBranch.Plugin.InventoryAdminUi.SourceDataProvider.PopulateBranchExtensionAttributesPlugin")).isNotEmpty()
                 .hasValueSatisfying(n -> assertThat(n).isInstanceOfSatisfying(ClassNode.class,
                         f -> assertThat(f)
-                                .hasValues(builder.withMetric(LINE).withCovered(6).withMissed(1).build(),
+                                .hasValues(builder.withMetric(LINE).withCovered(7).withMissed(0).build(),
                                         builder.withMetric(BRANCH).withCovered(2).withMissed(2).build())));
 
         assertThat(root.find(FILE, "Plugin/InventoryApi/SourceRepository/SetBranchExtensionAttributesPlugin.php")).isNotEmpty()
@@ -600,8 +606,9 @@ class CoberturaParserTest extends AbstractParserTest {
                 .containsExactly(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
         assertThat(fileNode.getMissedCounters())
                 .containsExactly(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        // LINE coverage: all covered lines have 1 covered (from hits > 0)
         assertThat(fileNode.getCoveredCounters())
-                .containsExactly(1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1);
+                .containsExactly(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
         assertThat(fileNode).hasNoMissedLines()
                 .hasCoveredLines(6, 8, 9, 10, 11, 13, 16, 25, 41, 42, 46, 48, 49, 50, 54, 55, 56, 57, 60);
     }
@@ -619,11 +626,11 @@ class CoberturaParserTest extends AbstractParserTest {
         // Line 81: at least one entry has hits > 0 → covered
         assertThat(fileNode.getCoveredOfLine(81)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(81)).isEqualTo(0);
-
-        // Line 82: keep maximum branch coverage (2 covered)
-        assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(2);
-        assertThat(fileNode.getMissedOfLine(82)).isEqualTo(2);
-
+        
+        // Line 82: hits > 0 → LINE covered (1/0), BRANCH has maximum coverage (2/2)
+        assertThat(fileNode.getCoveredOfLine(82)).isEqualTo(1);
+        assertThat(fileNode.getMissedOfLine(82)).isEqualTo(0);
+        
         // Line 83: single line, covered
         assertThat(fileNode.getCoveredOfLine(83)).isEqualTo(1);
         assertThat(fileNode.getMissedOfLine(83)).isEqualTo(0);
@@ -631,19 +638,19 @@ class CoberturaParserTest extends AbstractParserTest {
         // Line 84: all duplicates not covered → not covered
         assertThat(fileNode.getCoveredOfLine(84)).isEqualTo(0);
         assertThat(fileNode.getMissedOfLine(84)).isEqualTo(1);
-
-        // Line 85: equal branch coverage → keep existing
+        
+        // Line 85: hits > 0 → LINE covered (1/0), BRANCH coverage 50% (1/2)
         assertThat(fileNode.getCoveredOfLine(85)).isEqualTo(1);
-        assertThat(fileNode.getMissedOfLine(85)).isEqualTo(1);
-
-        // Line 86: new coverage has more covered branches → use new (3 covered)
-        assertThat(fileNode.getCoveredOfLine(86)).isEqualTo(3);
-        assertThat(fileNode.getMissedOfLine(86)).isEqualTo(1);
-
-        // Line 87: both branch coverage with 0 covered → keep existing (0 covered)
+        assertThat(fileNode.getMissedOfLine(85)).isEqualTo(0);
+        
+        // Line 86: hits > 0 → LINE covered (1/0), BRANCH different coverages, keep max
+        assertThat(fileNode.getCoveredOfLine(86)).isEqualTo(1);
+        assertThat(fileNode.getMissedOfLine(86)).isEqualTo(0);
+        
+        // Line 87: hits=0 → LINE not covered (0/1), BRANCH both 0 covered
         assertThat(fileNode.getCoveredOfLine(87)).isEqualTo(0);
-        assertThat(fileNode.getMissedOfLine(87)).isEqualTo(4);
-
+        assertThat(fileNode.getMissedOfLine(87)).isEqualTo(1);
+        
         // Check overall LINE coverage for the class (should be based on merged values only)
         // Lines: 81 (covered), 82 (covered), 83 (covered), 84 (not covered), 85 (covered), 86 (covered), 87 (not covered)
         // Total: 5 covered, 2 missed = 7 total
@@ -662,6 +669,57 @@ class CoberturaParserTest extends AbstractParserTest {
                 .get()
                 .isInstanceOfSatisfying(Coverage.class,
                         coverage -> assertThat(coverage).hasCovered(6).hasMissed(8));
+    }
+
+    @Test
+    @Issue("JENKINS-76232")
+    void shouldUseHitsAttributeForLineCoverageNotBranchCoverage() {
+        var root = readReport("cobertura-gcovr-issue-253.xml");
+
+        assertThat(root.getValue(LINE))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(Coverage.class, 
+                        coverage -> assertThat(coverage).hasCovered(9).hasMissed(3));
+        
+        assertThat(root.getValue(BRANCH))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(Coverage.class, 
+                        coverage -> assertThat(coverage).hasCovered(2).hasMissed(6));
+
+        assertThat(root.getAllFileNodes()).hasSize(2);
+        
+        var testCFile = root.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("test.c"))
+                .findFirst()
+                .orElseThrow();
+        
+        // Line 9: hits="1" condition-coverage="0% (0/2)"
+        // LINE coverage: 1 covered, 0 missed (from hits)
+        // BRANCH coverage: 0 covered, 2 missed (from condition-coverage)
+        assertThat(testCFile.getCoveredOfLine(9)).isEqualTo(1);
+        assertThat(testCFile.getMissedOfLine(9)).isEqualTo(0);
+        assertThat(testCFile.getMissedOfLine(1)).isEqualTo(0);
+        
+        var testClassFile = root.getAllFileNodes().stream()
+                .filter(f -> f.getName().equals("TestClass.java"))
+                .findFirst()
+                .orElseThrow();
+        
+        assertThat(testClassFile.getCoveredOfLine(10)).isEqualTo(1);
+        assertThat(testClassFile.getMissedOfLine(10)).isEqualTo(0);
+        
+        assertThat(testClassFile.getCoveredOfLine(20)).isEqualTo(0);
+        assertThat(testClassFile.getMissedOfLine(20)).isEqualTo(1);
+        
+        // Line 30: hits="1" condition-coverage="50% (1/2)" → LINE covered (1/0)
+        assertThat(testClassFile.getCoveredOfLine(30)).isEqualTo(1);
+        assertThat(testClassFile.getMissedOfLine(30)).isEqualTo(0);
+        
+        // Line 40: hits="0" condition-coverage="0% (0/2)" → LINE missed (0/1)
+        assertThat(testClassFile.getCoveredOfLine(40)).isEqualTo(0);
+        assertThat(testClassFile.getMissedOfLine(40)).isEqualTo(1);
     }
 
     private ModuleNode readExampleReport() {
