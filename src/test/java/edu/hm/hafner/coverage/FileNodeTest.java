@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.Issue;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
@@ -144,6 +145,50 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasSize(3);
         assertThat(fileA).hasLinesWithCoverage(10, 15, 28);
         assertThat(fileA.hasCoverageForLine(20)).isFalse();
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeMismatchingBranchTotalsUsingValuesWithLargerTotal() {
+        var left = new FileNode("File.java", ".");
+        left.addCounters(79, 0, 3);
+
+        var right = new FileNode("File.java", ".");
+        right.addCounters(79, 0, 4);
+
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+                });
+
+        assertThat((FileNode) right.merge(left)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+                });
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeMismatchingBranchTotalsBySelectingLargerTotalWithoutMixingValues() {
+        var left = new FileNode("File.java", ".");
+        left.addCounters(79, 2, 1);
+
+        var right = new FileNode("File.java", ".");
+        right.addCounters(79, 1, 3);
+
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
+                });
+
+        assertThat(right.merge(left)).isInstanceOfSatisfying(FileNode.class,
+                file -> {
+                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
+                });
     }
 
     @Test
