@@ -238,11 +238,11 @@ class CoberturaParserTest extends AbstractParserTest {
         var duplicateMethods = readReport("cobertura-duplicate-go-init-methods.xml", new CoberturaParser());
 
         assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
-                .containsExactly("init<0>", "init-1<0>");
+                .containsExactly("init<0>", "init-1<0>", "init-2<0>");
         assertThat(duplicateMethods.getValue(LINE)).hasValueSatisfying(
                 lineCoverage -> assertThat(lineCoverage).isEqualTo(new CoverageBuilder()
                         .withMetric(LINE)
-                        .withCovered(2)
+                        .withCovered(3)
                         .withMissed(0)
                         .build()));
         assertThat(getLog().hasErrors()).isFalse();
