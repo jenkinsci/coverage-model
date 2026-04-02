@@ -288,12 +288,25 @@ public class CoberturaParser extends CoverageParser {
             final String name) {
         var methodName = name;
         var signature = getValueOf(element, SIGNATURE);
-        if (parentNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
-            log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
-                    methodName, signature, parentNode.getName());
-            methodName = name + "-" + createId();
+        if (parentNode.findMethod(methodName, signature).isPresent()) {
+            if (ignoreErrors()) {
+                log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
+                        methodName, signature, parentNode.getName());
+            }
+            methodName = createUniqueMethodName(parentNode, methodName, signature);
         }
         return parentNode.createMethodNode(methodName, signature);
+    }
+
+    private String createUniqueMethodName(final Node parentNode, final String methodName, final String signature) {
+        var number = 1;
+        var candidate = "%s-%d".formatted(methodName, number);
+
+        while (parentNode.findMethod(candidate, signature).isPresent()) {
+            number++;
+            candidate = "%s-%d".formatted(methodName, number);
+        }
+        return candidate;
     }
 
     private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {

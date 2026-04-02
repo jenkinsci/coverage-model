@@ -213,16 +213,39 @@ class CoberturaParserTest extends AbstractParserTest {
                 .containsExactly("VisualOn.Data.DataSourceProvider");
         assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName).hasSize(2)
                 .contains("Enumerate()")
-                .element(1).asString().startsWith("Enumerate-");
+                .contains("Enumerate-1()");
 
         assertThat(getLog().hasErrors()).isTrue();
         assertThat(getLog().getErrorMessages())
                 .contains("Found a duplicate method 'Enumerate' with signature '()' in 'VisualOn.Data.DataSourceProvider'");
 
         verifyBranchCoverageOfLine61(duplicateMethods);
+    }
 
-        assertThatIllegalArgumentException().isThrownBy(
-                () -> readReport("cobertura-duplicate-methods.xml", new CoberturaParser()));
+    @Test
+    void shouldHandleDuplicateMethodsInFailFastMode() {
+        var duplicateMethods = readReport("cobertura-duplicate-methods.xml", new CoberturaParser());
+
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName).hasSize(2)
+                .contains("Enumerate()")
+                .contains("Enumerate-1()");
+        assertThat(getLog().hasErrors()).isFalse();
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/249")
+    void shouldHandleDuplicateInitMethodsInFailFastMode() {
+        var duplicateMethods = readReport("cobertura-duplicate-go-init-methods.xml", new CoberturaParser());
+
+        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
+                .containsExactly("init<0>", "init-1<0>");
+        assertThat(duplicateMethods.getValue(LINE)).hasValueSatisfying(
+                lineCoverage -> assertThat(lineCoverage).isEqualTo(new CoverageBuilder()
+                        .withMetric(LINE)
+                        .withCovered(2)
+                        .withMissed(0)
+                        .build()));
+        assertThat(getLog().hasErrors()).isFalse();
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#729")
