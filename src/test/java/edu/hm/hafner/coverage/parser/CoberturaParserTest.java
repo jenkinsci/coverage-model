@@ -198,7 +198,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
         verifyBranchCoverageOfLine61(duplicateClasses);
 
-        assertThatIllegalArgumentException().isThrownBy(
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
                 () -> readReport("cobertura-duplicate-classes.xml", new CoberturaParser()));
     }
 
@@ -224,28 +224,15 @@ class CoberturaParserTest extends AbstractParserTest {
 
     @Test
     void shouldHandleDuplicateMethodsInFailFastMode() {
-        var duplicateMethods = readReport("cobertura-duplicate-methods.xml", new CoberturaParser());
-
-        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName).hasSize(2)
-                .contains("Enumerate()")
-                .contains("Enumerate-1()");
-        assertThat(getLog().hasErrors()).isFalse();
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
+                () -> readReport("cobertura-duplicate-methods.xml", new CoberturaParser()));
     }
 
     @Test
     @Issue("https://github.com/jenkinsci/coverage-model/issues/249")
     void shouldHandleDuplicateInitMethodsInFailFastMode() {
-        var duplicateMethods = readReport("cobertura-duplicate-go-init-methods.xml", new CoberturaParser());
-
-        assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName)
-                .containsExactly("init<0>", "init-1<0>", "init-2<0>");
-        assertThat(duplicateMethods.getValue(LINE)).hasValueSatisfying(
-                lineCoverage -> assertThat(lineCoverage).isEqualTo(new CoverageBuilder()
-                        .withMetric(LINE)
-                        .withCovered(3)
-                        .withMissed(0)
-                        .build()));
-        assertThat(getLog().hasErrors()).isFalse();
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
+                () -> readReport("cobertura-duplicate-go-init-methods.xml", new CoberturaParser()));
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#729")

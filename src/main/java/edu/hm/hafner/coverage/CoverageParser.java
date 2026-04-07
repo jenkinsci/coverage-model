@@ -79,9 +79,23 @@ public abstract class CoverageParser implements Serializable {
      *         if the content cannot be read by the parser
      */
     public ModuleNode parse(final Reader reader, final String fileName, final FilteredLog log) {
-        var moduleNode = parseReport(reader, fileName, log);
-        getTreeStringBuilder().dedup();
-        return moduleNode;
+        try {
+            var moduleNode = parseReport(reader, fileName, log);
+            getTreeStringBuilder().dedup();
+            return moduleNode;
+        }
+        catch (IllegalArgumentException e) {
+            if (!ignoreErrors() && e.getMessage() != null && e.getMessage().contains("already the same child")) {
+                throw new ParsingException(e,
+                        "A duplicate element was detected in '%s' while parsing this coverage report. "
+                        + "This typically indicates a problem with the coverage producer tool. "
+                        + "As a temporary workaround, you can set ignoreErrors=true to skip such elements. "
+                        + "Please report this issue to the coverage producer (e.g., gcovr, Go coverage) "
+                        + "or create an issue at https://github.com/jenkinsci/coverage-model/issues.",
+                        fileName);
+            }
+            throw e;
+        }
     }
 
     /**
