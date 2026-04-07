@@ -4,6 +4,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.errorprone.annotations.FormatMethod;
@@ -85,7 +86,7 @@ public abstract class CoverageParser implements Serializable {
             return moduleNode;
         }
         catch (IllegalArgumentException e) {
-            if (!ignoreErrors() && e.getMessage() != null && e.getMessage().contains("already the same child")) {
+            if (!ignoreErrors() && Strings.CS.contains(e.getMessage(), "same child")) {
                 throw new ParsingException(e,
                         "A duplicate element was detected in '%s' while parsing this coverage report. "
                         + "This typically indicates a problem with the coverage producer tool. "
