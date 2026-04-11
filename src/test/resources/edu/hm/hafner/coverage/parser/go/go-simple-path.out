@@ -1,0 +1,5 @@
+mode: set
+example.com/example.go:3.16,5.2 1 1
+example.com/example.go:7.13,9.2 1 0
+example.com/internal/helper.go:5.20,7.2 1 1
+example.com/internal/helper.go:9.15,11.2 1 0
