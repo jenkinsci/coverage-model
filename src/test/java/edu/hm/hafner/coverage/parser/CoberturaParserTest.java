@@ -130,13 +130,32 @@ class CoberturaParserTest extends AbstractParserTest {
 
         assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
-                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
                 });
         assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
                 .element(0).satisfies(fileNode -> {
-                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(4);
-                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getCoveredOfLine(61)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(61)).isEqualTo(4);
+                });
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/244")
+    void shouldMergeCoberturaReportsWithDifferentBranchTotalsForSameLine() {
+        var left = readReport("merge-issue-244-a.xml");
+        var right = readReport("merge-issue-244-b.xml");
+
+        assertThat(Node.merge(List.of(left, right)).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(39)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(39)).isEqualTo(4);
+                });
+
+        assertThat(Node.merge(List.of(right, left)).getAllFileNodes()).hasSize(1)
+                .element(0).satisfies(fileNode -> {
+                    assertThat(fileNode.getCoveredOfLine(39)).isEqualTo(0);
+                    assertThat(fileNode.getMissedOfLine(39)).isEqualTo(4);
                 });
     }
 
@@ -179,7 +198,7 @@ class CoberturaParserTest extends AbstractParserTest {
 
         verifyBranchCoverageOfLine61(duplicateClasses);
 
-        assertThatIllegalArgumentException().isThrownBy(
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
                 () -> readReport("cobertura-duplicate-classes.xml", new CoberturaParser()));
     }
 
@@ -194,16 +213,26 @@ class CoberturaParserTest extends AbstractParserTest {
                 .containsExactly("VisualOn.Data.DataSourceProvider");
         assertThat(duplicateMethods.getAll(METHOD)).extracting(Node::getName).hasSize(2)
                 .contains("Enumerate()")
-                .element(1).asString().startsWith("Enumerate-");
+                .contains("Enumerate-1()");
 
         assertThat(getLog().hasErrors()).isTrue();
         assertThat(getLog().getErrorMessages())
                 .contains("Found a duplicate method 'Enumerate' with signature '()' in 'VisualOn.Data.DataSourceProvider'");
 
         verifyBranchCoverageOfLine61(duplicateMethods);
+    }
 
-        assertThatIllegalArgumentException().isThrownBy(
+    @Test
+    void shouldHandleDuplicateMethodsInFailFastMode() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
                 () -> readReport("cobertura-duplicate-methods.xml", new CoberturaParser()));
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/249")
+    void shouldHandleDuplicateInitMethodsInFailFastMode() {
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(
+                () -> readReport("cobertura-duplicate-go-init-methods.xml", new CoberturaParser()));
     }
 
     @Test @Issue("jenkinsci/code-coverage-api-plugin#729")

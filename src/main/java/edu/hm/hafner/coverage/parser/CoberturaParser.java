@@ -291,18 +291,40 @@ public class CoberturaParser extends CoverageParser {
         if (parentNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
             log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
                     methodName, signature, parentNode.getName());
-            methodName = name + "-" + createId();
+            methodName = createUniqueMethodName(parentNode, methodName, signature);
         }
         return parentNode.createMethodNode(methodName, signature);
+    }
+
+    private String createUniqueMethodName(final Node parentNode, final String methodName, final String signature) {
+        var number = 1;
+        var candidate = "%s-%d".formatted(methodName, number);
+
+        while (parentNode.findMethod(candidate, signature).isPresent()) {
+            number++;
+            candidate = "%s-%d".formatted(methodName, number);
+        }
+        return candidate;
     }
 
     private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
         var className = name;
         if (parentNode.hasChild(className) && ignoreErrors()) {
             log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
-            className = name + "-" + createId();
+            className = createUniqueClassName(parentNode, className);
         }
         return parentNode.createClassNode(className);
+    }
+
+    private String createUniqueClassName(final Node parentNode, final String className) {
+        var number = 1;
+        var candidate = "%s-%d".formatted(className, number);
+
+        while (parentNode.hasChild(candidate)) {
+            number++;
+            candidate = "%s-%d".formatted(className, number);
+        }
+        return candidate;
     }
 
     private String readName(final StartElement element) {

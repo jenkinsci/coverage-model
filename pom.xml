@@ -7,7 +7,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>6.7.0</version>
+    <version>6.8.0</version>
     <relativePath />
   </parent>
 
@@ -45,9 +45,9 @@
 
   <properties>
     <scmTag>HEAD</scmTag>
-    <revision>0.67.0</revision>
+    <revision>0.70.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <previousVersion>0.66.0</previousVersion>
+    <previousVersion>0.69.0</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
