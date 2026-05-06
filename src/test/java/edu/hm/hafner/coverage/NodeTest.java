@@ -868,4 +868,209 @@ class NodeTest {
         fileNode.addModifiedLines(1);
         assertThat(packageNode).hasModifiedLines();
     }
+
+    @Test
+    void shouldComputeMaximumAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        var method2 = new MethodNode("method2", "()V");
+        var method3 = new MethodNode("method3", "()V");
+
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        method3.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+
+        classNode.addChild(method1);
+        classNode.addChild(method2);
+        classNode.addChild(method3);
+
+        var maximum = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(maximum).isPresent();
+        assertThat(maximum.get().asDouble()).isEqualTo(10.0);
+    }
+
+    @Test
+    void shouldComputeMinimumAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        var method2 = new MethodNode("method2", "()V");
+        var method3 = new MethodNode("method3", "()V");
+
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        method3.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+
+        classNode.addChild(method1);
+        classNode.addChild(method2);
+        classNode.addChild(method3);
+
+        var minimum = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM);
+        assertThat(minimum).isPresent();
+        assertThat(minimum.get().asDouble()).isEqualTo(3.0);
+    }
+
+    @Test
+    void shouldComputeAverageAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        var method2 = new MethodNode("method2", "()V");
+        var method3 = new MethodNode("method3", "()V");
+
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 6));
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 12));
+        method3.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+
+        classNode.addChild(method1);
+        classNode.addChild(method2);
+        classNode.addChild(method3);
+
+        var average = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE);
+        assertThat(average).isPresent();
+        assertThat(average.get().asDouble()).isEqualTo(7.0);
+    }
+
+    @Test
+    void shouldComputeTotalAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        var method2 = new MethodNode("method2", "()V");
+        var method3 = new MethodNode("method3", "()V");
+
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        method3.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+
+        classNode.addChild(method1);
+        classNode.addChild(method2);
+        classNode.addChild(method3);
+
+        var total = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL);
+        assertThat(total).isPresent();
+        assertThat(total.get().asDouble()).isEqualTo(18.0);
+    }
+
+    @Test
+    void shouldReturnEmptyForAggregationWhenNoValues() {
+        var classNode = new ClassNode("TestClass");
+
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM)).isEmpty();
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM)).isEmpty();
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE)).isEmpty();
+    }
+
+    @Test
+    void shouldWorkWithNestedStructure() {
+        var moduleNode = new ModuleNode("TestModule");
+        var packageNode = new PackageNode("com.example");
+        var fileNode = new FileNode("TestFile.java", "src/com/example/TestFile.java");
+        var classNode = new ClassNode("TestClass");
+
+        var method1 = new MethodNode("method1", "()V");
+        var method2 = new MethodNode("method2", "()V");
+
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 8));
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 12));
+
+        classNode.addChild(method1);
+        classNode.addChild(method2);
+        fileNode.addChild(classNode);
+        packageNode.addChild(fileNode);
+        moduleNode.addChild(packageNode);
+
+        var classMax = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(classMax).isPresent();
+        assertThat(classMax.get().asDouble()).isEqualTo(12.0);
+
+        var fileMax = fileNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(fileMax).isPresent();
+        assertThat(fileMax.get().asDouble()).isEqualTo(12.0);
+
+        var packageMax = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(packageMax).isPresent();
+        assertThat(packageMax.get().asDouble()).isEqualTo(12.0);
+
+        var moduleMax = moduleNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(moduleMax).isPresent();
+        assertThat(moduleMax.get().asDouble()).isEqualTo(12.0);
+    }
+
+    @Test
+    void shouldComputeAggregationForMultipleClasses() {
+        var packageNode = new PackageNode("com.example");
+
+        var class1 = new ClassNode("Class1");
+        var method1 = new MethodNode("method1", "()V");
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        class1.addChild(method1);
+
+        var class2 = new ClassNode("Class2");
+        var method2 = new MethodNode("method2", "()V");
+        method2.addValue(new Value(CYCLOMATIC_COMPLEXITY, 15));
+        class2.addChild(method2);
+
+        var fileNode1 = new FileNode("Class1.java", "src/Class1.java");
+        fileNode1.addChild(class1);
+
+        var fileNode2 = new FileNode("Class2.java", "src/Class2.java");
+        fileNode2.addChild(class2);
+
+        packageNode.addChild(fileNode1);
+        packageNode.addChild(fileNode2);
+
+        var maximum = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM);
+        assertThat(maximum).isPresent();
+        assertThat(maximum.get().asDouble()).isEqualTo(15.0);
+
+        var minimum = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM);
+        assertThat(minimum).isPresent();
+        assertThat(minimum.get().asDouble()).isEqualTo(5.0);
+
+        var average = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE);
+        assertThat(average).isPresent();
+        assertThat(average.get().asDouble()).isEqualTo(10.0);
+    }
+
+    @Test
+    void shouldFallBackToTotalWhenUsingTotalAggregation() {
+        var classNode = new ClassNode("TestClass");
+        var method1 = new MethodNode("method1", "()V");
+        method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        classNode.addChild(method1);
+
+        var total = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL);
+        var regular = classNode.getValue(CYCLOMATIC_COMPLEXITY);
+        
+        assertThat(total).isEqualTo(regular);
+    }
+
+    @Test
+    void shouldFallBackToTotalForUnsupportedAggregations() {
+        var builder = new CoverageBuilder();
+        var moduleNode = new ModuleNode("TestModule");
+        var packageNode = new PackageNode("com.example");
+        packageNode.addValue(builder.withMetric(LINE).withCovered(80).withMissed(20).build());
+        moduleNode.addChild(packageNode);
+
+        var result = moduleNode.getValue(LINE, MetricAggregation.MAXIMUM);
+        var regularResult = moduleNode.getValue(LINE);
+        
+        assertThat(result).isEqualTo(regularResult);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenNoChildrenHaveMetricForAggregation() {
+        var packageNode = new PackageNode("com.example");
+        var classNode = new ClassNode("TestClass");
+        classNode.addValue(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        packageNode.addChild(classNode);
+
+        var maximum = packageNode.getValue(LOC, MetricAggregation.MAXIMUM);
+        assertThat(maximum).isEmpty();
+
+        var minimum = packageNode.getValue(LOC, MetricAggregation.MINIMUM);
+        assertThat(minimum).isEmpty();
+
+        var average = packageNode.getValue(LOC, MetricAggregation.AVERAGE);
+        assertThat(average).isEmpty();
+    }
 }
