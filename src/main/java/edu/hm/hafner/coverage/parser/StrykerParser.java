@@ -5,13 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
-import edu.hm.hafner.coverage.PackageNode;
-import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeString;
@@ -183,6 +180,7 @@ public class StrykerParser extends CoverageParser {
                 .replace('/', '.');
     }
 
+    @SuppressWarnings("PMD.CyclomaticComplexity")
     private static MutationStatus readStatus(final String status) {
         return switch (status.toLowerCase(Locale.ENGLISH)) {
             case "killed" -> MutationStatus.KILLED;
