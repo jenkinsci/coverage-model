@@ -33,6 +33,7 @@ This library consists basically of two separate parts:
     * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
     * [TRACE32](https://www.lauterbach.com) code coverage results
     * [PIT](https://pitest.org) mutation coverage results
+    * [Stryker](https://stryker-mutator.io) mutation coverage results
     * [JUnit](https://junit.org) test results
     * [NUnit](https://nunit.org) test results
     * [XUnit](https://xunit.net) test results
