@@ -10,6 +10,7 @@ import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
+import edu.hm.hafner.coverage.Node;
 
 import static edu.hm.hafner.coverage.Metric.MUTATION;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -208,7 +209,7 @@ class StrykerParserTest extends AbstractParserTest {
         var tree = readReport("mutation-report.json");
 
         var packageNames = tree.getChildren().stream()
-                .map(node -> node.getName())
+                .map(Node::getName)
                 .toList();
         assertThat(packageNames).contains("-");
     }
@@ -218,7 +219,7 @@ class StrykerParserTest extends AbstractParserTest {
         var tree = readReport("mutation-report.json");
 
         var packageNames = tree.getChildren().stream()
-                .map(node -> node.getName())
+                .map(Node::getName)
                 .toList();
         assertThat(packageNames).contains("src.math");
     }
