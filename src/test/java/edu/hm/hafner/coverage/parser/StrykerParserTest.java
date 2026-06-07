@@ -195,6 +195,42 @@ class StrykerParserTest extends AbstractParserTest {
         assertThat(helperFile.getValue(MUTATION)).isEmpty();
     }
 
+    @Test
+    void shouldReturnEmptyPackageNameWhenFileIsAtRootLevel() {
+        var tree = readReport("mutation-report.json");
+
+        var rootFile = findFile(tree, "");
+        assertThat(rootFile.getRelativePath()).doesNotContain(".");
+    }
+
+    @Test
+    void shouldAssignNonEmptyPackageNodeWhenFileKeyIsRootSlash() {
+        var tree = readReport("mutation-report.json");
+
+        var packageNames = tree.getChildren().stream()
+                .map(node -> node.getName())
+                .toList();
+        assertThat(packageNames).contains("-");
+    }
+
+    @Test
+    void shouldReturnDotSeparatedPackageNameForNestedFile() {
+        var tree = readReport("mutation-report.json");
+
+        var packageNames = tree.getChildren().stream()
+                .map(node -> node.getName())
+                .toList();
+        assertThat(packageNames).contains("src.math");
+    }
+
+    @Test
+    void shouldSetDotSeparatedMutatedClassForNestedFile() {
+        var tree = readReport("mutation-report.json");
+
+        var mutation = findMutationByStatus(tree, "add.js", MutationStatus.KILLED);
+        assertThat(mutation.getMutatedClass()).isEqualTo("src.math.add");
+    }
+
     private static FileNode findFile(
             final edu.hm.hafner.coverage.ModuleNode tree, final String name) {
         return tree.getAllFileNodes().stream()
