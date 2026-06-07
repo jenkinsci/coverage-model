@@ -105,13 +105,14 @@ public class StrykerParser extends CoverageParser {
                 var mutation = createMutation(fileName, relativePath, mutantNode);
                 coverageFile.addMutation(mutation);
 
-                if (mutation.isValid()) {
-                    if (mutation.isDetected()) {
-                        covered++;
-                    }
-                    else {
-                        missed++;
-                    }
+                if (!mutation.isValid()) {
+                    continue;
+                }
+                if (mutation.isDetected()) {
+                    covered++;
+                }
+                else {
+                    missed++;
                 }
             }
         }
@@ -180,9 +181,8 @@ public class StrykerParser extends CoverageParser {
                 .replace('/', '.');
     }
 
-    @SuppressWarnings("PMD.CyclomaticComplexity")
     private static MutationStatus readStatus(final String status) {
-        return switch (status.toLowerCase(Locale.ENGLISH)) {
+        return switch (StringUtils.lowerCase(status, Locale.ENGLISH)) {
             case "killed" -> MutationStatus.KILLED;
             case "survived" -> MutationStatus.SURVIVED;
             case "nocoverage" -> MutationStatus.NO_COVERAGE;
