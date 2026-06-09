@@ -1,7 +1,8 @@
 package edu.hm.hafner.coverage.parser;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -15,11 +16,12 @@ import edu.hm.hafner.util.TreeString;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Parses Stryker JSON mutation reports into a hierarchical Java object model.
@@ -73,9 +75,7 @@ public class StrykerParser extends CoverageParser {
             boolean isEmpty = true;
 
             if (files.isObject()) {
-                var iterator = files.fields();
-                while (iterator.hasNext()) {
-                    var entry = iterator.next();
+                for (var entry : files.properties()) {
                     readFile(root, entry.getKey(), entry.getValue());
                     isEmpty = false;
                 }
@@ -84,7 +84,7 @@ public class StrykerParser extends CoverageParser {
             handleEmptyResults(fileName, log, isEmpty);
             return root;
         }
-        catch (IOException exception) {
+        catch (JacksonException exception) {
             throw new ParsingException(exception);
         }
     }
@@ -123,11 +123,11 @@ public class StrykerParser extends CoverageParser {
     }
 
     private Mutation createMutation(final String fileName, final String relativePath, final JsonNode mutantNode) {
-        var status = readStatus(mutantNode.path(STATUS).asText(StringUtils.EMPTY));
+        var status = readStatus(mutantNode.path(STATUS).asString(StringUtils.EMPTY));
         var line = mutantNode.path(LOCATION).path(START).path(LINE).asInt(0);
-        var id = mutantNode.path(ID).asText(Integer.toString(line));
-        var mutatorName = mutantNode.path(MUTATOR_NAME).asText(StringUtils.EMPTY);
-        var description = mutantNode.path(DESCRIPTION).asText(StringUtils.EMPTY);
+        var id = mutantNode.path(ID).asString(Integer.toString(line));
+        var mutatorName = mutantNode.path(MUTATOR_NAME).asString(StringUtils.EMPTY);
+        var description = mutantNode.path(DESCRIPTION).asString(StringUtils.EMPTY);
 
         return new Mutation.MutationBuilder()
                 .withIsDetected(status == MutationStatus.KILLED)
@@ -148,15 +148,9 @@ public class StrykerParser extends CoverageParser {
             return StringUtils.EMPTY;
         }
 
-        var builder = new StringBuilder();
-        var iterator = node.elements();
-        while (iterator.hasNext()) {
-            if (!builder.isEmpty()) {
-                builder.append(',');
-            }
-            builder.append(iterator.next().asText(StringUtils.EMPTY));
-        }
-        return builder.toString();
+        return StreamSupport.stream(node.spliterator(), false)
+                .map(element -> element.asString(StringUtils.EMPTY))
+                .collect(Collectors.joining(","));
     }
 
     private static String getFileName(final String relativePath) {
