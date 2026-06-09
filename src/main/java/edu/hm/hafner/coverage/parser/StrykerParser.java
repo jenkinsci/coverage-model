@@ -139,7 +139,6 @@ public class StrykerParser extends CoverageParser {
                 .withSourceFile(fileName)
                 .withMutatedClass(toMutatedClass(relativePath))
                 .withMutatedMethod("mutation-" + id)
-                .withMutatedMethodSignature(StringUtils.EMPTY)
                 .build();
     }
 
