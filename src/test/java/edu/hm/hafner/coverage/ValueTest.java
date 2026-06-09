@@ -13,8 +13,6 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class ValueTest {
@@ -312,13 +310,12 @@ class ValueTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
     void shouldThrowExceptionOnMinWithDifferentMetrics() {
         var complexity = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
         var loc = new Value(Metric.LOC, 5);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> complexity.min(loc))
+                .isThrownBy(() -> assertThat(complexity.min(loc)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different metrics");
     }
 
@@ -341,12 +338,11 @@ class ValueTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED", justification = "Exception is thrown anyway")
     void shouldThrowExceptionOnDivideByZero() {
         var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 10);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> value.divide(0))
+                .isThrownBy(() -> assertThat(value.divide(0)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot divide by zero");
     }
 
