@@ -32,7 +32,7 @@ import java.util.stream.StreamSupport;
 @SuppressWarnings("checkstyle:ClassDataAbstractionCoupling")
 public class StrykerParser extends CoverageParser {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4820577291584190652L;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final PathUtil PATH_UTIL = new PathUtil();
