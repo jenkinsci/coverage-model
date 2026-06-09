@@ -201,7 +201,7 @@ class JunitParserTest extends AbstractParserTest {
         var children = node.getChildren();
         assertThat(children).hasSize(1).first().isInstanceOf(PackageNode.class);
 
-        return (PackageNode) children.get(0);
+        return (PackageNode) children.getFirst();
     }
 
     private ClassNode getFirstClass(final Node node) {
@@ -210,7 +210,7 @@ class JunitParserTest extends AbstractParserTest {
         var children = packageNode.getChildren();
         assertThat(children).isNotEmpty().first().isInstanceOf(ClassNode.class);
 
-        return (ClassNode) children.get(0);
+        return (ClassNode) children.getFirst();
     }
 
     private TestCase getFirstTest(final Node node) {

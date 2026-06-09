@@ -118,7 +118,7 @@ class JacocoParserTest extends AbstractParserTest {
         var fileNodes = a.getAllFileNodes();
         assertThat(fileNodes).hasSize(1);
 
-        var lineRange = fileNodes.get(0);
+        var lineRange = fileNodes.getFirst();
         assertThat(lineRange)
                 .hasName("LineRange.java")
                 .hasRelativePath("edu/hm/hafner/util/LineRange.java");

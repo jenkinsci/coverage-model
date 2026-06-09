@@ -14,6 +14,8 @@ import edu.hm.hafner.coverage.parser.MetricsParser;
 import edu.hm.hafner.coverage.parser.NunitParser;
 import edu.hm.hafner.coverage.parser.OpenCoverParser;
 import edu.hm.hafner.coverage.parser.PitestParser;
+import edu.hm.hafner.coverage.parser.StrykerParser;
+import edu.hm.hafner.coverage.parser.Trace32Parser;
 import edu.hm.hafner.coverage.parser.VectorCastParser;
 import edu.hm.hafner.coverage.parser.XunitParser;
 
@@ -36,6 +38,8 @@ public class ParserRegistry {
         NUNIT,
         OPENCOVER,
         PIT,
+        STRYKER,
+        TRACE32,
         VECTORCAST,
         XUNIT
     }
@@ -82,6 +86,8 @@ public class ParserRegistry {
             case NUNIT -> new NunitParser(processingMode);
             case OPENCOVER -> new OpenCoverParser(processingMode);
             case PIT -> new PitestParser(processingMode);
+            case STRYKER -> new StrykerParser(processingMode);
+            case TRACE32 -> new Trace32Parser(processingMode);
             case XUNIT -> new XunitParser(processingMode);
             case VECTORCAST -> new VectorCastParser(processingMode);
         };

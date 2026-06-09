@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="1" branch-rate="1" version="1.9" timestamp="1663310122" lines-covered="3"
+          lines-valid="3" branches-covered="0" branches-valid="0">
+  <sources>
+    <source>/go/src/</source>
+  </sources>
+  <packages>
+    <package name="main" line-rate="1" branch-rate="1" complexity="3">
+      <classes>
+        <class name="main" filename="main.go" line-rate="1" branch-rate="1" complexity="3">
+          <methods>
+            <method name="init" signature="&lt;0&gt;" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="5" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="init" signature="&lt;0&gt;" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="12" hits="1" branch="false"/>
+              </lines>
+            </method>
+            <method name="init" signature="&lt;0&gt;" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="20" hits="1" branch="false"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="5" hits="1" branch="false"/>
+            <line number="12" hits="1" branch="false"/>
+            <line number="20" hits="1" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

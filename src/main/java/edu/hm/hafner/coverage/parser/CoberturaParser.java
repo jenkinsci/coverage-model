@@ -8,9 +8,6 @@ import javax.xml.stream.events.StartElement;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -29,6 +26,8 @@ import edu.hm.hafner.util.SecureXmlParserFactory;
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -257,19 +256,19 @@ public class CoberturaParser extends CoverageParser {
         var lineCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.LINE)
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-        
+
         var branchCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .reduce(Coverage.nullObject(Metric.BRANCH), Coverage::add);
-        
+
         var branchLineCoverage = coveragePerLine.values().stream()
                 .filter(c -> c.getMetric() == Metric.BRANCH)
                 .map(c -> computeLineCoverage(c.getCovered()))
                 .reduce(Coverage.nullObject(Metric.LINE), Coverage::add);
-        
+
         lineCoverage = lineCoverage.add(branchLineCoverage);
-        
-        return new Coverage[] {lineCoverage, branchCoverage};
+
+        return new Coverage[]{lineCoverage, branchCoverage};
     }
 
     protected Coverage computeLineCoverage(final int coverage) {
@@ -292,18 +291,40 @@ public class CoberturaParser extends CoverageParser {
         if (parentNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
             log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
                     methodName, signature, parentNode.getName());
-            methodName = name + "-" + createId();
+            methodName = createUniqueMethodName(parentNode, methodName, signature);
         }
         return parentNode.createMethodNode(methodName, signature);
+    }
+
+    private String createUniqueMethodName(final Node parentNode, final String methodName, final String signature) {
+        var number = 1;
+        var candidate = "%s-%d".formatted(methodName, number);
+
+        while (parentNode.findMethod(candidate, signature).isPresent()) {
+            number++;
+            candidate = "%s-%d".formatted(methodName, number);
+        }
+        return candidate;
     }
 
     private ClassNode createClassNode(final Node parentNode, final FilteredLog log, final String name) {
         var className = name;
         if (parentNode.hasChild(className) && ignoreErrors()) {
             log.logError("Found a duplicate class '%s' in '%s'", className, parentNode.getName());
-            className = name + "-" + createId();
+            className = createUniqueClassName(parentNode, className);
         }
         return parentNode.createClassNode(className);
+    }
+
+    private String createUniqueClassName(final Node parentNode, final String className) {
+        var number = 1;
+        var candidate = "%s-%d".formatted(className, number);
+
+        while (parentNode.hasChild(candidate)) {
+            number++;
+            candidate = "%s-%d".formatted(className, number);
+        }
+        return candidate;
     }
 
     private String readName(final StartElement element) {

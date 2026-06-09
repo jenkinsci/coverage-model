@@ -12,11 +12,13 @@ class CoverageMetricsValues {
     private int total;
 
     /**
-     * Creates a new {@link CoverageMetricsValues} instance from the values for covered and missing.
-     * These values represent the covered and missed metrics.
+     * Creates a new {@link CoverageMetricsValues} instance from the values for covered and missing. These values
+     * represent the covered and missed metrics.
      *
-     * @param covered  the coverage count
-     * @param missed   the missed count
+     * @param covered
+     *         the coverage count
+     * @param missed
+     *         the missed count
      */
     CoverageMetricsValues(final int covered, final int missed) {
         this.covered = covered;
@@ -29,7 +31,7 @@ class CoverageMetricsValues {
      *
      * @return the current total count
      */
-    public int getTotal() {
+    int getTotal() {
         return this.total;
     }
 
@@ -38,7 +40,7 @@ class CoverageMetricsValues {
      *
      * @return the current covered count
      */
-    public int getCovered() {
+    int getCovered() {
         return this.covered;
     }
 
@@ -47,14 +49,14 @@ class CoverageMetricsValues {
      *
      * @return the current missed count
      */
-    public int getMissed() {
+    int getMissed() {
         return this.missed;
     }
 
     /**
      * Clears the current missed count.
      */
-    public void clearMissed() {
+    void clearMissed() {
         this.missed = 0;
     }
 
@@ -62,16 +64,16 @@ class CoverageMetricsValues {
      * Sets the covered count from the max of the totals from this instance and other.
      *
      * @param other
-     *          another CoverageMetricsValues to compare against
+     *         another CoverageMetricsValues to compare against
      */
-    public void setCoveredFromMax(final CoverageMetricsValues other) {
+    void setCoveredFromMax(final CoverageMetricsValues other) {
         this.covered = Math.max(this.total, other.getTotal());
     }
 
     /**
      * Sets the total from the current covered count.
      */
-    public void setTotalFromCovered() {
+    void setTotalFromCovered() {
         this.total = this.covered;
     }
 
@@ -81,28 +83,28 @@ class CoverageMetricsValues {
      * @return - boolean of if total > 1
      *
      */
-    public boolean hasAnyInfo() {
+    boolean hasAnyInfo() {
         return total > 1;
     }
 
     /**
-     * Checks to see if instance total is not equal to the input total.
+     * Checks to see if the instance total is not equal to the input total.
      *
      * @param other
-     *          another CoverageMetricsValues to compare against
+     *         another CoverageMetricsValues to compare against
      *
-     * @return - boolean if the compated totals are not equal
+     * @return - boolean if the compared totals are not equal
      */
-    public boolean totalsNotEqual(final CoverageMetricsValues other) {
+    boolean totalsNotEqual(final CoverageMetricsValues other) {
         return total != other.total;
     }
 
     /**
-     * Checks to see if instance total is equal to instances covered.
+     * Checks to see if the instance total is equal to instances covered.
      *
      * @return - boolean total count equals covered count
      */
-    public boolean noMissing() {
+    boolean noMissing() {
         return total == covered;
     }
 
@@ -110,23 +112,23 @@ class CoverageMetricsValues {
      * Calculates the maximum of this instance vs. input covered count.
      *
      * @param other
-     *          another CoverageMetricsValues to compare against
+     *         another CoverageMetricsValues to compare against
      *
      * @return - integer maximum between the two covered counts
      */
-    public int getMaxCovered(final CoverageMetricsValues other) {
+    int getMaxCovered(final CoverageMetricsValues other) {
         return Math.max(this.covered, other.getCovered());
     }
 
     /**
-     * Checks to see if instance total is not equal to the input total.
+     * Checks to see if the instance total is not equal to the input total.
      *
      * @param other
-     *          another CoverageMetricsValues to compare against
+     *         another CoverageMetricsValues to compare against
      *
      * @return - integer minimum between the two missed counts
      */
-    public int getMinMissed(final CoverageMetricsValues other) {
+    int getMinMissed(final CoverageMetricsValues other) {
         return Math.min(this.missed, other.getMissed());
     }
 }

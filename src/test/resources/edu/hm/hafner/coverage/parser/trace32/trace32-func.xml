@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<?xml-stylesheet type="text/xsl" href="t32transform.xsl"?>
+<TRACE32 file="D:\T32\demo\coverage\multi_file_report\report_2025-11-05\index.xml">
+	<coverage>
+		<COVerage.EXPORT.ListModule ts="1762355859" t32ver="S.2025.10.000184368" t32pv="RISCV" cpu="RV32" metric="func">
+			<module>
+				<addrFrom>P:80000000</addrFrom>
+				<addrTo>P:8000007F</addrTo>
+				<tree>\\coverage_riscv_rv32\start</tree>
+				<cov>func</cov>
+				<exec metric="func">93.750%</exec>
+				<functions>0</functions>
+				<functionsok>0</functionsok>
+				<bytes>128</bytes>
+				<bytesok>112</bytesok>
+			</module>
+			<module>
+				<addrFrom>P:80000098</addrFrom>
+				<addrTo>P:800000AF</addrTo>
+				<tree>\\coverage_riscv_rv32\main</tree>
+				<cov>func</cov>
+				<exec metric="func">100.000%</exec>
+				<functions>1</functions>
+				<functionsok>1</functionsok>
+				<bytes>24</bytes>
+				<bytesok>20</bytesok>
+			</module>
+			<module>
+				<addrFrom>P:800000B0</addrFrom>
+				<addrTo>P:8000259B</addrTo>
+				<tree>\\coverage_riscv_rv32\coverage</tree>
+				<cov>incomplete</cov>
+				<exec metric="func">97.959%</exec>
+				<functions>49</functions>
+				<functionsok>48</functionsok>
+				<bytes>9452</bytes>
+				<bytesok>8744</bytesok>
+			</module>
+			<module>
+				<addrFrom>P:8000290C</addrFrom>
+				<addrTo>P:800029D3</addrTo>
+				<tree>\\coverage_riscv_rv32\gesf2</tree>
+				<cov>func</cov>
+				<exec metric="func">100.000%</exec>
+				<functions>1</functions>
+				<functionsok>1</functionsok>
+				<bytes>200</bytes>
+				<bytesok>84</bytesok>
+			</module>
+			<module>
+				<addrFrom>P:800029D4</addrFrom>
+				<addrTo>P:80002AEB</addrTo>
+				<tree>\\coverage_riscv_rv32\floatsisf</tree>
+				<cov>func</cov>
+				<exec metric="func">100.000%</exec>
+				<functions>1</functions>
+				<functionsok>1</functionsok>
+				<bytes>280</bytes>
+				<bytesok>120</bytesok>
+			</module>
+			<module>
+				<addrFrom>P:80002AEC</addrFrom>
+				<addrTo>P:80002B73</addrTo>
+				<tree>\\coverage_riscv_rv32\libgcc2</tree>
+				<cov>func</cov>
+				<exec metric="func">100.000%</exec>
+				<functions>1</functions>
+				<functionsok>1</functionsok>
+				<bytes>136</bytes>
+				<bytesok>52</bytesok>
+			</module>
+			<module>
+				<addrFrom>none</addrFrom>
+				<tree>\\coverage_riscv_rv32\Global</tree>
+			</module>
+			<total>
+				<cov>incomplete</cov>
+				<exec metric="func">98.113%</exec>
+				<functions>53</functions>
+				<functionsok>52</functionsok>
+				<bytes>10220</bytes>
+				<bytesok>9132</bytesok>
+			</total>
+		</COVerage.EXPORT.ListModule>
+	</coverage>
+	<marker>
+		<BookMark.EXPORT ts="1762355859" t32ver="S.2025.10.000184368" t32pv="RISCV" cpu="RV32">
+		</BookMark.EXPORT>
+	</marker>
+</TRACE32>

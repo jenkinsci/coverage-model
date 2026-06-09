@@ -249,7 +249,7 @@ class NodeTest {
         var copiedNode = node.copyTree();
 
         assertThat(node).isNotSameAs(copiedNode);
-        assertThat(node.getChildren().get(0)).isNotSameAs(copiedNode.getChildren().get(0));
+        assertThat(node.getChildren().getFirst()).isNotSameAs(copiedNode.getChildren().getFirst());
     }
 
     @Test
@@ -375,7 +375,7 @@ class NodeTest {
         sameModule.addChild(samePackage);
         var combinedReport = module.merge(sameModule);
 
-        assertThat(combinedReport.getChildren().get(0)).hasOnlyChildren(fileToKeep, otherFileToKeep);
+        assertThat(combinedReport.getChildren().getFirst()).hasOnlyChildren(fileToKeep, otherFileToKeep);
     }
 
     @Test
@@ -405,11 +405,11 @@ class NodeTest {
         pkg.addChild(file);
         var otherReport = report.copyTree();
 
-        otherReport.getAllFileNodes().get(0)
+        otherReport.getAllFileNodes().getFirst()
                 .addCounters(1, 1, 0)
                 .addCounters(2, 1, 0)
                 .addCounters(3, 0, 1);
-        report.getAllFileNodes().get(0)
+        report.getAllFileNodes().getFirst()
                 .addCounters(1, 1, 0)
                 .addCounters(2, 0, 1)
                 .addCounters(3, 1, 0);
@@ -423,7 +423,7 @@ class NodeTest {
         var tree = createTreeWithoutCoverage();
 
         var files = tree.getFiles();
-        var single = List.of(new ArrayList<>(files).get(0));
+        var single = List.of(new ArrayList<>(files).getFirst());
         var filtered = tree.filterByFileNames(single);
 
         assertThat(filtered.getFiles()).hasSize(1).first().asString().contains(COVERED_FILE);

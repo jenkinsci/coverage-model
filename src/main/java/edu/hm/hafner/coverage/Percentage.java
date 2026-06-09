@@ -28,7 +28,7 @@ public final class Percentage implements Serializable {
     public static final Percentage HUNDRED = new Percentage(1, 1);
     private static final Percentage ALMOST_HUNDRED = new Percentage(9_999, 10_000);
 
-    static final String TOTALS_ZERO_MESSAGE = "Totals must not greater than zero.";
+    static final String TOTALS_ZERO_MESSAGE = "Totals must be greater than zero.";
     private static final int ALMOST_PERFECT_INTEGER = 99;
     private static final double ALMOST_PERFECT_DOUBLE = 99.99;
 
@@ -128,7 +128,8 @@ public final class Percentage implements Serializable {
     }
 
     /**
-     * Returns this percentage as a double value in the interval [0, 100]. The returned value is rounded to 2 digits aft
+     * Returns this percentage as a double value in the interval [0, 100]. The returned value is rounded to 2 digits
+     * after the decimal point. If the rounded value is 100 but the percentage is not perfect, then 99.99 is returned.
      *
      * @return the coverage percentage
      */
