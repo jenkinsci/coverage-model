@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Defines how metric values should be aggregated when computing statistics across multiple nodes in the coverage tree.
  * For example, when computing the cyclomatic complexity of a class, we can aggregate the complexity values of all methods
@@ -95,8 +97,10 @@ public enum MetricAggregation {
      *         if the value is not a valid aggregation type
      */
     public static MetricAggregation fromString(final String value) {
+        String normalizedValue = StringUtils.lowerCase(value, Locale.ENGLISH);
         for (MetricAggregation aggregation : values()) {
-            if (aggregation.name().equalsIgnoreCase(value) || aggregation.id.equalsIgnoreCase(value)) {
+            if (StringUtils.lowerCase(aggregation.name(), Locale.ENGLISH).equals(normalizedValue)
+                    || StringUtils.lowerCase(aggregation.getId(), Locale.ENGLISH).equals(normalizedValue)) {
                 return aggregation;
             }
         }
