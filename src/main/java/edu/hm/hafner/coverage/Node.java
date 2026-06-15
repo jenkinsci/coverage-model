@@ -804,9 +804,8 @@ public abstract class Node implements Serializable {
      */
     private void mergeValues(final Node other) {
         for (Value otherValue : other.getValues()) {
-            var metric = otherValue.getMetric();
             var existingValue = values.stream()
-                    .filter(v -> v.getMetric() == metric)
+                    .filter(v -> v.getMetric() == otherValue.getMetric())
                     .findAny();
             if (existingValue.isPresent()) {
                 replaceValue(existingValue.get().max(otherValue));
