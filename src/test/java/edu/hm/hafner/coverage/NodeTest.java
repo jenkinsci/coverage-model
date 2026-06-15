@@ -871,7 +871,6 @@ class NodeTest {
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
     void shouldPreserveCyclomaticComplexityWhenMergingReports() {
-    
         var moduleA = new ModuleNode("ProjectA");
         var pkgA = new PackageNode("com.example");
         var classA = new ClassNode("Calculator");
@@ -902,7 +901,6 @@ class NodeTest {
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
     void shouldPreserveCyclomaticComplexityWhenOnlyOneReportHasComplexity() {
-
         var moduleA = new ModuleNode("ProjectA");
         var pkgA = new PackageNode("com.example");
         var classA = new ClassNode("LegacyHelper");
@@ -961,8 +959,7 @@ class NodeTest {
 
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
-    void shouldNotLoseOtherValuesWhenMergingNodes() {
-        
+    void shouldNotLoseOtherValuesWhenMergingNodes() {     
         var moduleA = new ModuleNode("Proj");
         var pkgA = new PackageNode("pkg");
         var classA = new ClassNode("Bar");
@@ -997,7 +994,6 @@ class NodeTest {
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
     void shouldKeepComplexityFromFirstReportWhenSecondHasNone() {
-
         var moduleA = new ModuleNode("Proj");
         var pkgA = new PackageNode("pkg");
         var classA = new ClassNode("OnlyInA");
