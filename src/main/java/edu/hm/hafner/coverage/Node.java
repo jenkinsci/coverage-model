@@ -782,7 +782,7 @@ public abstract class Node implements Serializable {
     protected void mergeNode(final Node other) {
         ensureSameMetric(other);
 
-        removeValues(); // clear all values
+        mergeValues(other);
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
@@ -794,6 +794,48 @@ public abstract class Node implements Serializable {
                 addChild(otherChild.copyTree());
             }
         });
+    }
+
+    /**
+     * Merges the directly stored values of {@code other} into this node.
+     *
+     * <p>When both nodes carry a value for the same metric, the <em>maximum</em> (worse) value is kept.
+     * This is intentional for complexity-style metrics such as {@link Metric#CYCLOMATIC_COMPLEXITY}:
+     * when the same source file is compiled for multiple target frameworks via {@code #if} directives,
+     * each Cobertura report measures the same method independently. The merged report should reflect
+     * the worst-case maintainability across all targets, not an artificial double-count obtained by
+     * summing (as reported in JENKINS-75295 by the original bug reporter kon:
+     * "the entirety will be at least as difficult to maintain as the most difficult subset").</p>
+     *
+     * <p>If a metric exists only in {@code other} (e.g. a method compiled exclusively for one target
+     * framework), its value is carried over to this node unchanged so that nothing is silently lost.</p>
+     *
+     * <p>This fixes the bug reported in JENKINS-75295 / coverage-plugin#638 where cyclomatic complexity
+     * (and any other value stored directly on a node) was lost when two coverage reports were merged,
+     * because the old implementation called {@link #removeValues()} but never re-introduced the values
+     * from {@code other}.</p>
+     *
+     * @param other
+     *         the node whose values should be merged into this node
+     */
+    private void mergeValues(final Node other) {
+        for (Value otherValue : other.getValues()) {
+            var metric = otherValue.getMetric();
+            var existingValue = values.stream()
+                    .filter(v -> v.getMetric() == metric)
+                    .findAny();
+            if (existingValue.isPresent()) {
+                // Both reports have a value for this metric: keep the larger (worse) one.
+                // For complexity metrics this reflects the hardest-to-maintain target framework;
+                // for other metrics (coverage fractions etc.) max is also a safe conservative choice.
+                replaceValue(existingValue.get().max(otherValue));
+            }
+            else {
+                // Only the other report has this value (e.g. platform-conditional code):
+                // carry it over so nothing is silently lost.
+                addValue(otherValue);
+            }
+        }
     }
 
     void removeValues() {

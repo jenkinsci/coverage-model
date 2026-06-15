@@ -8,7 +8,6 @@ import org.junitpioneer.jupiter.Issue;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.TreeString;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -867,5 +866,188 @@ class NodeTest {
 
         fileNode.addModifiedLines(1);
         assertThat(packageNode).hasModifiedLines();
+    }
+
+    // ----------------------------------------------------------------
+    // Tests for JENKINS-75295: cyclomatic complexity is lost when reports are merged
+    // ----------------------------------------------------------------
+
+    /**
+     * Verifies the fix for JENKINS-75295: when two Cobertura reports (or any two reports) are merged,
+     * directly stored values like {@link Metric#CYCLOMATIC_COMPLEXITY} on method nodes must be
+     * preserved using the <em>maximum</em> (worse) value rather than being silently dropped.
+     *
+     * <p>The bug was in {@link Node#mergeNode(Node)}: it called {@code removeValues()} which erased
+     * all values, then only recursively merged children — never re-introducing values from {@code other}.
+     * The result was zero complexity for every method/class appearing in more than one input report.</p>
+     *
+     * <p>The fix uses {@code max} (not {@code add}) per the original reporter kon's guidance:
+     * "the entirety will be at least as difficult to maintain as the most difficult subset."</p>
+     */
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldPreserveCyclomaticComplexityWhenMergingReports() {
+        // Two Cobertura reports for different target frameworks (net472 and net8.0).
+        // The same method appears in both — complexity should be the MAX, not the sum.
+
+        var moduleA = new ModuleNode("ProjectA");
+        var pkgA = new PackageNode("com.example");
+        var classA = new ClassNode("Calculator");
+        var methodA = new MethodNode("add", "(II)I", 10);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("ProjectA");
+        var pkgB = new PackageNode("com.example");
+        var classB = new ClassNode("Calculator");
+        var methodB = new MethodNode("add", "(II)I", 10);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        // max(3, 5) = 5 — not 3+5=8, because the same method was just measured twice
+        var mergedMethod = merged.findMethod("add", "(II)I").orElseThrow(
+                () -> new AssertionError("Method 'add' not found in merged tree"));
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldPreserveCyclomaticComplexityWhenOnlyOneReportHasComplexity() {
+        // Exact scenario from JENKINS-75295: a source file guarded by #if !NET6_0_OR_GREATER
+        // only exists in report A. Report B has a different class entirely.
+        // Both complexities must appear in the merged output.
+
+        var moduleA = new ModuleNode("ProjectA");
+        var pkgA = new PackageNode("com.example");
+        var classA = new ClassNode("LegacyHelper");
+        var methodA = new MethodNode("doLegacyThing", "()V", 5);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("ProjectA");
+        var pkgB = new PackageNode("com.example");
+        var classB = new ClassNode("ModernHelper");
+        var methodB = new MethodNode("doModernThing", "()V", 10);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 2));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        // LegacyHelper only in report A — complexity must survive unchanged
+        var legacyMethod = merged.findMethod("doLegacyThing", "()V").orElseThrow(
+                () -> new AssertionError("Method 'doLegacyThing' not found in merged tree"));
+        assertThat(legacyMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
+
+        // ModernHelper only in report B — complexity must also survive unchanged
+        var modernMethod = merged.findMethod("doModernThing", "()V").orElseThrow(
+                () -> new AssertionError("Method 'doModernThing' not found in merged tree"));
+        assertThat(modernMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(2));
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldTakeMaxComplexityAcrossThreeReports() {
+        // When Node.merge(List) chains multiple pairwise merges, max must still win.
+        // Reports have complexity 4, 7, 2 — result must be max = 7, not sum = 13.
+        var makeModule = (java.util.function.Function<Integer, ModuleNode>) complexity -> {
+            var m = new ModuleNode("Proj");
+            var p = new PackageNode("pkg");
+            var c = new ClassNode("Foo");
+            var meth = new MethodNode("run", "()V", 1);
+            meth.addValue(new Value(CYCLOMATIC_COMPLEXITY, complexity));
+            c.addChild(meth);
+            p.addChild(c);
+            m.addChild(p);
+            return m;
+        };
+
+        var merged = Node.merge(List.of(makeModule.apply(4), makeModule.apply(7), makeModule.apply(2)));
+
+        var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7)); // max(4,7,2)
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldNotLoseOtherValuesWhenMergingNodes() {
+        // LOC values are also preserved; max applies to them too when both sides have them.
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("Bar");
+        var methodA = new MethodNode("compute", "()I", 20);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 2));
+        methodA.addValue(new Value(LOC, 5));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("Bar");
+        var methodB = new MethodNode("compute", "()I", 20);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        methodB.addValue(new Value(LOC, 8));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var mergedMethod = merged.findMethod("compute", "()I").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(3));  // max(2,3)
+        assertThat(mergedMethod.getValue(LOC))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(8));  // max(5,8)
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldKeepComplexityFromFirstReportWhenSecondHasNone() {
+        // If only the first (left-hand) report has complexity for a node and the second
+        // doesn't have it at all, the value must survive the merge unchanged.
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("OnlyInA");
+        var methodA = new MethodNode("run", "()V", 1);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 9));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("OnlyInA");
+        var methodB = new MethodNode("run", "()V", 1);
+        // intentionally no complexity value on the second report's method
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(9));
     }
 }
