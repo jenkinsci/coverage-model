@@ -937,19 +937,10 @@ class NodeTest {
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
     void shouldTakeMaxComplexityAcrossThreeReports() {
-        var makeModule = (java.util.function.Function<Integer, ModuleNode>) complexity -> {
-            var m = new ModuleNode("Proj");
-            var p = new PackageNode("pkg");
-            var c = new ClassNode("Foo");
-            var meth = new MethodNode("run", "()V", 1);
-            meth.addValue(new Value(CYCLOMATIC_COMPLEXITY, complexity));
-            c.addChild(meth);
-            p.addChild(c);
-            m.addChild(p);
-            return m;
-        };
-
-        var merged = Node.merge(List.of(makeModule.apply(4), makeModule.apply(7), makeModule.apply(2)));
+        var merged = Node.merge(List.of(
+                createModuleWithComplexity(4),
+                createModuleWithComplexity(7),
+                createModuleWithComplexity(2)));
 
         var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
@@ -957,9 +948,21 @@ class NodeTest {
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7)); // max(4,7,2)
     }
 
+    private static ModuleNode createModuleWithComplexity(final int complexity) {
+        var module = new ModuleNode("Proj");
+        var pkg = new PackageNode("pkg");
+        var cls = new ClassNode("Foo");
+        var method = new MethodNode("run", "()V", 1);
+        method.addValue(new Value(CYCLOMATIC_COMPLEXITY, complexity));
+        cls.addChild(method);
+        pkg.addChild(cls);
+        module.addChild(pkg);
+        return module;
+    }
+
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
-    void shouldNotLoseOtherValuesWhenMergingNodes() {     
+    void shouldNotLoseOtherValuesWhenMergingNodes() {
         var moduleA = new ModuleNode("Proj");
         var pkgA = new PackageNode("pkg");
         var classA = new ClassNode("Bar");
