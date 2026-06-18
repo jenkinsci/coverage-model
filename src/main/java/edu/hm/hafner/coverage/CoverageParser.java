@@ -126,7 +126,7 @@ public abstract class CoverageParser implements Serializable {
      * @param isEmpty
      *         set this flag to {@code true} to indicate that the results are empty
      *
-     * @throws NoSuchElementException
+     * @throws ParsingException
      *         if the results are empty and errors should not be ignored
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log, final boolean isEmpty) {
@@ -136,7 +136,7 @@ public abstract class CoverageParser implements Serializable {
                 log.logError(emptyMessage);
             }
             else {
-                throw new NoSuchElementException(emptyMessage);
+                throw new ParsingException(emptyMessage);
             }
         }
     }
