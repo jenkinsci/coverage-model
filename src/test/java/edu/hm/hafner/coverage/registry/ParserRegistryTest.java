@@ -1,10 +1,15 @@
 package edu.hm.hafner.coverage.registry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.junit.jupiter.api.Test;
 
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.registry.ParserRegistry.CoverageParserType;
+import edu.hm.hafner.util.FilteredLog;
+
+import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -18,6 +23,11 @@ class ParserRegistryTest {
             assertThat(parser).isNotNull();
             assertThat(parser.getClass().toString()).containsIgnoringCase(
                     Strings.CS.remove(parserType.name(), "_"));
+
+            var log = new FilteredLog();
+
+            assertThatExceptionOfType(ParsingException.class).isThrownBy(() ->
+                    parser.parse(new StringReader(StringUtils.EMPTY), "empty.file", log));
         }
     }
 
