@@ -807,15 +807,17 @@ public abstract class Node implements Serializable {
     */
     private void mergeValues(final Node other) {
         for (Value otherValue : other.getValues()) {
-            var metric = otherValue.getMetric();
-            var existingValue = getValue(metric);
+            var currentMetric = otherValue.getMetric();
+
+            var existingValue = getValue(currentMetric);
             if (existingValue.isPresent()) {
-                if (metric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
+                if (currentMetric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
                     replaceValue(existingValue.get().max(otherValue));
                 }
                 else {
                     replaceValue(existingValue.get().compareTo(otherValue) <= 0
-                            ? existingValue.get() : otherValue);
+                            ? existingValue.get() 
+                            : otherValue);
                 }
             }
             else {
