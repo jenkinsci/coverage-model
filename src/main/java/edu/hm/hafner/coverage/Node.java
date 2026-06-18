@@ -797,18 +797,25 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Merges node metric values by keeping the maximum value for shared metrics (e.g.{@link Metric#CYCLOMATIC_COMPLEXITY}) * and preserving metrics present only in the other node, preventing metric loss during report merging (JENKINS-75295).
-     *
-     * @param other
-     *         the node whose values should be merged into this node
-     */
+    * Merges the directly stored values of {@code other} into this node. For metrics present in both
+    * nodes, the worse value according to {@link Metric#getTendency()} is retained; metrics present
+    * only in {@code other} are copied unchanged. This ensures that merged reports reflect the
+    * worst-case quality across multiple targets.
+    *
+    * @param other
+    *         the node whose values should be merged into this node
+    */
     private void mergeValues(final Node other) {
         for (Value otherValue : other.getValues()) {
-            var existingValue = values.stream()
-                    .filter(v -> v.getMetric() == otherValue.getMetric())
-                    .findAny();
+            var metric = otherValue.getMetric();
+            var existingValue = getValue(metric);
             if (existingValue.isPresent()) {
-                replaceValue(existingValue.get().max(otherValue));
+                if (metric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
+                    replaceValue(existingValue.get().max(otherValue));
+                }
+                else {
+                    replaceValue(existingValue.get().min(otherValue));
+                }
             }
             else {
                 addValue(otherValue);
