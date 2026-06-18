@@ -267,6 +267,21 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     /**
+     * Computes the minimum of this value and the specified value.
+     * 
+     * @param other
+     *         the other coverage
+     * @return the minimum value
+     */
+    @CheckReturnValue
+    public Value min(final Value other) {
+        if (max(other).equals(this)) {
+            return other;
+        }
+        return this;
+    }
+
+    /**
      * Returns whether this value if within the specified threshold (given as double value). For metrics of type
      * {@link MetricTendency#LARGER_IS_BETTER} (like coverage percentage) this value will be checked with greater or
      * equal than the threshold. For metrics of type {@link MetricTendency#SMALLER_IS_BETTER} (like complexity) this
