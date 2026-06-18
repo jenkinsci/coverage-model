@@ -814,7 +814,8 @@ public abstract class Node implements Serializable {
                     replaceValue(existingValue.get().max(otherValue));
                 }
                 else {
-                    replaceValue(existingValue.get().min(otherValue));
+                    replaceValue(existingValue.get().compareTo(otherValue) <= 0
+                            ? existingValue.get() : otherValue);
                 }
             }
             else {

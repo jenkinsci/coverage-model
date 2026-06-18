@@ -895,7 +895,42 @@ class NodeTest {
                 () -> new AssertionError("Method 'add' not found in merged tree"));
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5)); // max(3,5)
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldUsePessimisticValueBasedOnMetricTendencyWhenMerging() {
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("Cls");
+        classA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        classA.addValue(new Value(WARNINGS, 2));              
+        classA.addValue(new Value(UNBOUNDED, 10));            
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("Cls");
+        classB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
+        classB.addValue(new Value(WARNINGS, 5));              
+        classB.addValue(new Value(UNBOUNDED, 4));             
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+        var mergedClass = merged.findClass("Cls").orElseThrow();
+
+        assertThat(mergedClass.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
+        assertThat(mergedClass.getValue(WARNINGS))
+                .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
+        assertThat(mergedClass.getValue(UNBOUNDED))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(4));
     }
 
     @Test
