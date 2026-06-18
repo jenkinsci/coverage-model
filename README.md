@@ -20,23 +20,29 @@ on these metrics: [GitHub Autograding action](https://github.com/uhafner/autogra
 
 ![Quality Monitor GitHub Action](doc/quality-monitor.png)
 
-This library consists basically of two separate parts:
+This library consists basically of two separate parts. 
+The first part is the model to manage several metrics in a software project. 
+Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
+The second part consists of parsers for several report formats: 
 
-1. A model to manage several metrics in a software project. Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
-2. Parsers for several code coverage and metric formats:
-    * [Cobertura](https://cobertura.github.io/cobertura) code coverage results
-    * [Open Clover](https://openclover.org) code coverage results
-    * [Go Coverage](https://go.dev/doc/build-cover) results
-    * [JaCoCo](https://www.jacoco.org) code coverage results
-    * [LCOV](https://github.com/linux-test-project/lcov) code coverage results
-    * [OpenCover](https://github.com/OpenCover/opencover) code coverage results
-    * [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
-    * [TRACE32](https://www.lauterbach.com) code coverage results
-    * [PIT](https://pitest.org) mutation coverage results
-    * [Stryker](https://stryker-mutator.io) mutation coverage results
-    * [JUnit](https://junit.org) test results
-    * [NUnit](https://nunit.org) test results
-    * [XUnit](https://xunit.net) test results
-    * [PMD software metrics](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) via a patched version of [PMD](https://pmd.github.io/)
+- Code Coverage
+  - [Cobertura](https://cobertura.github.io/cobertura) code coverage results
+  - [Open Clover](https://openclover.org) code coverage results
+  - [Go Coverage](https://go.dev/doc/build-cover) results
+  - [JaCoCo](https://www.jacoco.org) code coverage results
+  - [LCOV](https://github.com/linux-test-project/lcov) code coverage results
+  - [OpenCover](https://github.com/OpenCover/opencover) code coverage results
+  - [VectorCAST](https://www.vector.com/int/en/products/products-a-z/software/vectorcast) code coverage results including MC/DC, Function, Function Call coverages
+  - [TRACE32](https://www.lauterbach.com) code coverage results
+* Mutation Coverage
+  * [PIT](https://pitest.org/) mutation coverage results
+  * [Stryker](https://stryker-mutator.io) mutation coverage results
+- Test Results
+  - [JUnit](https://junit.org) test results
+  - [NUnit](https://nunit.org) test results
+  - [XUnit](https://xunit.net) test results
+
+* Software Metrics
+  * [PMD software metrics](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) via a patched version of [PMD](https://pmd.github.io/)
 
 All source code is licensed under the MIT license. Contributions to this library are welcome! 
