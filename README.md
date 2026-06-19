@@ -21,8 +21,12 @@ on these metrics: [GitHub Autograding action](https://github.com/uhafner/autogra
 ![Quality Monitor GitHub Action](doc/quality-monitor.png)
 
 This library consists basically of two separate parts. 
-The first part is the model to manage several metrics in a software project. 
+The first part is the model to manage several metrics in a hierarchical software project. 
+Metrics can be attached to modules, packages, files, classes, or methods. 
+The values can be aggregated or merged so that it is possible to zoom into every detail level.
+
 Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
+
 The second part consists of parsers for several report formats: 
 
 - Code Coverage

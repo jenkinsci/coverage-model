@@ -89,10 +89,10 @@ public abstract class CoverageParser implements Serializable {
             if (!ignoreErrors() && Strings.CS.contains(e.getMessage(), "same child")) {
                 throw new ParsingException(e,
                         "A duplicate element was detected in '%s' while parsing this coverage report. "
-                        + "This typically indicates a problem with the coverage producer tool. "
-                        + "As a temporary workaround, you can set ignoreErrors=true to skip such elements. "
-                        + "Please report this issue to the coverage producer (e.g., gcovr, Go coverage) "
-                        + "or create an issue at https://github.com/jenkinsci/coverage-model/issues.",
+                                + "This typically indicates a problem with the coverage producer tool. "
+                                + "As a temporary workaround, you can set ignoreErrors=true to skip such elements. "
+                                + "Please report this issue to the coverage producer (e.g., gcovr, Go coverage) "
+                                + "or create an issue at https://github.com/jenkinsci/coverage-model/issues.",
                         fileName);
             }
             throw e;
@@ -131,7 +131,8 @@ public abstract class CoverageParser implements Serializable {
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log, final boolean isEmpty) {
         if (isEmpty) {
-            var emptyMessage = "[%s] The processed file '%s' does not contain data.".formatted(getClass().getSimpleName(), fileName);
+            var emptyMessage = "[%s] The processed file '%s' does not contain data.".formatted(
+                    getClass().getSimpleName(), fileName);
             if (ignoreErrors()) {
                 log.logError(emptyMessage);
             }
@@ -205,7 +206,8 @@ public abstract class CoverageParser implements Serializable {
 
     protected static String getValueOf(final StartElement element, final QName attribute) {
         return getOptionalValueOf(element, attribute).orElseThrow(
-                () -> new NoSuchElementException("Could not obtain attribute '%s' from element '%s'".formatted(attribute, element)));
+                () -> new NoSuchElementException(
+                        "Could not obtain attribute '%s' from element '%s'".formatted(attribute, element)));
     }
 
     protected static int parseInteger(final String value) {
@@ -250,8 +252,9 @@ public abstract class CoverageParser implements Serializable {
          *         syntax</a>
          * @param args
          *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
-         *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be
+         *         zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined
+         *         by
          *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behaviour on a {@code null} argument
          *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
          */
@@ -263,13 +266,25 @@ public abstract class CoverageParser implements Serializable {
         /**
          * Constructs a new {@link ParsingException} with the specified message.
          *
+         * @param message
+         *         the detail message. The detail message is saved for later retrieval by the
+         *         {@link #getMessage()} method.
+         */
+        public ParsingException(final String message) {
+            super(message);
+        }
+
+        /**
+         * Constructs a new {@link ParsingException} with the specified message.
+         *
          * @param messageFormat
          *         the message as a format string as described in <a href="../util/Formatter.html#syntax">Format string
          *         syntax</a>
          * @param args
          *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be zero.
-         *         The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be
+         *         zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined
+         *         by
          *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behavior on a {@code null} argument
          *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
          */
