@@ -693,6 +693,47 @@ class CoberturaParserTest extends AbstractParserTest {
                         coverage -> assertThat(coverage).hasCovered(6).hasMissed(8));
     }
 
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-model/issues/251")
+    void shouldStoreActualHitCountsForLineCoverageFromCobertura() {
+        var result = readReport("cobertura-hit-counts.xml");
+
+        assertThat(result.getAllFileNodes()).hasSize(1);
+        var fileNode = result.getAllFileNodes().getFirst();
+
+        assertThat(fileNode).hasName("MyClass.java").hasRelativePath("com/example/MyClass.java");
+
+        // getCounters() returns actual hit counts from the Cobertura XML hits attribute
+        var counters = fileNode.getCounters();
+
+        // Line 10: hit 1 time - getCounters() should return actual hits (1)
+        assertThat(counters).containsEntry(10, 1);
+
+        // Line 11: hit 5 times - getCounters() should return 5, not boolean 1
+        assertThat(counters).containsEntry(11, 5);
+
+        // Line 12: hit 10 times - getCounters() should return 10, not boolean 1
+        assertThat(counters).containsEntry(12, 10);
+
+        // Line 13: branch line with hits=3 - getCounters() should return 3 (actual executions of the line)
+        assertThat(counters).containsEntry(13, 3);
+
+        // Line 14: not hit - getCounters() should return 0
+        assertThat(counters).containsEntry(14, 0);
+
+        // getCoveredOfLine() still returns the coverage-model semantics (from coveredPerLine)
+        assertThat(fileNode.getCoveredOfLine(10)).isEqualTo(1);  // covered (boolean)
+        assertThat(fileNode.getCoveredOfLine(11)).isEqualTo(1);  // covered (boolean, not 5)
+        assertThat(fileNode.getCoveredOfLine(12)).isEqualTo(1);  // covered (boolean, not 10)
+        assertThat(fileNode.getCoveredOfLine(13)).isEqualTo(2);  // 2 branches covered
+        assertThat(fileNode.getCoveredOfLine(14)).isEqualTo(0);  // not covered
+
+        // LINE coverage metric should still be boolean (4 covered lines, 1 missed line)
+        assertThat(result.getValue(LINE)).isPresent().get().isInstanceOfSatisfying(Coverage.class,
+                coverage -> assertThat(coverage).hasCovered(4).hasMissed(1));
+    }
+
     private ModuleNode readExampleReport() {
         return readReport("cobertura.xml");
     }
