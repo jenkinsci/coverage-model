@@ -693,7 +693,6 @@ class CoberturaParserTest extends AbstractParserTest {
                         coverage -> assertThat(coverage).hasCovered(6).hasMissed(8));
     }
 
-
     @Test
     @Issue("https://github.com/jenkinsci/coverage-model/issues/251")
     void shouldStoreActualHitCountsForLineCoverageFromCobertura() {
