@@ -338,6 +338,79 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Returns the value for the specified metric using the specified aggregation type. The value is computed
+     * for the whole subtree this node is the root of.
+     *
+     * @param searchMetric
+     *         the metric to get the value for
+     * @param aggregation
+     *         the aggregation type to use
+     *
+     * @return the value for the specified metric or an empty result if no value has been defined
+     */
+    public Optional<Value> getValue(final Metric searchMetric, final MetricAggregation aggregation) {
+        if (aggregation == MetricAggregation.TOTAL || !aggregation.isSupported(searchMetric)) {
+            return getValue(searchMetric);
+        }
+
+        return computeAggregatedValue(searchMetric, aggregation);
+    }
+
+    /**
+     * Computes the aggregated value for the specified metric using the specified aggregation type.
+     *
+     * @param searchMetric
+     *         the metric to compute the value for
+     * @param aggregation
+     *         the aggregation type to use
+     *
+     * @return the aggregated value or an empty result if no value has been defined
+     */
+    private Optional<Value> computeAggregatedValue(final Metric searchMetric, final MetricAggregation aggregation) {
+        var targetNodes = searchMetric.getTargetNodes(this);
+        if (targetNodes.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var metricValues = targetNodes.stream()
+                .map(node -> node.getValue(searchMetric))
+                .flatMap(Optional::stream)
+                .toList();
+
+        if (metricValues.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return switch (aggregation) {
+            case MAXIMUM -> metricValues.stream().reduce(Value::max);
+            case MINIMUM -> metricValues.stream().reduce(Value::min);
+            case AVERAGE -> computeAverage(metricValues);
+            default -> Optional.empty();
+        };
+    }
+
+    /**
+     * Computes the average of the specified values.
+     *
+     * @param metricValues
+     *         the values to compute the average for
+     *
+     * @return the average value
+     */
+    private Optional<Value> computeAverage(final List<Value> metricValues) {
+        if (metricValues.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var sum = metricValues.stream()
+                .reduce(Value::add)
+                .orElseThrow(() -> new IllegalStateException("Cannot compute average of empty list"));
+
+        var count = metricValues.size();
+        return Optional.of(sum.divide(count));  
+    }
+
+    /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of.
      *
