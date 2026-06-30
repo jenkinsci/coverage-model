@@ -268,17 +268,14 @@ public class Value implements Serializable, Comparable<Value> {
 
     /**
      * Computes the minimum of this value and the specified value.
-     *
+     * 
      * @param other
-     *         the other value
-     *
+     *         the other coverage
      * @return the minimum value
      */
     @CheckReturnValue
     public Value min(final Value other) {
-        ensureSameMetricAndType(other);
-
-        if (fraction.doubleValue() > other.fraction.doubleValue()) {
+        if (max(other).equals(this)) {
             return other;
         }
         return this;

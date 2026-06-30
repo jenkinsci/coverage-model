@@ -870,6 +870,195 @@ class NodeTest {
     }
 
     @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldPreserveCyclomaticComplexityWhenMergingReports() {
+        var moduleA = new ModuleNode("ProjectA");
+        var pkgA = new PackageNode("com.example");
+        var classA = new ClassNode("Calculator");
+        var methodA = new MethodNode("add", "(II)I", 10);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("ProjectA");
+        var pkgB = new PackageNode("com.example");
+        var classB = new ClassNode("Calculator");
+        var methodB = new MethodNode("add", "(II)I", 10);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var mergedMethod = merged.findMethod("add", "(II)I").orElseThrow(
+                () -> new AssertionError("Method 'add' not found in merged tree"));
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5)); // max(3,5)
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldUsePessimisticValueBasedOnMetricTendencyWhenMerging() {
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("Cls");
+        classA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        classA.addValue(new Value(WARNINGS, 2));              
+        classA.addValue(new Value(UNBOUNDED, 10));            
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("Cls");
+        classB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
+        classB.addValue(new Value(WARNINGS, 5));              
+        classB.addValue(new Value(UNBOUNDED, 4));             
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+        var mergedClass = merged.findClass("Cls").orElseThrow();
+
+        assertThat(mergedClass.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
+        assertThat(mergedClass.getValue(WARNINGS))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
+        assertThat(mergedClass.getValue(UNBOUNDED))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(4));
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldPreserveCyclomaticComplexityWhenOnlyOneReportHasComplexity() {
+        var moduleA = new ModuleNode("ProjectA");
+        var pkgA = new PackageNode("com.example");
+        var classA = new ClassNode("LegacyHelper");
+        var methodA = new MethodNode("doLegacyThing", "()V", 5);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("ProjectA");
+        var pkgB = new PackageNode("com.example");
+        var classB = new ClassNode("ModernHelper");
+        var methodB = new MethodNode("doModernThing", "()V", 10);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 2));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var legacyMethod = merged.findMethod("doLegacyThing", "()V").orElseThrow(
+                () -> new AssertionError("Method 'doLegacyThing' not found in merged tree"));
+        assertThat(legacyMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
+
+        var modernMethod = merged.findMethod("doModernThing", "()V").orElseThrow(
+                () -> new AssertionError("Method 'doModernThing' not found in merged tree"));
+        assertThat(modernMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(2));
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldTakeMaxComplexityAcrossThreeReports() {
+        var merged = Node.merge(List.of(
+                createModuleWithComplexity(4),
+                createModuleWithComplexity(7),
+                createModuleWithComplexity(2)));
+
+        var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7)); // max(4,7,2)
+    }
+
+    private static ModuleNode createModuleWithComplexity(final int complexity) {
+        var module = new ModuleNode("Proj");
+        var pkg = new PackageNode("pkg");
+        var cls = new ClassNode("Foo");
+        var method = new MethodNode("run", "()V", 1);
+        method.addValue(new Value(CYCLOMATIC_COMPLEXITY, complexity));
+        cls.addChild(method);
+        pkg.addChild(cls);
+        module.addChild(pkg);
+        return module;
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldNotLoseOtherValuesWhenMergingNodes() {
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("Bar");
+        var methodA = new MethodNode("compute", "()I", 20);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 2));
+        methodA.addValue(new Value(LOC, 5));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("Bar");
+        var methodB = new MethodNode("compute", "()I", 20);
+        methodB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
+        methodB.addValue(new Value(LOC, 8));
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var mergedMethod = merged.findMethod("compute", "()I").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(3));  // max(2,3)
+        assertThat(mergedMethod.getValue(LOC))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(8));  // max(5,8)
+    }
+
+    @Test
+    @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
+    void shouldKeepComplexityFromFirstReportWhenSecondHasNone() {
+        var moduleA = new ModuleNode("Proj");
+        var pkgA = new PackageNode("pkg");
+        var classA = new ClassNode("OnlyInA");
+        var methodA = new MethodNode("run", "()V", 1);
+        methodA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 9));
+        classA.addChild(methodA);
+        pkgA.addChild(classA);
+        moduleA.addChild(pkgA);
+
+        var moduleB = new ModuleNode("Proj");
+        var pkgB = new PackageNode("pkg");
+        var classB = new ClassNode("OnlyInA");
+        var methodB = new MethodNode("run", "()V", 1);
+        classB.addChild(methodB);
+        pkgB.addChild(classB);
+        moduleB.addChild(pkgB);
+
+        var merged = moduleA.merge(moduleB);
+
+        var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
+        assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(9));
+    }
+
+    @Test
     void shouldComputeMaximumAggregation() {
         var classNode = new ClassNode("TestClass");
         var method1 = new MethodNode("method1", "()V");
@@ -1039,7 +1228,7 @@ class NodeTest {
 
         var total = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL);
         var regular = classNode.getValue(CYCLOMATIC_COMPLEXITY);
-        
+
         assertThat(total).isEqualTo(regular);
     }
 
@@ -1053,7 +1242,7 @@ class NodeTest {
 
         var result = moduleNode.getValue(LINE, MetricAggregation.MAXIMUM);
         var regularResult = moduleNode.getValue(LINE);
-        
+
         assertThat(result).isEqualTo(regularResult);
     }
 

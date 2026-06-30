@@ -1,17 +1,17 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
+
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests for {@link Trace32Parser} - focuses on single file reports.
@@ -29,12 +29,12 @@ class Trace32ParserTest extends AbstractParserTest {
 
     @Test
     void testEmptyReport() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("empty.xml"));
     }
 
     @Test
     void testInvalidReport() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("trace32-invalid.xml"));
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("trace32-invalid.xml"));
     }
 
     @Test

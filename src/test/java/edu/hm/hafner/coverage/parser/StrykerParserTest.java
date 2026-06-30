@@ -1,18 +1,17 @@
 package edu.hm.hafner.coverage.parser;
 
-import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.Test;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.coverage.Node;
 
-import static edu.hm.hafner.coverage.Metric.MUTATION;
+import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
@@ -38,7 +37,7 @@ class StrykerParserTest extends AbstractParserTest {
 
     @Test
     void shouldEnterIfBlockButSkipLoopWhenFilesObjectIsEmpty() {
-        assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(ParsingException.class)
                 .isThrownBy(() -> readReport("mutation-report-no-files.json"));
     }
 
@@ -53,7 +52,7 @@ class StrykerParserTest extends AbstractParserTest {
 
     @Test
     void shouldSkipIfBlockWhenFilesKeyIsMissing() {
-        assertThatExceptionOfType(NoSuchElementException.class)
+        assertThatExceptionOfType(ParsingException.class)
                 .isThrownBy(() -> readReport("mutation-report-missing-files.json"));
     }
 

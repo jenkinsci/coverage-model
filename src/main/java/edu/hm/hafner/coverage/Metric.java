@@ -436,7 +436,7 @@ public enum Metric {
         private static final long serialVersionUID = 8788686429559762490L;
 
         @Override
-        public boolean isAggregatingChildren() {
+        boolean isAggregatingChildren() {
             return true;
         }
 
@@ -523,7 +523,7 @@ public enum Metric {
         }
 
         @Override
-        public boolean isAggregatingChildren() {
+        boolean isAggregatingChildren() {
             return false;
         }
 

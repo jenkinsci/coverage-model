@@ -7,7 +7,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>6.11.0</version>
+    <version>6.13.0</version>
     <relativePath />
   </parent>
 
@@ -45,9 +45,9 @@
 
   <properties>
     <scmTag>HEAD</scmTag>
-    <revision>0.71.0</revision>
+    <revision>0.72.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <previousVersion>0.70.0</previousVersion>
+    <previousVersion>0.71.1</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
@@ -124,7 +124,7 @@
     <dependency>
       <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>3.1.4</version>
+      <version>3.2.0</version>
     </dependency>
   </dependencies>
 

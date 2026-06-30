@@ -855,7 +855,7 @@ public abstract class Node implements Serializable {
     protected void mergeNode(final Node other) {
         ensureSameMetric(other);
 
-        removeValues(); // clear all values
+        mergeValues(other);
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
@@ -867,6 +867,34 @@ public abstract class Node implements Serializable {
                 addChild(otherChild.copyTree());
             }
         });
+    }
+
+    /**
+    * Merges the directly stored values of {@code other} into this node. For metrics present in both
+    * nodes, the worse value according to {@link Metric#getTendency()} is retained; metrics present
+    * only in {@code other} are copied unchanged. This ensures that merged reports reflect the
+    * worst-case quality across multiple targets.
+    *
+    * @param other
+    *         the node whose values should be merged into this node
+    */
+    private void mergeValues(final Node other) {
+        for (Value otherValue : other.getValues()) {
+            var currentMetric = otherValue.getMetric();
+
+            var existingValue = getValue(currentMetric);
+            if (existingValue.isPresent()) {
+                if (currentMetric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
+                    replaceValue(existingValue.get().max(otherValue));
+                }
+                else {
+                    replaceValue(existingValue.get().min(otherValue));
+                }
+            }
+            else {
+                addValue(otherValue);
+            }
+        }
     }
 
     void removeValues() {
