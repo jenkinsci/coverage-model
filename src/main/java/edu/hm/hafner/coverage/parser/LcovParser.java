@@ -75,9 +75,9 @@ public class LcovParser extends CoverageParser {
                 else if (line.startsWith("DA:")) {
                     var parts = line.substring(3).split(",", 3);
                     var ln = Integer.parseInt(parts[0]);
-                    var exec = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+                    var isCovered = parts.length > 1 && Long.parseLong(parts[1]) > 0;
                     var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
-                    pair.setLeft(exec > 0 ? 1 : 0);
+                    pair.setLeft(isCovered ? 1 : 0);
                     files.get(currentFile).put(ln, pair);
                 }
                 // Branch coverage (BRDA:<line>,<block>,<branch>,<taken>)
@@ -86,7 +86,7 @@ public class LcovParser extends CoverageParser {
                     var ln = Integer.parseInt(parts[0]);
                     var taken = parts.length > 3 ? parts[3] : "-";
                     var pair = files.getOrDefault(currentFile, new TreeMap<>()).getOrDefault(ln, MutablePair.of(0, 0));
-                    if (!"-".equals(taken) && !"0".equals(taken)) {
+                    if (!"-".equals(taken) && Long.parseLong(taken) > 0) {
                         pair.setRight(pair.getRight() + 1);
                     }
                     files.get(currentFile).put(ln, pair);
