@@ -72,4 +72,18 @@ class LcovParserTest extends AbstractParserTest {
         assertThat(report.getAllFileNodes()).map(FileNode::getFileName).containsExactlyInAnyOrder(
                 "main.ts", "helper.ts", "module.c");
     }
+
+    @Test
+    void shouldParseLargeHitCounts() {
+        var report = readReport("large-hit-counts.lcov", ProcessingMode.IGNORE_ERRORS);
+
+        var builder = new Coverage.CoverageBuilder();
+
+        assertThat(report.aggregateValues()).contains(
+                builder.withMetric(FILE).withCovered(1).withTotal(1).build(),
+                builder.withMetric(LINE).withCovered(1).withTotal(2).build(),
+                builder.withMetric(INSTRUCTION).withCovered(1).withTotal(2).build(),
+                new Value(LOC, 2)
+        );
+    }
 }

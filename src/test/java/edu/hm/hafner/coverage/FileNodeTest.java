@@ -386,7 +386,6 @@ class FileNodeTest extends AbstractNodeTest {
                 .containsExactly(new LineRange(2, 5), new LineRange(7));
     }
 
-    @SuppressWarnings("PMD.PublicMemberInNonPublicType")
     public static void main(final String... args) throws IOException {
         new FileNodeTest().createSerializationFile();
     }

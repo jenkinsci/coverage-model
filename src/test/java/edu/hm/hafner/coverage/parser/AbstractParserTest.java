@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import com.google.errorprone.annotations.MustBeClosed;
 
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
@@ -15,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
@@ -74,7 +74,7 @@ abstract class AbstractParserTest {
 
     @Test
     void shouldFailWhenEmptyFilesAreNotIgnored() {
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> readReport("empty.xml"));
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("empty.xml"));
 
         var report = readReport("empty.xml", ProcessingMode.IGNORE_ERRORS);
         assertThat(report).hasNoChildren().hasNoValues();
