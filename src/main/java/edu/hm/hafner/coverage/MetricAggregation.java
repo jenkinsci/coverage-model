@@ -1,6 +1,8 @@
 package edu.hm.hafner.coverage;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -60,7 +62,6 @@ public enum MetricAggregation {
 
     /**
      * Returns whether this aggregation is supported for the specified metric.
-     * Aggregation types other than TOTAL are only supported for method-level and class-level metrics.
      *
      * @param metric
      *         the metric to check
@@ -68,13 +69,7 @@ public enum MetricAggregation {
      * @return {@code true} if this aggregation is supported for the metric, {@code false} otherwise
      */
     public boolean isSupported(final Metric metric) {
-        if (this == TOTAL) {
-            return true; 
-        }
-        
-        return metric.getType() == Metric.MetricValueType.METHOD_METRIC
-                || metric.getType() == Metric.MetricValueType.CLASS_METRIC
-                || metric.getType() == Metric.MetricValueType.METRIC;
+        return metric != null;
     }
 
     /**
@@ -84,6 +79,27 @@ public enum MetricAggregation {
      */
     public static MetricAggregation getDefault() {
         return TOTAL;
+    }
+
+    /**
+     * Aggregates the specified values using this aggregation strategy.
+     *
+     * @param values
+     *         the values to aggregate
+     *
+     * @return the aggregated value or an empty result if no values are available
+     */
+    public Optional<Value> aggregate(final List<Value> values) {
+        if (values.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return switch (this) {
+            case TOTAL -> values.stream().reduce(Value::add);
+            case MAXIMUM -> values.stream().reduce(Value::max);
+            case MINIMUM -> values.stream().reduce(Value::min);
+            case AVERAGE -> computeAverage(values);
+        };
     }
 
     /**
@@ -119,5 +135,13 @@ public enum MetricAggregation {
     @Override
     public String toString() {
         return displayName;
+    }
+
+    private static Optional<Value> computeAverage(final List<Value> values) {
+        var sum = values.stream()
+                .reduce(Value::add)
+                .orElseThrow(() -> new IllegalStateException("Cannot compute average of empty list"));
+
+        return Optional.of(sum.divide(values.size()));
     }
 }

@@ -84,23 +84,37 @@ class CoverageTest {
         var worse = builder.withCovered(0).withMissed(2).build();
         var coverage = builder.withCovered(1).withMissed(1).build();
         var better = builder.withCovered(2).withMissed(0).build();
+        var differentTotal = builder.withCovered(2).withMissed(1).build();
 
         assertThat(coverage.max(coverage)).isSameAs(coverage);
         assertThat(coverage.max(better)).isSameAs(better);
         assertThat(coverage.max(worse)).isSameAs(coverage);
+        assertThat(coverage.max(differentTotal)).isSameAs(differentTotal);
     }
 
-    @ParameterizedTest(name = "{index} => Detection of invalid covered items: {0}")
-    @ValueSource(ints = {0, 1, 2, 4, 5})
-    @DisplayName("Ensure that exception is thrown if totals do not match")
-    void shouldThrowExceptionWhenMaximumIsInvalid(final int covered) {
+    @Test
+    void shouldComputeMinimum() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        var coverage = builder.withCovered(2).withMissed(1).build();
+        var worse = builder.withCovered(0).withMissed(2).build();
+        var coverage = builder.withCovered(1).withMissed(1).build();
+        var better = builder.withCovered(2).withMissed(0).build();
+        var differentTotal = builder.withCovered(1).withMissed(3).build();
 
-        assertThatExceptionOfType(AssertionError.class).isThrownBy(
-                () -> coverage.max(
-                        builder.withCovered(covered).withMissed(0).build()));
+        assertThat(coverage.min(coverage)).isSameAs(coverage);
+        assertThat(coverage.min(better)).isSameAs(coverage);
+        assertThat(coverage.min(worse)).isSameAs(worse);
+        assertThat(coverage.min(differentTotal)).isSameAs(differentTotal);
+    }
+
+    @Test
+    void shouldComputeMaximumWithDifferentTotals() {
+        var builder = new CoverageBuilder().withMetric(Metric.LINE);
+
+        var coverage = builder.withCovered(1).withMissed(1).build();
+        var better = builder.withCovered(2).withMissed(1).build();
+
+        assertThat(coverage.max(better)).isSameAs(better);
     }
 
     @Test

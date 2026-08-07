@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
@@ -15,18 +16,10 @@ import static org.assertj.core.api.Assertions.*;
 class MetricAggregationTest {
     @Test
     void shouldHaveCorrectDisplayNames() {
-        assertThat(MetricAggregation.TOTAL.getDisplayName()).isEqualTo("Total");
-        assertThat(MetricAggregation.MAXIMUM.getDisplayName()).isEqualTo("Maximum");
-        assertThat(MetricAggregation.MINIMUM.getDisplayName()).isEqualTo("Minimum");
-        assertThat(MetricAggregation.AVERAGE.getDisplayName()).isEqualTo("Average");
-    }
-
-    @Test
-    void shouldHaveCorrectIds() {
-        assertThat(MetricAggregation.TOTAL.getId()).isEqualTo("total");
-        assertThat(MetricAggregation.MAXIMUM.getId()).isEqualTo("maximum");
-        assertThat(MetricAggregation.MINIMUM.getId()).isEqualTo("minimum");
-        assertThat(MetricAggregation.AVERAGE.getId()).isEqualTo("average");
+        assertThat(MetricAggregation.TOTAL).hasDisplayName("Total").hasId("total");
+        assertThat(MetricAggregation.MAXIMUM).hasDisplayName("Maximum").hasId("maximum");
+        assertThat(MetricAggregation.MINIMUM).hasDisplayName("Minimum").hasId("minimum");
+        assertThat(MetricAggregation.AVERAGE).hasDisplayName("Average").hasId("average");
     }
 
     @Test
@@ -60,10 +53,10 @@ class MetricAggregationTest {
     }
 
     @Test
-    void shouldNotSupportNonTotalAggregationsForCoverageMetrics() {
-        assertThat(MetricAggregation.MAXIMUM.isSupported(Metric.LINE)).isFalse();
-        assertThat(MetricAggregation.MINIMUM.isSupported(Metric.BRANCH)).isFalse();
-        assertThat(MetricAggregation.AVERAGE.isSupported(Metric.INSTRUCTION)).isFalse();
+    void shouldSupportNonTotalAggregationsForCoverageMetrics() {
+        assertThat(MetricAggregation.MAXIMUM.isSupported(Metric.LINE)).isTrue();
+        assertThat(MetricAggregation.MINIMUM.isSupported(Metric.BRANCH)).isTrue();
+        assertThat(MetricAggregation.AVERAGE.isSupported(Metric.INSTRUCTION)).isTrue();
     }
 
     @Test
@@ -119,9 +112,9 @@ class MetricAggregationTest {
 
     @Test
     void shouldHaveCorrectToString() {
-        assertThat(MetricAggregation.TOTAL.toString()).isEqualTo("Total");
-        assertThat(MetricAggregation.MAXIMUM.toString()).isEqualTo("Maximum");
-        assertThat(MetricAggregation.MINIMUM.toString()).isEqualTo("Minimum");
-        assertThat(MetricAggregation.AVERAGE.toString()).isEqualTo("Average");
+        assertThat(MetricAggregation.TOTAL).hasToString("Total");
+        assertThat(MetricAggregation.MAXIMUM).hasToString("Maximum");
+        assertThat(MetricAggregation.MINIMUM).hasToString("Minimum");
+        assertThat(MetricAggregation.AVERAGE).hasToString("Average");
     }
 }
