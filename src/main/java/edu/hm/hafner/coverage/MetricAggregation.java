@@ -61,18 +61,6 @@ public enum MetricAggregation {
     }
 
     /**
-     * Returns whether this aggregation is supported for the specified metric.
-     *
-     * @param metric
-     *         the metric to check
-     *
-     * @return {@code true} if this aggregation is supported for the metric, {@code false} otherwise
-     */
-    public boolean isSupported(final Metric metric) {
-        return metric != null;
-    }
-
-    /**
      * Returns the default aggregation type for all metrics.
      *
      * @return the default aggregation type (always TOTAL)

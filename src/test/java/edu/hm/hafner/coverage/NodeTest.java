@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 import org.junitpioneer.jupiter.Issue;
 
@@ -1058,40 +1060,18 @@ class NodeTest {
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(9));
     }
 
-    @Test
-    void shouldComputeMaximumAggregation() {
-        var classNode = createClassNodeWithComplexityValues(5, 10, 3);
-
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM))
-                .isPresent()
-                .hasValueSatisfying(value -> assertThat(value.asDouble()).isEqualTo(10.0));
-    }
-
-    @Test
-    void shouldComputeMinimumAggregation() {
-        var classNode = createClassNodeWithComplexityValues(5, 10, 3);
-
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM))
-                .isPresent()
-                .hasValueSatisfying(value -> assertThat(value.asDouble()).isEqualTo(3.0));
-    }
-
-    @Test
-    void shouldComputeAverageAggregation() {
+    @ParameterizedTest(name = "[{index}] {0} of (6, 12, 3) should be {1}")
+    @CsvSource({
+            "MAXIMUM, 12",
+            "MINIMUM, 3",
+            "AVERAGE, 7",
+            "TOTAL, 21"
+    })
+    void shouldComputeAggregation(final MetricAggregation aggregation, final int expected) {
         var classNode = createClassNodeWithComplexityValues(6, 12, 3);
 
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE))
-                .isPresent()
-                .hasValueSatisfying(value -> assertThat(value.asDouble()).isEqualTo(7.0));
-    }
-
-    @Test
-    void shouldComputeTotalAggregation() {
-        var classNode = createClassNodeWithComplexityValues(5, 10, 3);
-
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL))
-                .isPresent()
-                .hasValueSatisfying(value -> assertThat(value.asDouble()).isEqualTo(18.0));
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, aggregation))
+                .contains(Value.valueOf("CYCLOMATIC_COMPLEXITY: " + expected));
     }
 
     @Test
