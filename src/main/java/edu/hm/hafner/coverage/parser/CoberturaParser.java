@@ -170,6 +170,7 @@ public class CoberturaParser extends CoverageParser {
                 .ifPresent(c -> node.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, readComplexity(c))));
 
         var coveragePerLine = new HashMap<Integer, Coverage>();
+        var hitsPerLine = new HashMap<Integer, Integer>();
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
@@ -177,7 +178,7 @@ public class CoberturaParser extends CoverageParser {
             if (event.isStartElement()) {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
-                    processLineElement(nextElement, coveragePerLine);
+                    processLineElement(nextElement, coveragePerLine, hitsPerLine);
                 }
                 else if (METHOD.equals(nextElement.getName())) {
                     readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
@@ -189,6 +190,7 @@ public class CoberturaParser extends CoverageParser {
                     if (CLASS.equals(endElement.getName())) {
                         coveragePerLine.forEach((lineNumber, coverage) ->
                                 fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+                        hitsPerLine.forEach(fileNode::addHitsPerLine);
                     }
 
                     var coverages = recalculateCoverageFromMergedLines(coveragePerLine);
@@ -238,17 +240,18 @@ public class CoberturaParser extends CoverageParser {
     }
 
     private void processLineElement(final StartElement nextElement,
-            final Map<Integer, Coverage> coveragePerLine) {
+            final Map<Integer, Coverage> coveragePerLine, final Map<Integer, Integer> hitsPerLine) {
+        int lineNumber = getIntegerValueOf(nextElement, NUMBER);
+        int lineHits = getIntegerValueOf(nextElement, HITS);
         Coverage coverage;
         if (isBranchCoverage(nextElement)) {
             coverage = readBranchCoverage(nextElement);
         }
         else {
-            int lineHits = getIntegerValueOf(nextElement, HITS);
             coverage = computeLineCoverage(lineHits);
         }
+        hitsPerLine.merge(lineNumber, lineHits, Integer::max);
 
-        int lineNumber = getIntegerValueOf(nextElement, NUMBER);
         coveragePerLine.merge(lineNumber, coverage, this::mergeDuplicateLines);
     }
 

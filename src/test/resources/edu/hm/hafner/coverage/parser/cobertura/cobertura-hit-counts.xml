@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="5" lines-covered="4" line-rate="0.8" branches-valid="2" branches-covered="2" branch-rate="1.0" timestamp="1234567890" complexity="0" version="7.0.5">
+  <sources>
+    <source>/home/user/dev/project</source>
+  </sources>
+  <packages>
+    <package name="com.example" line-rate="0.8" branch-rate="1.0">
+      <classes>
+        <class name="MyClass.java" filename="com/example/MyClass.java" line-rate="0.8" branch-rate="1.0">
+          <methods/>
+          <lines>
+            <!-- Line hit 1 time -->
+            <line number="10" hits="1" branch="false"/>
+            <!-- Line hit 5 times - should store 5, not 1 -->
+            <line number="11" hits="5" branch="false"/>
+            <!-- Line hit 10 times - should store 10, not 1 -->
+            <line number="12" hits="10" branch="false"/>
+            <!-- Branch line with 2/2 covered -->
+            <line number="13" hits="3" branch="true" condition-coverage="100% (2/2)"/>
+            <!-- Line not hit at all - should store 0 -->
+            <line number="14" hits="0" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
