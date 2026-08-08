@@ -132,7 +132,8 @@ public enum Metric {
 
     /**
      * Returns the metric that belongs to the specified name. The name matching is done in a case-insensitive way.
-     * Additionally, all dashes and underscores are removed.
+     * Additionally, all dashes and underscores are removed. This method also handles legacy metric names like
+     * COMPLEXITY_MAXIMUM, COMPLEXITY_MINIMUM, and COMPLEXITY_AVERAGE by mapping them to CYCLOMATIC_COMPLEXITY.
      *
      * @param name
      *         the name
@@ -142,6 +143,11 @@ public enum Metric {
      *         if the name is blank or no metric could be found for the specified name
      */
     public static Metric fromName(final String name) {
+        // Handle legacy complexity metrics
+        if (isLegacyComplexityMetric(name)) {
+            return CYCLOMATIC_COMPLEXITY;
+        }
+
         var normalizedName = normalize(name);
         var normalizedFallback = normalize("CYCLOMATIC_" + name);
         for (Metric metric : values()) {
@@ -154,6 +160,43 @@ public enum Metric {
             throw new IllegalArgumentException("No metric defined");
         }
         throw new IllegalArgumentException("No metric found for name '" + name + "'");
+    }
+
+    /**
+     * Checks if the given name represents a legacy complexity metric.
+     *
+     * @param name
+     *         the name to check
+     *
+     * @return {@code true} if the name represents a legacy complexity metric, {@code false} otherwise
+     */
+    private static boolean isLegacyComplexityMetric(final String name) {
+        var normalized = normalize(name);
+        return normalized.equals("COMPLEXITYMAXIMUM")
+                || normalized.equals("COMPLEXITYMINIMUM")
+                || normalized.equals("COMPLEXITYAVERAGE");
+    }
+
+    /**
+     * Extracts the aggregation type from a legacy metric name like COMPLEXITY_MAXIMUM.
+     *
+     * @param name
+     *         the name to extract the aggregation from
+     *
+     * @return the aggregation type or TOTAL if no aggregation is specified
+     */
+    public static MetricAggregation extractAggregation(final String name) {
+        var normalized = normalize(name);
+        if (normalized.equals("COMPLEXITYMAXIMUM")) {
+            return MetricAggregation.MAXIMUM;
+        }
+        if (normalized.equals("COMPLEXITYMINIMUM")) {
+            return MetricAggregation.MINIMUM;
+        }
+        if (normalized.equals("COMPLEXITYAVERAGE")) {
+            return MetricAggregation.AVERAGE;
+        }
+        return MetricAggregation.TOTAL;
     }
 
     private static String normalize(final String name) {

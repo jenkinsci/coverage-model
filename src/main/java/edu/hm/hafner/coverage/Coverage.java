@@ -152,11 +152,18 @@ public final class Coverage extends Value {
     @Override
     public Coverage max(final Value other) {
         var otherCoverage = castValue(other);
-        Ensure.that(getTotal() == otherCoverage.getTotal())
-                .isTrue("Cannot compute maximum of coverages %s and %s since total differs",
-                        this, other);
 
-        if (getCovered() >= otherCoverage.getCovered()) {
+        if (asDouble() >= otherCoverage.asDouble()) {
+            return this;
+        }
+        return otherCoverage;
+    }
+
+    @Override
+    public Coverage min(final Value other) {
+        var otherCoverage = castValue(other);
+
+        if (asDouble() <= otherCoverage.asDouble()) {
             return this;
         }
         return otherCoverage;

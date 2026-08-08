@@ -338,6 +338,26 @@ public abstract class Node implements Serializable {
     }
 
     /**
+     * Returns the value for the specified metric using the specified aggregation type. The value is computed
+     * for the whole subtree this node is the root of.
+     *
+     * @param searchMetric
+     *         the metric to get the value for
+     * @param aggregation
+     *         the aggregation type to use
+     *
+     * @return the value for the specified metric or an empty result if no value has been defined
+     */
+    public Optional<Value> getValue(final Metric searchMetric, final MetricAggregation aggregation) {
+        var targetNodes = searchMetric.getTargetNodes(this);
+        var metricValues = targetNodes.stream()
+                .map(node -> node.getValue(searchMetric))
+                .flatMap(Optional::stream)
+                .toList();
+        return aggregation.aggregate(metricValues);
+    }
+
+    /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of.
      *

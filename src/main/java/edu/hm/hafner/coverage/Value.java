@@ -282,6 +282,22 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     /**
+     * Divides this value by the specified divisor.
+     *
+     * @param divisor
+     *         the divisor
+     *
+     * @return the result of the division
+     */
+    @CheckReturnValue
+    public Value divide(final int divisor) {
+        if (divisor == 0) {
+            throw new IllegalArgumentException("Cannot divide by zero");
+        }
+        return new Value(metric, fraction.divideBy(Fraction.getFraction(divisor, 1)));
+    }
+
+    /**
      * Returns whether this value if within the specified threshold (given as double value). For metrics of type
      * {@link MetricTendency#LARGER_IS_BETTER} (like coverage percentage) this value will be checked with greater or
      * equal than the threshold. For metrics of type {@link MetricTendency#SMALLER_IS_BETTER} (like complexity) this
