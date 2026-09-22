@@ -49,6 +49,10 @@ public final class FileNode extends Node {
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
 
+    /** Stores the actual hit count per line for display purposes (e.g., from Cobertura hits attribute). */
+    @SuppressWarnings("serial")
+    private NavigableMap<Integer, Integer> hitsPerLine = new TreeMap<>();
+
     @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> mcdcPairCoveredPerLine = new TreeMap<>();
     // metrics for MC/DC pairs per line
@@ -115,6 +119,9 @@ public final class FileNode extends Node {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }
+        if (hitsPerLine == null) {
+            hitsPerLine = new TreeMap<>();
+        }
         if (mcdcPairCoveredPerLine == null) {
             mcdcPairCoveredPerLine = new TreeMap<>();
         }
@@ -136,6 +143,8 @@ public final class FileNode extends Node {
 
         copy.coveredPerLine.putAll(coveredPerLine);
         copy.missedPerLine.putAll(missedPerLine);
+
+        copy.hitsPerLine.putAll(hitsPerLine);
 
         copy.mcdcPairCoveredPerLine.putAll(mcdcPairCoveredPerLine);
         copy.mcdcPairMissedPerLine.putAll(mcdcPairMissedPerLine);
@@ -616,6 +625,26 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Records the actual number of times a line was hit (executed), for display purposes. This count may differ from
+     * the coverage counter (which uses boolean covered/missed for line coverage and branch count for branch coverage).
+     * Parsers that expose raw hit counts (e.g., Cobertura) should call this method in addition to
+     * {@link #addCounters(int, int, int)}.
+     *
+     * @param lineNumber
+     *         the line number to record hits for
+     * @param hits
+     *         the number of times the line was executed
+     *
+     * @return this instance
+     */
+    @CanIgnoreReturnValue
+    public FileNode addHitsPerLine(final int lineNumber, final int hits) {
+        hitsPerLine.merge(lineNumber, hits, Integer::max);
+
+        return this;
+    }
+
+    /**
      * Add the MCDC coverage  counters for the specified line.
      *
      * @param lineNumber
@@ -864,7 +893,17 @@ public final class FileNode extends Node {
                 .collect(Collectors.toMap(line -> line, missedPerLine::get, (a, b) -> a, TreeMap::new));
     }
 
+    /**
+     * Returns the counters for each line. When actual hit counts are available (e.g., populated by the Cobertura
+     * parser), the returned map contains the number of times each line was executed. Otherwise, falls back to the
+     * covered count (which may be boolean 0/1 for line coverage, or branch count for branch coverage).
+     *
+     * @return an unmodifiable view of the line hit counts, or the covered counters as fallback
+     */
     public NavigableMap<Integer, Integer> getCounters() {
+        if (!hitsPerLine.isEmpty()) {
+            return Collections.unmodifiableNavigableMap(hitsPerLine);
+        }
         return Collections.unmodifiableNavigableMap(coveredPerLine);
     }
 
@@ -922,6 +961,7 @@ public final class FileNode extends Node {
         var fileNode = (FileNode) o;
         return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
                 && Objects.equals(missedPerLine, fileNode.missedPerLine)
+                && Objects.equals(hitsPerLine, fileNode.hitsPerLine)
                 && Objects.equals(mcdcPairCoveredPerLine, fileNode.mcdcPairCoveredPerLine)
                 && Objects.equals(mcdcPairMissedPerLine, fileNode.mcdcPairMissedPerLine)
                 && Objects.equals(functionCallCoveredPerLine, fileNode.functionCallCoveredPerLine)
@@ -935,7 +975,7 @@ public final class FileNode extends Node {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
+        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, hitsPerLine, mutations, modifiedLines,
                 mcdcPairCoveredPerLine, mcdcPairMissedPerLine, functionCallCoveredPerLine, functionCallMissedPerLine,
                 indirectCoverageChanges, coverageDelta, relativePath);
     }
