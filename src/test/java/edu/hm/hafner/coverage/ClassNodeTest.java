@@ -1,11 +1,10 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import edu.hm.hafner.util.TreeString;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ClassNodeTest extends AbstractNodeTest {
     @Override
@@ -25,11 +24,8 @@ class ClassNodeTest extends AbstractNodeTest {
         classNode.addChild(main);
         classNode.addChild(new ClassNode("NestedClass"));
 
-        assertThat(classNode.findMethod("main", "String..."))
-                .isPresent()
-                .containsSame(main);
-        assertThat(classNode.findMethod("main", "Nothing"))
-                .isNotPresent();
+        assertThat(classNode.findMethod("main", "String...")).isPresent().containsSame(main);
+        assertThat(classNode.findMethod("main", "Nothing")).isNotPresent();
         assertThat(classNode).isNotAggregation();
     }
 

@@ -1,12 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -19,15 +13,16 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.TreeString;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Optional;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
 
-/**
- * Clover parser that parses coverage clover generated coverage files.
- */
+/** Clover parser that parses coverage clover generated coverage files. */
 @SuppressWarnings({"PMD.GodClass", "PMD.AvoidDeeplyNestedIfStmts"})
 public class CloverParser extends CoverageParser {
     @Serial
@@ -62,8 +57,7 @@ public class CloverParser extends CoverageParser {
     /**
      * Creates a new instance of {@link CloverParser}.
      *
-     * @param processingMode
-     *          determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public CloverParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -84,8 +78,7 @@ public class CloverParser extends CoverageParser {
                         var root = readCoverage(fileName, eventReader, log);
                         if (root.hasChildren()) {
                             return root;
-                        }
-                        else {
+                        } else {
                             handleEmptyResults(fileName, log);
                         }
                     }
@@ -93,15 +86,14 @@ public class CloverParser extends CoverageParser {
             }
             handleEmptyResults(fileName, log);
             return new ModuleNode("empty");
-        }
-        catch (XMLStreamException exception) {
+        } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
         }
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readCoverage(final String fileName, final XMLEventReader reader,
-                                    final FilteredLog log) throws XMLStreamException {
+    private ModuleNode readCoverage(final String fileName, final XMLEventReader reader, final FilteredLog log)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             var event = reader.nextEvent();
 
@@ -123,7 +115,8 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private ModuleNode readProject(final String fileName, final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
+    private ModuleNode readProject(final String fileName, final XMLEventReader reader, final ModuleNode root)
+            throws XMLStreamException {
         while (reader.hasNext()) {
             var event = reader.nextEvent();
 
@@ -131,15 +124,12 @@ public class CloverParser extends CoverageParser {
                 var startElement = event.asStartElement();
                 if (METRICS.equals(startElement.getName())) {
                     readCoverageMetrics(root, startElement);
-                }
-                else if (PACKAGE.equals(startElement.getName())) {
+                } else if (PACKAGE.equals(startElement.getName())) {
                     readPackage(fileName, reader, root, startElement);
-                }
-                else if (FILE.equals(startElement.getName())) {
+                } else if (FILE.equals(startElement.getName())) {
                     readFile(fileName, reader, root.findOrCreatePackageNode(""), startElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (PROJECT.equals(endElement.getName())) {
                     return root;
@@ -150,7 +140,11 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private PackageNode readPackage(final String fileName, final XMLEventReader reader, final ModuleNode root, final StartElement packageElement)
+    private PackageNode readPackage(
+            final String fileName,
+            final XMLEventReader reader,
+            final ModuleNode root,
+            final StartElement packageElement)
             throws XMLStreamException {
         var packageName = getValueOf(packageElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
@@ -162,12 +156,10 @@ public class CloverParser extends CoverageParser {
                 var startElement = event.asStartElement();
                 if (METRICS.equals(startElement.getName())) {
                     readCoverageMetrics(packageNode, startElement);
-                }
-                else if (FILE.equals(startElement.getName())) {
+                } else if (FILE.equals(startElement.getName())) {
                     readFile(fileName, reader, packageNode, startElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (PACKAGE.equals(endElement.getName())) {
                     return packageNode;
@@ -178,10 +170,15 @@ public class CloverParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private FileNode readFile(final String parserFileName, final XMLEventReader reader,
-                              final PackageNode packageNode, final StartElement fileElement) throws XMLStreamException {
+    private FileNode readFile(
+            final String parserFileName,
+            final XMLEventReader reader,
+            final PackageNode packageNode,
+            final StartElement fileElement)
+            throws XMLStreamException {
         String fileName = getValueOf(fileElement, NAME);
-        var fileNode = packageNode.findOrCreateFileNode(fileName, constructPathForFile(fileElement, packageNode.getName(), fileName));
+        var fileNode = packageNode.findOrCreateFileNode(
+                fileName, constructPathForFile(fileElement, packageNode.getName(), fileName));
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
@@ -189,15 +186,12 @@ public class CloverParser extends CoverageParser {
                 var e = event.asStartElement();
                 if (CLASS.equals(e.getName())) {
                     readClass(parserFileName, reader, e, fileNode);
-                }
-                else if (METRICS.equals(e.getName())) {
+                } else if (METRICS.equals(e.getName())) {
                     readCoverageMetrics(fileNode, e);
-                }
-                else if (LINE.equals(e.getName())) {
+                } else if (LINE.equals(e.getName())) {
                     addLineCoverage(e, fileNode);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (FILE.equals(endElement.getName())) {
                     resolveLines(fileNode);
@@ -214,15 +208,13 @@ public class CloverParser extends CoverageParser {
         if (STMT.equals(type)) {
             int count = getIntegerValueOf(e, COUNT);
             addCountersToFile(count, fileNode, line);
-        }
-        else if (COND.equals(type)) {
+        } else if (COND.equals(type)) {
             Optional<String> countVal = getOptionalValueOf(e, COUNT);
             if (countVal.isPresent()) {
                 // If count exists, using it to decide the line coverage
                 int count = parseInteger(countVal.get());
                 addCountersToFile(count, fileNode, line);
-            }
-            else {
+            } else {
                 // If no count, then using trueCount or falseCount to decide on the line coverage
                 addCountersUsingConditional(fileNode, line, e);
             }
@@ -232,8 +224,7 @@ public class CloverParser extends CoverageParser {
     private void addCountersToFile(final int count, final FileNode fileNode, final int line) {
         if (count > 0) {
             fileNode.addCounters(line, 1, 0);
-        }
-        else {
+        } else {
             fileNode.addCounters(line, 0, 1);
         }
     }
@@ -243,16 +234,15 @@ public class CloverParser extends CoverageParser {
         int falseCount = getIntegerValueOf(e, FALSE_COUNT);
         if (trueCount > 0 || falseCount > 0) {
             fileNode.addCounters(line, 1, 0);
-        }
-        else {
+        } else {
             fileNode.addCounters(line, 0, 1);
         }
     }
 
-    private TreeString constructPathForFile(final StartElement fileElement, final String packageName, final String fileName) {
-        return getOptionalValueOf(fileElement, PATH)
-                .map(TreeString::valueOf)
-                .orElseGet(() -> getTreeStringBuilder().intern(getPath(packageName, fileName)));
+    private TreeString constructPathForFile(
+            final StartElement fileElement, final String packageName, final String fileName) {
+        return getOptionalValueOf(fileElement, PATH).map(TreeString::valueOf).orElseGet(() -> getTreeStringBuilder()
+                .intern(getPath(packageName, fileName)));
     }
 
     private String getPath(final String packageName, final String fileName) {
@@ -263,8 +253,12 @@ public class CloverParser extends CoverageParser {
         return PATH_UTIL.getRelativePath(relativePath);
     }
 
-    private void readClass(final String parserFileName, final XMLEventReader reader, final StartElement fileElement,
-                           final Node fileNode) throws XMLStreamException {
+    private void readClass(
+            final String parserFileName,
+            final XMLEventReader reader,
+            final StartElement fileElement,
+            final Node fileNode)
+            throws XMLStreamException {
         String className = getValueOf(fileElement, NAME);
         var classNode = fileNode.findOrCreateClassNode(className);
         while (reader.hasNext()) {
@@ -274,8 +268,7 @@ public class CloverParser extends CoverageParser {
                 if (METRICS.equals(e.getName())) {
                     readCoverageMetrics(classNode, e);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName())) {
                     return;
@@ -289,7 +282,8 @@ public class CloverParser extends CoverageParser {
         var builder = new CoverageBuilder();
         var lineCoverage = builder.withMetric(Metric.LINE)
                 .withCovered(fileNode.getCoveredLines().size())
-                .withMissed(fileNode.getMissedLines().size()).build();
+                .withMissed(fileNode.getMissedLines().size())
+                .build();
         fileNode.addValue(lineCoverage);
         for (ClassNode c : fileNode.getAllClassNodes()) {
             c.addValue(lineCoverage);
@@ -302,13 +296,18 @@ public class CloverParser extends CoverageParser {
         addCoverage(node, Metric.METHOD, METHODS, COVERED_METHODS, e);
     }
 
-    private void addCoverage(final Node node, final Metric metric,
-                             final QName coveredElement, final QName totalElement, final StartElement e) {
+    private void addCoverage(
+            final Node node,
+            final Metric metric,
+            final QName coveredElement,
+            final QName totalElement,
+            final StartElement e) {
         int condTotal = getIntegerValueOf(e, coveredElement);
         int condCovered = getIntegerValueOf(e, totalElement);
         var builder = new CoverageBuilder();
         node.addValue(builder.withMetric(metric)
                 .withCovered(condCovered)
-                .withMissed(condTotal - condCovered).build());
+                .withMissed(condTotal - condCovered)
+                .build());
     }
 }

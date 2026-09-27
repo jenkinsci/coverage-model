@@ -1,22 +1,18 @@
 package edu.hm.hafner.coverage;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
-import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import com.google.errorprone.annotations.FormatMethod;
-
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.TreeStringBuilder;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import javax.xml.namespace.QName;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * Parses a file and returns the code coverage information in a tree of {@link Node} instances.
@@ -33,9 +29,7 @@ public abstract class CoverageParser implements Serializable {
     /** Toplevel module name. */
     protected static final String EMPTY = "-";
 
-    /**
-     * Defines how to handle fatal errors during parsing.
-     */
+    /** Defines how to handle fatal errors during parsing. */
     public enum ProcessingMode {
         /** All fatal errors will be ignored and logged. */
         IGNORE_ERRORS,
@@ -49,8 +43,7 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Creates a new instance of {@link CoverageParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     protected CoverageParser(final ProcessingMode processingMode) {
         this.processingMode = processingMode;
@@ -68,26 +61,21 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Parses a report provided by the given reader.
      *
-     * @param reader
-     *         the reader with the coverage information
-     * @param fileName
-     *         the file name of the report
-     * @param log
-     *         the logger to write messages to
-     *
+     * @param reader the reader with the coverage information
+     * @param fileName the file name of the report
+     * @param log the logger to write messages to
      * @return the root of the created tree
-     * @throws ParsingException
-     *         if the content cannot be read by the parser
+     * @throws ParsingException if the content cannot be read by the parser
      */
     public ModuleNode parse(final Reader reader, final String fileName, final FilteredLog log) {
         try {
             var moduleNode = parseReport(reader, fileName, log);
             getTreeStringBuilder().dedup();
             return moduleNode;
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             if (!ignoreErrors() && Strings.CS.contains(e.getMessage(), "same child")) {
-                throw new ParsingException(e,
+                throw new ParsingException(
+                        e,
                         "A duplicate element was detected in '%s' while parsing this coverage report. "
                                 + "This typically indicates a problem with the coverage producer tool. "
                                 + "As a temporary workaround, you can set ignoreErrors=true to skip such elements. "
@@ -102,16 +90,13 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Returns the name of the specified element.
      *
-     * @param event
-     *         the event
-     *
+     * @param event the event
      * @return the name
      */
     protected QName getElementName(final XMLEvent event) {
         if (event.isStartElement()) {
             return event.asStartElement().getName();
-        }
-        else {
+        } else {
             return event.asEndElement().getName();
         }
     }
@@ -119,24 +104,18 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Handles processing of empty results.
      *
-     * @param fileName
-     *         the file name of the report
-     * @param log
-     *         the log
-     * @param isEmpty
-     *         set this flag to {@code true} to indicate that the results are empty
-     *
-     * @throws ParsingException
-     *         if the results are empty and errors should not be ignored
+     * @param fileName the file name of the report
+     * @param log the log
+     * @param isEmpty set this flag to {@code true} to indicate that the results are empty
+     * @throws ParsingException if the results are empty and errors should not be ignored
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log, final boolean isEmpty) {
         if (isEmpty) {
-            var emptyMessage = "[%s] The processed file '%s' does not contain data.".formatted(
-                    getClass().getSimpleName(), fileName);
+            var emptyMessage = "[%s] The processed file '%s' does not contain data."
+                    .formatted(getClass().getSimpleName(), fileName);
             if (ignoreErrors()) {
                 log.logError(emptyMessage);
-            }
-            else {
+            } else {
                 throw new ParsingException(emptyMessage);
             }
         }
@@ -145,10 +124,8 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Handles processing of empty results.
      *
-     * @param fileName
-     *         the file name of the report
-     * @param log
-     *         the log
+     * @param fileName the file name of the report
+     * @param log the log
      */
     protected void handleEmptyResults(final String fileName, final FilteredLog log) {
         handleEmptyResults(fileName, log, true);
@@ -173,16 +150,11 @@ public abstract class CoverageParser implements Serializable {
     /**
      * Parses a report provided by the given reader.
      *
-     * @param reader
-     *         the reader with the coverage information
-     * @param fileName
-     *         the file name of the report
-     * @param log
-     *         the logger to write messages to
-     *
+     * @param reader the reader with the coverage information
+     * @param fileName the file name of the report
+     * @param log the logger to write messages to
      * @return the root of the created tree
-     * @throws ParsingException
-     *         if the parser cannot read the content
+     * @throws ParsingException if the parser cannot read the content
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 
@@ -198,23 +170,21 @@ public abstract class CoverageParser implements Serializable {
     protected static int getIntegerValueOf(final StartElement element, final QName attributeName) {
         try {
             return parseInteger(getValueOf(element, attributeName));
-        }
-        catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignore) {
             return 0;
         }
     }
 
     protected static String getValueOf(final StartElement element, final QName attribute) {
-        return getOptionalValueOf(element, attribute).orElseThrow(
-                () -> new NoSuchElementException(
+        return getOptionalValueOf(element, attribute)
+                .orElseThrow(() -> new NoSuchElementException(
                         "Could not obtain attribute '%s' from element '%s'".formatted(attribute, element)));
     }
 
     protected static int parseInteger(final String value) {
         try {
             return Integer.parseInt(value);
-        }
-        catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignore) {
             return 0;
         }
     }
@@ -235,8 +205,7 @@ public abstract class CoverageParser implements Serializable {
         /**
          * Constructs a new {@link ParsingException} with the specified cause.
          *
-         * @param cause
-         *         the cause (which is saved for later retrieval by the {@link #getCause()} method).
+         * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
          */
         public ParsingException(final Throwable cause) {
             super(createMessage(cause, "Exception occurred during parsing"), cause);
@@ -245,18 +214,14 @@ public abstract class CoverageParser implements Serializable {
         /**
          * Constructs a new {@link ParsingException} with the specified cause and message.
          *
-         * @param cause
-         *         the cause (which is saved for later retrieval by the {@link #getCause()} method).
-         * @param messageFormat
-         *         the message as a format string as described in <a href="../util/Formatter.html#syntax">Format string
-         *         syntax</a>
-         * @param args
-         *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be
-         *         zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined
-         *         by
-         *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behaviour on a {@code null} argument
-         *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
+         * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
+         * @param messageFormat the message as a format string as described in <a
+         *     href="../util/Formatter.html#syntax">Format string syntax</a>
+         * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments
+         *     than format specifiers, the extra arguments are ignored. The number of arguments is variable and may be
+         *     zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *     <cite>The Java&trade; Virtual Machine Specification</cite>. The behaviour on a {@code null} argument
+         *     depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
          */
         @FormatMethod
         public ParsingException(final Throwable cause, final String messageFormat, final Object... args) {
@@ -266,9 +231,8 @@ public abstract class CoverageParser implements Serializable {
         /**
          * Constructs a new {@link ParsingException} with the specified message.
          *
-         * @param message
-         *         the detail message. The detail message is saved for later retrieval by the
-         *         {@link #getMessage()} method.
+         * @param message the detail message. The detail message is saved for later retrieval by the
+         *     {@link #getMessage()} method.
          */
         public ParsingException(final String message) {
             super(message);
@@ -277,16 +241,13 @@ public abstract class CoverageParser implements Serializable {
         /**
          * Constructs a new {@link ParsingException} with the specified message.
          *
-         * @param messageFormat
-         *         the message as a format string as described in <a href="../util/Formatter.html#syntax">Format string
-         *         syntax</a>
-         * @param args
-         *         Arguments referenced by the format specifiers in the format string.  If there are more arguments than
-         *         format specifiers, the extra arguments are ignored.  The number of arguments is variable and may be
-         *         zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined
-         *         by
-         *         <cite>The Java&trade; Virtual Machine Specification</cite>. The behavior on a {@code null} argument
-         *         depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
+         * @param messageFormat the message as a format string as described in <a
+         *     href="../util/Formatter.html#syntax">Format string syntax</a>
+         * @param args Arguments referenced by the format specifiers in the format string. If there are more arguments
+         *     than format specifiers, the extra arguments are ignored. The number of arguments is variable and may be
+         *     zero. The maximum number of arguments is limited by the maximum dimension of a Java array as defined by
+         *     <cite>The Java&trade; Virtual Machine Specification</cite>. The behavior on a {@code null} argument
+         *     depends on the <a href="../util/Formatter.html#syntax">conversion</a>.
          */
         @FormatMethod
         public ParsingException(final String messageFormat, final Object... args) {
@@ -294,8 +255,8 @@ public abstract class CoverageParser implements Serializable {
         }
 
         private static String createMessage(final Throwable cause, final String message) {
-            return "%s%n%s%n%s".formatted(message,
-                    ExceptionUtils.getMessage(cause), ExceptionUtils.getStackTrace(cause));
+            return "%s%n%s%n%s"
+                    .formatted(message, ExceptionUtils.getMessage(cause), ExceptionUtils.getStackTrace(cause));
         }
     }
 }

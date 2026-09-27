@@ -1,13 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
@@ -22,7 +14,6 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
@@ -30,6 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Parses Cobertura reports into a hierarchical Java Object Model.
@@ -47,12 +44,16 @@ public class CoberturaParser extends CoverageParser {
 
     private static final String DETERMINISTIC_PATH_PREFIX = "/_/";
 
-    private static final Coverage DEFAULT_BRANCH_COVERAGE = new CoverageBuilder(Metric.BRANCH).withCovered(2).withMissed(0).build();
-    private static final Coverage LINE_COVERED = new CoverageBuilder(Metric.LINE).withCovered(1).withMissed(0).build();
-    private static final Coverage LINE_MISSED = new CoverageBuilder(Metric.LINE).withCovered(0).withMissed(1).build();
+    private static final Coverage DEFAULT_BRANCH_COVERAGE =
+            new CoverageBuilder(Metric.BRANCH).withCovered(2).withMissed(0).build();
+    private static final Coverage LINE_COVERED =
+            new CoverageBuilder(Metric.LINE).withCovered(1).withMissed(0).build();
+    private static final Coverage LINE_MISSED =
+            new CoverageBuilder(Metric.LINE).withCovered(0).withMissed(1).build();
 
     /** XML elements. */
     private static final QName SOURCE = new QName("source");
+
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
     private static final QName METHOD = new QName("method");
@@ -60,6 +61,7 @@ public class CoberturaParser extends CoverageParser {
 
     /** Required attributes of the XML elements. */
     private static final QName NAME = new QName("name");
+
     private static final QName FILE_NAME = new QName("filename");
     private static final QName SIGNATURE = new QName("signature");
     private static final QName HITS = new QName("hits");
@@ -68,11 +70,10 @@ public class CoberturaParser extends CoverageParser {
 
     /** Optional attributes of the XML elements. */
     private static final QName BRANCH = new QName("branch");
+
     private static final QName CONDITION_COVERAGE = new QName("condition-coverage");
 
-    /**
-     * Creates a new instance of {@link CoberturaParser}.
-     */
+    /** Creates a new instance of {@link CoberturaParser}. */
     public CoberturaParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -80,8 +81,7 @@ public class CoberturaParser extends CoverageParser {
     /**
      * Creates a new instance of {@link CoberturaParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public CoberturaParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -95,14 +95,14 @@ public class CoberturaParser extends CoverageParser {
             var root = new ModuleNode(EMPTY); // Cobertura has no support for module names
             handleEmptyResults(fileName, log, readModule(eventReader, root, fileName, log));
             return root;
-        }
-        catch (XMLStreamException exception) {
+        } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
         }
     }
 
-    private boolean readModule(final XMLEventReader eventReader, final ModuleNode root,
-            final String fileName, final FilteredLog log) throws XMLStreamException {
+    private boolean readModule(
+            final XMLEventReader eventReader, final ModuleNode root, final String fileName, final FilteredLog log)
+            throws XMLStreamException {
         boolean isEmpty = true;
 
         while (eventReader.hasNext()) {
@@ -113,8 +113,7 @@ public class CoberturaParser extends CoverageParser {
                 var tagName = startElement.getName();
                 if (SOURCE.equals(tagName)) {
                     readSource(eventReader, root);
-                }
-                else if (PACKAGE.equals(tagName)) {
+                } else if (PACKAGE.equals(tagName)) {
                     readPackage(eventReader, root, readName(startElement), fileName, log);
                     isEmpty = false;
                 }
@@ -124,8 +123,13 @@ public class CoberturaParser extends CoverageParser {
         return isEmpty;
     }
 
-    private void readPackage(final XMLEventReader reader, final ModuleNode root,
-            final String packageName, final String fileName, final FilteredLog log) throws XMLStreamException {
+    private void readPackage(
+            final XMLEventReader reader,
+            final ModuleNode root,
+            final String packageName,
+            final String fileName,
+            final FilteredLog log)
+            throws XMLStreamException {
         var packageNode = root.findOrCreatePackageNode(packageName);
 
         while (reader.hasNext()) {
@@ -138,8 +142,7 @@ public class CoberturaParser extends CoverageParser {
 
                     readClassOrMethod(reader, fileNode, fileNode, element, fileName, log);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 return; // finish processing of package
             }
         }
@@ -162,8 +165,13 @@ public class CoberturaParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    protected void readClassOrMethod(final XMLEventReader reader, final FileNode fileNode,
-            final Node parentNode, final StartElement element, final String fileName, final FilteredLog log)
+    protected void readClassOrMethod(
+            final XMLEventReader reader,
+            final FileNode fileNode,
+            final Node parentNode,
+            final StartElement element,
+            final String fileName,
+            final FilteredLog log)
             throws XMLStreamException {
         var node = createNode(parentNode, element, log);
         getOptionalValueOf(element, COMPLEXITY)
@@ -178,12 +186,10 @@ public class CoberturaParser extends CoverageParser {
                 var nextElement = event.asStartElement();
                 if (LINE.equals(nextElement.getName())) {
                     processLineElement(nextElement, coveragePerLine);
-                }
-                else if (METHOD.equals(nextElement.getName())) {
+                } else if (METHOD.equals(nextElement.getName())) {
                     readClassOrMethod(reader, fileNode, node, nextElement, fileName, log); // recursive call
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
                     if (CLASS.equals(endElement.getName())) {
@@ -205,9 +211,10 @@ public class CoberturaParser extends CoverageParser {
 
     /**
      * Merges duplicate line coverage entries.
+     *
      * <ul>
-     * <li>For line coverage (no branches): keeps the line as covered if any entry has hits > 0</li>
-     * <li>For branch coverage: keeps the maximum covered branches</li>
+     *   <li>For line coverage (no branches): keeps the line as covered if any entry has hits > 0
+     *   <li>For branch coverage: keeps the maximum covered branches
      * </ul>
      *
      * @param existing the existing coverage for the line
@@ -237,13 +244,11 @@ public class CoberturaParser extends CoverageParser {
         return newCoverage.getCovered() >= existing.getCovered() ? newCoverage : existing;
     }
 
-    private void processLineElement(final StartElement nextElement,
-            final Map<Integer, Coverage> coveragePerLine) {
+    private void processLineElement(final StartElement nextElement, final Map<Integer, Coverage> coveragePerLine) {
         Coverage coverage;
         if (isBranchCoverage(nextElement)) {
             coverage = readBranchCoverage(nextElement);
-        }
-        else {
+        } else {
             int lineHits = getIntegerValueOf(nextElement, HITS);
             coverage = computeLineCoverage(lineHits);
         }
@@ -268,7 +273,7 @@ public class CoberturaParser extends CoverageParser {
 
         lineCoverage = lineCoverage.add(branchLineCoverage);
 
-        return new Coverage[]{lineCoverage, branchCoverage};
+        return new Coverage[] {lineCoverage, branchCoverage};
     }
 
     protected Coverage computeLineCoverage(final int coverage) {
@@ -284,12 +289,13 @@ public class CoberturaParser extends CoverageParser {
         return createMethodNode(parentNode, element, log, name);
     }
 
-    private MethodNode createMethodNode(final Node parentNode, final StartElement element, final FilteredLog log,
-            final String name) {
+    private MethodNode createMethodNode(
+            final Node parentNode, final StartElement element, final FilteredLog log, final String name) {
         var methodName = name;
         var signature = getValueOf(element, SIGNATURE);
         if (parentNode.findMethod(methodName, signature).isPresent() && ignoreErrors()) {
-            log.logError("Found a duplicate method '%s' with signature '%s' in '%s'",
+            log.logError(
+                    "Found a duplicate method '%s' with signature '%s' in '%s'",
                     methodName, signature, parentNode.getName());
             methodName = createUniqueMethodName(parentNode, methodName, signature);
         }
@@ -338,16 +344,13 @@ public class CoberturaParser extends CoverageParser {
     protected int readComplexity(final String c) {
         try {
             return Math.round(Float.parseFloat(c)); // some reports use float values
-        }
-        catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignore) {
             return 0;
         }
     }
 
     protected boolean isBranchCoverage(final StartElement line) {
-        return getOptionalValueOf(line, BRANCH)
-                .map(Boolean::parseBoolean)
-                .orElse(false);
+        return getOptionalValueOf(line, BRANCH).map(Boolean::parseBoolean).orElse(false);
     }
 
     private void readSource(final XMLEventReader reader, final ModuleNode root) throws XMLStreamException {
@@ -357,8 +360,7 @@ public class CoberturaParser extends CoverageParser {
             var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 root.addSource(new PathUtil().getRelativePath(aggregatedContent.toString()));
 
                 return;
@@ -367,13 +369,16 @@ public class CoberturaParser extends CoverageParser {
     }
 
     protected Coverage readBranchCoverage(final StartElement line) {
-        return getOptionalValueOf(line, CONDITION_COVERAGE).map(this::fromConditionCoverage).orElse(DEFAULT_BRANCH_COVERAGE);
+        return getOptionalValueOf(line, CONDITION_COVERAGE)
+                .map(this::fromConditionCoverage)
+                .orElse(DEFAULT_BRANCH_COVERAGE);
     }
 
     private Coverage fromConditionCoverage(final String conditionCoverageAttribute) {
         var matcher = BRANCH_PATTERN.matcher(conditionCoverageAttribute);
         if (matcher.matches()) {
-            return new CoverageBuilder().withMetric(Metric.BRANCH)
+            return new CoverageBuilder()
+                    .withMetric(Metric.BRANCH)
                     .withCovered(matcher.group("covered"))
                     .withTotal(matcher.group("total"))
                     .build();

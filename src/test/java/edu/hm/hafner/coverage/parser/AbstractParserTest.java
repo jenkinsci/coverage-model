@@ -1,24 +1,27 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.apache.commons.io.input.BOMInputStream;
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
 
 import com.google.errorprone.annotations.MustBeClosed;
-
+import edu.hm.hafner.coverage.ClassNode;
+import edu.hm.hafner.coverage.ClassNodeAssert;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
+import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.FileNodeAssert;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.util.FilteredLog;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.apache.commons.io.input.BOMInputStream;
+import org.assertj.core.api.InstanceOfAssertFactory;
+import org.junit.jupiter.api.Test;
 
 /**
  * Baseclass for parser tests.
@@ -27,6 +30,11 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
  */
 abstract class AbstractParserTest {
     private final FilteredLog log = new FilteredLog("Errors");
+
+    static final InstanceOfAssertFactory<ClassNode, ClassNodeAssert> CLASS_NODE =
+            new InstanceOfAssertFactory<>(ClassNode.class, ClassNodeAssert::assertThat);
+    static final InstanceOfAssertFactory<FileNode, FileNodeAssert> FILE_NODE =
+            new InstanceOfAssertFactory<>(FileNode.class, FileNodeAssert::assertThat);
 
     ModuleNode readReport(final String fileName) {
         return readReport(fileName, ProcessingMode.FAIL_FAST);
@@ -42,8 +50,7 @@ abstract class AbstractParserTest {
         try (var stream = createFile(fileName);
                 var reader = new InputStreamReader(Objects.requireNonNull(stream), StandardCharsets.UTF_8)) {
             return parser.parse(reader, fileName, log);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new AssertionError(e);
         }
     }
@@ -54,12 +61,11 @@ abstract class AbstractParserTest {
         String name;
         if (fileName.startsWith("/")) {
             name = fileName;
-        }
-        else {
+        } else {
             name = getFolder() + "/" + fileName;
         }
-        var inputStream = Objects.requireNonNull(AbstractParserTest.class.getResourceAsStream(name),
-                "File not found: " + name);
+        var inputStream =
+                Objects.requireNonNull(AbstractParserTest.class.getResourceAsStream(name), "File not found: " + name);
 
         return BOMInputStream.builder().setInputStream(inputStream).get();
     }
@@ -80,6 +86,7 @@ abstract class AbstractParserTest {
         assertThat(report).hasNoChildren().hasNoValues();
 
         var parserName = createParser(ProcessingMode.FAIL_FAST).getClass().getSimpleName();
-        assertThat(getLog().getErrorMessages()).contains("[%s] The processed file 'empty.xml' does not contain data.".formatted(parserName));
+        assertThat(getLog().getErrorMessages())
+                .contains("[%s] The processed file 'empty.xml' does not contain data.".formatted(parserName));
     }
 }

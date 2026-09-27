@@ -1,8 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +9,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A {@link Node} which represents a module of a project.
@@ -28,8 +27,7 @@ public final class ModuleNode extends Node {
     /**
      * Creates a new module node with the given name.
      *
-     * @param name
-     *         the name of the module
+     * @param name the name of the module
      */
     public ModuleNode(final String name) {
         super(Metric.MODULE, name);
@@ -50,8 +48,7 @@ public final class ModuleNode extends Node {
     /**
      * Appends the specified source to the list of sources.
      *
-     * @param source
-     *         the source to add
+     * @param source the source to add
      */
     public void addSource(final String source) {
         sources.add(source);
@@ -60,17 +57,12 @@ public final class ModuleNode extends Node {
     /**
      * Splits flat packages into a package hierarchy. Changes the internal tree structure of package nodes in place.
      *
-     * <p>
-     * Examples:
-     * </p>
+     * <p>Examples:
+     *
      * <ul>
-     *     <li>
-     *         A package name {@code "edu"} will produce a single node with the name {@code "edu"}.
-     *     </li>
-     *     <li>
-     *         A package name {@code "edu.hm.hafner"} will produce three package nodes, that are linked together,
-     *         starting with the {@code "edu"} package ({@code "edu" -> "hm" -> "hafner"}).
-     *     </li>
+     *   <li>A package name {@code "edu"} will produce a single node with the name {@code "edu"}.
+     *   <li>A package name {@code "edu.hm.hafner"} will produce three package nodes, that are linked together, starting
+     *       with the {@code "edu"} package ({@code "edu" -> "hm" -> "hafner"}).
      * </ul>
      */
     public void splitPackages() {
@@ -92,8 +84,7 @@ public final class ModuleNode extends Node {
                 }
                 localTail.addAllChildren(packageNode.getChildren()); // move the children to the new tail
                 mergeSinglePackage(localRoot);
-            }
-            else {
+            } else {
                 mergeSinglePackage(packageNode);
             }
         }
@@ -152,6 +143,12 @@ public final class ModuleNode extends Node {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "[%s] %s <%d> %s", getMetric(), getName(), getChildren().size(), getSourceFolders());
+        return String.format(
+                Locale.ENGLISH,
+                "[%s] %s <%d> %s",
+                getMetric(),
+                getName(),
+                getChildren().size(),
+                getSourceFolders());
     }
 }

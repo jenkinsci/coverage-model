@@ -1,9 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.core.JacksonException;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.Metric;
@@ -13,19 +9,20 @@ import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeString;
-
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.apache.commons.lang3.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Parses Stryker JSON mutation reports into a hierarchical Java object model.
- * 
+ *
  * @author Akash Manna
  * @see <a href="https://stryker-mutator.io/">Stryker Mutation</a>
  */
@@ -48,9 +45,7 @@ public class StrykerParser extends CoverageParser {
     private static final String START = "start";
     private static final String LINE = "line";
 
-    /**
-     * Creates a new instance of {@link StrykerParser}.
-     */
+    /** Creates a new instance of {@link StrykerParser}. */
     public StrykerParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -58,8 +53,7 @@ public class StrykerParser extends CoverageParser {
     /**
      * Creates a new instance of {@link StrykerParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public StrykerParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -83,8 +77,7 @@ public class StrykerParser extends CoverageParser {
 
             handleEmptyResults(fileName, log, isEmpty);
             return root;
-        }
-        catch (JacksonException exception) {
+        } catch (JacksonException exception) {
             throw new ParsingException(exception);
         }
     }
@@ -110,15 +103,17 @@ public class StrykerParser extends CoverageParser {
                 }
                 if (mutation.isDetected()) {
                     covered++;
-                }
-                else {
+                } else {
                     missed++;
                 }
             }
         }
 
         if (covered + missed > 0) {
-            coverageFile.addValue(new CoverageBuilder(Metric.MUTATION).withCovered(covered).withMissed(missed).build());
+            coverageFile.addValue(new CoverageBuilder(Metric.MUTATION)
+                    .withCovered(covered)
+                    .withMissed(missed)
+                    .build());
         }
     }
 
@@ -170,8 +165,7 @@ public class StrykerParser extends CoverageParser {
     }
 
     private static String toMutatedClass(final String relativePath) {
-        return StringUtils.substringBeforeLast(normalizePath(relativePath), ".")
-                .replace('/', '.');
+        return StringUtils.substringBeforeLast(normalizePath(relativePath), ".").replace('/', '.');
     }
 
     private static MutationStatus readStatus(final String status) {

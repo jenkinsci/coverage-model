@@ -1,12 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
-
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * Test-class to provide tests for protected (static) methods of abstract class
- * {@link CoverageParser}.
+ * Test-class to provide tests for protected (static) methods of abstract class {@link CoverageParser}.
  *
  * @author Jannik Treichel
  */

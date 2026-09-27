@@ -1,10 +1,6 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
@@ -13,7 +9,6 @@ import edu.hm.hafner.util.PitMutator;
 import edu.hm.hafner.util.SuppressMutation;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,20 +27,25 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A {@link Node} for a specific file. It stores the actual file name along with the coverage information.
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"
+})
 public final class FileNode extends Node {
     @Serial
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
+
     private static final int UNSET = -1;
 
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
+
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
 
@@ -58,6 +58,7 @@ public final class FileNode extends Node {
     // metrics for function calls per line
     @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> functionCallCoveredPerLine = new TreeMap<>();
+
     @SuppressWarnings("serial")
     private NavigableMap<Integer, Integer> functionCallMissedPerLine = new TreeMap<>();
 
@@ -66,8 +67,10 @@ public final class FileNode extends Node {
 
     @SuppressWarnings("serial")
     private final SortedSet<Integer> modifiedLines = new TreeSet<>();
+
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
+
     @SuppressWarnings("serial")
     private final NavigableMap<Metric, Value> coverageDelta = new TreeMap<>();
 
@@ -76,10 +79,8 @@ public final class FileNode extends Node {
     /**
      * Creates a new {@link FileNode} with the given name.
      *
-     * @param name
-     *         the human-readable name of the node
-     * @param relativePath
-     *         the relative path of the file
+     * @param name the human-readable name of the node
+     * @param relativePath the relative path of the file
      */
     public FileNode(final String name, final TreeString relativePath) {
         super(Metric.FILE, name);
@@ -90,10 +91,8 @@ public final class FileNode extends Node {
     /**
      * Creates a new {@link FileNode} with the given name.
      *
-     * @param name
-     *         the human-readable name of the node
-     * @param relativePath
-     *         the relative path of the file
+     * @param name the human-readable name of the node
+     * @param relativePath the relative path of the file
      */
     public FileNode(final String name, final String relativePath) {
         this(name, TreeString.valueOf(relativePath));
@@ -167,7 +166,8 @@ public final class FileNode extends Node {
     @Override
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
         return getMetric() == searchMetric
-                && (getRelativePath().hashCode() == searchNameHashCode || getName().hashCode() == searchNameHashCode);
+                && (getRelativePath().hashCode() == searchNameHashCode
+                        || getName().hashCode() == searchNameHashCode);
     }
 
     @Override
@@ -180,7 +180,8 @@ public final class FileNode extends Node {
         mergeCounters((FileNode) other);
     }
 
-    @SuppressMutation(mutator = PitMutator.CONDITIONALS_BOUNDARY,
+    @SuppressMutation(
+            mutator = PitMutator.CONDITIONALS_BOUNDARY,
             justification = "False positive: For maximum calculation the boundary is irrelevant")
     private void mergeCounters(final FileNode otherFile) {
         var lines = new TreeSet<Integer>();
@@ -190,51 +191,81 @@ public final class FileNode extends Node {
         lines.addAll(functionCallCoveredPerLine.keySet());
         lines.addAll(otherFile.coveredPerLine.keySet());
 
-        var lineCoverage = new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
-        var branchCoverage = new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
-        var mcdcPairCoverage = new CoverageBuilder().withMetric(Metric.MCDC_PAIR).withCovered(0).withMissed(0);
-        var functionCallCoverage = new CoverageBuilder().withMetric(Metric.FUNCTION_CALL).withCovered(0).withMissed(0);
+        var lineCoverage =
+                new CoverageBuilder().withMetric(Metric.LINE).withCovered(0).withMissed(0);
+        var branchCoverage =
+                new CoverageBuilder().withMetric(Metric.BRANCH).withCovered(0).withMissed(0);
+        var mcdcPairCoverage = new CoverageBuilder()
+                .withMetric(Metric.MCDC_PAIR)
+                .withCovered(0)
+                .withMissed(0);
+        var functionCallCoverage = new CoverageBuilder()
+                .withMetric(Metric.FUNCTION_CALL)
+                .withCovered(0)
+                .withMissed(0);
 
         for (final int line : lines) {
-            var left = new CoverageMetricsValues(coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
-            var leftMcdcPair = new CoverageMetricsValues(mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
-            var leftFunctionCall = new CoverageMetricsValues(functionCallCoveredPerLine.getOrDefault(line, 0), functionCallMissedPerLine.getOrDefault(line, 0));
-            var right = new CoverageMetricsValues(otherFile.coveredPerLine.getOrDefault(line, 0), otherFile.missedPerLine.getOrDefault(line, 0));
-            var rightMcdcPair = new CoverageMetricsValues(otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0), otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
-            var rightFunctionCall = new CoverageMetricsValues(otherFile.functionCallCoveredPerLine.getOrDefault(line, 0), otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
+            var left = new CoverageMetricsValues(
+                    coveredPerLine.getOrDefault(line, 0), missedPerLine.getOrDefault(line, 0));
+            var leftMcdcPair = new CoverageMetricsValues(
+                    mcdcPairCoveredPerLine.getOrDefault(line, 0), mcdcPairMissedPerLine.getOrDefault(line, 0));
+            var leftFunctionCall = new CoverageMetricsValues(
+                    functionCallCoveredPerLine.getOrDefault(line, 0), functionCallMissedPerLine.getOrDefault(line, 0));
+            var right = new CoverageMetricsValues(
+                    otherFile.coveredPerLine.getOrDefault(line, 0), otherFile.missedPerLine.getOrDefault(line, 0));
+            var rightMcdcPair = new CoverageMetricsValues(
+                    otherFile.mcdcPairCoveredPerLine.getOrDefault(line, 0),
+                    otherFile.mcdcPairMissedPerLine.getOrDefault(line, 0));
+            var rightFunctionCall = new CoverageMetricsValues(
+                    otherFile.functionCallCoveredPerLine.getOrDefault(line, 0),
+                    otherFile.functionCallMissedPerLine.getOrDefault(line, 0));
 
             // check for errors in branch, mcdc pair and function call coverages and adjust if necessary
             if (left.totalsNotEqual(right)) {
                 if (left.getTotal() > right.getTotal()) {
                     right = left;
-                }
-                else {
+                } else {
                     left = right;
                 }
-            }
-            else if (leftMcdcPair.totalsNotEqual(rightMcdcPair) || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {
-                throw new IllegalArgumentException(
-                        String.format(Locale.ENGLISH, "Cannot merge coverage information for line %d in %s",
-                                line, this));
+            } else if (leftMcdcPair.totalsNotEqual(rightMcdcPair)
+                    || leftFunctionCall.totalsNotEqual(rightFunctionCall)) {
+                throw new IllegalArgumentException(String.format(
+                        Locale.ENGLISH, "Cannot merge coverage information for line %d in %s", line, this));
             }
 
             if (left.hasAnyInfo()) {
                 // exact branch coverage cannot be computed, so choose the higher value
-                mergeLeftRight(line, left.getCovered(), left.getMissed(), right.getCovered(), right.getMissed(), coveredPerLine, missedPerLine);
+                mergeLeftRight(
+                        line,
+                        left.getCovered(),
+                        left.getMissed(),
+                        right.getCovered(),
+                        right.getMissed(),
+                        coveredPerLine,
+                        missedPerLine);
                 updateLineCoverage(line, lineCoverage);
                 updateBranchCoverage(line, branchCoverage);
-            }
-            else if (leftMcdcPair.hasAnyInfo()) {
-                mergeLeftRight(line, leftMcdcPair.getCovered(), leftMcdcPair.getMissed(),
-                        rightMcdcPair.getCovered(), rightMcdcPair.getMissed(),
-                        mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
+            } else if (leftMcdcPair.hasAnyInfo()) {
+                mergeLeftRight(
+                        line,
+                        leftMcdcPair.getCovered(),
+                        leftMcdcPair.getMissed(),
+                        rightMcdcPair.getCovered(),
+                        rightMcdcPair.getMissed(),
+                        mcdcPairCoveredPerLine,
+                        mcdcPairMissedPerLine);
                 updateMcdcPairCoverage(line, mcdcPairCoverage);
-            }
-            else if (leftFunctionCall.hasAnyInfo()) {
-                mergeLeftRight(line, leftFunctionCall.getCovered(), leftFunctionCall.getMissed(), rightFunctionCall.getCovered(), rightFunctionCall.getMissed(), functionCallCoveredPerLine, functionCallMissedPerLine);
+            } else if (leftFunctionCall.hasAnyInfo()) {
+                mergeLeftRight(
+                        line,
+                        leftFunctionCall.getCovered(),
+                        leftFunctionCall.getMissed(),
+                        rightFunctionCall.getCovered(),
+                        rightFunctionCall.getMissed(),
+                        functionCallCoveredPerLine,
+                        functionCallMissedPerLine);
                 updateFunctionCallCoverage(line, functionCallCoverage);
-            }
-            else {
+            } else {
                 coveredPerLine.put(line, left.getMaxCovered(right));
                 missedPerLine.put(line, left.getMinMissed(right));
 
@@ -249,7 +280,11 @@ public final class FileNode extends Node {
                 .forEach(this::addValue);
     }
 
-    private void setValues(final CoverageBuilder lineCoverage, final CoverageBuilder branchCoverage, final CoverageBuilder mcdcPairCoverage, final CoverageBuilder functionCallCoverage) {
+    private void setValues(
+            final CoverageBuilder lineCoverage,
+            final CoverageBuilder branchCoverage,
+            final CoverageBuilder mcdcPairCoverage,
+            final CoverageBuilder functionCallCoverage) {
         var lineValue = lineCoverage.build();
         if (lineValue.isSet()) {
             addValue(lineValue);
@@ -270,13 +305,18 @@ public final class FileNode extends Node {
         }
     }
 
-    private void mergeLeftRight(final int line, final int leftCovered, final int leftMissed, final int rightCovered, final int rightMissed,
-            final NavigableMap<Integer, Integer> localCoveredPerLine, final NavigableMap<Integer, Integer> localMissedPerLine) {
+    private void mergeLeftRight(
+            final int line,
+            final int leftCovered,
+            final int leftMissed,
+            final int rightCovered,
+            final int rightMissed,
+            final NavigableMap<Integer, Integer> localCoveredPerLine,
+            final NavigableMap<Integer, Integer> localMissedPerLine) {
         if (leftCovered > rightCovered) {
             localCoveredPerLine.put(line, leftCovered);
             localMissedPerLine.put(line, leftMissed);
-        }
-        else {
+        } else {
             localCoveredPerLine.put(line, rightCovered);
             localMissedPerLine.put(line, rightMissed);
         }
@@ -300,8 +340,7 @@ public final class FileNode extends Node {
     private void updateLineCoverage(final int line, final CoverageBuilder lineCoverage) {
         if (getCoveredOfLine(line) > 0) {
             lineCoverage.incrementCovered();
-        }
-        else {
+        } else {
             lineCoverage.incrementMissed();
         }
     }
@@ -323,9 +362,7 @@ public final class FileNode extends Node {
     /**
      * Returns whether this file has been modified at the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
      */
     public boolean hasModifiedLine(final int line) {
@@ -335,8 +372,7 @@ public final class FileNode extends Node {
     /**
      * Marks the specified lines as being modified.
      *
-     * @param lines
-     *         the modified code lines
+     * @param lines the modified code lines
      */
     public void addModifiedLines(final int... lines) {
         for (int line : lines) {
@@ -371,24 +407,31 @@ public final class FileNode extends Node {
             copy.addCounters(line, covered, missed);
             if (total == 0) {
                 throw new IllegalArgumentException("No coverage for line " + line);
-            }
-            else if (total == 1) {
-                lineCoverage = lineCoverage.add(lineBuilder.withCovered(covered).withMissed(missed).build());
-            }
-            else {
-                var branchCoveredAsLine = covered > 0 ? 1 : 0;
+            } else if (total == 1) {
                 lineCoverage = lineCoverage.add(
-                        lineBuilder.withCovered(branchCoveredAsLine).withMissed(1 - branchCoveredAsLine).build());
-                branchCoverage = branchCoverage.add(branchBuilder.withCovered(covered).withMissed(missed).build());
+                        lineBuilder.withCovered(covered).withMissed(missed).build());
+            } else {
+                var branchCoveredAsLine = covered > 0 ? 1 : 0;
+                lineCoverage = lineCoverage.add(lineBuilder
+                        .withCovered(branchCoveredAsLine)
+                        .withMissed(1 - branchCoveredAsLine)
+                        .build());
+                branchCoverage = branchCoverage.add(
+                        branchBuilder.withCovered(covered).withMissed(missed).build());
             }
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
     }
 
     private void filterMutations(final FileNode copy) {
-        mutations.stream().filter(mutation -> modifiedLines.contains(mutation.getLine())).forEach(copy::addMutation);
+        mutations.stream()
+                .filter(mutation -> modifiedLines.contains(mutation.getLine()))
+                .forEach(copy::addMutation);
         if (!copy.mutations.isEmpty()) {
-            var builder = new CoverageBuilder().withMetric(Metric.MUTATION).withMissed(0).withCovered(0);
+            var builder = new CoverageBuilder()
+                    .withMetric(Metric.MUTATION)
+                    .withMissed(0)
+                    .withCovered(0);
             copy.mutations.stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
             copy.mutations.stream()
                     .filter(Predicate.not(Mutation::isDetected))
@@ -402,8 +445,8 @@ public final class FileNode extends Node {
         return hasCoveredAndModifiedLines() ? Optional.of(copyTree()) : Optional.empty();
     }
 
-    private void addLineAndBranchCoverage(final FileNode copy,
-            final Coverage lineCoverage, final Coverage branchCoverage) {
+    private void addLineAndBranchCoverage(
+            final FileNode copy, final Coverage lineCoverage, final Coverage branchCoverage) {
         if (lineCoverage.isSet()) {
             copy.addValue(lineCoverage);
         }
@@ -441,8 +484,7 @@ public final class FileNode extends Node {
                     builder.withMetric(Metric.BRANCH).withCovered(delta).withMissed(0);
                     branchCoverage = branchCoverage.add(builder.build());
                 }
-            }
-            else if (delta < 0) {
+            } else if (delta < 0) {
                 // the line is not covered anymore
                 if (currentCoverage.getCovered() == 0) {
                     builder.withMetric(Metric.LINE).withCovered(0).withMissed(1);
@@ -463,10 +505,8 @@ public final class FileNode extends Node {
     /**
      * Adds an indirect coverage change for a specific line.
      *
-     * @param line
-     *         The line with the coverage change
-     * @param hitsDelta
-     *         The delta of the coverage hits before and after the code changes
+     * @param line The line with the coverage change
+     * @param hitsDelta The delta of the coverage hits before and after the code changes
      */
     public void addIndirectCoverageChange(final int line, final int hitsDelta) {
         indirectCoverageChanges.put(line, hitsDelta);
@@ -484,19 +524,20 @@ public final class FileNode extends Node {
     /**
      * Returns whether this file has a coverage result for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
      */
     public boolean hasCoverageForLine(final int line) {
-        return coveredPerLine.containsKey(line) || mcdcPairCoveredPerLine.containsKey(line) || functionCallCoveredPerLine.containsKey(line);
+        return coveredPerLine.containsKey(line)
+                || mcdcPairCoveredPerLine.containsKey(line)
+                || functionCallCoveredPerLine.containsKey(line);
     }
 
     private Coverage getLineCoverage(final int line) {
         if (hasCoverageForLine(line)) {
             var covered = getCoveredOfLine(line) > 0 ? 1 : 0;
-            return new CoverageBuilder().withMetric(Metric.LINE)
+            return new CoverageBuilder()
+                    .withMetric(Metric.LINE)
                     .withCovered(covered)
                     .withMissed(1 - covered)
                     .build();
@@ -509,7 +550,8 @@ public final class FileNode extends Node {
             var covered = getCoveredOfLine(line);
             var missed = getMissedOfLine(line);
             if (covered + missed > 1) {
-                return new CoverageBuilder().withMetric(Metric.BRANCH)
+                return new CoverageBuilder()
+                        .withMetric(Metric.BRANCH)
                         .withCovered(covered)
                         .withMissed(missed)
                         .build();
@@ -536,8 +578,7 @@ public final class FileNode extends Node {
      * Computes the delta of all values between this file and the given reference file. Values that are not present in
      * both files are ignored.
      *
-     * @param referenceFile
-     *         the file to compare with this file
+     * @param referenceFile the file to compare with this file
      */
     // TODO: wouldn't it make more sense to return an independent object?
     public void computeDelta(final FileNode referenceFile) {
@@ -553,9 +594,7 @@ public final class FileNode extends Node {
      * Returns the delta for the specified metric. If no delta is available for the specified metric, then 0 is
      * returned.
      *
-     * @param metric
-     *         the metric to get the delta for
-     *
+     * @param metric the metric to get the delta for
      * @return the delta for the specified metric
      */
     public Value getDelta(final Metric metric) {
@@ -565,9 +604,7 @@ public final class FileNode extends Node {
     /**
      * Returns whether this file has a delta result for the specified metric.
      *
-     * @param metric
-     *         the metric to check
-     *
+     * @param metric the metric to check
      * @return {@code true} has delta results are available, {@code false} otherwise
      */
     public boolean hasDelta(final Metric metric) {
@@ -589,7 +626,7 @@ public final class FileNode extends Node {
      * Returns whether this file has lines with code coverage that also have been modified.
      *
      * @return {@code true} if this file has lines with code coverage that also have been modified, {@code false}
-     *         otherwise.
+     *     otherwise.
      */
     public boolean hasCoveredAndModifiedLines() {
         return !getCoveredAndModifiedLines().isEmpty();
@@ -598,13 +635,9 @@ public final class FileNode extends Node {
     /**
      * Add the coverage counters for the specified line.
      *
-     * @param lineNumber
-     *         the line number to add the counters for
-     * @param covered
-     *         the number of covered items
-     * @param missed
-     *         the number of missed items
-     *
+     * @param lineNumber the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
      * @return this instance
      */
     @CanIgnoreReturnValue
@@ -616,15 +649,11 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Add the MCDC coverage  counters for the specified line.
+     * Add the MCDC coverage counters for the specified line.
      *
-     * @param lineNumber
-     *         the line number to add the counters for
-     * @param covered
-     *         the number of covered items
-     * @param missed
-     *         the number of missed items
-     *
+     * @param lineNumber the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
      * @return this instance
      */
     @CanIgnoreReturnValue
@@ -636,15 +665,11 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Add the function call coverage  counters for the specified line.
+     * Add the function call coverage counters for the specified line.
      *
-     * @param lineNumber
-     *         the line number to add the counters for
-     * @param covered
-     *         the number of covered items
-     * @param missed
-     *         the number of missed items
-     *
+     * @param lineNumber the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
      * @return this instance
      */
     @CanIgnoreReturnValue
@@ -682,9 +707,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of covered items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of covered items for the specified line
      */
     public int getCoveredOfLine(final int line) {
@@ -694,9 +717,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of covered items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of covered items for the specified line
      */
     private int getMcdcPairCoveredOfLine(final int line) {
@@ -706,9 +727,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of covered items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of covered items for the specified line
      */
     private int getFunctionCallCoveredOfLine(final int line) {
@@ -718,9 +737,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of covered items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of covered items for the specified line
      */
     private int getMcdcPairMissedOfLine(final int line) {
@@ -730,9 +747,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of covered items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of covered items for the specified line
      */
     private int getFunctionCallMissedOfLine(final int line) {
@@ -742,9 +757,7 @@ public final class FileNode extends Node {
     /**
      * Returns the number of missed items for the specified line.
      *
-     * @param line
-     *         the line to check
-     *
+     * @param line the line to check
      * @return the number of missed items for the specified line
      */
     public int getMissedOfLine(final int line) {
@@ -774,9 +787,7 @@ public final class FileNode extends Node {
     }
 
     private NavigableSet<Integer> filterLines(final Predicate<Integer> predicate) {
-        return coveredPerLine.keySet().stream()
-                .filter(predicate)
-                .collect(Collectors.toCollection(TreeSet::new));
+        return coveredPerLine.keySet().stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
     }
 
     /**
@@ -810,8 +821,7 @@ public final class FileNode extends Node {
                     start = line;
                 }
                 end = line;
-            }
-            else {
+            } else {
                 if (start != UNSET) {
                     lineRanges.add(new LineRange(start, end));
                     start = UNSET;
@@ -871,8 +881,7 @@ public final class FileNode extends Node {
     /**
      * Adds a mutation to the method.
      *
-     * @param mutation
-     *         the mutation to add
+     * @param mutation the mutation to add
      */
     // TODO: not part of API, only for tests?
     public void addMutation(final Mutation mutation) {
@@ -901,8 +910,7 @@ public final class FileNode extends Node {
     /**
      * Sets the relative path of the file.
      *
-     * @param relativePath
-     *         the relative path
+     * @param relativePath the relative path
      */
     public void setRelativePath(final TreeString relativePath) {
         this.relativePath = relativePath;
@@ -935,9 +943,19 @@ public final class FileNode extends Node {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), coveredPerLine, missedPerLine, mutations, modifiedLines,
-                mcdcPairCoveredPerLine, mcdcPairMissedPerLine, functionCallCoveredPerLine, functionCallMissedPerLine,
-                indirectCoverageChanges, coverageDelta, relativePath);
+        return Objects.hash(
+                super.hashCode(),
+                coveredPerLine,
+                missedPerLine,
+                mutations,
+                modifiedLines,
+                mcdcPairCoveredPerLine,
+                mcdcPairMissedPerLine,
+                functionCallCoveredPerLine,
+                functionCallMissedPerLine,
+                indirectCoverageChanges,
+                coverageDelta,
+                relativePath);
     }
 
     @Override

@@ -1,4 +1,4 @@
-# Code coverage model 
+# Code coverage model
 
 [![Join the chat at Gitter/Matrix](https://badges.gitter.im/jenkinsci/code-coverage-api-plugin.svg)](https://gitter.im/jenkinsci/code-coverage-api-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![CI on all platforms](https://github.com/jenkinsci/coverage-model/workflows/GitHub%20CI/badge.svg)](https://github.com/jenkinsci/coverage-model/actions/workflows/ci.yml)
@@ -20,14 +20,14 @@ on these metrics: [GitHub Autograding action](https://github.com/uhafner/autogra
 
 ![Quality Monitor GitHub Action](doc/quality-monitor.png)
 
-This library consists basically of two separate parts. 
-The first part is the model to manage several metrics in a hierarchical software project. 
-Metrics can be attached to modules, packages, files, classes, or methods. 
+This library consists basically of two separate parts.
+The first part is the model to manage several metrics in a hierarchical software project.
+Metrics can be attached to modules, packages, files, classes, or methods.
 The values can be aggregated or merged so that it is possible to zoom into every detail level.
 
 Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
 
-The second part consists of parsers for several report formats: 
+The second part consists of parsers for several report formats:
 
 - Code Coverage
   - [Cobertura](https://cobertura.github.io/cobertura) code coverage results
@@ -45,8 +45,7 @@ The second part consists of parsers for several report formats:
   - [JUnit](https://junit.org) test results
   - [NUnit](https://nunit.org) test results
   - [XUnit](https://xunit.net) test results
-
 * Software Metrics
   * [PMD software metrics](https://github.com/uhafner/codingstyle-pom/blob/main/pom.xml#L945-L960) via a patched version of [PMD](https://pmd.github.io/)
 
-All source code is licensed under the MIT license. Contributions to this library are welcome! 
+All source code is licensed under the MIT license. Contributions to this library are welcome!

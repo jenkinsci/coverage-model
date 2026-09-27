@@ -1,10 +1,9 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import java.util.Locale;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class RateTest {
     @Test
@@ -32,11 +31,8 @@ class RateTest {
 
     @Test
     void shouldThrowExceptionOnWrongSerialization() {
-        assertThatIllegalArgumentException().isThrownBy(
-                () -> Rate.valueOf("COHESION: 75")
-        );
-        assertThatExceptionOfType(ArithmeticException.class).isThrownBy(
-                () -> new Rate(Metric.COHESION, Long.MAX_VALUE, 1)
-        );
+        assertThatIllegalArgumentException().isThrownBy(() -> Rate.valueOf("COHESION: 75"));
+        assertThatExceptionOfType(ArithmeticException.class)
+                .isThrownBy(() -> new Rate(Metric.COHESION, Long.MAX_VALUE, 1));
     }
 }

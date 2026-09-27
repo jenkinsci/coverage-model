@@ -15,10 +15,8 @@ class CoverageMetricsValues {
      * Creates a new {@link CoverageMetricsValues} instance from the values for covered and missing. These values
      * represent the covered and missed metrics.
      *
-     * @param covered
-     *         the coverage count
-     * @param missed
-     *         the missed count
+     * @param covered the coverage count
+     * @param missed the missed count
      */
     CoverageMetricsValues(final int covered, final int missed) {
         this.covered = covered;
@@ -53,9 +51,7 @@ class CoverageMetricsValues {
         return this.missed;
     }
 
-    /**
-     * Clears the current missed count.
-     */
+    /** Clears the current missed count. */
     void clearMissed() {
         this.missed = 0;
     }
@@ -63,16 +59,13 @@ class CoverageMetricsValues {
     /**
      * Sets the covered count from the max of the totals from this instance and other.
      *
-     * @param other
-     *         another CoverageMetricsValues to compare against
+     * @param other another CoverageMetricsValues to compare against
      */
     void setCoveredFromMax(final CoverageMetricsValues other) {
         this.covered = Math.max(this.total, other.getTotal());
     }
 
-    /**
-     * Sets the total from the current covered count.
-     */
+    /** Sets the total from the current covered count. */
     void setTotalFromCovered() {
         this.total = this.covered;
     }
@@ -81,7 +74,6 @@ class CoverageMetricsValues {
      * Check to see if there is any total for this instance.
      *
      * @return - boolean of if total > 1
-     *
      */
     boolean hasAnyInfo() {
         return total > 1;
@@ -90,9 +82,7 @@ class CoverageMetricsValues {
     /**
      * Checks to see if the instance total is not equal to the input total.
      *
-     * @param other
-     *         another CoverageMetricsValues to compare against
-     *
+     * @param other another CoverageMetricsValues to compare against
      * @return - boolean if the compared totals are not equal
      */
     boolean totalsNotEqual(final CoverageMetricsValues other) {
@@ -111,9 +101,7 @@ class CoverageMetricsValues {
     /**
      * Calculates the maximum of this instance vs. input covered count.
      *
-     * @param other
-     *         another CoverageMetricsValues to compare against
-     *
+     * @param other another CoverageMetricsValues to compare against
      * @return - integer maximum between the two covered counts
      */
     int getMaxCovered(final CoverageMetricsValues other) {
@@ -123,9 +111,7 @@ class CoverageMetricsValues {
     /**
      * Checks to see if the instance total is not equal to the input total.
      *
-     * @param other
-     *         another CoverageMetricsValues to compare against
-     *
+     * @param other another CoverageMetricsValues to compare against
      * @return - integer minimum between the two missed counts
      */
     int getMinMissed(final CoverageMetricsValues other) {

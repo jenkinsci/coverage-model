@@ -1,23 +1,21 @@
 package edu.hm.hafner.coverage;
 
-import java.util.List;
-
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.SerializableTest;
-
+import java.util.List;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
 import nl.jqno.equalsverifier.api.SingleTypeEqualsVerifierApi;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 abstract class AbstractNodeTest extends SerializableTest<Node> {
     private static final String NAME = "Node Name";
     private static final String CHILD = "Child";
-    private static final Coverage MUTATION_COVERAGE = new CoverageBuilder().withMetric(Metric.MUTATION)
+    private static final Coverage MUTATION_COVERAGE = new CoverageBuilder()
+            .withMetric(Metric.MUTATION)
             .withCovered(5)
             .withMissed(10)
             .build();
@@ -75,8 +73,7 @@ abstract class AbstractNodeTest extends SerializableTest<Node> {
                 .isRoot()
                 .doesNotHaveParent()
                 .hasParentName(Node.ROOT);
-        assertThat(node.aggregateValues()).containsExactlyElementsOf(
-                createMetricDistributionWithCovered(1));
+        assertThat(node.aggregateValues()).containsExactlyElementsOf(createMetricDistributionWithCovered(1));
 
         assertThat(node.getAll(getMetric())).containsOnly(node);
         assertThat(node.find(getMetric(), NAME)).contains(node);

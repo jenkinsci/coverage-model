@@ -3,26 +3,25 @@ package edu.hm.hafner.coverage;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Defines how metric values should be aggregated when computing statistics across multiple nodes in the coverage tree.
- * For example, when computing the cyclomatic complexity of a class, we can aggregate the complexity values of all methods
- * by using the total (sum), maximum, minimum, or average.
+ * For example, when computing the cyclomatic complexity of a class, we can aggregate the complexity values of all
+ * methods by using the total (sum), maximum, minimum, or average.
  *
  * @author Akash Manna
  */
 public enum MetricAggregation {
     /** Aggregates values by summing them (default for most metrics). */
     TOTAL("Total", "total"),
-    
+
     /** Aggregates values by finding the maximum. */
     MAXIMUM("Maximum", "maximum"),
-    
+
     /** Aggregates values by finding the minimum. */
     MINIMUM("Minimum", "minimum"),
-    
+
     /** Aggregates values by computing the average. */
     AVERAGE("Average", "average");
 
@@ -32,10 +31,8 @@ public enum MetricAggregation {
     /**
      * Creates a new {@link MetricAggregation} instance.
      *
-     * @param displayName
-     *         the human-readable display name
-     * @param id
-     *         the ID of the aggregation
+     * @param displayName the human-readable display name
+     * @param id the ID of the aggregation
      */
     MetricAggregation(final String displayName, final String id) {
         this.displayName = displayName;
@@ -72,9 +69,7 @@ public enum MetricAggregation {
     /**
      * Aggregates the specified values using this aggregation strategy.
      *
-     * @param values
-     *         the values to aggregate
-     *
+     * @param values the values to aggregate
      * @return the aggregated value or an empty result if no values are available
      */
     public Optional<Value> aggregate(final List<Value> values) {
@@ -93,18 +88,16 @@ public enum MetricAggregation {
     /**
      * Converts a string to a {@link MetricAggregation} instance.
      *
-     * @param value
-     *         the string value
-     *
+     * @param value the string value
      * @return the corresponding {@link MetricAggregation} instance
-     * @throws IllegalArgumentException
-     *         if the value is not a valid aggregation type
+     * @throws IllegalArgumentException if the value is not a valid aggregation type
      */
     public static MetricAggregation fromString(final String value) {
         String normalizedValue = StringUtils.lowerCase(value, Locale.ENGLISH);
         for (MetricAggregation aggregation : values()) {
             if (StringUtils.lowerCase(aggregation.name(), Locale.ENGLISH).equals(normalizedValue)
-                    || StringUtils.lowerCase(aggregation.getId(), Locale.ENGLISH).equals(normalizedValue)) {
+                    || StringUtils.lowerCase(aggregation.getId(), Locale.ENGLISH)
+                            .equals(normalizedValue)) {
                 return aggregation;
             }
         }

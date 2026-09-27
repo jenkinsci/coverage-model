@@ -1,9 +1,8 @@
 package edu.hm.hafner.coverage;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serial;
 import java.util.Objects;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * A {@link Node} for a specific method.
@@ -22,10 +21,8 @@ public final class MethodNode extends Node {
     /**
      * Creates a new method node with the given name. The line number will be set to 0.
      *
-     * @param name
-     *         The human-readable name of the node
-     * @param signature
-     *         The signature of the method
+     * @param name The human-readable name of the node
+     * @param signature The signature of the method
      */
     public MethodNode(final String name, final String signature) {
         this(name, signature, 0);
@@ -34,12 +31,9 @@ public final class MethodNode extends Node {
     /**
      * Creates a new item node with the given name.
      *
-     * @param name
-     *         The human-readable name of the node
-     * @param signature
-     *         The signature of the method
-     * @param lineNumber
-     *         The line number where the method begins (not including the method head)
+     * @param name The human-readable name of the node
+     * @param signature The signature of the method
+     * @param lineNumber The line number where the method begins (not including the method head)
      */
     public MethodNode(final String name, final String signature, final int lineNumber) {
         super(Metric.METHOD, name + signature);

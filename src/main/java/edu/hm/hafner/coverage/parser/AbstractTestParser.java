@@ -1,10 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
@@ -12,12 +7,15 @@ import edu.hm.hafner.coverage.Rate;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Baseclass for test result parsers.
@@ -58,23 +56,23 @@ abstract class AbstractTestParser extends CoverageParser {
             var tests = readTestCases(eventReader, root, fileName);
             handleEmptyResults(fileName, log, tests.isEmpty());
             return root;
-        }
-        catch (XMLStreamException exception) {
+        } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
         }
     }
 
-    private List<TestCase> readTestCases(final XMLEventReader eventReader,
-            final ModuleNode root, final String fileName) throws XMLStreamException {
+    private List<TestCase> readTestCases(final XMLEventReader eventReader, final ModuleNode root, final String fileName)
+            throws XMLStreamException {
         var suiteName = EMPTY;
         var tests = new ArrayList<TestCase>();
         while (eventReader.hasNext()) {
             var event = eventReader.nextEvent();
 
-            if (event.isStartElement() && getTestSuite().equals(event.asStartElement().getName())) {
+            if (event.isStartElement()
+                    && getTestSuite().equals(event.asStartElement().getName())) {
                 suiteName = getOptionalValueOf(event.asStartElement(), NAME).orElse(EMPTY);
-            }
-            else if (event.isStartElement() && getTestCase().equals(event.asStartElement().getName())) {
+            } else if (event.isStartElement()
+                    && getTestCase().equals(event.asStartElement().getName())) {
                 tests.add(readTestCase(eventReader, event.asStartElement(), suiteName, root, fileName));
             }
         }
@@ -91,8 +89,9 @@ abstract class AbstractTestParser extends CoverageParser {
         return tests;
     }
 
-    abstract TestCase readTestCase(XMLEventReader reader, StartElement testCaseElement,
-            String suiteName, ModuleNode root, String fileName) throws XMLStreamException;
+    abstract TestCase readTestCase(
+            XMLEventReader reader, StartElement testCaseElement, String suiteName, ModuleNode root, String fileName)
+            throws XMLStreamException;
 
     protected String createId() {
         return UUID.randomUUID().toString();

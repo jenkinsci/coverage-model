@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
@@ -12,7 +10,6 @@ import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LookaheadStream;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.TreeStringBuilder;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -28,6 +25,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A parser for Go coverage reports.
@@ -40,20 +38,17 @@ public class GoCovParser extends CoverageParser {
     private static final long serialVersionUID = -4511292826873362408L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
-    private static final Pattern LINE_PATTERN = Pattern.compile(
-            "(?:(?<org>[^/\\\\:]+\\.[^/\\\\:]+)[/\\\\])?"
-                    + "(?<project>[^/\\\\:]+)[/\\\\]"
-                    + "(?<module>[^/\\\\:]+)[/\\\\]"
-                    + "(?<package>.*[/\\\\]?.*)[/\\\\]"
-                    + "(?<file>[^/\\\\:]+):"
-                    + "(?<lineStart>\\d+)\\.(?<columnStart>\\d+),"
-                    + "(?<lineEnd>\\d+)\\.(?<columnEnd>\\d+)\\s*"
-                    + "(?<statements>\\d+)\\s*"
-                    + "(?<executions>\\d+)");
+    private static final Pattern LINE_PATTERN = Pattern.compile("(?:(?<org>[^/\\\\:]+\\.[^/\\\\:]+)[/\\\\])?"
+            + "(?<project>[^/\\\\:]+)[/\\\\]"
+            + "(?<module>[^/\\\\:]+)[/\\\\]"
+            + "(?<package>.*[/\\\\]?.*)[/\\\\]"
+            + "(?<file>[^/\\\\:]+):"
+            + "(?<lineStart>\\d+)\\.(?<columnStart>\\d+),"
+            + "(?<lineEnd>\\d+)\\.(?<columnEnd>\\d+)\\s*"
+            + "(?<statements>\\d+)\\s*"
+            + "(?<executions>\\d+)");
 
-    /**
-     * Creates a new instance of {@link GoCovParser}.
-     */
+    /** Creates a new instance of {@link GoCovParser}. */
     public GoCovParser() {
         super(ProcessingMode.FAIL_FAST);
     }
@@ -61,8 +56,7 @@ public class GoCovParser extends CoverageParser {
     /**
      * Creates a new instance of {@link GoCovParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public GoCovParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -97,8 +91,7 @@ public class GoCovParser extends CoverageParser {
                     if (possibleModule.isEmpty()) {
                         module = new ModuleNode(moduleName);
                         modules.add(module);
-                    }
-                    else {
+                    } else {
                         module = possibleModule.get();
                     }
 
@@ -106,8 +99,8 @@ public class GoCovParser extends CoverageParser {
                     var packageNode = module.findOrCreatePackageNode(packageName);
 
                     var file = matcher.group("file");
-                    var fileNode = packageNode.findOrCreateFileNode(file,
-                            builder.intern(PATH_UTIL.getRelativePath(Path.of(packageName, file))));
+                    var fileNode = packageNode.findOrCreateFileNode(
+                            file, builder.intern(PATH_UTIL.getRelativePath(Path.of(packageName, file))));
 
                     var instructions = asInt(matcher, "statements");
                     var range = new LineRange(asInt(matcher, "lineStart"), asInt(matcher, "lineEnd"));
@@ -115,8 +108,7 @@ public class GoCovParser extends CoverageParser {
                     if (asInt(matcher, "executions") > 0) {
                         merge(coveredRangesPerFile, fileNode.getId(), range);
                         coveredInstructionsPerFile.merge(fileNode.getId(), instructions, Integer::sum);
-                    }
-                    else {
+                    } else {
                         merge(missedRangesPerFile, fileNode.getId(), range);
                         missedInstructionsPerFile.merge(fileNode.getId(), instructions, Integer::sum);
                     }
@@ -125,17 +117,19 @@ public class GoCovParser extends CoverageParser {
 
             builder.dedup();
 
-            buildCoverages(files,
-                    coveredInstructionsPerFile, missedInstructionsPerFile,
-                    coveredRangesPerFile, missedRangesPerFile);
+            buildCoverages(
+                    files,
+                    coveredInstructionsPerFile,
+                    missedInstructionsPerFile,
+                    coveredRangesPerFile,
+                    missedRangesPerFile);
 
             handleEmptyResults(reportFile, log, modules.isEmpty());
 
             var container = new ModuleNode(projectName);
             container.addAllChildren(modules);
             return container;
-        }
-        catch (IOException exception) {
+        } catch (IOException exception) {
             throw new ParsingException(exception, "Can't read the coverage report: %s", reportFile);
         }
     }
@@ -148,7 +142,8 @@ public class GoCovParser extends CoverageParser {
         return org + "/";
     }
 
-    private void buildCoverages(final Set<FileNode> files,
+    private void buildCoverages(
+            final Set<FileNode> files,
             final Map<String, Integer> coveredInstructionsPerFile,
             final Map<String, Integer> missedInstructionsPerFile,
             final Map<String, List<LineRange>> coveredRangesPerFile,
@@ -158,13 +153,19 @@ public class GoCovParser extends CoverageParser {
         for (FileNode file : files) {
             var coveredInstructions = coveredInstructionsPerFile.getOrDefault(file.getId(), 0);
             var missedInstructions = missedInstructionsPerFile.getOrDefault(file.getId(), 0);
-            file.addValue(instructionBuilder.withCovered(coveredInstructions).withMissed(missedInstructions).build());
+            file.addValue(instructionBuilder
+                    .withCovered(coveredInstructions)
+                    .withMissed(missedInstructions)
+                    .build());
 
             var coveredLines = getLines(coveredRangesPerFile, file);
             var missedLines = getLines(missedRangesPerFile, file);
             missedLines.removeAll(coveredLines);
 
-            file.addValue(lineBuilder.withCovered(coveredLines.size()).withMissed(missedLines.size()).build());
+            file.addValue(lineBuilder
+                    .withCovered(coveredLines.size())
+                    .withMissed(missedLines.size())
+                    .build());
 
             coveredLines.forEach(line -> file.addCounters(line, 1, 0));
             missedLines.forEach(line -> file.addCounters(line, 0, 1));
@@ -179,18 +180,16 @@ public class GoCovParser extends CoverageParser {
     }
 
     private void merge(final Map<String, List<LineRange>> map, final String key, final LineRange value) {
-        map.merge(key, new ArrayList<>(List.of(value)),
-                (oldValue, newValue) -> {
-                    oldValue.addAll(newValue);
-                    return oldValue;
-                });
+        map.merge(key, new ArrayList<>(List.of(value)), (oldValue, newValue) -> {
+            oldValue.addAll(newValue);
+            return oldValue;
+        });
     }
 
     private int asInt(final Matcher matcher, final String group) {
         try {
             return Integer.parseInt(matcher.group(group));
-        }
-        catch (NumberFormatException exception) {
+        } catch (NumberFormatException exception) {
             return 0;
         }
     }

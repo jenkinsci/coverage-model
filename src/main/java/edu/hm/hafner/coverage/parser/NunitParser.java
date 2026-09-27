@@ -1,5 +1,8 @@
 package edu.hm.hafner.coverage.parser;
 
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
 import java.io.Serial;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -7,14 +10,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.TestCase;
-import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
-
 /**
- * Parses reports in the
- * <a href="https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html">NUnit format</a>
- * into a Java object model.
+ * Parses reports in the <a
+ * href="https://docs.nunit.org/articles/nunit/technical-notes/usage/Test-Result-XML-Format.html">NUnit format</a> into
+ * a Java object model.
  *
  * @author Valentin Delaye
  */
@@ -30,9 +29,7 @@ public class NunitParser extends AbstractTestParser {
     private static final String FAILED = "Failed";
     private static final String SKIPPED = "Skipped";
 
-    /**
-     * Creates a new instance of {@link NunitParser}.
-     */
+    /** Creates a new instance of {@link NunitParser}. */
     public NunitParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -40,16 +37,20 @@ public class NunitParser extends AbstractTestParser {
     /**
      * Creates a new instance of {@link NunitParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public NunitParser(final ProcessingMode processingMode) {
         super(processingMode, TEST_SUITE, TEST_CASE);
     }
 
     @Override
-    TestCase readTestCase(final XMLEventReader reader, final StartElement testCaseElement,
-            final String suiteName, final ModuleNode root, final String fileName) throws XMLStreamException {
+    TestCase readTestCase(
+            final XMLEventReader reader,
+            final StartElement testCaseElement,
+            final String suiteName,
+            final ModuleNode root,
+            final String fileName)
+            throws XMLStreamException {
         var builder = new TestCaseBuilder();
 
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
@@ -61,8 +62,8 @@ public class NunitParser extends AbstractTestParser {
 
             if (event.isStartElement() && isFailure(event)) {
                 readFailure(reader, builder);
-            }
-            else if (event.isEndElement() && TEST_CASE.equals(event.asEndElement().getName())) {
+            } else if (event.isEndElement()
+                    && TEST_CASE.equals(event.asEndElement().getName())) {
                 var className = getOptionalValueOf(testCaseElement, CLASS_NAME).orElse(suiteName);
                 builder.withClassName(className);
                 var packageNode = root.findOrCreatePackageNode(EMPTY);
@@ -94,8 +95,7 @@ public class NunitParser extends AbstractTestParser {
         return FAILURE.equals(getElementName(event));
     }
 
-    private void readFailure(final XMLEventReader reader, final TestCaseBuilder builder)
-            throws XMLStreamException {
+    private void readFailure(final XMLEventReader reader, final TestCaseBuilder builder) throws XMLStreamException {
         builder.withFailure();
 
         var aggregatedContent = new StringBuilder();
@@ -103,11 +103,9 @@ public class NunitParser extends AbstractTestParser {
             var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
-            }
-            else if (event.isEndElement() && isFailure(event)) {
+            } else if (event.isEndElement() && isFailure(event)) {
                 return;
-            }
-            else if (event.isEndElement() && event.asEndElement().getName().equals(MESSAGE)) {
+            } else if (event.isEndElement() && event.asEndElement().getName().equals(MESSAGE)) {
                 builder.withDescription(aggregatedContent.toString());
                 return;
             }

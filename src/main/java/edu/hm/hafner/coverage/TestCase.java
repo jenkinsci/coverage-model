@@ -1,14 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.util.Generated;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a test case that has been executed.
@@ -26,8 +23,13 @@ public final class TestCase implements Serializable {
     private final String message;
     private final String description;
 
-    private TestCase(final String testName, final String className, final TestResult result,
-            final String type, final String message, final String description) {
+    private TestCase(
+            final String testName,
+            final String className,
+            final TestResult result,
+            final String type,
+            final String message,
+            final String description) {
         this.testName = testName;
         this.className = className.intern();
         this.result = result;
@@ -68,7 +70,8 @@ public final class TestCase implements Serializable {
         return description;
     }
 
-    @Override @Generated
+    @Override
+    @Generated
     public String toString() {
         return "TestCase{testName='" + testName + '\'' + ", className='" + className + '\'' + ", status=" + result
                 + ", type='" + type + '\'' + ", message='" + message + '\'' + ", description='" + description + '\''
@@ -99,9 +102,7 @@ public final class TestCase implements Serializable {
         return Objects.hash(testName, className, result, type, message, description);
     }
 
-    /**
-     * Builder to create new {@link TestCase} instances.
-     */
+    /** Builder to create new {@link TestCase} instances. */
     @SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class TestCaseBuilder {
         private TestResult status = TestResult.PASSED;
@@ -165,9 +166,7 @@ public final class TestCase implements Serializable {
         }
     }
 
-    /**
-     * The result of a test case.
-     */
+    /** The result of a test case. */
     public enum TestResult {
         PASSED,
         FAILED,

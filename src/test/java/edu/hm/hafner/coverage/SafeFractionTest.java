@@ -1,9 +1,9 @@
 package edu.hm.hafner.coverage;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * TestCount the class {@link SafeFraction}.
@@ -24,21 +24,24 @@ class SafeFractionTest {
     void shouldHandleOverflowForMultiply() {
         var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
         var safeFraction = new SafeFraction(fraction);
-        assertThat(safeFraction.multiplyBy(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(100.0);
+        assertThat(safeFraction.multiplyBy(Fraction.getFraction("100.0")).doubleValue())
+                .isEqualTo(100.0);
     }
 
     @Test
     void shouldHandleOverflowForSubtract() {
         var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
         var safeFraction = new SafeFraction(fraction);
-        assertThat(safeFraction.subtract(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(-99.0);
+        assertThat(safeFraction.subtract(Fraction.getFraction("100.0")).doubleValue())
+                .isEqualTo(-99.0);
     }
 
     @Test
     void shouldHandleOverflowForAdd() {
         var fraction = Fraction.getFraction(Integer.MAX_VALUE - 1, Integer.MAX_VALUE - 1);
         var safeFraction = new SafeFraction(fraction);
-        assertThat(safeFraction.add(Fraction.getFraction("100.0")).doubleValue()).isEqualTo(101.0);
+        assertThat(safeFraction.add(Fraction.getFraction("100.0")).doubleValue())
+                .isEqualTo(101.0);
     }
 
     @Test

@@ -1,8 +1,8 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class ContainerNodeTest extends AbstractNodeTest {
     @Override
@@ -23,7 +23,10 @@ class ContainerNodeTest extends AbstractNodeTest {
         var right = new ModuleNode("right");
         containerNode.addChild(right);
 
-        assertThat(containerNode).hasNoSourceFolders().hasOnlyChildren(left, right).isAggregation();
+        assertThat(containerNode)
+                .hasNoSourceFolders()
+                .hasOnlyChildren(left, right)
+                .isAggregation();
 
         left.addSource("left/path");
         right.addSource("right/path");

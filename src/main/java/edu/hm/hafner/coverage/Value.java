@@ -1,13 +1,8 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.math.Fraction;
-
 import edu.hm.hafner.coverage.Metric.MetricTendency;
 import edu.hm.hafner.util.Generated;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -17,6 +12,9 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * A leaf in the tree that contains a numeric value. Such values are used for arbitrary software-metric like loc or
@@ -34,14 +32,10 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Searches for a value with the specified metric in the specified collection of values.
      *
-     * @param metric
-     *         the metric to search for
-     * @param values
-     *         the values to search in
-     *
+     * @param metric the metric to search for
+     * @param values the values to search in
      * @return the value with the specified metric
-     * @throws NoSuchElementException
-     *         if the value is not found
+     * @throws NoSuchElementException if the value is not found
      * @see #findValue(Metric, Collection)
      */
     public static Value getValue(final Metric metric, final Collection<? extends Value> values) {
@@ -52,19 +46,13 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Searches for a value with the specified metric in the specified list of values.
      *
-     * @param metric
-     *         the metric to search for
-     * @param values
-     *         the values to search in
-     *
+     * @param metric the metric to search for
+     * @param values the values to search in
      * @return the value with the specified metric, or an empty optional if the value is not found
      * @see #getValue(Metric, Collection)
      */
     public static Optional<Value> findValue(final Metric metric, final Collection<? extends Value> values) {
-        return values.stream()
-                .filter(v -> metric == v.getMetric())
-                .findAny()
-                .map(Value.class::cast);
+        return values.stream().filter(v -> metric == v.getMetric()).findAny().map(Value.class::cast);
     }
 
     /**
@@ -72,14 +60,11 @@ public class Value implements Serializable, Comparable<Value> {
      * expected to start with the metric, written in all caps characters and followed by a colon. Then the {@link Value}
      * specific serialization is following. Whitespace characters will be ignored.
      *
-     * <p>Examples: LINE: 10/100, BRANCH: 0/5, LOC: 160</p>
+     * <p>Examples: LINE: 10/100, BRANCH: 0/5, LOC: 160
      *
-     * @param stringRepresentation
-     *         string representation to convert from
-     *
+     * @param stringRepresentation string representation to convert from
      * @return the created value
-     * @throws IllegalArgumentException
-     *         if the string is not a valid cov instance
+     * @throws IllegalArgumentException if the string is not a valid cov instance
      */
     public static Value valueOf(final String stringRepresentation) {
         var errorMessage = "Cannot convert '%s' to a valid Value instance.".formatted(stringRepresentation);
@@ -99,8 +84,7 @@ public class Value implements Serializable, Comparable<Value> {
                 }
                 return new Value(metric, readFraction(value, 0));
             }
-        }
-        catch (NumberFormatException exception) {
+        } catch (NumberFormatException exception) {
             throw new IllegalArgumentException(errorMessage, exception);
         }
         throw new IllegalArgumentException(errorMessage);
@@ -113,9 +97,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns a {@code null} object that indicates that no value has been recorded.
      *
-     * @param metric
-     *         the coverage metric
-     *
+     * @param metric the coverage metric
      * @return the {@code null} object
      */
     public static Value nullObject(final Metric metric) {
@@ -128,10 +110,8 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value to store
+     * @param metric the coverage metric
+     * @param value the value to store
      */
     public Value(final Metric metric, final Fraction value) {
         this.metric = metric;
@@ -141,10 +121,8 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value to store
+     * @param metric the coverage metric
+     * @param value the value to store
      */
     public Value(final Metric metric, final double value) {
         this(metric, Fraction.getFraction(value));
@@ -153,12 +131,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Creates a new leaf with the given value (a fraction) for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param numerator
-     *         the numerator, i.e., the three in 'three sevenths'
-     * @param denominator
-     *         the denominator, i.ee, the seven in 'three sevenths'
+     * @param metric the coverage metric
+     * @param numerator the numerator, i.e., the three in 'three sevenths'
+     * @param denominator the denominator, i.ee, the seven in 'three sevenths'
      */
     public Value(final Metric metric, final int numerator, final int denominator) {
         this(metric, Fraction.getFraction(numerator, denominator));
@@ -167,12 +142,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Creates a new leaf with the given value (a fraction) for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param numerator
-     *         the numerator, i.e., the three in 'three sevenths'
-     * @param denominator
-     *         the denominator, i.ee, the seven in 'three sevenths'
+     * @param metric the coverage metric
+     * @param numerator the numerator, i.e., the three in 'three sevenths'
+     * @param denominator the denominator, i.ee, the seven in 'three sevenths'
      * @throws ArithmeticException if numerator or denominator cannot be represented as integer values
      */
     public Value(final Metric metric, final long numerator, final long denominator) {
@@ -182,10 +154,8 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value
+     * @param metric the coverage metric
+     * @param value the value
      */
     public Value(final Metric metric, final int value) {
         this(metric, Fraction.getFraction(value, 1));
@@ -213,12 +183,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Add the value from the specified instance to the value of this instance.
      *
-     * @param other
-     *         the additional coverage details
-     *
+     * @param other the additional coverage details
      * @return the sum of this and the additional coverage
-     * @throws IllegalArgumentException
-     *         if the metrics of the two instances are different
+     * @throws IllegalArgumentException if the metrics of the two instances are different
      */
     @CheckReturnValue
     public Value add(final Value other) {
@@ -234,12 +201,9 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Computes the delta of this value with the specified value.
      *
-     * @param other
-     *         the value to compare with
-     *
+     * @param other the value to compare with
      * @return the delta of this and the additional value
-     * @throws IllegalArgumentException
-     *         if the metrics of the two instances are different
+     * @throws IllegalArgumentException if the metrics of the two instances are different
      */
     @CheckReturnValue
     public Difference subtract(final Value other) {
@@ -251,9 +215,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Computes the maximum of this value and the specified value.
      *
-     * @param other
-     *         the other coverage
-     *
+     * @param other the other coverage
      * @return the maximum value
      */
     @CheckReturnValue
@@ -268,9 +230,8 @@ public class Value implements Serializable, Comparable<Value> {
 
     /**
      * Computes the minimum of this value and the specified value.
-     * 
-     * @param other
-     *         the other coverage
+     *
+     * @param other the other coverage
      * @return the minimum value
      */
     @CheckReturnValue
@@ -284,9 +245,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Divides this value by the specified divisor.
      *
-     * @param divisor
-     *         the divisor
-     *
+     * @param divisor the divisor
      * @return the result of the division
      */
     @CheckReturnValue
@@ -303,9 +262,7 @@ public class Value implements Serializable, Comparable<Value> {
      * equal than the threshold. For metrics of type {@link MetricTendency#SMALLER_IS_BETTER} (like complexity) this
      * value will be checked with less or equal than.
      *
-     * @param threshold
-     *         the threshold to check against
-     *
+     * @param threshold the threshold to check against
      * @return {@code true} if this value is within the specified threshold, {@code false} otherwise
      */
     public boolean isOutOfValidRange(final double threshold) {
@@ -343,9 +300,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns this value as a text.
      *
-     * @param locale
-     *         the locale to use
-     *
+     * @param locale the locale to use
      * @return this value formatted as a String
      */
     public String asText(final Locale locale) {
@@ -355,9 +310,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns this value as an informative text.
      *
-     * @param locale
-     *         the locale to use
-     *
+     * @param locale the locale to use
      * @return this value formatted as a String
      */
     public String asInformativeText(final Locale locale) {
@@ -367,9 +320,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns this value as a text. Before the value is printed, it is rounded according to the given metric.
      *
-     * @param locale
-     *         the locale to use
-     *
+     * @param locale the locale to use
      * @return this rounded value formatted as a String
      */
     public String asRoundedText(final Locale locale) {
@@ -379,9 +330,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns a short summary of this value as a human-readable text.
      *
-     * @param locale
-     *         the locale to use
-     *
+     * @param locale the locale to use
      * @return the summary of this value as a human-readable text
      */
     public String getSummary(final Locale locale) {
@@ -391,9 +340,7 @@ public class Value implements Serializable, Comparable<Value> {
     /**
      * Returns the details of this value as a human-readable text.
      *
-     * @param locale
-     *         the locale to use
-     *
+     * @param locale the locale to use
      * @return the details of this value as a human-readable text
      */
     public String getDetails(final Locale locale) {
@@ -428,17 +375,13 @@ public class Value implements Serializable, Comparable<Value> {
     }
 
     private double round(final double value, final int scale) {
-        return BigDecimal.valueOf(value)
-                .setScale(scale, RoundingMode.HALF_UP)
-                .doubleValue();
+        return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
      * Returns whether this value has the same metric as the specified value.
      *
-     * @param other
-     *         the other value to compare with
-     *
+     * @param other the other value to compare with
      * @return {@code true} if this value has the same metric as the specified value, {@code false} otherwise
      */
     protected boolean hasSameMetric(final Value other) {
@@ -460,8 +403,7 @@ public class Value implements Serializable, Comparable<Value> {
             return false;
         }
         var value = (Value) o;
-        return metric == value.metric
-                && Objects.equals(fraction, value.fraction);
+        return metric == value.metric && Objects.equals(fraction, value.fraction);
     }
 
     @Override
