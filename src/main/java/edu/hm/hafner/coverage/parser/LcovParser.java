@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.apache.commons.lang3.tuple.MutablePair;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
@@ -12,7 +10,6 @@ import edu.hm.hafner.coverage.Value;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.LookaheadStream;
 import edu.hm.hafner.util.PathUtil;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -21,19 +18,16 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.lang3.tuple.MutablePair;
 
-/**
- * A parser for LCOV coverage reports.
- */
+/** A parser for LCOV coverage reports. */
 public class LcovParser extends CoverageParser {
     @Serial
     private static final long serialVersionUID = 1L;
 
     private static final PathUtil PATH_UTIL = new PathUtil();
 
-    /**
-     * Creates a new instance of {@link LcovParser}.
-     */
+    /** Creates a new instance of {@link LcovParser}. */
     public LcovParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -41,8 +35,7 @@ public class LcovParser extends CoverageParser {
     /**
      * Creates a new instance of {@link LcovParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public LcovParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -92,8 +85,7 @@ public class LcovParser extends CoverageParser {
                     files.get(currentFile).put(ln, pair);
                 }
             }
-        }
-        catch (IOException | NumberFormatException e) {
+        } catch (IOException | NumberFormatException e) {
             throw new ParsingException(e);
         }
 
@@ -107,7 +99,8 @@ public class LcovParser extends CoverageParser {
         return root;
     }
 
-    private void createCoverages(final ModuleNode root, final Map<String, Map<Integer, MutablePair<Integer, Integer>>> files) {
+    private void createCoverages(
+            final ModuleNode root, final Map<String, Map<Integer, MutablePair<Integer, Integer>>> files) {
         // Create nodes in model
         var packageNode = new PackageNode(EMPTY);
         var moduleNode = new ModuleNode(EMPTY);
@@ -143,8 +136,14 @@ public class LcovParser extends CoverageParser {
             int missedLines = Math.max(0, totalLines - coveredLines);
 
             // Add aggregated values so the aggregator produces PACKAGE/FILE metrics
-            fileNode.addValue(instructionBuilder.withCovered(coveredInstructions).withMissed(missedInstructions).build());
-            fileNode.addValue(lineBuilder.withCovered(coveredLines).withMissed(missedLines).build());
+            fileNode.addValue(instructionBuilder
+                    .withCovered(coveredInstructions)
+                    .withMissed(missedInstructions)
+                    .build());
+            fileNode.addValue(lineBuilder
+                    .withCovered(coveredLines)
+                    .withMissed(missedLines)
+                    .build());
             fileNode.addValue(new Value(Metric.LOC, totalLines));
 
             // Add per-line counters
@@ -157,7 +156,8 @@ public class LcovParser extends CoverageParser {
         }
     }
 
-    private void addCounters(final FileNode fileNode, final int lineNumber, final int coveredInstructions, final int coveredBranches) {
+    private void addCounters(
+            final FileNode fileNode, final int lineNumber, final int coveredInstructions, final int coveredBranches) {
         int missed;
         int covered;
 

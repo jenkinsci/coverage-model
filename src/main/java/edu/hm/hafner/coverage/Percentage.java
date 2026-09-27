@@ -1,15 +1,14 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.math.Fraction;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * Represents a coverage percentage value which can be used in order to show and serialize coverage values. The class
@@ -26,6 +25,7 @@ public final class Percentage implements Serializable {
     public static final Percentage ZERO = new Percentage(0, 1);
     /** Hundred percent placeholder. */
     public static final Percentage HUNDRED = new Percentage(1, 1);
+
     private static final Percentage ALMOST_HUNDRED = new Percentage(9_999, 10_000);
 
     static final String TOTALS_ZERO_MESSAGE = "Totals must be greater than zero.";
@@ -36,9 +36,7 @@ public final class Percentage implements Serializable {
      * Creates an instance of {@link Percentage} in the range [0,100] from a {@link Fraction fraction} within the range
      * [0,1]. I.e., a percentage is a fraction value multiplied by one hundert.
      *
-     * @param fraction
-     *         the value as a fraction within the range [0,1]
-     *
+     * @param fraction the value as a fraction within the range [0,1]
      * @return the created instance
      */
     public static Percentage valueOf(final Fraction fraction) {
@@ -46,17 +44,13 @@ public final class Percentage implements Serializable {
     }
 
     /**
-     * Creates an instance of {@link Percentage} from the two number items and total.
-     * The percentage is calculated as value (items / total) * 100.
+     * Creates an instance of {@link Percentage} from the two number items and total. The percentage is calculated as
+     * value (items / total) * 100.
      *
-     * @param items
-     *         the number of items in the range [0,total]
-     * @param total
-     *         the total number of items available
-     *
+     * @param items the number of items in the range [0,total]
+     * @param total the total number of items available
      * @return the created instance
-     * @throws IllegalArgumentException
-     *         if the denominator is zero or items are greater than total
+     * @throws IllegalArgumentException if the denominator is zero or items are greater than total
      */
     public static Percentage valueOf(final int items, final int total) {
         return new Percentage(items, total);
@@ -67,12 +61,9 @@ public final class Percentage implements Serializable {
      * expected to contain the numerator and the denominator - separated by a slash, e.g. "300/345", or "1/100".
      * Whitespace characters will be ignored.
      *
-     * @param stringRepresentation
-     *         string representation to convert from
-     *
+     * @param stringRepresentation string representation to convert from
      * @return the created {@link Percentage}
-     * @throws IllegalArgumentException
-     *         if the string is not a valid Percentage instance
+     * @throws IllegalArgumentException if the string is not a valid Percentage instance
      */
     public static Percentage valueOf(final String stringRepresentation) {
         try {
@@ -86,8 +77,7 @@ public final class Percentage implements Serializable {
 
                 return new Percentage(numerator, denominator);
             }
-        }
-        catch (NumberFormatException exception) {
+        } catch (NumberFormatException exception) {
             // ignore and throw a specific exception
         }
         throw new IllegalArgumentException(
@@ -100,19 +90,16 @@ public final class Percentage implements Serializable {
     /**
      * Creates an instance of {@link Percentage}.
      *
-     * @param items
-     *         the number of items in the range [0,total]
-     * @param total
-     *         the total number of items available
+     * @param items the number of items in the range [0,total]
+     * @param total the total number of items available
      */
     private Percentage(final int items, final int total) {
         if (total <= 0) {
             throw new IllegalArgumentException(TOTALS_ZERO_MESSAGE);
         }
         if (items > total) {
-            throw new IllegalArgumentException(
-                    String.format(Locale.ENGLISH, "The number of items %d must be less or equal the total number %d.",
-                            items, total));
+            throw new IllegalArgumentException(String.format(
+                    Locale.ENGLISH, "The number of items %d must be less or equal the total number %d.", items, total));
         }
         this.items = items;
         this.total = total;
@@ -167,9 +154,7 @@ public final class Percentage implements Serializable {
     /**
      * Formats a percentage to plain text and rounds the value to two decimals.
      *
-     * @param locale
-     *         the used locale
-     *
+     * @param locale the used locale
      * @return the formatted percentage as plain text
      */
     public String formatPercentage(final Locale locale) {
@@ -187,9 +172,7 @@ public final class Percentage implements Serializable {
     /**
      * Subtracts the other percentage from this percentage, returning the result as a {@link Fraction}.
      *
-     * @param subtrahend
-     *         the percentage to subtract
-     *
+     * @param subtrahend the percentage to subtract
      * @return a {@code Fraction} instance with the resulting values
      */
     public Fraction subtract(final Percentage subtrahend) {
@@ -200,9 +183,7 @@ public final class Percentage implements Serializable {
      * Formats a delta percentage to its plain text representation with a leading sign and rounds the value to two
      * decimals.
      *
-     * @param locale
-     *         the used locale
-     *
+     * @param locale the used locale
      * @return the formatted delta percentage as plain text with a leading sign
      */
     public String formatDeltaPercentage(final Locale locale) {

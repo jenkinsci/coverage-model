@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -7,7 +6,7 @@
   <parent>
     <groupId>edu.hm.hafner</groupId>
     <artifactId>codingstyle-pom</artifactId>
-    <version>6.18.0</version>
+    <version>7.0.0</version>
     <relativePath />
   </parent>
 
@@ -30,8 +29,8 @@
 
   <developers>
     <developer>
-      <name>Ullrich Hafner</name>
       <id>uhafner</id>
+      <name>Ullrich Hafner</name>
       <email>ullrich.hafner@gmail.com</email>
     </developer>
   </developers>
@@ -39,8 +38,8 @@
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/coverage-model.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/coverage-model.git</developerConnection>
-    <url>https://github.com/jenkinsci/coverage-model</url>
     <tag>${scmTag}</tag>
+    <url>https://github.com/jenkinsci/coverage-model</url>
   </scm>
 
   <properties>
@@ -53,6 +52,14 @@
 
     <incrementals-plugin.version>1.13</incrementals-plugin.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>3.2.2</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -120,14 +127,6 @@
     </plugins>
   </build>
 
-  <dependencies>
-    <dependency>
-      <groupId>tools.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>3.2.2</version>
-    </dependency>
-  </dependencies>
-
   <profiles>
     <profile>
       <id>might-produce-incrementals</id>
@@ -143,10 +142,10 @@
             <executions>
               <execution>
                 <id>flatten</id>
-                <phase>process-resources</phase>
                 <goals>
                   <goal>flatten</goal>
                 </goals>
+                <phase>process-resources</phase>
                 <configuration>
                   <flattenMode>ossrh</flattenMode>
                   <flattenDependencyMode>all</flattenDependencyMode>
@@ -159,6 +158,13 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>io.jenkins.tools.incrementals</groupId>
+                <artifactId>incrementals-enforcer-rules</artifactId>
+                <version>1.13</version>
+              </dependency>
+            </dependencies>
             <executions>
               <execution>
                 <id>display-info</id>
@@ -175,13 +181,6 @@
                 </configuration>
               </execution>
             </executions>
-            <dependencies>
-              <dependency>
-                <groupId>io.jenkins.tools.incrementals</groupId>
-                <artifactId>incrementals-enforcer-rules</artifactId>
-                <version>1.13</version>
-              </dependency>
-            </dependencies>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>

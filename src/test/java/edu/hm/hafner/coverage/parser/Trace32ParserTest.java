@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.*;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -8,14 +8,10 @@ import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.Node;
-
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
-
-/**
- * Tests for {@link Trace32Parser} - focuses on single file reports.
- */
+/** Tests for {@link Trace32Parser} - focuses on single file reports. */
 class Trace32ParserTest extends AbstractParserTest {
     @Override
     CoverageParser createParser(final ProcessingMode processingMode) {
@@ -49,16 +45,19 @@ class Trace32ParserTest extends AbstractParserTest {
         assertThat(classes).isNotEmpty();
 
         // Check class node names (anything, but empty)
-        var classNames = classes.stream()
-                .map(Node::getName)
-                .collect(Collectors.toList());
+        var classNames = classes.stream().map(Node::getName).collect(Collectors.toList());
         assertThat(classNames).isNotEmpty();
 
         // Check that file nodes collector exist, and verify its content
-        var filesNode = classes.stream().filter(node -> "TRACE32 Files".equals(node.getName())).findFirst();
+        var filesNode = classes.stream()
+                .filter(node -> "TRACE32 Files".equals(node.getName()))
+                .findFirst();
         assertThat(filesNode).isPresent();
-        assertThat(filesNode.get().getAllFileNodes()).extracting(Node::getName).containsExactlyInAnyOrder("coverage.c", "main.c", "gesf2.c", "libgcc2.c", "start.sx", "floatsisf.c");
-        assertThat(filesNode.get().getMetrics()).containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.BYTES);
+        assertThat(filesNode.get().getAllFileNodes())
+                .extracting(Node::getName)
+                .containsExactlyInAnyOrder("coverage.c", "main.c", "gesf2.c", "libgcc2.c", "start.sx", "floatsisf.c");
+        assertThat(filesNode.get().getMetrics())
+                .containsExactlyInAnyOrder(Metric.FILE, Metric.CLASS, Metric.FUNCTION_CALL, Metric.BYTES);
 
         // Check that package nodes are NOT created
         var packages = root.getAll(Metric.PACKAGE);
@@ -70,13 +69,13 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-call.xml");
 
         assertThat(root.getValue(Metric.FUNCTION_CALL)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(131);
             assertThat(cov.getMissed()).isEqualTo(2);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9132);
             assertThat(cov.getMissed()).isEqualTo(1088);
         });
@@ -87,19 +86,19 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-cond.xml");
 
         assertThat(root.getValue(Metric.STMT_CC)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(500);
             assertThat(cov.getMissed()).isEqualTo(153);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9368);
             assertThat(cov.getMissed()).isEqualTo(1136);
         });
 
         assertThat(root.getValue(Metric.CONDITION)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(197);
             assertThat(cov.getMissed()).isEqualTo(145);
         });
@@ -110,19 +109,19 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-dec.xml");
 
         assertThat(root.getValue(Metric.STMT_DC)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(512);
             assertThat(cov.getMissed()).isEqualTo(141);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9368);
             assertThat(cov.getMissed()).isEqualTo(1136);
         });
 
         assertThat(root.getValue(Metric.BRANCH)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(123);
             assertThat(cov.getMissed()).isEqualTo(103);
         });
@@ -133,13 +132,13 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-func.xml");
 
         assertThat(root.getValue(Metric.FUNCTION_CALL)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(52);
             assertThat(cov.getMissed()).isEqualTo(1);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9132);
             assertThat(cov.getMissed()).isEqualTo(1088);
         });
@@ -150,25 +149,25 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-mcdc.xml");
 
         assertThat(root.getValue(Metric.BRANCH)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(53);
             assertThat(cov.getMissed()).isEqualTo(60);
         });
 
         assertThat(root.getValue(Metric.CONDITION)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(197);
             assertThat(cov.getMissed()).isEqualTo(145);
         });
 
         assertThat(root.getValue(Metric.MCDC_PAIR)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(456);
             assertThat(cov.getMissed()).isEqualTo(197);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9368);
             assertThat(cov.getMissed()).isEqualTo(1136);
         });
@@ -179,13 +178,13 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-stmt.xml");
 
         assertThat(root.getValue(Metric.INSTRUCTION)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(618);
             assertThat(cov.getMissed()).isEqualTo(35);
         });
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9780);
             assertThat(cov.getMissed()).isEqualTo(724);
         });
@@ -196,13 +195,13 @@ class Trace32ParserTest extends AbstractParserTest {
         var root = readReport("trace32-objcode.xml");
 
         assertThat(root.getValue(Metric.BYTES)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(9132);
             assertThat(cov.getMissed()).isEqualTo(1088);
         });
 
         assertThat(root.getValue(Metric.BRANCH)).isPresent().get().satisfies(coverage -> {
-            var cov = (Coverage)coverage;
+            var cov = (Coverage) coverage;
             assertThat(cov.getCovered()).isEqualTo(375);
             assertThat(cov.getMissed()).isEqualTo(149);
         });

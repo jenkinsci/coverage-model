@@ -1,13 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import java.util.Locale;
+import static org.assertj.core.api.Assertions.*;
 
+import java.util.Locale;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
-
-import nl.jqno.equalsverifier.EqualsVerifier;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Test class for {@link Percentage}.
@@ -49,10 +47,8 @@ class PercentageTest {
 
     @Test
     void shouldNotCreatePercentageOfInvalidStringRepresentation() {
-        assertThatThrownBy(() -> Percentage.valueOf("99%"))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> Percentage.valueOf("0.99/1"))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Percentage.valueOf("99%")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> Percentage.valueOf("0.99/1")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

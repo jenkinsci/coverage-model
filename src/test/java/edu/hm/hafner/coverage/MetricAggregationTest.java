@@ -1,12 +1,12 @@
 package edu.hm.hafner.coverage;
 
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Tests the class {@link MetricAggregation}.
@@ -16,16 +16,27 @@ import static org.assertj.core.api.Assertions.*;
 class MetricAggregationTest {
     @Test
     void shouldHaveCorrectDisplayNameIdAndToString() {
-        assertThat(MetricAggregation.TOTAL).hasDisplayName("Total").hasId("total").hasToString("Total");
-        assertThat(MetricAggregation.MAXIMUM).hasDisplayName("Maximum").hasId("maximum").hasToString("Maximum");
-        assertThat(MetricAggregation.MINIMUM).hasDisplayName("Minimum").hasId("minimum").hasToString("Minimum");
-        assertThat(MetricAggregation.AVERAGE).hasDisplayName("Average").hasId("average").hasToString("Average");
+        assertThat(MetricAggregation.TOTAL)
+                .hasDisplayName("Total")
+                .hasId("total")
+                .hasToString("Total");
+        assertThat(MetricAggregation.MAXIMUM)
+                .hasDisplayName("Maximum")
+                .hasId("maximum")
+                .hasToString("Maximum");
+        assertThat(MetricAggregation.MINIMUM)
+                .hasDisplayName("Minimum")
+                .hasId("minimum")
+                .hasToString("Minimum");
+        assertThat(MetricAggregation.AVERAGE)
+                .hasDisplayName("Average")
+                .hasId("average")
+                .hasToString("Average");
     }
 
     @Test
     void shouldReturnDefaultAggregation() {
-        assertThat(MetricAggregation.getDefault())
-                .isEqualTo(MetricAggregation.TOTAL);
+        assertThat(MetricAggregation.getDefault()).isEqualTo(MetricAggregation.TOTAL);
     }
 
     @ParameterizedTest

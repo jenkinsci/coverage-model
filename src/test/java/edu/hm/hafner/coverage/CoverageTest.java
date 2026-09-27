@@ -1,19 +1,17 @@
 package edu.hm.hafner.coverage;
 
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Locale;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junitpioneer.jupiter.DefaultLocale;
-
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import java.util.Locale;
-import nl.jqno.equalsverifier.EqualsVerifier;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
  * TestCount the class {@link Coverage}.
@@ -51,8 +49,8 @@ class CoverageTest {
     void shouldComputeDelta() {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        var worse = builder.withCovered(0).withMissed(2).build();  // 0%
-        var ok = builder.withCovered(1).withMissed(1).build();     // 50%
+        var worse = builder.withCovered(0).withMissed(2).build(); // 0%
+        var ok = builder.withCovered(1).withMissed(1).build(); // 50%
         var better = builder.withCovered(2).withMissed(0).build(); // 100%
 
         assertThat(worse.subtract(better).asDouble()).isEqualTo(-100);
@@ -188,23 +186,14 @@ class CoverageTest {
     void shouldCreateCoverage(final int covered) {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
 
-        var coverage = builder
-                .withCovered(covered)
-                .withMissed(5 - covered)
-                .build();
+        var coverage = builder.withCovered(covered).withMissed(5 - covered).build();
 
         assertThat(coverage).hasCovered(covered).hasTotal(5);
         assertThat(coverage.toString()).contains(covered + "/");
     }
 
     @ParameterizedTest(name = "Test {index}: Covered ''{0}'', Missed ''{1}'', toString ''({2})'''")
-    @CsvSource({
-            "0, 1, 0/1",
-            "1, 0, 1/1",
-            "0, 2, 0/2",
-            "1, 1, 1/2",
-            "2, 0, 2/2"
-    })
+    @CsvSource({"0, 1, 0/1", "1, 0, 1/1", "0, 2, 0/2", "1, 1, 1/2", "2, 0, 2/2"})
     @DisplayName("Coverage creation")
     void shouldCreateCoverage(final int covered, final int missed, final String toString) {
         var builder = new CoverageBuilder().withMetric(Metric.LINE);
@@ -226,10 +215,7 @@ class CoverageTest {
 
         var coverage = builder.withCovered("10").withMissed("16").build();
 
-        assertThat(coverage)
-                .hasMetric(Metric.LINE)
-                .hasCovered(10)
-                .hasMissed(16);
+        assertThat(coverage).hasMetric(Metric.LINE).hasCovered(10).hasMissed(16);
         assertThat(coverage.serialize()).isEqualTo("LINE: 10/26");
     }
 
@@ -237,11 +223,7 @@ class CoverageTest {
     void shouldCreateCoverageBasedOnStringRepresentation() {
         var coverage = Coverage.valueOf(Metric.LINE, "16/20");
 
-        assertThat(coverage)
-                .hasMetric(Metric.LINE)
-                .hasCovered(16)
-                .hasMissed(4)
-                .hasTotal(20);
+        assertThat(coverage).hasMetric(Metric.LINE).hasCovered(16).hasMissed(4).hasTotal(20);
     }
 
     @Test
@@ -268,22 +250,30 @@ class CoverageTest {
         assertThat(value).isInstanceOf(Coverage.class);
 
         var coverage = (Coverage) value;
-        assertThat(coverage)
-                .hasMetric(Metric.LINE)
-                .hasCovered(10)
-                .hasMissed(10)
-                .hasTotal(20);
+        assertThat(coverage).hasMetric(Metric.LINE).hasCovered(10).hasMissed(10).hasTotal(20);
     }
 
     @Test
     void shouldCalculateThirdValueOnBuilder() {
-        var coveredTotal = new CoverageBuilder().withMetric(Metric.LINE).withCovered(15).withTotal(40).build();
+        var coveredTotal = new CoverageBuilder()
+                .withMetric(Metric.LINE)
+                .withCovered(15)
+                .withTotal(40)
+                .build();
         assertThat(coveredTotal).hasTotal(40).hasMissed(25).hasCovered(15);
 
-        var coveredMissed = new CoverageBuilder().withMetric(Metric.LINE).withCovered(16).withMissed(16).build();
+        var coveredMissed = new CoverageBuilder()
+                .withMetric(Metric.LINE)
+                .withCovered(16)
+                .withMissed(16)
+                .build();
         assertThat(coveredMissed).hasTotal(32).hasMissed(16).hasCovered(16);
 
-        var totalMissed = new CoverageBuilder().withMetric(Metric.LINE).withTotal(40).withMissed(15).build();
+        var totalMissed = new CoverageBuilder()
+                .withMetric(Metric.LINE)
+                .withTotal(40)
+                .withMissed(15)
+                .build();
         assertThat(totalMissed).hasTotal(40).hasMissed(15).hasCovered(25);
     }
 
@@ -316,7 +306,8 @@ class CoverageTest {
 
     @Test
     void shouldThrowExceptionWhenSettingThreeOnBuilder() {
-        var coverageBuilder = new CoverageBuilder().withCovered(10).withMissed(10).withTotal(20);
+        var coverageBuilder =
+                new CoverageBuilder().withCovered(10).withMissed(10).withTotal(20);
 
         assertThatIllegalArgumentException()
                 .isThrownBy(coverageBuilder::build)

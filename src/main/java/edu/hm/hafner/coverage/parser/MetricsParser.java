@@ -1,12 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
@@ -19,10 +13,13 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.PathUtil;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import edu.hm.hafner.util.TreeString;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.nio.file.Path;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
 
 /**
  * Parses Metrics reports into a hierarchical Java Object Model.
@@ -35,6 +32,7 @@ public class MetricsParser extends CoverageParser {
 
     /** XML elements. */
     private static final QName METRICS = new QName("metrics");
+
     private static final QName PACKAGE = new QName("package");
     private static final QName CLASS = new QName("class");
     private static final QName METHOD = new QName("method");
@@ -43,15 +41,14 @@ public class MetricsParser extends CoverageParser {
 
     /** Attributes of the XML elements. */
     private static final QName PROJECT_NAME = new QName("projectName");
+
     private static final QName NAME = new QName("name");
     private static final QName BEGIN_LINE = new QName("beginline");
     private static final QName VALUE = new QName("value");
 
     private static final PathUtil PATH_UTIL = new PathUtil();
 
-    /**
-     * Creates a new instance of {@link MetricsParser}.
-     */
+    /** Creates a new instance of {@link MetricsParser}. */
     public MetricsParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -59,8 +56,7 @@ public class MetricsParser extends CoverageParser {
     /**
      * Creates a new instance of {@link MetricsParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public MetricsParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -81,29 +77,28 @@ public class MetricsParser extends CoverageParser {
                     var startElement = event.asStartElement();
                     var tagName = startElement.getName();
                     if (METRICS.equals(tagName)) {
-                        root = new ModuleNode(getOptionalValueOf(startElement, PROJECT_NAME).orElse(""));
-                    }
-                    else if (PACKAGE.equals(tagName)) {
+                        root = new ModuleNode(
+                                getOptionalValueOf(startElement, PROJECT_NAME).orElse(""));
+                    } else if (PACKAGE.equals(tagName)) {
                         readPackage(eventReader, root, startElement, fileName);
                     }
                 }
             }
             if (root.hasChildren()) {
                 return root;
-            }
-            else {
+            } else {
                 handleEmptyResults(fileName, log);
                 return new ModuleNode("empty");
             }
-        }
-        catch (XMLStreamException exception) {
+        } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
         }
     }
 
     @CanIgnoreReturnValue
-    private PackageNode readPackage(final XMLEventReader reader, final ModuleNode root,
-            final StartElement startElement, final String fileName) throws XMLStreamException {
+    private PackageNode readPackage(
+            final XMLEventReader reader, final ModuleNode root, final StartElement startElement, final String fileName)
+            throws XMLStreamException {
         var packageName = getValueOf(startElement, NAME);
         var packageNode = root.findOrCreatePackageNode(packageName);
         while (reader.hasNext()) {
@@ -113,12 +108,10 @@ public class MetricsParser extends CoverageParser {
                 var nextElement = event.asStartElement();
                 if (FILE.equals(nextElement.getName())) {
                     readSourceFile(reader, packageNode, nextElement, fileName);
-                }
-                else if (METRIC.equals(nextElement.getName())) {
+                } else if (METRIC.equals(nextElement.getName())) {
                     readValueCounter(packageNode, nextElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (PACKAGE.equals(endElement.getName())) {
                     return packageNode;
@@ -129,8 +122,13 @@ public class MetricsParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private Node readClass(final XMLEventReader reader, final FileNode fileNode, final StartElement startElement,
-            final String fileName, final PackageNode packageNode) throws XMLStreamException {
+    private Node readClass(
+            final XMLEventReader reader,
+            final FileNode fileNode,
+            final StartElement startElement,
+            final String fileName,
+            final PackageNode packageNode)
+            throws XMLStreamException {
         var classNode = fileNode.findOrCreateClassNode(packageNode.getName() + "." + getValueOf(startElement, NAME));
         while (reader.hasNext()) {
             var event = reader.nextEvent();
@@ -139,12 +137,10 @@ public class MetricsParser extends CoverageParser {
                 var nextElement = event.asStartElement();
                 if (METHOD.equals(nextElement.getName())) {
                     readMethod(reader, classNode, nextElement, fileName);
-                }
-                else if (METRIC.equals(nextElement.getName())) {
+                } else if (METRIC.equals(nextElement.getName())) {
                     readValueCounter(classNode, nextElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (CLASS.equals(endElement.getName())) {
                     return classNode;
@@ -159,12 +155,14 @@ public class MetricsParser extends CoverageParser {
     }
 
     @CanIgnoreReturnValue
-    private Node readSourceFile(final XMLEventReader reader, final PackageNode packageNode,
-            final StartElement startElement, final String fileName)
+    private Node readSourceFile(
+            final XMLEventReader reader,
+            final PackageNode packageNode,
+            final StartElement startElement,
+            final String fileName)
             throws XMLStreamException {
         var sourceFileName = getSourceFileName(startElement);
-        var fileNode = packageNode.findOrCreateFileNode(sourceFileName,
-                internPath(getValueOf(startElement, NAME)));
+        var fileNode = packageNode.findOrCreateFileNode(sourceFileName, internPath(getValueOf(startElement, NAME)));
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();
@@ -173,12 +171,10 @@ public class MetricsParser extends CoverageParser {
                 var nextElement = event.asStartElement();
                 if (CLASS.equals(nextElement.getName())) {
                     readClass(reader, fileNode, nextElement, fileName, packageNode);
-                }
-                else if (METRIC.equals(nextElement.getName())) {
+                } else if (METRIC.equals(nextElement.getName())) {
                     readValueCounter(fileNode, nextElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (FILE.equals(endElement.getName())) {
                     return fileNode;
@@ -192,15 +188,18 @@ public class MetricsParser extends CoverageParser {
         var sourceFilePath = Path.of(getValueOf(startSourceFileElement, NAME)).getFileName();
         if (sourceFilePath == null) {
             return getValueOf(startSourceFileElement, NAME);
-        }
-        else {
+        } else {
             return sourceFilePath.toString();
         }
     }
 
     @CanIgnoreReturnValue
-    private Node readMethod(final XMLEventReader reader, final ClassNode classNode,
-            final StartElement startElement, final String fileName) throws XMLStreamException {
+    private Node readMethod(
+            final XMLEventReader reader,
+            final ClassNode classNode,
+            final StartElement startElement,
+            final String fileName)
+            throws XMLStreamException {
         var methodName = getValueOf(startElement, NAME) + "#" + getValueOf(startElement, BEGIN_LINE);
 
         var methodNode = createMethod(startElement, methodName);
@@ -214,8 +213,7 @@ public class MetricsParser extends CoverageParser {
                 if (METRIC.equals(nextElement.getName())) {
                     readValueCounter(methodNode, nextElement);
                 }
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var endElement = event.asEndElement();
                 if (METHOD.equals(endElement.getName())) {
                     return methodNode;

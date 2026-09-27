@@ -15,8 +15,7 @@ public final class ContainerNode extends Node {
     /**
      * Creates a new {@link ContainerNode} with the given name.
      *
-     * @param name
-     *         the name of the node
+     * @param name the name of the node
      */
     public ContainerNode(final String name) {
         super(Metric.CONTAINER, name);

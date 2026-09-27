@@ -1,17 +1,13 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
-/**
- * A {@link Node} for a specific class.
- */
+/** A {@link Node} for a specific class. */
 public final class ClassNode extends Node {
     @Serial
     private static final long serialVersionUID = 1621410859864978552L;
@@ -22,8 +18,7 @@ public final class ClassNode extends Node {
     /**
      * Creates a new {@link ClassNode} with the given name.
      *
-     * @param name
-     *         the name of the class
+     * @param name the name of the class
      */
     public ClassNode(final String name) {
         super(Metric.CLASS, PackageNode.normalizePackageName(name));
@@ -74,8 +69,7 @@ public final class ClassNode extends Node {
     /**
      * Adds a new test case to this class.
      *
-     * @param testCase
-     *         the test case to add
+     * @param testCase the test case to add
      */
     public void addTestCase(final TestCase testCase) {
         addTestCases(List.of(testCase));
@@ -84,8 +78,7 @@ public final class ClassNode extends Node {
     /**
      * Adds all given test cases to this class.
      *
-     * @param additionalTestCases
-     *         the test cases to add
+     * @param additionalTestCases the test cases to add
      */
     public void addTestCases(final Collection<TestCase> additionalTestCases) {
         this.testCases.addAll(additionalTestCases);

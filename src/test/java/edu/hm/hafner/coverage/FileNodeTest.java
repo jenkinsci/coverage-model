@@ -1,18 +1,16 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
-import org.junitpioneer.jupiter.Issue;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.TreeString;
-
 import java.io.IOException;
 import java.util.NavigableMap;
 import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.Issue;
 
 class FileNodeTest extends AbstractNodeTest {
     @Override
@@ -114,12 +112,15 @@ class FileNodeTest extends AbstractNodeTest {
         var builder = new Coverage.CoverageBuilder();
 
         var fileA = new FileNode("FileA.java", ".");
-        var fileALineCoverage = builder.withMetric(Metric.LINE).withCovered(10).withMissed(10).build();
+        var fileALineCoverage =
+                builder.withMetric(Metric.LINE).withCovered(10).withMissed(10).build();
         fileA.addValue(fileALineCoverage);
 
         var fileB = new FileNode("FileB.java", ".");
-        var fileBLineCoverage = builder.withMetric(Metric.LINE).withCovered(20).withMissed(0).build();
-        var fileABranchCoverage = builder.withMetric(Metric.BRANCH).withCovered(10).withMissed(5).build();
+        var fileBLineCoverage =
+                builder.withMetric(Metric.LINE).withCovered(20).withMissed(0).build();
+        var fileABranchCoverage =
+                builder.withMetric(Metric.BRANCH).withCovered(10).withMissed(5).build();
         fileB.addValue(fileBLineCoverage);
         fileB.addValue(fileABranchCoverage);
 
@@ -139,10 +140,7 @@ class FileNodeTest extends AbstractNodeTest {
 
         NavigableMap<Integer, Integer> counters = fileA.getCounters();
 
-        assertThat(counters)
-                .containsKeys(10, 15, 28)
-                .containsValues(2, 3, 0)
-                .hasSize(3);
+        assertThat(counters).containsKeys(10, 15, 28).containsValues(2, 3, 0).hasSize(3);
         assertThat(fileA).hasLinesWithCoverage(10, 15, 28);
         assertThat(fileA.hasCoverageForLine(20)).isFalse();
     }
@@ -156,17 +154,15 @@ class FileNodeTest extends AbstractNodeTest {
         var right = new FileNode("File.java", ".");
         right.addCounters(79, 0, 4);
 
-        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
-                file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
-                });
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class, file -> {
+            assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+            assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+        });
 
-        assertThat((FileNode) right.merge(left)).isInstanceOfSatisfying(FileNode.class,
-                file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(4);
-                });
+        assertThat((FileNode) right.merge(left)).isInstanceOfSatisfying(FileNode.class, file -> {
+            assertThat(file.getCoveredOfLine(79)).isEqualTo(0);
+            assertThat(file.getMissedOfLine(79)).isEqualTo(4);
+        });
     }
 
     @Test
@@ -178,17 +174,15 @@ class FileNodeTest extends AbstractNodeTest {
         var right = new FileNode("File.java", ".");
         right.addCounters(79, 1, 3);
 
-        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class,
-                file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
-                });
+        assertThat(left.merge(right)).isInstanceOfSatisfying(FileNode.class, file -> {
+            assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+            assertThat(file.getMissedOfLine(79)).isEqualTo(3);
+        });
 
-        assertThat(right.merge(left)).isInstanceOfSatisfying(FileNode.class,
-                file -> {
-                    assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
-                    assertThat(file.getMissedOfLine(79)).isEqualTo(3);
-                });
+        assertThat(right.merge(left)).isInstanceOfSatisfying(FileNode.class, file -> {
+            assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
+            assertThat(file.getMissedOfLine(79)).isEqualTo(3);
+        });
     }
 
     @Test
@@ -213,9 +207,7 @@ class FileNodeTest extends AbstractNodeTest {
         fileNode.addCounters(3, 0, 1);
         fileNode.addCounters(4, 4, 3);
 
-        assertThat(fileNode.getPartiallyCoveredLines())
-                .containsOnlyKeys(1, 4)
-                .containsValues(1, 3);
+        assertThat(fileNode.getPartiallyCoveredLines()).containsOnlyKeys(1, 4).containsValues(1, 3);
     }
 
     @Test
@@ -274,25 +266,26 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addIndirectCoverageChange(1, 2);
 
         var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredBranchCoverage =
+                branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineAndBranchCoverage =
+                lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
-        assertThat(filteredLineCoverage)
-                .hasOnlyValueMetrics(Metric.LINE);
+        assertThat(filteredLineCoverage).hasOnlyValueMetrics(Metric.LINE);
         assertThat((Coverage) filteredLineCoverage.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(1)
                 .hasMissed(0);
-        assertThat(filteredBranchCoverage)
-                .hasOnlyValueMetrics(Metric.BRANCH);
+        assertThat(filteredBranchCoverage).hasOnlyValueMetrics(Metric.BRANCH);
         assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(3)
                 .hasMissed(0);
-        assertThat(filteredLineAndBranchCoverage)
-                .hasOnlyValueMetrics(Metric.LINE, Metric.BRANCH);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.LINE).orElseThrow())
+        assertThat(filteredLineAndBranchCoverage).hasOnlyValueMetrics(Metric.LINE, Metric.BRANCH);
+        assertThat((Coverage)
+                        filteredLineAndBranchCoverage.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(1)
                 .hasMissed(0);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
+        assertThat((Coverage)
+                        filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(2)
                 .hasMissed(0);
     }
@@ -312,19 +305,19 @@ class FileNodeTest extends AbstractNodeTest {
         lineAndBranchCoverage.addIndirectCoverageChange(1, -2);
 
         var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredBranchCoverage = branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredLineAndBranchCoverage = lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredBranchCoverage =
+                branchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineAndBranchCoverage =
+                lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
 
-        assertThat(filteredLineCoverage)
-                .hasNoValueMetrics();
-        assertThat(filteredBranchCoverage)
-                .hasOnlyValueMetrics(Metric.BRANCH);
+        assertThat(filteredLineCoverage).hasNoValueMetrics();
+        assertThat(filteredBranchCoverage).hasOnlyValueMetrics(Metric.BRANCH);
         assertThat((Coverage) filteredBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(0)
                 .hasMissed(3);
-        assertThat(filteredLineAndBranchCoverage)
-                .hasOnlyValueMetrics(Metric.BRANCH);
-        assertThat((Coverage) filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
+        assertThat(filteredLineAndBranchCoverage).hasOnlyValueMetrics(Metric.BRANCH);
+        assertThat((Coverage)
+                        filteredLineAndBranchCoverage.getValue(Metric.BRANCH).orElseThrow())
                 .hasCovered(0)
                 .hasMissed(2);
     }
@@ -340,8 +333,7 @@ class FileNodeTest extends AbstractNodeTest {
 
         var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
 
-        assertThat(filteredFileNode)
-                .hasNoValueMetrics();
+        assertThat(filteredFileNode).hasNoValueMetrics();
     }
 
     @Test
@@ -354,8 +346,7 @@ class FileNodeTest extends AbstractNodeTest {
 
         var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
 
-        assertThat(filteredFileNode)
-                .hasNoValueMetrics();
+        assertThat(filteredFileNode).hasNoValueMetrics();
     }
 
     @Test
@@ -373,17 +364,14 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2, 3));
 
         fileNode.addCounters(5, 0, 1); // belongs to the same range
-        assertThat(fileNode.getMissedLineRanges())
-                .containsExactly(new LineRange(2, 5));
+        assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2, 5));
 
         fileNode.addCounters(6, 1, 1);
         fileNode.addCounters(7, 0, 1); // now a new range
-        assertThat(fileNode.getMissedLineRanges())
-                .containsExactly(new LineRange(2, 5), new LineRange(7));
+        assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2, 5), new LineRange(7));
 
         fileNode.addCounters(8, 1, 1);
-        assertThat(fileNode.getMissedLineRanges())
-                .containsExactly(new LineRange(2, 5), new LineRange(7));
+        assertThat(fileNode.getMissedLineRanges()).containsExactly(new LineRange(2, 5), new LineRange(7));
     }
 
     public static void main(final String... args) throws IOException {

@@ -1,12 +1,5 @@
 package edu.hm.hafner.coverage.parser;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-
-import org.apache.commons.lang3.StringUtils;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.FileNode;
@@ -17,12 +10,16 @@ import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
-
 import java.io.Reader;
 import java.io.Serial;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.StartElement;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Parses reports created by PITest into a Java object model.
@@ -47,9 +44,7 @@ public class PitestParser extends CoverageParser {
     private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
-    /**
-     * Creates a new instance of {@link PitestParser}.
-     */
+    /** Creates a new instance of {@link PitestParser}. */
     public PitestParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -57,8 +52,7 @@ public class PitestParser extends CoverageParser {
     /**
      * Creates a new instance of {@link PitestParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public PitestParser(final ProcessingMode processingMode) {
         super(processingMode);
@@ -75,7 +69,8 @@ public class PitestParser extends CoverageParser {
             while (eventReader.hasNext()) {
                 var event = eventReader.nextEvent();
 
-                if (event.isStartElement() && MUTATION.equals(event.asStartElement().getName())) {
+                if (event.isStartElement()
+                        && MUTATION.equals(event.asStartElement().getName())) {
                     readMutation(eventReader, root, event.asStartElement());
                     isEmpty = false;
                 }
@@ -83,8 +78,7 @@ public class PitestParser extends CoverageParser {
             handleEmptyResults(fileName, log, isEmpty);
             root.getAllFileNodes().forEach(this::collectLineCoverage);
             return root;
-        }
-        catch (XMLStreamException exception) {
+        } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
         }
     }
@@ -101,12 +95,12 @@ public class PitestParser extends CoverageParser {
         collectLines(fileNode, Mutation::isMissed).forEach(line -> lineMapping.put(line, uncoveredLine));
         var missed = lineMapping.size() - covered;
 
-        lineMapping.forEach((line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
+        lineMapping.forEach(
+                (line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
         fileNode.addValue(builder.withCovered(covered).withMissed(missed).build());
     }
 
-    private static Set<Integer> collectLines(final FileNode fileNode,
-            final Predicate<Mutation> filterPredicate) {
+    private static Set<Integer> collectLines(final FileNode fileNode, final Predicate<Mutation> filterPredicate) {
         return fileNode.getMutations().stream()
                 .filter(filterPredicate)
                 .map(Mutation::getLine)
@@ -125,8 +119,7 @@ public class PitestParser extends CoverageParser {
 
             if (event.isStartElement()) {
                 readProperty(reader, builder);
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 builder.buildAndAddToModule(root, getTreeStringBuilder());
                 return;
             }
@@ -134,43 +127,33 @@ public class PitestParser extends CoverageParser {
     }
 
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"}) // There are a lot of properties to read
-    private void readProperty(final XMLEventReader reader, final MutationBuilder builder)
-            throws XMLStreamException {
+    private void readProperty(final XMLEventReader reader, final MutationBuilder builder) throws XMLStreamException {
         var aggregatedContent = new StringBuilder();
 
         while (true) {
             var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
-            }
-            else if (event.isStartElement()) {
+            } else if (event.isStartElement()) {
                 readProperty(reader, builder); // sometimes properties are wrapped by another container element
-            }
-            else if (event.isEndElement()) {
+            } else if (event.isEndElement()) {
                 var content = StringUtils.defaultString(StringUtils.strip(aggregatedContent.toString()));
                 var name = event.asEndElement().getName();
                 if (name.equals(MUTATOR)) {
                     builder.withMutator(content);
-                }
-                else if (name.equals(KILLING_TEST)) {
+                } else if (name.equals(KILLING_TEST)) {
                     builder.withKillingTest(content);
-                }
-                else if (name.equals(DESCRIPTION)) {
+                } else if (name.equals(DESCRIPTION)) {
                     builder.withDescription(content);
-                }
-                else if (name.equals(SOURCE_FILE)) {
+                } else if (name.equals(SOURCE_FILE)) {
                     builder.withSourceFile(content);
-                }
-                else if (name.equals(MUTATED_CLASS)) {
+                } else if (name.equals(MUTATED_CLASS)) {
                     builder.withMutatedClass(content);
-                }
-                else if (name.equals(MUTATED_METHOD)) {
+                } else if (name.equals(MUTATED_METHOD)) {
                     builder.withMutatedMethod(content);
-                }
-                else if (name.equals(MUTATED_METHOD_SIGNATURE)) {
+                } else if (name.equals(MUTATED_METHOD_SIGNATURE)) {
                     builder.withMutatedMethodSignature(content);
-                }
-                else if (name.equals(LINE_NUMBER)) {
+                } else if (name.equals(LINE_NUMBER)) {
                     builder.withLine(content);
                 }
                 return;

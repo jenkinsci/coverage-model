@@ -1,11 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.math.Fraction;
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.apache.commons.lang3.math.Fraction;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the class {@link FractionValue}.

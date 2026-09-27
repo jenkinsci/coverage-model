@@ -1,16 +1,14 @@
 package edu.hm.hafner.coverage.parser;
 
+import edu.hm.hafner.coverage.ModuleNode;
+import edu.hm.hafner.coverage.TestCase;
+import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+import java.io.Serial;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-
-import edu.hm.hafner.coverage.ModuleNode;
-import edu.hm.hafner.coverage.TestCase;
-import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
-
-import java.io.Serial;
 
 /**
  * Parses reports in the JUnit format into a Java object model.
@@ -28,9 +26,7 @@ public class JunitParser extends AbstractTestParser {
     private static final QName ERROR = new QName("error");
     private static final QName SKIPPED = new QName("skipped");
 
-    /**
-     * Creates a new instance of {@link JunitParser}.
-     */
+    /** Creates a new instance of {@link JunitParser}. */
     public JunitParser() {
         this(ProcessingMode.FAIL_FAST);
     }
@@ -38,16 +34,20 @@ public class JunitParser extends AbstractTestParser {
     /**
      * Creates a new instance of {@link JunitParser}.
      *
-     * @param processingMode
-     *         determines whether to ignore errors
+     * @param processingMode determines whether to ignore errors
      */
     public JunitParser(final ProcessingMode processingMode) {
         super(processingMode, TEST_SUITE, TEST_CASE);
     }
 
     @Override
-    TestCase readTestCase(final XMLEventReader reader, final StartElement testCaseElement,
-            final String suiteName, final ModuleNode root, final String fileName) throws XMLStreamException {
+    TestCase readTestCase(
+            final XMLEventReader reader,
+            final StartElement testCaseElement,
+            final String suiteName,
+            final ModuleNode root,
+            final String fileName)
+            throws XMLStreamException {
         var builder = new TestCaseBuilder();
 
         builder.withTestName(getOptionalValueOf(testCaseElement, NAME).orElse(createId()));
@@ -57,11 +57,11 @@ public class JunitParser extends AbstractTestParser {
 
             if (event.isStartElement() && isFailure(event)) {
                 readFailure(reader, event.asStartElement(), builder);
-            }
-            else if (event.isStartElement() && SKIPPED.equals(event.asStartElement().getName())) {
+            } else if (event.isStartElement()
+                    && SKIPPED.equals(event.asStartElement().getName())) {
                 builder.withStatus(TestCase.TestResult.SKIPPED);
-            }
-            else if (event.isEndElement() && TEST_CASE.equals(event.asEndElement().getName())) {
+            } else if (event.isEndElement()
+                    && TEST_CASE.equals(event.asEndElement().getName())) {
                 var className = getOptionalValueOf(testCaseElement, CLASS_NAME).orElse(suiteName);
                 builder.withClassName(className);
                 var packageName = createPackageForClass(className);
@@ -88,8 +88,8 @@ public class JunitParser extends AbstractTestParser {
         return "-";
     }
 
-    private void readFailure(final XMLEventReader reader, final StartElement startElement,
-            final TestCaseBuilder builder)
+    private void readFailure(
+            final XMLEventReader reader, final StartElement startElement, final TestCaseBuilder builder)
             throws XMLStreamException {
         builder.withFailure();
 
@@ -102,8 +102,7 @@ public class JunitParser extends AbstractTestParser {
             var event = reader.nextEvent();
             if (event.isCharacters()) {
                 aggregatedContent.append(event.asCharacters().getData());
-            }
-            else if (event.isEndElement() && isFailure(event)) {
+            } else if (event.isEndElement() && isFailure(event)) {
                 builder.withDescription(aggregatedContent.toString());
                 return;
             }

@@ -1,15 +1,12 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.util.TreeStringBuilder;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a mutation of the PIT Mutation Testing tool.
@@ -31,9 +28,16 @@ public final class Mutation implements Serializable {
     private final String description;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    private Mutation(final boolean detected, final MutationStatus status, final int line, final String mutator,
-            final String killingTest, final String mutatedClass,
-            final String method, final String signature, final String description) {
+    private Mutation(
+            final boolean detected,
+            final MutationStatus status,
+            final int line,
+            final String mutator,
+            final String killingTest,
+            final String mutatedClass,
+            final String method,
+            final String signature,
+            final String description) {
         this.detected = detected;
         this.status = status;
         this.line = line;
@@ -145,13 +149,10 @@ public final class Mutation implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(detected, status, line, mutator, killingTest, mutatedClass, method, signature,
-                description);
+        return Objects.hash(detected, status, line, mutator, killingTest, mutatedClass, method, signature, description);
     }
 
-    /**
-     * Builder to create new {@link Mutation} instances.
-     */
+    /** Builder to create new {@link Mutation} instances. */
     @SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class MutationBuilder {
         private boolean isDetected;
@@ -245,10 +246,8 @@ public final class Mutation implements Serializable {
         /**
          * Builds a new mutation and adds it to the root of the tree.
          *
-         * @param root
-         *         the module root to add the mutations to
-         * @param treeStringBuilder
-         *         the tree string builder to create the file names
+         * @param root the module root to add the mutations to
+         * @param treeStringBuilder the tree string builder to create the file names
          */
         public void buildAndAddToModule(final ModuleNode root, final TreeStringBuilder treeStringBuilder) {
             var packageName = StringUtils.substringBeforeLast(mutatedClass, ".");
@@ -257,7 +256,8 @@ public final class Mutation implements Serializable {
             var fileNode = packageNode.findOrCreateFileNode(sourceFile, treeStringBuilder.intern(relativePath));
             var className = StringUtils.substringAfterLast(mutatedClass, ".");
             var classNode = fileNode.findOrCreateClassNode(className);
-            var methodNode = classNode.findMethod(mutatedMethod, mutatedMethodSignature)
+            var methodNode = classNode
+                    .findMethod(mutatedMethod, mutatedMethodSignature)
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 
             updateMetricForMethod(Metric.MUTATION, methodNode);
@@ -268,22 +268,28 @@ public final class Mutation implements Serializable {
         }
 
         private void updateMetricForMethod(final Metric metric, final MethodNode methodNode) {
-            var existingCoverage = methodNode.getValue(metric)
-                    .map(Coverage.class::cast)
-                    .orElse(Coverage.nullObject(metric));
+            var existingCoverage =
+                    methodNode.getValue(metric).map(Coverage.class::cast).orElse(Coverage.nullObject(metric));
             var builder = new CoverageBuilder(existingCoverage);
             if (isDetected) {
                 builder.incrementCovered();
-            }
-            else {
+            } else {
                 builder.incrementMissed();
             }
             methodNode.replaceValue(builder.build());
         }
 
         public Mutation build() {
-            return new Mutation(isDetected, status, line, mutator, killingTest,
-                    mutatedClass, mutatedMethod, mutatedMethodSignature, description);
+            return new Mutation(
+                    isDetected,
+                    status,
+                    line,
+                    mutator,
+                    killingTest,
+                    mutatedClass,
+                    mutatedMethod,
+                    mutatedMethodSignature,
+                    description);
         }
     }
 }

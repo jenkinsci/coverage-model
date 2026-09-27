@@ -1,10 +1,11 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
-
 import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.Metric.*;
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.coverage.Metric.MODULE;
+import static edu.hm.hafner.coverage.Metric.PACKAGE;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 class ModuleNodeTest extends AbstractNodeTest {
     @Override
@@ -58,11 +59,11 @@ class ModuleNodeTest extends AbstractNodeTest {
         root.addChild(new PackageNode("edu.hm.hafner"));
         assertThat(root.getAll(PACKAGE)).hasSize(1);
         root.splitPackages();
-        assertThat(root.getAll(PACKAGE)).hasSize(3).satisfiesExactly(
-                s -> assertThat(s).hasName("hafner"),
-                s -> assertThat(s).hasName("hm"),
-                s -> assertThat(s).hasName("edu")
-        );
+        assertThat(root.getAll(PACKAGE))
+                .hasSize(3)
+                .satisfiesExactly(
+                        s -> assertThat(s).hasName("hafner"), s -> assertThat(s).hasName("hm"), s -> assertThat(s)
+                                .hasName("edu"));
     }
 
     @Test

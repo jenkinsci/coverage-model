@@ -1,22 +1,17 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
-
-import edu.hm.hafner.util.TreeStringBuilder;
-
-import nl.jqno.equalsverifier.EqualsVerifier;
-
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
+import edu.hm.hafner.util.TreeStringBuilder;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.jupiter.api.Test;
+
 /**
- * Additional test-cases for interacting with objects of
- * class {@link Mutation} and its attributes.
- * These might also be tested by adding additional asserts
- * in the tests for the {@link Node} class --> {@link NodeTest}.
+ * Additional test-cases for interacting with objects of class {@link Mutation} and its attributes. These might also be
+ * tested by adding additional asserts in the tests for the {@link Node} class --> {@link NodeTest}.
  */
 class MutationTest {
-    private Mutation createDummyMutation(final String identifier, final boolean detected,
-                                         final MutationStatus status) {
+    private Mutation createDummyMutation(final String identifier, final boolean detected, final MutationStatus status) {
         return new Mutation.MutationBuilder()
                 .withMutatedClass("Class%s.class".formatted(identifier))
                 .withSourceFile("Class%s.java".formatted(identifier))
@@ -73,10 +68,8 @@ class MutationTest {
                 .hasDescription("DescriptionC")
                 .isNotValid()
                 .isNotKilled();
-        assertThat(mutationA.getStatus())
-                .isNotDetected();
-        assertThat(mutationB.getStatus())
-                .isDetected();
+        assertThat(mutationA.getStatus()).isNotDetected();
+        assertThat(mutationB.getStatus()).isDetected();
     }
 
     @Test
@@ -96,8 +89,7 @@ class MutationTest {
 
         mutationBuilder.buildAndAddToModule(moduleNode, new TreeStringBuilder());
 
-        assertThat(moduleNode.getAllFileNodes())
-                .hasSize(1);
+        assertThat(moduleNode.getAllFileNodes()).hasSize(1);
         assertThat(moduleNode.getAllFileNodes().getFirst())
                 .hasName("Class.java")
                 .hasMutations(mutationBuilder.build());

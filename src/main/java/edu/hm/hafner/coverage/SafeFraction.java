@@ -1,8 +1,8 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.math.Fraction;
+import static edu.hm.hafner.coverage.Percentage.TOTALS_ZERO_MESSAGE;
 
-import static edu.hm.hafner.coverage.Percentage.*;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * A small wrapper for {@link Fraction} instances that avoids an arithmetic overflow by using double based operations in
@@ -16,8 +16,7 @@ public class SafeFraction {
     /**
      * Creates a new fraction instance that wraps the specified fraction with safe operations.
      *
-     * @param fraction
-     *         the fraction to wrap
+     * @param fraction the fraction to wrap
      */
     public SafeFraction(final Fraction fraction) {
         this.fraction = fraction;
@@ -26,10 +25,8 @@ public class SafeFraction {
     /**
      * Creates a new fraction instance that wraps the specified fraction with safe operations.
      *
-     * @param numerator
-     *         the numerator of the fraction
-     * @param denominator
-     *         the denominator of the fraction
+     * @param numerator the numerator of the fraction
+     * @param denominator the denominator of the fraction
      */
     public SafeFraction(final int numerator, final int denominator) {
         if (denominator == 0) {
@@ -43,49 +40,40 @@ public class SafeFraction {
      * arithmetic exception due to an overflow, this method will handle this situation by calculating the multiplication
      * based on the double values of the fractions.
      *
-     * @param multiplier
-     *         the fraction to multiply by
-     *
+     * @param multiplier the fraction to multiply by
      * @return a {@code Fraction} instance with the resulting values
      */
     public Fraction multiplyBy(final Fraction multiplier) {
         try {
             return fraction.multiplyBy(multiplier);
-        }
-        catch (ArithmeticException exception) {
+        } catch (ArithmeticException exception) {
             return Fraction.getFraction(fraction.doubleValue() * multiplier.doubleValue());
         }
     }
 
     /**
-     * Subtracts the value of another fraction from the value of this one, returning the result in reduced form.  Since
+     * Subtracts the value of another fraction from the value of this one, returning the result in reduced form. Since
      * there might be an arithmetic exception due to an overflow, this method will handle this situation by calculating
      * the subtraction based on the double values of the fractions.
      *
-     * @param subtrahend
-     *         the fraction to subtract
-     *
+     * @param subtrahend the fraction to subtract
      * @return a {@code Fraction} instance with the resulting values
      */
     public Fraction subtract(final Fraction subtrahend) {
         try {
             return fraction.subtract(subtrahend);
-        }
-        catch (ArithmeticException exception) {
+        } catch (ArithmeticException exception) {
             return Fraction.getFraction(fraction.doubleValue() - subtrahend.doubleValue());
         }
     }
 
     /**
-     * Subtracts the value of another fraction from the value of this one, returning the result in reduced form.  Since
+     * Subtracts the value of another fraction from the value of this one, returning the result in reduced form. Since
      * there might be an arithmetic exception due to an overflow, this method will handle this situation by calculating
      * the subtraction based on the double values of the fractions.
      *
-     * @param numerator
-     *         the numerator of the fraction
-     * @param denominator
-     *         the denominator of the fraction
-     *
+     * @param numerator the numerator of the fraction
+     * @param denominator the denominator of the fraction
      * @return a {@code Fraction} instance with the resulting values
      */
     public Fraction subtract(final int numerator, final int denominator) {
@@ -97,20 +85,17 @@ public class SafeFraction {
     }
 
     /**
-     * Adds the value of another fraction to the value of this one, returning the result in reduced form.  Since
-     * there might be an arithmetic exception due to an overflow, this method will handle this situation by calculating
-     * the addition based on the double values of the fractions.
+     * Adds the value of another fraction to the value of this one, returning the result in reduced form. Since there
+     * might be an arithmetic exception due to an overflow, this method will handle this situation by calculating the
+     * addition based on the double values of the fractions.
      *
-     * @param summand
-     *         the fraction to add
-     *
+     * @param summand the fraction to add
      * @return a {@code Fraction} instance with the resulting values
      */
     public Fraction add(final Fraction summand) {
         try {
             return fraction.add(summand);
-        }
-        catch (ArithmeticException exception) {
+        } catch (ArithmeticException exception) {
             return Fraction.getFraction(fraction.doubleValue() + summand.doubleValue());
         }
     }

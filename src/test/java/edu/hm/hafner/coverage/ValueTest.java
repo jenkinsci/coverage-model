@@ -1,5 +1,14 @@
 package edu.hm.hafner.coverage;
 
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Locale;
+import java.util.NoSuchElementException;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.apache.commons.lang3.math.Fraction;
 import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.DisplayName;
@@ -7,22 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import nl.jqno.equalsverifier.EqualsVerifier;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
-
 class ValueTest {
     @Test
     void shouldProvideNullObject() {
         var zero = Value.nullObject(Metric.LOC);
 
-        assertThat(zero)
-                .hasMetric(Metric.LOC)
-                .hasFraction(Fraction.ZERO);
+        assertThat(zero).hasMetric(Metric.LOC).hasFraction(Fraction.ZERO);
 
         assertThat(zero.add(zero)).isEqualTo(zero);
         assertThat(zero.subtract(zero)).isEqualTo(Difference.nullObject(Metric.LOC));
@@ -135,31 +134,21 @@ class ValueTest {
     void shouldReturnCorrectValueOfCoverage() {
         var container = Value.valueOf("CONTAINER: 1/1");
 
-        assertThat(container)
-                .isInstanceOfSatisfying(Coverage.class, coverage -> {
-                    assertThat(coverage.getMetric()).isEqualTo(Metric.CONTAINER);
-                    assertThat(coverage.getCovered()).isOne();
-                    assertThat(coverage.getMissed()).isZero();
-                });
+        assertThat(container).isInstanceOfSatisfying(Coverage.class, coverage -> {
+            assertThat(coverage.getMetric()).isEqualTo(Metric.CONTAINER);
+            assertThat(coverage.getCovered()).isOne();
+            assertThat(coverage.getMissed()).isZero();
+        });
 
-        assertThat(Value.valueOf("MODULE: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("PACKAGE: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("FILE: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("CLASS: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("METHOD: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("LINE: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("INSTRUCTION: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("BRANCH: 1/1"))
-                .isInstanceOf(Coverage.class);
-        assertThat(Value.valueOf("MUTATION: 1/1"))
-                .isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("MODULE: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("PACKAGE: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("FILE: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("CLASS: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("METHOD: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("LINE: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("INSTRUCTION: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("BRANCH: 1/1")).isInstanceOf(Coverage.class);
+        assertThat(Value.valueOf("MUTATION: 1/1")).isInstanceOf(Coverage.class);
     }
 
     @Test
@@ -217,7 +206,8 @@ class ValueTest {
         var coverage = Coverage.nullObject(Metric.LOC);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> assertThat(linesOfCode.add(complexity)).isNotNull()) // assertion required for SpotBugs
+                .isThrownBy(
+                        () -> assertThat(linesOfCode.add(complexity)).isNotNull()) // assertion required for SpotBugs
                 .withMessageContaining("Cannot calculate with different metrics");
 
         assertThatIllegalArgumentException()
@@ -235,29 +225,18 @@ class ValueTest {
 
         var values = List.of(linesOfCode, cyclomaticComplexity, ncss, npathComplexity, cognitiveComplexity);
 
-        assertThat(Value.getValue(Metric.LOC, values))
-                .isEqualTo(linesOfCode);
-        assertThat(Value.findValue(Metric.LOC, values))
-                .contains(linesOfCode);
-        assertThat(Value.getValue(Metric.CYCLOMATIC_COMPLEXITY, values))
-                .isEqualTo(cyclomaticComplexity);
-        assertThat(Value.findValue(Metric.CYCLOMATIC_COMPLEXITY, values))
-                .contains(cyclomaticComplexity);
-        assertThat(Value.getValue(Metric.NCSS, values))
-                .isEqualTo(ncss);
-        assertThat(Value.findValue(Metric.NCSS, values))
-                .contains(ncss);
-        assertThat(Value.getValue(Metric.NPATH_COMPLEXITY, values))
-                .isEqualTo(npathComplexity);
-        assertThat(Value.findValue(Metric.NPATH_COMPLEXITY, values))
-                .contains(npathComplexity);
-        assertThat(Value.getValue(Metric.COGNITIVE_COMPLEXITY, values))
-                .isEqualTo(cognitiveComplexity);
-        assertThat(Value.findValue(Metric.COGNITIVE_COMPLEXITY, values))
-                .contains(cognitiveComplexity);
+        assertThat(Value.getValue(Metric.LOC, values)).isEqualTo(linesOfCode);
+        assertThat(Value.findValue(Metric.LOC, values)).contains(linesOfCode);
+        assertThat(Value.getValue(Metric.CYCLOMATIC_COMPLEXITY, values)).isEqualTo(cyclomaticComplexity);
+        assertThat(Value.findValue(Metric.CYCLOMATIC_COMPLEXITY, values)).contains(cyclomaticComplexity);
+        assertThat(Value.getValue(Metric.NCSS, values)).isEqualTo(ncss);
+        assertThat(Value.findValue(Metric.NCSS, values)).contains(ncss);
+        assertThat(Value.getValue(Metric.NPATH_COMPLEXITY, values)).isEqualTo(npathComplexity);
+        assertThat(Value.findValue(Metric.NPATH_COMPLEXITY, values)).contains(npathComplexity);
+        assertThat(Value.getValue(Metric.COGNITIVE_COMPLEXITY, values)).isEqualTo(cognitiveComplexity);
+        assertThat(Value.findValue(Metric.COGNITIVE_COMPLEXITY, values)).contains(cognitiveComplexity);
 
-        assertThat(Value.findValue(Metric.LINE, values))
-                .isEmpty();
+        assertThat(Value.findValue(Metric.LINE, values)).isEmpty();
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(() -> Value.getValue(Metric.LINE, values))
                 .withMessageContaining("No value for metric");
@@ -333,8 +312,7 @@ class ValueTest {
         var value = new Value(Metric.CYCLOMATIC_COMPLEXITY, 7);
         var result = value.divide(2);
 
-        assertThat(result).hasMetric(Metric.CYCLOMATIC_COMPLEXITY)
-                .hasFraction(Fraction.getFraction(7, 2));
+        assertThat(result).hasMetric(Metric.CYCLOMATIC_COMPLEXITY).hasFraction(Fraction.getFraction(7, 2));
     }
 
     @Test

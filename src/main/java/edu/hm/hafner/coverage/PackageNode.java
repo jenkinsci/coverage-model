@@ -1,10 +1,8 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-
 import java.io.Serial;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A {@link Node} for a specific package. It converts a package structure to a corresponding path structure.
@@ -19,16 +17,13 @@ public final class PackageNode extends Node {
      * Replace slashes and backslashes with a dot so that package names use the typical format of packages or
      * namespaces.
      *
-     * @param name
-     *         the package name to normalize
-     *
+     * @param name the package name to normalize
      * @return the normalized name or "-" if the name is empty or {@code null}
      */
     public static String normalizePackageName(@CheckForNull final String name) {
         if (StringUtils.isNotBlank(name)) {
-            return StringUtils.replaceEach(name, new String[]{"/", "\\"}, new String[]{".", "."});
-        }
-        else {
+            return StringUtils.replaceEach(name, new String[] {"/", "\\"}, new String[] {".", "."});
+        } else {
             return EMPTY_NAME;
         }
     }
@@ -36,8 +31,7 @@ public final class PackageNode extends Node {
     /**
      * Creates a new coverage item node with the given name.
      *
-     * @param name
-     *         the human-readable name of the node, see {@link #normalizePackageName(String)}
+     * @param name the human-readable name of the node, see {@link #normalizePackageName(String)}
      */
     public PackageNode(@CheckForNull final String name) {
         super(Metric.PACKAGE, normalizePackageName(name));

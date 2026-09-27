@@ -1,10 +1,10 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Locale;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class DifferenceTest {
     @Test

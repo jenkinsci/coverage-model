@@ -1,14 +1,13 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.math.Fraction;
-
 import java.io.Serial;
 import java.util.Locale;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
- * A leaf in the tree that represents a delta of two {@link Value} instances. Such values are used to show the
- * delta (i.e., the difference) of two other values. The delta uses a slightly different textual representation than the
- * plain value: positive values are prefixed with a plus sign, zero is also handled differently.
+ * A leaf in the tree that represents a delta of two {@link Value} instances. Such values are used to show the delta
+ * (i.e., the difference) of two other values. The delta uses a slightly different textual representation than the plain
+ * value: positive values are prefixed with a plus sign, zero is also handled differently.
  *
  * @author Ullrich Hafner
  */
@@ -21,9 +20,7 @@ public class Difference extends Value {
     /**
      * Returns a {@code null} object that indicates that no value has been recorded.
      *
-     * @param metric
-     *         the coverage metric
-     *
+     * @param metric the coverage metric
      * @return the {@code null} object
      */
     public static Difference nullObject(final Metric metric) {
@@ -32,17 +29,14 @@ public class Difference extends Value {
 
     /**
      * Creates a new {@link Difference} instance from the provided string representation. The string representation is
-     * expected to start with the metric, written in all caps characters and followed by a colon.
-     * Then the {@link Difference} specific serialization is following. Whitespace characters will be ignored.
+     * expected to start with the metric, written in all caps characters and followed by a colon. Then the
+     * {@link Difference} specific serialization is following. Whitespace characters will be ignored.
      *
-     * <p>Examples: LINE: Δ10/100, BRANCH: Δ0/5, LOC: Δ160</p>
+     * <p>Examples: LINE: Δ10/100, BRANCH: Δ0/5, LOC: Δ160
      *
-     * @param stringRepresentation
-     *         string representation to convert from
-     *
+     * @param stringRepresentation string representation to convert from
      * @return the created difference
-     * @throws IllegalArgumentException
-     *         if the string is not a valid cov instance
+     * @throws IllegalArgumentException if the string is not a valid cov instance
      */
     public static Difference valueOf(final String stringRepresentation) {
         var value = Value.valueOf(stringRepresentation);
@@ -50,16 +44,15 @@ public class Difference extends Value {
         if (value instanceof Difference delta) {
             return delta;
         }
-        throw new IllegalArgumentException("Cannot convert '%s' to a valid Difference instance.".formatted(stringRepresentation));
+        throw new IllegalArgumentException(
+                "Cannot convert '%s' to a valid Difference instance.".formatted(stringRepresentation));
     }
 
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value to store
+     * @param metric the coverage metric
+     * @param value the value to store
      */
     public Difference(final Metric metric, final Fraction value) {
         super(metric, value);
@@ -68,10 +61,8 @@ public class Difference extends Value {
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value to store
+     * @param metric the coverage metric
+     * @param value the value to store
      */
     public Difference(final Metric metric, final double value) {
         super(metric, value);
@@ -80,12 +71,9 @@ public class Difference extends Value {
     /**
      * Creates a new leaf with the given value (a fraction) for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param numerator
-     *         the numerator, i.e., the three in 'three sevenths'
-     * @param denominator
-     *         the denominator, i.ee, the seven in 'three sevenths'
+     * @param metric the coverage metric
+     * @param numerator the numerator, i.e., the three in 'three sevenths'
+     * @param denominator the denominator, i.ee, the seven in 'three sevenths'
      */
     public Difference(final Metric metric, final int numerator, final int denominator) {
         super(metric, numerator, denominator);
@@ -94,10 +82,8 @@ public class Difference extends Value {
     /**
      * Creates a new leaf with the given value for the specified metric.
      *
-     * @param metric
-     *         the coverage metric
-     * @param value
-     *         the value
+     * @param metric the coverage metric
+     * @param value the value
      */
     public Difference(final Metric metric, final int value) {
         super(metric, value);

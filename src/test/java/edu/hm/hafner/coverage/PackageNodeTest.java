@@ -1,9 +1,9 @@
 package edu.hm.hafner.coverage;
 
-import org.junit.jupiter.api.Test;
-
 import static edu.hm.hafner.coverage.Metric.*;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 class PackageNodeTest extends AbstractNodeTest {
     @Override
@@ -16,9 +16,7 @@ class PackageNodeTest extends AbstractNodeTest {
         return new PackageNode(name);
     }
 
-    /**
-     * TestCount the copy functionality with a child.
-     */
+    /** TestCount the copy functionality with a child. */
     @Test
     void shouldCopyEmpty() {
         var parentName = ".ui.home.model";
@@ -35,9 +33,7 @@ class PackageNodeTest extends AbstractNodeTest {
                 .isAggregation();
     }
 
-    /**
-     * TestCount the match functionality using a path hashcode.
-     */
+    /** TestCount the match functionality using a path hashcode. */
     @Test
     void shouldMatchPath() {
         var pkgName = "ui.home.model";
@@ -54,13 +50,11 @@ class PackageNodeTest extends AbstractNodeTest {
         root.addChild(new PackageNode("left"));
         root.addChild(new PackageNode("left.right"));
 
-        assertThat(root.getAll(PACKAGE)).extracting(Node::getName)
-                .containsExactlyInAnyOrder("left", "left.right");
+        assertThat(root.getAll(PACKAGE)).extracting(Node::getName).containsExactlyInAnyOrder("left", "left.right");
 
         root.splitPackages();
 
-        assertThat(root.getAll(PACKAGE)).extracting(Node::getName)
-                .containsExactlyInAnyOrder("left", "right");
+        assertThat(root.getAll(PACKAGE)).extracting(Node::getName).containsExactlyInAnyOrder("left", "right");
     }
 
     @Test
@@ -70,13 +64,11 @@ class PackageNodeTest extends AbstractNodeTest {
         root.addChild(new PackageNode("left.right"));
         root.addChild(new PackageNode("left"));
 
-        assertThat(root.getAll(PACKAGE)).extracting(Node::getName)
-                .containsExactlyInAnyOrder("left", "left.right");
+        assertThat(root.getAll(PACKAGE)).extracting(Node::getName).containsExactlyInAnyOrder("left", "left.right");
 
         root.splitPackages();
 
-        assertThat(root.getAll(PACKAGE)).extracting(Node::getName)
-                .containsExactlyInAnyOrder("left", "right");
+        assertThat(root.getAll(PACKAGE)).extracting(Node::getName).containsExactlyInAnyOrder("left", "right");
     }
 
     @Test

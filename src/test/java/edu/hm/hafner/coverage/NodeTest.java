@@ -1,25 +1,35 @@
 package edu.hm.hafner.coverage;
 
+import static edu.hm.hafner.coverage.Metric.BRANCH;
+import static edu.hm.hafner.coverage.Metric.CLASS;
+import static edu.hm.hafner.coverage.Metric.CONTAINER;
+import static edu.hm.hafner.coverage.Metric.CYCLOMATIC_COMPLEXITY;
+import static edu.hm.hafner.coverage.Metric.FILE;
+import static edu.hm.hafner.coverage.Metric.LINE;
+import static edu.hm.hafner.coverage.Metric.LOC;
+import static edu.hm.hafner.coverage.Metric.MODULE;
+import static edu.hm.hafner.coverage.Metric.MUTATION;
+import static edu.hm.hafner.coverage.Metric.PACKAGE;
+import static edu.hm.hafner.coverage.Metric.UNBOUNDED;
+import static edu.hm.hafner.coverage.Metric.WARNINGS;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
+import static edu.hm.hafner.coverage.assertions.Assertions.entry;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
+import edu.hm.hafner.coverage.Mutation.MutationBuilder;
+import edu.hm.hafner.util.TreeString;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
 import org.assertj.core.api.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junitpioneer.jupiter.DefaultLocale;
 import org.junitpioneer.jupiter.Issue;
-
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.hm.hafner.coverage.Mutation.MutationBuilder;
-import edu.hm.hafner.util.TreeString;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-
-import static edu.hm.hafner.coverage.Metric.*;
-import static edu.hm.hafner.coverage.Metric.CLASS;
-import static edu.hm.hafner.coverage.Metric.FILE;
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 /**
  * TestCount the class {@link Node}.
@@ -61,22 +71,27 @@ class NodeTest {
         var root = new ModuleNode("Root");
 
         var fileNode = root.findOrCreateFileNode("File.java", TreeString.valueOf("relative/path/to/File.java"));
-        assertThat(fileNode).hasFileName("File.java")
+        assertThat(fileNode)
+                .hasFileName("File.java")
                 .hasRelativePath("relative/path/to/File.java")
                 .hasName("File.java");
 
         var other = root.findOrCreateFileNode("path/to/Other.java", TreeString.valueOf("relative/path/to/Other.java"));
-        assertThat(other).hasFileName("Other.java")
+        assertThat(other)
+                .hasFileName("Other.java")
                 .hasRelativePath("relative/path/to/Other.java")
                 .hasName("Other.java");
 
-        var another = root.findOrCreateFileNode("another/path/to/Other.java", TreeString.valueOf("another/path/to/Other.java"));
-        assertThat(another).hasFileName("Other.java")
+        var another = root.findOrCreateFileNode(
+                "another/path/to/Other.java", TreeString.valueOf("another/path/to/Other.java"));
+        assertThat(another)
+                .hasFileName("Other.java")
                 .hasRelativePath("another/path/to/Other.java")
                 .hasName("Other.java");
 
         var wrongName = new FileNode("path/to/WrongName.java", "path/to/WrongName.java");
-        assertThat(wrongName).hasFileName("WrongName.java")
+        assertThat(wrongName)
+                .hasFileName("WrongName.java")
                 .hasRelativePath("path/to/WrongName.java")
                 .hasName("path/to/WrongName.java"); // Note: This is the original name, not fixed
         root.addChild(wrongName);
@@ -92,7 +107,8 @@ class NodeTest {
         var root = new ModuleNode("Root");
 
         assertThat(root).doesNotHaveParent();
-        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(root::getParent)
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(root::getParent)
                 .withMessage("Parent is not set");
         assertThat(root).hasParentName(Node.ROOT);
     }
@@ -140,7 +156,8 @@ class NodeTest {
         var child2 = new PackageNode("ChildTwo");
         var childOfChildOne = new FileNode("ChildOfChildOne", "path");
         var builder = new CoverageBuilder();
-        childOfChildOne.addValue(builder.withMetric(LINE).withCovered(1).withMissed(0).build());
+        childOfChildOne.addValue(
+                builder.withMetric(LINE).withCovered(1).withMissed(0).build());
         parent.addChild(child1);
         parent.addChild(child2);
         child1.addChild(childOfChildOne);
@@ -159,11 +176,12 @@ class NodeTest {
         var valueTwo = builder.withMetric(BRANCH).withCovered(0).withMissed(1).build();
         node.addValue(valueTwo);
 
-        assertThat(node.aggregateValues()).containsExactly(
-                builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
-                valueOne,
-                valueTwo,
-                new Value(LOC, 1));
+        assertThat(node.aggregateValues())
+                .containsExactly(
+                        builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
+                        valueOne,
+                        valueTwo,
+                        new Value(LOC, 1));
     }
 
     @Test
@@ -201,9 +219,7 @@ class NodeTest {
         child1.addChild(childOfChildOne);
         child2.addChild(childOfChildTwo);
 
-        assertThat(parent.getAll(FILE))
-                .hasSize(2)
-                .containsOnly(childOfChildOne, childOfChildTwo);
+        assertThat(parent.getAll(FILE)).hasSize(2).containsOnly(childOfChildOne, childOfChildTwo);
     }
 
     private static Coverage getCoverage(final Node node, final Metric metric) {
@@ -213,7 +229,11 @@ class NodeTest {
     @Test
     void shouldCalculateCorrectCoverageForModule() {
         var node = new ModuleNode("Node");
-        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
+        var valueOne = new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(1)
+                .withMissed(0)
+                .build();
 
         node.addValue(valueOne);
 
@@ -242,8 +262,16 @@ class NodeTest {
     void shouldDeepCopyNodeTree() {
         var node = new ModuleNode("Node");
         var childNode = new FileNode("childNode", "path");
-        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
-        var valueTwo = new CoverageBuilder().withMetric(LINE).withCovered(0).withMissed(1).build();
+        var valueOne = new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(1)
+                .withMissed(0)
+                .build();
+        var valueTwo = new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(0)
+                .withMissed(1)
+                .build();
 
         node.addValue(valueOne);
         node.addChild(childNode);
@@ -251,15 +279,24 @@ class NodeTest {
         var copiedNode = node.copyTree();
 
         assertThat(node).isNotSameAs(copiedNode);
-        assertThat(node.getChildren().getFirst()).isNotSameAs(copiedNode.getChildren().getFirst());
+        assertThat(node.getChildren().getFirst())
+                .isNotSameAs(copiedNode.getChildren().getFirst());
     }
 
     @Test
     void shouldDeepCopyNodeTreeWithSpecifiedNodeAsParent() {
         var node = new ModuleNode("Node");
         var childNode = new FileNode("childNode", "path");
-        var valueOne = new CoverageBuilder().withMetric(LINE).withCovered(1).withMissed(0).build();
-        var valueTwo = new CoverageBuilder().withMetric(LINE).withCovered(0).withMissed(1).build();
+        var valueOne = new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(1)
+                .withMissed(0)
+                .build();
+        var valueTwo = new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(0)
+                .withMissed(1)
+                .build();
         var newParent = new ModuleNode("parent");
 
         node.addValue(valueOne);
@@ -292,7 +329,9 @@ class NodeTest {
         assertThat(node.find(FILE, childNode.getName())).isPresent().contains(childNode);
 
         assertThat(node.findByHashCode(BRANCH, "NotExisting".hashCode())).isNotPresent();
-        assertThat(node.findByHashCode(FILE, childNode.getName().hashCode())).isPresent().contains(childNode);
+        assertThat(node.findByHashCode(FILE, childNode.getName().hashCode()))
+                .isPresent()
+                .contains(childNode);
     }
 
     @Test
@@ -355,10 +394,10 @@ class NodeTest {
         assertThat(combinedReport).hasMetric(MODULE);
         assertThat(combinedReport.getAll(MODULE)).hasSize(1);
         assertThat(combinedReport.getAll(PACKAGE)).hasSize(2);
-        assertThat(combinedReport.getAll(PACKAGE)).satisfiesExactlyInAnyOrder(
-                p -> assertThat(p.getName()).isEqualTo(pkg.getName()),
-                p -> assertThat(p.getName()).isEqualTo(pkgTwo.getName())
-        );
+        assertThat(combinedReport.getAll(PACKAGE))
+                .satisfiesExactlyInAnyOrder(
+                        p -> assertThat(p.getName()).isEqualTo(pkg.getName()),
+                        p -> assertThat(p.getName()).isEqualTo(pkgTwo.getName()));
     }
 
     @Test
@@ -391,9 +430,13 @@ class NodeTest {
         sameProject.addChild(autogradingPkg);
         var combinedReport = project.merge(sameProject);
 
-        assertThat(combinedReport.find(coveragePkg.getMetric(), coveragePkg.getName()).orElseThrow())
+        assertThat(combinedReport
+                        .find(coveragePkg.getMetric(), coveragePkg.getName())
+                        .orElseThrow())
                 .isNotSameAs(coveragePkg);
-        assertThat(combinedReport.find(autogradingPkg.getMetric(), autogradingPkg.getName()).orElseThrow())
+        assertThat(combinedReport
+                        .find(autogradingPkg.getMetric(), autogradingPkg.getName())
+                        .orElseThrow())
                 .isNotSameAs(autogradingPkg);
     }
 
@@ -407,11 +450,14 @@ class NodeTest {
         pkg.addChild(file);
         var otherReport = report.copyTree();
 
-        otherReport.getAllFileNodes().getFirst()
+        otherReport
+                .getAllFileNodes()
+                .getFirst()
                 .addCounters(1, 1, 0)
                 .addCounters(2, 1, 0)
                 .addCounters(3, 0, 1);
-        report.getAllFileNodes().getFirst()
+        report.getAllFileNodes()
+                .getFirst()
                 .addCounters(1, 1, 0)
                 .addCounters(2, 0, 1)
                 .addCounters(3, 1, 0);
@@ -463,8 +509,8 @@ class NodeTest {
         verifyFilteredTree(tree, tree.filterByModifiedLines(), this::verifyModifiedLines);
     }
 
-    private void verifyFilteredTree(final Node tree, final Node filteredTree,
-            final ThrowingConsumer<Node> treeVerification) {
+    private void verifyFilteredTree(
+            final Node tree, final Node filteredTree, final ThrowingConsumer<Node> treeVerification) {
         assertThat(filteredTree)
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
@@ -478,12 +524,19 @@ class NodeTest {
         assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
 
         var builder = new CoverageBuilder();
-        assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.withMetric(LINE).withCovered(4).withMissed(3).build());
-        assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
-        assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
-                builder.withMetric(MUTATION).withCovered(1).withMissed(2).build());
+        assertThat(root.getValue(LINE))
+                .isNotEmpty()
+                .contains(builder.withMetric(LINE).withCovered(4).withMissed(3).build());
+        assertThat(root.getValue(BRANCH))
+                .isNotEmpty()
+                .contains(
+                        builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
+        assertThat(root.getValue(MUTATION))
+                .isNotEmpty()
+                .contains(builder.withMetric(MUTATION)
+                        .withCovered(1)
+                        .withMissed(2)
+                        .build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
@@ -491,8 +544,7 @@ class NodeTest {
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2);
             assertThat(file.getMissedLines()).containsExactly(11, 13, 14);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2));
-            assertThat(file.getMutations()).extracting(Mutation::getLine)
-                    .containsExactlyInAnyOrder(17, 18, 19);
+            assertThat(file.getMutations()).extracting(Mutation::getLine).containsExactlyInAnyOrder(17, 18, 19);
         });
     }
 
@@ -541,12 +593,21 @@ class NodeTest {
         assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
 
         var builder = new CoverageBuilder();
-        assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.withMetric(LINE).withCovered(8).withMissed(6).build());
-        assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.withMetric(BRANCH).withCovered(12).withMissed(12).build());
-        assertThat(root.getValue(MUTATION)).isNotEmpty().contains(
-                builder.withMetric(MUTATION).withCovered(2).withMissed(4).build());
+        assertThat(root.getValue(LINE))
+                .isNotEmpty()
+                .contains(builder.withMetric(LINE).withCovered(8).withMissed(6).build());
+        assertThat(root.getValue(BRANCH))
+                .isNotEmpty()
+                .contains(builder.withMetric(BRANCH)
+                        .withCovered(12)
+                        .withMissed(12)
+                        .build());
+        assertThat(root.getValue(MUTATION))
+                .isNotEmpty()
+                .contains(builder.withMetric(MUTATION)
+                        .withCovered(2)
+                        .withMissed(4)
+                        .build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {
             verifyCountersOfCoveredClass(file);
@@ -554,7 +615,8 @@ class NodeTest {
             assertThat(file.getMissedCounters()).containsExactly(0, 1, 0, 1, 4, 0, 2, 0, 1, 0, 1, 4, 0, 2);
             assertThat(file.getMissedLines()).containsExactly(11, 13, 14, 21, 23, 24);
             assertThat(file.getPartiallyCoveredLines()).containsExactly(entry(16, 2), entry(26, 2));
-            assertThat(file.getMutations()).extracting(Mutation::getLine)
+            assertThat(file.getMutations())
+                    .extracting(Mutation::getLine)
                     .containsExactlyInAnyOrder(17, 18, 19, 27, 28, 29);
         });
     }
@@ -585,26 +647,38 @@ class NodeTest {
         assertThat(root.getAll(FILE)).extracting(Node::getName).containsExactly(COVERED_FILE);
 
         var builder = new CoverageBuilder();
-        assertThat(root.getValue(LINE)).isNotEmpty().contains(
-                builder.withMetric(LINE).withCovered(2).withMissed(2).build());
-        assertThat(root.getValue(BRANCH)).isNotEmpty().contains(
-                builder.withMetric(BRANCH).withCovered(4).withMissed(4).build());
+        assertThat(root.getValue(LINE))
+                .isNotEmpty()
+                .contains(builder.withMetric(LINE).withCovered(2).withMissed(2).build());
+        assertThat(root.getValue(BRANCH))
+                .isNotEmpty()
+                .contains(
+                        builder.withMetric(BRANCH).withCovered(4).withMissed(4).build());
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {
         file.addModifiedLines(
-                10, 11, 12, 13, // line
-                14, 15, 16, // branch
-                17, 18, 19 // mutation
-        );
+                10,
+                11,
+                12,
+                13, // line
+                14,
+                15,
+                16, // branch
+                17,
+                18,
+                19 // mutation
+                );
 
         var classNode = file.createClassNode(CLASS_WITH_MODIFICATIONS);
         addCounters(file, classNode, 0);
 
         var builder = new CoverageBuilder();
         classNode.addValue(builder.withMetric(LINE).withCovered(4).withMissed(3).build());
-        classNode.addValue(builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
-        classNode.addValue(builder.withMetric(MUTATION).withCovered(2).withMissed(4).build());
+        classNode.addValue(
+                builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
+        classNode.addValue(
+                builder.withMetric(MUTATION).withCovered(2).withMissed(4).build());
     }
 
     private void addCounters(final FileNode fileNode, final ClassNode classNode, final int offset) {
@@ -617,11 +691,21 @@ class NodeTest {
         fileNode.addCounters(15 + offset, 4, 0);
         fileNode.addCounters(16 + offset, 2, 2);
 
-        var builder = new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
+        var builder =
+                new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
 
-        fileNode.addMutation(builder.withLine(17 + offset).withStatus(MutationStatus.KILLED).withIsDetected(true).build());
-        fileNode.addMutation(builder.withLine(18 + offset).withStatus(MutationStatus.SURVIVED).withIsDetected(false).build());
-        fileNode.addMutation(builder.withLine(19 + offset).withStatus(MutationStatus.NO_COVERAGE).withIsDetected(false).build());
+        fileNode.addMutation(builder.withLine(17 + offset)
+                .withStatus(MutationStatus.KILLED)
+                .withIsDetected(true)
+                .build());
+        fileNode.addMutation(builder.withLine(18 + offset)
+                .withStatus(MutationStatus.SURVIVED)
+                .withIsDetected(false)
+                .build());
+        fileNode.addMutation(builder.withLine(19 + offset)
+                .withStatus(MutationStatus.NO_COVERAGE)
+                .withIsDetected(false)
+                .build());
     }
 
     private void registerCoverageWithoutChange(final FileNode file) {
@@ -631,7 +715,8 @@ class NodeTest {
 
         var builder = new CoverageBuilder();
         classNode.addValue(builder.withMetric(LINE).withCovered(4).withMissed(3).build());
-        classNode.addValue(builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
+        classNode.addValue(
+                builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
     }
 
     private void registerIndirectCoverageChanges(final FileNode file) {
@@ -671,7 +756,11 @@ class NodeTest {
     @Test
     void shouldCreateNonEmptyNodes() {
         var noChildrenButValues = new PackageNode("No Children");
-        noChildrenButValues.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
+        noChildrenButValues.addValue(new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(10)
+                .withMissed(0)
+                .build());
         var noValuesButChildren = new PackageNode("No Values");
         noValuesButChildren.addChild(new FileNode("child", "."));
 
@@ -726,13 +815,11 @@ class NodeTest {
 
         var merged = Node.merge(List.of(parentA, parentB, parentC));
 
-        assertThat(merged)
-                .hasName("Container")
-                .hasMetric(CONTAINER)
-                .hasOnlyChildren(parentA, parentB, parentC);
+        assertThat(merged).hasName("Container").hasMetric(CONTAINER).hasOnlyChildren(parentA, parentB, parentC);
     }
 
-    @Test @Issue("JENKINS-72310")
+    @Test
+    @Issue("JENKINS-72310")
     void shouldMergeWithDuplicateAndDifferentNames() {
         var parentA = new PackageNode("packageA");
         var childA = new FileNode("fileA", ".");
@@ -749,9 +836,7 @@ class NodeTest {
 
         var merged = Node.merge(List.of(parentA, parentB, parentC, parentD));
 
-        assertThat(merged)
-                .hasName("Container")
-                .hasMetric(CONTAINER);
+        assertThat(merged).hasName("Container").hasMetric(CONTAINER);
 
         assertThat(merged.getChildren()).hasSize(2);
     }
@@ -764,10 +849,7 @@ class NodeTest {
 
         var merged = Node.merge(List.of(parentA, parentB, parentC));
 
-        assertThat(merged)
-                .hasName("Container")
-                .hasMetric(CONTAINER)
-                .hasOnlyChildren(parentA, parentB, parentC);
+        assertThat(merged).hasName("Container").hasMetric(CONTAINER).hasOnlyChildren(parentA, parentB, parentC);
     }
 
     @Test
@@ -780,12 +862,14 @@ class NodeTest {
         tree.findClass(MISSED_CLASS).orElseThrow().addChild(missedMethod);
 
         assertThat(tree.getAllMethodNodes()).containsExactlyInAnyOrder(coveredMethod, missedMethod);
-        assertThat(tree.getAllFileNodes()).containsExactlyInAnyOrder(
-                tree.findFile("Covered.java").orElseThrow(),
-                tree.findFile("Missed.java").orElseThrow());
-        assertThat(tree.getAllClassNodes()).containsExactlyInAnyOrder(
-                tree.findClass("CoveredClass.class").orElseThrow(),
-                tree.findClass("MissedClass.class").orElseThrow());
+        assertThat(tree.getAllFileNodes())
+                .containsExactlyInAnyOrder(
+                        tree.findFile("Covered.java").orElseThrow(),
+                        tree.findFile("Missed.java").orElseThrow());
+        assertThat(tree.getAllClassNodes())
+                .containsExactlyInAnyOrder(
+                        tree.findClass("CoveredClass.class").orElseThrow(),
+                        tree.findClass("MissedClass.class").orElseThrow());
     }
 
     @Test
@@ -795,18 +879,22 @@ class NodeTest {
         fileA.addAllValues(Arrays.asList(
                 coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
                 coverageBuilder.withMetric(BRANCH).withCovered(2).withMissed(0).build(),
-                coverageBuilder.withMetric(MUTATION).withCovered(2).withMissed(0).build()
-        ));
+                coverageBuilder
+                        .withMetric(MUTATION)
+                        .withCovered(2)
+                        .withMissed(0)
+                        .build()));
         Node fileB = new FileNode("FileB.java", ".");
         fileB.addAllValues(Arrays.asList(
                 coverageBuilder.withMetric(LINE).withCovered(0).withMissed(10).build(),
-                coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()
-        ));
+                coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(1).build()));
 
         List<Difference> delta = fileA.computeDelta(fileB);
 
-        assertThat(delta).map(Difference::getMetric)
-                .containsExactly(FILE, LINE, BRANCH, LOC).doesNotContain(MUTATION);
+        assertThat(delta)
+                .map(Difference::getMetric)
+                .containsExactly(FILE, LINE, BRANCH, LOC)
+                .doesNotContain(MUTATION);
         assertThat(delta.get(1).asDouble()).isEqualTo(100);
         assertThat(delta.get(2).asDouble()).isEqualTo(50);
     }
@@ -819,17 +907,23 @@ class NodeTest {
         fileA.addAllValues(Arrays.asList(
                 coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build(),
                 coverageBuilder.withMetric(BRANCH).withCovered(2).withMissed(0).build(),
-                coverageBuilder.withMetric(MUTATION).withCovered(2).withMissed(0).build()
-        ));
-        assertThat(fileA.getValueMetrics())
-                .containsExactlyInAnyOrder(LINE, BRANCH, MUTATION);
+                coverageBuilder
+                        .withMetric(MUTATION)
+                        .withCovered(2)
+                        .withMissed(0)
+                        .build()));
+        assertThat(fileA.getValueMetrics()).containsExactlyInAnyOrder(LINE, BRANCH, MUTATION);
     }
 
     @Test
     void shouldContainMetric() {
         var fileA = new FileNode("FileA.java", ".");
         fileA.addChild(new ClassNode("ClassA.java"));
-        fileA.addValue(new CoverageBuilder().withMetric(LINE).withCovered(10).withMissed(0).build());
+        fileA.addValue(new CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(10)
+                .withMissed(0)
+                .build());
 
         assertThat(fileA.containsMetric(CLASS)).isFalse();
         assertThat(fileA.containsMetric(FILE)).isTrue();
@@ -840,8 +934,10 @@ class NodeTest {
     @Test
     void shouldGetCoverageValueByMetricWithDefault() {
         var coverageBuilder = new CoverageBuilder();
-        var fileACoverage = coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build();
-        var defaultCoverage = coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(0).build();
+        var fileACoverage =
+                coverageBuilder.withMetric(LINE).withCovered(10).withMissed(0).build();
+        var defaultCoverage =
+                coverageBuilder.withMetric(BRANCH).withCovered(1).withMissed(0).build();
         var fileA = new FileNode("FileA.java", ".");
         fileA.addValue(fileACoverage);
 
@@ -894,8 +990,8 @@ class NodeTest {
 
         var merged = moduleA.merge(moduleB);
 
-        var mergedMethod = merged.findMethod("add", "(II)I").orElseThrow(
-                () -> new AssertionError("Method 'add' not found in merged tree"));
+        var mergedMethod = merged.findMethod("add", "(II)I")
+                .orElseThrow(() -> new AssertionError("Method 'add' not found in merged tree"));
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5)); // max(3,5)
@@ -908,8 +1004,8 @@ class NodeTest {
         var pkgA = new PackageNode("pkg");
         var classA = new ClassNode("Cls");
         classA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
-        classA.addValue(new Value(WARNINGS, 2));              
-        classA.addValue(new Value(UNBOUNDED, 10));            
+        classA.addValue(new Value(WARNINGS, 2));
+        classA.addValue(new Value(UNBOUNDED, 10));
         pkgA.addChild(classA);
         moduleA.addChild(pkgA);
 
@@ -917,8 +1013,8 @@ class NodeTest {
         var pkgB = new PackageNode("pkg");
         var classB = new ClassNode("Cls");
         classB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
-        classB.addValue(new Value(WARNINGS, 5));              
-        classB.addValue(new Value(UNBOUNDED, 4));             
+        classB.addValue(new Value(WARNINGS, 5));
+        classB.addValue(new Value(UNBOUNDED, 4));
         pkgB.addChild(classB);
         moduleB.addChild(pkgB);
 
@@ -928,12 +1024,10 @@ class NodeTest {
         assertThat(mergedClass.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
-        assertThat(mergedClass.getValue(WARNINGS))
-                .isPresent()
-                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
-        assertThat(mergedClass.getValue(UNBOUNDED))
-                .isPresent()
-                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(4));
+        assertThat(mergedClass.getValue(WARNINGS)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
+                .isEqualTo(5));
+        assertThat(mergedClass.getValue(UNBOUNDED)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
+                .isEqualTo(4));
     }
 
     @Test
@@ -959,14 +1053,14 @@ class NodeTest {
 
         var merged = moduleA.merge(moduleB);
 
-        var legacyMethod = merged.findMethod("doLegacyThing", "()V").orElseThrow(
-                () -> new AssertionError("Method 'doLegacyThing' not found in merged tree"));
+        var legacyMethod = merged.findMethod("doLegacyThing", "()V")
+                .orElseThrow(() -> new AssertionError("Method 'doLegacyThing' not found in merged tree"));
         assertThat(legacyMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
 
-        var modernMethod = merged.findMethod("doModernThing", "()V").orElseThrow(
-                () -> new AssertionError("Method 'doModernThing' not found in merged tree"));
+        var modernMethod = merged.findMethod("doModernThing", "()V")
+                .orElseThrow(() -> new AssertionError("Method 'doModernThing' not found in merged tree"));
         assertThat(modernMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(2));
@@ -975,10 +1069,8 @@ class NodeTest {
     @Test
     @Issue("https://github.com/jenkinsci/coverage-plugin/issues/638")
     void shouldTakeMaxComplexityAcrossThreeReports() {
-        var merged = Node.merge(List.of(
-                createModuleWithComplexity(4),
-                createModuleWithComplexity(7),
-                createModuleWithComplexity(2)));
+        var merged = Node.merge(
+                List.of(createModuleWithComplexity(4), createModuleWithComplexity(7), createModuleWithComplexity(2)));
 
         var mergedMethod = merged.findMethod("run", "()V").orElseThrow();
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
@@ -1026,10 +1118,9 @@ class NodeTest {
         var mergedMethod = merged.findMethod("compute", "()I").orElseThrow();
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
-                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(3));  // max(2,3)
-        assertThat(mergedMethod.getValue(LOC))
-                .isPresent()
-                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(8));  // max(5,8)
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(3)); // max(2,3)
+        assertThat(mergedMethod.getValue(LOC)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
+                .isEqualTo(8)); // max(5,8)
     }
 
     @Test
@@ -1061,12 +1152,7 @@ class NodeTest {
     }
 
     @ParameterizedTest(name = "[{index}] {0} of (6, 12, 3) should be {1}")
-    @CsvSource({
-            "MAXIMUM, 12",
-            "MINIMUM, 3",
-            "AVERAGE, 7",
-            "TOTAL, 21"
-    })
+    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "AVERAGE, 7", "TOTAL, 21"})
     void shouldComputeAggregation(final MetricAggregation aggregation, final int expected) {
         var classNode = createClassNodeWithComplexityValues(6, 12, 3);
 
@@ -1078,9 +1164,12 @@ class NodeTest {
     void shouldReturnEmptyForAggregationWhenNoValues() {
         var classNode = new ClassNode("TestClass");
 
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM)).isEmpty();
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM)).isEmpty();
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE)).isEmpty();
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM))
+                .isEmpty();
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM))
+                .isEmpty();
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE))
+                .isEmpty();
     }
 
     @Test
@@ -1089,8 +1178,16 @@ class NodeTest {
         var classOne = new ClassNode("ClassOne");
         var classTwo = new ClassNode("ClassTwo");
 
-        classOne.addValue(new Coverage.CoverageBuilder().withMetric(LINE).withCovered(8).withMissed(2).build());
-        classTwo.addValue(new Coverage.CoverageBuilder().withMetric(LINE).withCovered(3).withMissed(2).build());
+        classOne.addValue(new Coverage.CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(8)
+                .withMissed(2)
+                .build());
+        classTwo.addValue(new Coverage.CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(3)
+                .withMissed(2)
+                .build());
 
         packageNode.addChild(classOne);
         packageNode.addChild(classTwo);

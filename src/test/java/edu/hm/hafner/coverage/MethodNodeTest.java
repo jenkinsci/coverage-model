@@ -1,13 +1,12 @@
 package edu.hm.hafner.coverage;
 
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
+
+import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 class MethodNodeTest extends AbstractNodeTest {
     @Override
@@ -37,19 +36,17 @@ class MethodNodeTest extends AbstractNodeTest {
         int validLineNumber = 5;
         var node = new MethodNode("main", "(Ljava/util/Map;)V", validLineNumber);
 
-        assertThat(node)
-                .hasValidLineNumber()
-                .hasLineNumber(validLineNumber);
+        assertThat(node).hasValidLineNumber().hasLineNumber(validLineNumber);
 
         int secondValidLineNumber = 1;
         var secondNode = new MethodNode("main", "(Ljava/util/Map;)V", secondValidLineNumber);
-        assertThat(secondNode)
-                .hasValidLineNumber()
-                .hasLineNumber(secondValidLineNumber);
+        assertThat(secondNode).hasValidLineNumber().hasLineNumber(secondValidLineNumber);
     }
 
     @ParameterizedTest(name = "[{index}] Compute method coverage based on {0} metric")
-    @EnumSource(value = Metric.class, names = {"LINE", "BRANCH", "INSTRUCTION"})
+    @EnumSource(
+            value = Metric.class,
+            names = {"LINE", "BRANCH", "INSTRUCTION"})
     void shouldComputeMethodCoverage(final Metric targetMetric) {
         var builder = new CoverageBuilder().withMetric(Metric.METHOD);
         var notCovered = builder.withCovered(0).withMissed(1).build();
@@ -58,10 +55,12 @@ class MethodNodeTest extends AbstractNodeTest {
         var node = new MethodNode("method", "signature");
         assertThat(node.getValue(Metric.METHOD)).isEmpty();
 
-        node.addValue(builder.withMetric(targetMetric).withCovered(1).withMissed(0).build());
+        node.addValue(
+                builder.withMetric(targetMetric).withCovered(1).withMissed(0).build());
         assertThat(node.getValue(Metric.METHOD)).isPresent().contains(covered);
 
-        node.replaceValue(builder.withMetric(targetMetric).withCovered(0).withMissed(1).build());
+        node.replaceValue(
+                builder.withMetric(targetMetric).withCovered(0).withMissed(1).build());
         assertThat(node.getValue(Metric.METHOD)).isPresent().contains(notCovered);
     }
 

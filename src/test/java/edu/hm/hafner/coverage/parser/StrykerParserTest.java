@@ -1,18 +1,18 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.Metric.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.FileNode;
+import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.coverage.Node;
-
-import static edu.hm.hafner.coverage.Metric.*;
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the class {@link StrykerParser}.
@@ -37,8 +37,7 @@ class StrykerParserTest extends AbstractParserTest {
 
     @Test
     void shouldEnterIfBlockButSkipLoopWhenFilesObjectIsEmpty() {
-        assertThatExceptionOfType(ParsingException.class)
-                .isThrownBy(() -> readReport("mutation-report-no-files.json"));
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> readReport("mutation-report-no-files.json"));
     }
 
     @Test
@@ -62,7 +61,8 @@ class StrykerParserTest extends AbstractParserTest {
 
         assertThat(tree).hasNoChildren().hasNoValues();
         assertThat(getLog().getErrorMessages())
-                .contains("[StrykerParser] The processed file 'mutation-report-missing-files.json' does not contain data.");
+                .contains(
+                        "[StrykerParser] The processed file 'mutation-report-missing-files.json' does not contain data.");
     }
 
     @Test
@@ -71,7 +71,8 @@ class StrykerParserTest extends AbstractParserTest {
 
         var file = findFile(tree, "add.js");
         assertThat(file).hasName("add.js").hasRelativePath("src/math/add.js");
-        assertThat(file.getMutations()).hasSize(4)
+        assertThat(file.getMutations())
+                .hasSize(4)
                 .extracting(Mutation::getStatus)
                 .containsExactly(
                         MutationStatus.KILLED,
@@ -85,8 +86,9 @@ class StrykerParserTest extends AbstractParserTest {
         var tree = readReport("mutation-report.json");
 
         var file = findFile(tree, "add.js");
-        assertThat(file.getValue(MUTATION)).hasValueSatisfying(value ->
-                assertThat(value).isInstanceOfSatisfying(Coverage.class,
+        assertThat(file.getValue(MUTATION)).hasValueSatisfying(value -> assertThat(value)
+                .isInstanceOfSatisfying(
+                        Coverage.class,
                         coverage -> assertThat(coverage).hasCovered(1).hasMissed(3)));
         assertThat(getLog().hasErrors()).isFalse();
     }
@@ -128,7 +130,8 @@ class StrykerParserTest extends AbstractParserTest {
         var tree = readReport("mutation-report.json");
 
         var file = findFile(tree, "multiply.js");
-        assertThat(file.getMutations()).hasSize(5)
+        assertThat(file.getMutations())
+                .hasSize(5)
                 .extracting(Mutation::getStatus)
                 .containsExactlyInAnyOrder(
                         MutationStatus.KILLED,
@@ -171,9 +174,7 @@ class StrykerParserTest extends AbstractParserTest {
     void shouldParseAllFilesInReport() {
         var tree = readReport("mutation-report.json");
 
-        var fileNames = tree.getAllFileNodes().stream()
-                .map(FileNode::getName)
-                .toList();
+        var fileNames = tree.getAllFileNodes().stream().map(FileNode::getName).toList();
         assertThat(fileNames).containsExactlyInAnyOrder("add.js", "multiply.js", "", "helper.js");
     }
 
@@ -207,9 +208,7 @@ class StrykerParserTest extends AbstractParserTest {
     void shouldAssignNonEmptyPackageNodeWhenFileKeyIsRootSlash() {
         var tree = readReport("mutation-report.json");
 
-        var packageNames = tree.getChildren().stream()
-                .map(Node::getName)
-                .toList();
+        var packageNames = tree.getChildren().stream().map(Node::getName).toList();
         assertThat(packageNames).contains("-");
     }
 
@@ -217,9 +216,7 @@ class StrykerParserTest extends AbstractParserTest {
     void shouldReturnDotSeparatedPackageNameForNestedFile() {
         var tree = readReport("mutation-report.json");
 
-        var packageNames = tree.getChildren().stream()
-                .map(Node::getName)
-                .toList();
+        var packageNames = tree.getChildren().stream().map(Node::getName).toList();
         assertThat(packageNames).contains("src.math");
     }
 
@@ -231,8 +228,7 @@ class StrykerParserTest extends AbstractParserTest {
         assertThat(mutation.getMutatedClass()).isEqualTo("src.math.add");
     }
 
-    private static FileNode findFile(
-            final edu.hm.hafner.coverage.ModuleNode tree, final String name) {
+    private static FileNode findFile(final ModuleNode tree, final String name) {
         return tree.getAllFileNodes().stream()
                 .filter(f -> f.getName().equals(name))
                 .findFirst()
@@ -240,13 +236,10 @@ class StrykerParserTest extends AbstractParserTest {
     }
 
     private static Mutation findMutationByStatus(
-            final edu.hm.hafner.coverage.ModuleNode tree,
-            final String fileName,
-            final MutationStatus status) {
+            final ModuleNode tree, final String fileName, final MutationStatus status) {
         return findFile(tree, fileName).getMutations().stream()
                 .filter(m -> m.getStatus() == status)
                 .findFirst()
-                .orElseThrow(() -> new AssertionError(
-                        "No mutation with status " + status + " in " + fileName));
+                .orElseThrow(() -> new AssertionError("No mutation with status " + status + " in " + fileName));
     }
 }

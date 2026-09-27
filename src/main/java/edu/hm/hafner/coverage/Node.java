@@ -1,16 +1,10 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,13 +24,17 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * A hierarchical decomposition of coverage results.
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects"
+})
 public abstract class Node implements Serializable {
     @Serial
     private static final long serialVersionUID = -6608885640271135273L;
@@ -47,8 +45,10 @@ public abstract class Node implements Serializable {
     private final Metric metric;
 
     private /* almost final */ String name;
+
     @SuppressWarnings("serial")
     private final List<Node> children = new ArrayList<>();
+
     @SuppressWarnings("serial")
     private final List<Value> values = new ArrayList<>();
 
@@ -58,10 +58,8 @@ public abstract class Node implements Serializable {
     /**
      * Creates a new node with the given name.
      *
-     * @param metric
-     *         the metric this node belongs to
-     * @param name
-     *         the human-readable name of the node
+     * @param metric the metric this node belongs to
+     * @param name the human-readable name of the node
      */
     protected Node(final Metric metric, final String name) {
         Ensure.that(metric.isContainer()).isTrue("Cannot create a container node with a value metric");
@@ -135,9 +133,7 @@ public abstract class Node implements Serializable {
     /**
      * Returns whether results for the specified metric are available within the tree spanned by this node.
      *
-     * @param searchMetric
-     *         the metric to look for
-     *
+     * @param searchMetric the metric to look for
      * @return {@code true} if results for the specified metric are available, {@code false} otherwise
      */
     public boolean containsMetric(final Metric searchMetric) {
@@ -172,14 +168,12 @@ public abstract class Node implements Serializable {
     /**
      * Appends the specified child element to the list of children.
      *
-     * @param child
-     *         the child to add
+     * @param child the child to add
      */
     public void addChild(final Node child) {
         if (hasChild(child.getId())) {
-            throw new IllegalArgumentException(
-                    "There is already the same child %s with the name %s in %s".formatted(
-                            child, child.getName(), this));
+            throw new IllegalArgumentException("There is already the same child %s with the name %s in %s"
+                    .formatted(child, child.getName(), this));
         }
 
         children.add(child);
@@ -197,9 +191,7 @@ public abstract class Node implements Serializable {
     /**
      * Returns whether this node has a child with the specified name.
      *
-     * @param childName
-     *         the name of the child to look for
-     *
+     * @param childName the name of the child to look for
      * @return {@code true} if this node has a child with the specified name, {@code false} otherwise
      */
     public boolean hasChild(final String childName) {
@@ -209,8 +201,7 @@ public abstract class Node implements Serializable {
     /**
      * Adds alls given nodes as children to the current node.
      *
-     * @param nodes
-     *         nodes to add
+     * @param nodes nodes to add
      */
     public void addAllChildren(final Collection<? extends Node> nodes) {
         nodes.forEach(this::addChild);
@@ -219,8 +210,7 @@ public abstract class Node implements Serializable {
     /**
      * Adds alls given nodes as children to the current node.
      *
-     * @param nodes
-     *         nodes to add
+     * @param nodes nodes to add
      */
     public void addAllChildren(final Node... nodes) {
         addAllChildren(List.of(nodes));
@@ -230,8 +220,7 @@ public abstract class Node implements Serializable {
      * Returns the parent node.
      *
      * @return the parent, if existent
-     * @throws NoSuchElementException
-     *         if no parent exists
+     * @throws NoSuchElementException if no parent exists
      */
     @SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "This class is about walking through a tree of nodes.")
     public Node getParent() {
@@ -270,8 +259,7 @@ public abstract class Node implements Serializable {
     /**
      * Appends the specified value to the list of values.
      *
-     * @param value
-     *         the value to add
+     * @param value the value to add
      */
     public void addValue(final Value value) {
         if (getMetricsOfValues().anyMatch(value.getMetric()::equals)) {
@@ -285,8 +273,7 @@ public abstract class Node implements Serializable {
      * Replaces an existing value of the specified metric with the specified value. If no value with the specified
      * metric exists, then the value is added.
      *
-     * @param value
-     *         the value to replace
+     * @param value the value to replace
      */
     public void replaceValue(final Value value) {
         values.stream()
@@ -320,17 +307,15 @@ public abstract class Node implements Serializable {
     }
 
     NavigableMap<Metric, Value> getMetricsDistribution() {
-        return new TreeMap<>(aggregateValues().stream()
-                .collect(Collectors.toMap(Value::getMetric, Function.identity())));
+        return new TreeMap<>(
+                aggregateValues().stream().collect(Collectors.toMap(Value::getMetric, Function.identity())));
     }
 
     /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of.
      *
-     * @param searchMetric
-     *         the metric to get the value for
-     *
+     * @param searchMetric the metric to get the value for
      * @return the value for the specified metric or an empty result if no value has been defined
      */
     public Optional<Value> getValue(final Metric searchMetric) {
@@ -338,14 +323,11 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Returns the value for the specified metric using the specified aggregation type. The value is computed
-     * for the whole subtree this node is the root of.
+     * Returns the value for the specified metric using the specified aggregation type. The value is computed for the
+     * whole subtree this node is the root of.
      *
-     * @param searchMetric
-     *         the metric to get the value for
-     * @param aggregation
-     *         the aggregation type to use
-     *
+     * @param searchMetric the metric to get the value for
+     * @param aggregation the aggregation type to use
      * @return the value for the specified metric or an empty result if no value has been defined
      */
     public Optional<Value> getValue(final Metric searchMetric, final MetricAggregation aggregation) {
@@ -361,13 +343,9 @@ public abstract class Node implements Serializable {
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of.
      *
-     * @param searchMetric
-     *         the metric to get the value for
-     * @param defaultValue
-     *         the default value to return if no value has been defined for the specified metric
-     * @param <T>
-     *         the concrete type of the value
-     *
+     * @param searchMetric the metric to get the value for
+     * @param defaultValue the default value to return if no value has been defined for the specified metric
+     * @param <T> the concrete type of the value
      * @return coverage ratio
      */
     @SuppressWarnings("unchecked")
@@ -375,7 +353,9 @@ public abstract class Node implements Serializable {
         var possiblyValue = searchMetric.getValueFor(this);
 
         //noinspection unchecked
-        return possiblyValue.map(value -> (T) defaultValue.getClass().cast(value)).orElse(defaultValue);
+        return possiblyValue
+                .map(value -> (T) defaultValue.getClass().cast(value))
+                .orElse(defaultValue);
     }
 
     // FIXME: when aggregating values we need to make sure that
@@ -394,12 +374,10 @@ public abstract class Node implements Serializable {
 
     /**
      * Computes the delta of all metrics between this node and the specified reference node as fractions. Each delta
-     * value is computed by the value specific {@link Value#subtract(Value)} method. If the reference node does not contain
-     * a specific metric, then no delta is computed and the metric is omitted in the result map.
+     * value is computed by the value specific {@link Value#subtract(Value)} method. If the reference node does not
+     * contain a specific metric, then no delta is computed and the metric is omitted in the result map.
      *
-     * @param reference
-     *         the reference node
-     *
+     * @param reference the reference node
      * @return the delta coverage for each available metric
      */
     public List<Difference> computeDelta(final Node reference) {
@@ -419,15 +397,14 @@ public abstract class Node implements Serializable {
     /**
      * Returns recursively all nodes for the specified metric type.
      *
-     * @param searchMetric
-     *         the metric to look for
-     *
+     * @param searchMetric the metric to look for
      * @return all nodes for the given metric
      */
     public List<Node> getAll(final Metric searchMetric) {
         List<Node> childNodes = children.stream()
                 .map(child -> child.getAll(searchMetric))
-                .flatMap(List::stream).collect(Collectors.toList());
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
         if (metric == searchMetric) {
             childNodes.add(this);
         }
@@ -453,11 +430,8 @@ public abstract class Node implements Serializable {
     /**
      * Finds the metric with the given name starting from this node.
      *
-     * @param searchMetric
-     *         the metric to search for
-     * @param searchName
-     *         the name of the node
-     *
+     * @param searchMetric the metric to search for
+     * @param searchName the name of the node
      * @return the result if found
      */
     public Optional<Node> find(final Metric searchMetric, final String searchName) {
@@ -473,9 +447,7 @@ public abstract class Node implements Serializable {
     /**
      * Searches for a package within this node that has the given name.
      *
-     * @param searchName
-     *         the name of the package
-     *
+     * @param searchName the name of the package
      * @return the first matching package or an empty result, if no such package exists
      */
     public Optional<PackageNode> findPackage(final String searchName) {
@@ -485,9 +457,7 @@ public abstract class Node implements Serializable {
     /**
      * Searches for a file within this node that has the given relative path.
      *
-     * @param searchPath
-     *         the path of the file
-     *
+     * @param searchPath the path of the file
      * @return the first matching file or an empty result, if no such file exists
      */
     public Optional<FileNode> findFile(final String searchPath) {
@@ -495,17 +465,17 @@ public abstract class Node implements Serializable {
     }
 
     private Optional<FileNode> findFile(final String fileName, final String relativePath) {
-        return getAllFileNodes().stream().filter(fileNode ->
-                (fileNode.getName().equals(fileName) || fileNode.getFileName().equals(fileName))
-                        && fileNode.getRelativePath().equals(relativePath)).findAny();
+        return getAllFileNodes().stream()
+                .filter(fileNode -> (fileNode.getName().equals(fileName)
+                                || fileNode.getFileName().equals(fileName))
+                        && fileNode.getRelativePath().equals(relativePath))
+                .findAny();
     }
 
     /**
      * Searches for a class within this node that has the given name.
      *
-     * @param searchName
-     *         the name of the class
-     *
+     * @param searchName the name of the class
      * @return the first matching class or an empty result, if no such class exists
      */
     public Optional<ClassNode> findClass(final String searchName) {
@@ -515,11 +485,8 @@ public abstract class Node implements Serializable {
     /**
      * Searches for a method within this node that has the given name and signature.
      *
-     * @param searchName
-     *         the name of the method
-     * @param searchSignature
-     *         the signature of the method
-     *
+     * @param searchName the name of the method
+     * @param searchSignature the signature of the method
      * @return the first matching method or an empty result, if no such method exists
      */
     public Optional<MethodNode> findMethod(final String searchName, final String searchSignature) {
@@ -556,11 +523,8 @@ public abstract class Node implements Serializable {
     /**
      * Finds the metric with the given hash code starting from this node.
      *
-     * @param searchMetric
-     *         the metric to search for
-     * @param searchNameHashCode
-     *         the hash code of the node name
-     *
+     * @param searchMetric the metric to search for
+     * @param searchNameHashCode the hash code of the node name
      * @return the result if found
      */
     public Optional<Node> findByHashCode(final Metric searchMetric, final int searchNameHashCode) {
@@ -576,11 +540,8 @@ public abstract class Node implements Serializable {
     /**
      * Returns whether this node matches the specified metric and name.
      *
-     * @param searchMetric
-     *         the metric to search for
-     * @param searchName
-     *         the name of the node
-     *
+     * @param searchMetric the metric to search for
+     * @param searchName the name of the node
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
@@ -590,11 +551,8 @@ public abstract class Node implements Serializable {
     /**
      * Returns whether this node matches the specified metric and name.
      *
-     * @param searchMetric
-     *         the metric to search for
-     * @param searchNameHashCode
-     *         the hash code of the node name
-     *
+     * @param searchMetric the metric to search for
+     * @param searchNameHashCode the hash code of the node name
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
@@ -613,9 +571,7 @@ public abstract class Node implements Serializable {
     /**
      * Creates a deep copy of the tree with the specified {@link Node} as root.
      *
-     * @param copiedParent
-     *         The root node
-     *
+     * @param copiedParent The root node
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent) {
@@ -625,11 +581,8 @@ public abstract class Node implements Serializable {
     /**
      * Creates a deep copy of the tree with the specified {@link Node} as root.
      *
-     * @param copiedParent
-     *         The root node
-     * @param filter
-     *         the filter to apply to the tree
-     *
+     * @param copiedParent The root node
+     * @param filter the filter to apply to the tree
      * @return the copied tree
      */
     public Node copyTree(@CheckForNull final Node copiedParent, final Function<Node, Boolean> filter) {
@@ -650,9 +603,7 @@ public abstract class Node implements Serializable {
      * Creates a deep copy of the tree that contains only the file nodes that have the specified file names. All other
      * file nodes will be removed from the tree.
      *
-     * @param fileNames
-     *         the file names of the files to copy
-     *
+     * @param fileNames the file names of the files to copy
      * @return the copied tree
      */
     public Node filterByFileNames(final Collection<String> fileNames) {
@@ -689,13 +640,12 @@ public abstract class Node implements Serializable {
      * tree. The mapping is done by evaluating the name of the test class. If the name of the test class cannot be
      * mapped to a target class, then the tests of this test class are ignored.
      *
-     * @param testClassNodes
-     *         the test classes containing the test cases
-     *
+     * @param testClassNodes the test classes containing the test cases
      * @return the test classes that have not been merged into this coverage tree
      */
     public Set<ClassNode> mergeTests(final Collection<ClassNode> testClassNodes) {
-        var totalTests = testClassNodes.stream().map(testClass -> testClass.getValue(Metric.TESTS))
+        var totalTests = testClassNodes.stream()
+                .map(testClass -> testClass.getValue(Metric.TESTS))
                 .flatMap(Optional::stream)
                 .reduce(Value::add)
                 .map(Value::asInteger)
@@ -709,11 +659,11 @@ public abstract class Node implements Serializable {
     }
 
     private Optional<ClassNode> mapTestClass(final ClassNode testClassNode) {
-        Optional<ClassNode> targetClass = findPackage(testClassNode.getPackageName())
-                .map(Node::getAllClassNodes).stream()
-                .flatMap(Collection::stream)
-                .filter(classNode -> classNode.getName().endsWith(createTargetClassName(testClassNode)))
-                .findFirst();
+        Optional<ClassNode> targetClass =
+                findPackage(testClassNode.getPackageName()).map(Node::getAllClassNodes).stream()
+                        .flatMap(Collection::stream)
+                        .filter(classNode -> classNode.getName().endsWith(createTargetClassName(testClassNode)))
+                        .findFirst();
         if (targetClass.isPresent()) {
             targetClass.get().addTestCases(testClassNode.getTestCases());
 
@@ -730,9 +680,7 @@ public abstract class Node implements Serializable {
      * Creates a new tree of merged {@link Node nodes} if all nodes have the same name and metric. If the nodes have
      * different names or metrics, then these nodes will be attached to a new {@link ContainerNode} node.
      *
-     * @param nodes
-     *         the nodes to merge
-     *
+     * @param nodes the nodes to merge
      * @return a new tree with the merged {@link Node nodes}
      */
     public static Node merge(final List<? extends Node> nodes) {
@@ -745,8 +693,8 @@ public abstract class Node implements Serializable {
             return nodes.getFirst(); // No merge required
         }
 
-        Map<ImmutablePair<String, Metric>, ? extends List<Node>> grouped = nodes.stream()
-                .collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
+        Map<ImmutablePair<String, Metric>, ? extends List<Node>> grouped =
+                nodes.stream().collect(Collectors.groupingBy(n -> new ImmutablePair<>(n.getName(), n.getMetric())));
 
         if (grouped.size() == 1) {
             return nodes.stream()
@@ -766,12 +714,9 @@ public abstract class Node implements Serializable {
      * this and the specified {@link Node}. To merge these two trees, this node and the specified {@code other} root
      * node have to use the same {@link Metric} and name.
      *
-     * @param other
-     *         the other tree to merge (represented by the root node)
-     *
+     * @param other the other tree to merge (represented by the root node)
      * @return a new tree with the merged {@link Node nodes}
-     * @throws IllegalArgumentException
-     *         if this root node is not compatible to the {@code other} root node
+     * @throws IllegalArgumentException if this root node is not compatible to the {@code other} root node
      */
     @SuppressWarnings({"ReferenceEquality", "PMD.CompareObjectsWithEquals"})
     public Node merge(final Node other) {
@@ -785,8 +730,7 @@ public abstract class Node implements Serializable {
             var combinedReport = copyTree();
             combinedReport.mergeNode(other);
             return combinedReport;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(
                     "Cannot merge nodes with different names: %s - %s".formatted(this, other));
         }
@@ -806,25 +750,23 @@ public abstract class Node implements Serializable {
 
         other.getChildren().forEach(otherChild -> {
             Optional<Node> existingChild = getChildren().stream()
-                    .filter(c -> c.getId().equals(otherChild.getId())).findFirst();
+                    .filter(c -> c.getId().equals(otherChild.getId()))
+                    .findFirst();
             if (existingChild.isPresent()) {
                 existingChild.get().mergeNode(otherChild);
-            }
-            else {
+            } else {
                 addChild(otherChild.copyTree());
             }
         });
     }
 
     /**
-    * Merges the directly stored values of {@code other} into this node. For metrics present in both
-    * nodes, the worse value according to {@link Metric#getTendency()} is retained; metrics present
-    * only in {@code other} are copied unchanged. This ensures that merged reports reflect the
-    * worst-case quality across multiple targets.
-    *
-    * @param other
-    *         the node whose values should be merged into this node
-    */
+     * Merges the directly stored values of {@code other} into this node. For metrics present in both nodes, the worse
+     * value according to {@link Metric#getTendency()} is retained; metrics present only in {@code other} are copied
+     * unchanged. This ensures that merged reports reflect the worst-case quality across multiple targets.
+     *
+     * @param other the node whose values should be merged into this node
+     */
     private void mergeValues(final Node other) {
         for (Value otherValue : other.getValues()) {
             var currentMetric = otherValue.getMetric();
@@ -833,12 +775,10 @@ public abstract class Node implements Serializable {
             if (existingValue.isPresent()) {
                 if (currentMetric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
                     replaceValue(existingValue.get().max(otherValue));
-                }
-                else {
+                } else {
                     replaceValue(existingValue.get().min(otherValue));
                 }
-            }
-            else {
+            } else {
                 addValue(otherValue);
             }
         }
@@ -861,8 +801,10 @@ public abstract class Node implements Serializable {
             return false;
         }
         var node = (Node) o;
-        return Objects.equals(metric, node.metric) && Objects.equals(name, node.name)
-                && Objects.equals(children, node.children) && Objects.equals(values, node.values);
+        return Objects.equals(metric, node.metric)
+                && Objects.equals(name, node.name)
+                && Objects.equals(children, node.children)
+                && Objects.equals(values, node.values);
     }
 
     @Override
@@ -873,8 +815,13 @@ public abstract class Node implements Serializable {
     @Override
     public String toString() {
         return getValue(Metric.LINE)
-                .map(lineCoverage -> String.format(Locale.ENGLISH, "[%s] %s <%d, %s>",
-                        getMetric(), getName(), getChildren().size(), lineCoverage))
+                .map(lineCoverage -> String.format(
+                        Locale.ENGLISH,
+                        "[%s] %s <%d, %s>",
+                        getMetric(),
+                        getName(),
+                        getChildren().size(),
+                        lineCoverage))
                 .orElse(String.format(Locale.ENGLISH, "[%s] %s <%d>", getMetric(), getName(), children.size()));
     }
 
@@ -938,14 +885,11 @@ public abstract class Node implements Serializable {
     /**
      * Filters a coverage tree by the given mapping function.
      *
-     * @param mappingFunction
-     *         The mapping function to be used
-     *
+     * @param mappingFunction The mapping function to be used
      * @return the root of the pruned coverage tree
      */
     private Optional<Node> filterTreeByMapping(final Function<Node, Optional<Node>> mappingFunction) {
-        var prunedChildren = getChildren()
-                .stream()
+        var prunedChildren = getChildren().stream()
                 .map(mappingFunction)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
@@ -959,14 +903,11 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Creates a new method node with the given method name and signature.
-     * Then the newly created node is added to this list of children.
+     * Creates a new method node with the given method name and signature. Then the newly created node is added to this
+     * list of children.
      *
-     * @param methodName
-     *         the method name
-     * @param signature
-     *         the signature of the method
-     *
+     * @param methodName the method name
+     * @param signature the signature of the method
      * @return the created and linked node
      */
     public MethodNode createMethodNode(final String methodName, final String signature) {
@@ -974,12 +915,9 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Creates a new class node with the given name.
-     * Then the newly created node is added to this list of children.
+     * Creates a new class node with the given name. Then the newly created node is added to this list of children.
      *
-     * @param className
-     *         the class name
-     *
+     * @param className the class name
      * @return the created and linked node
      */
     public ClassNode createClassNode(final String className) {
@@ -987,14 +925,11 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Creates a new file node with the given file name and path.
-     * Then the newly created node is added to this list of children.
+     * Creates a new file node with the given file name and path. Then the newly created node is added to this list of
+     * children.
      *
-     * @param fileName
-     *         the file name
-     * @param relativePath
-     *         the relative path of the file
-     *
+     * @param fileName the file name
+     * @param relativePath the relative path of the file
      * @return the created and linked node
      */
     public FileNode createFileNode(final String fileName, final TreeString relativePath) {
@@ -1002,12 +937,9 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Creates a new package node with the given name.
-     * Then the newly created node is added to this list of children.
+     * Creates a new package node with the given name. Then the newly created node is added to this list of children.
      *
-     * @param packageName
-     *         the package name
-     *
+     * @param packageName the package name
      * @return the created and linked node
      */
     public PackageNode createPackageNode(final String packageName) {
@@ -1024,9 +956,7 @@ public abstract class Node implements Serializable {
      * Searches for the specified class node. If the class node is not found, then a new class node will be created and
      * linked to this node.
      *
-     * @param className
-     *         the class name
-     *
+     * @param className the class name
      * @return the created and linked class node
      * @see #createClassNode(String)
      */
@@ -1038,11 +968,8 @@ public abstract class Node implements Serializable {
      * Searches for the specified file node. If the file node is not found, then a new file node will be created and
      * linked to this node.
      *
-     * @param fileName
-     *         the file name
-     * @param relativePath
-     *         the relative path of the file
-     *
+     * @param fileName the file name
+     * @param relativePath the relative path of the file
      * @return the existing or created file node
      * @see #createFileNode(String, TreeString)
      */
@@ -1051,12 +978,10 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Searches for the specified package node. If the package node is not found, then a new package node will be created
-     * and linked to this module node.
+     * Searches for the specified package node. If the package node is not found, then a new package node will be
+     * created and linked to this module node.
      *
-     * @param packageName
-     *         the package name
-     *
+     * @param packageName the package name
      * @return the existing or created package node
      * @see #createPackageNode(String)
      */

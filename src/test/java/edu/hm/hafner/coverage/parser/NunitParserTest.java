@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
-import org.junit.jupiter.api.Test;
+import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.ClassNode;
 import edu.hm.hafner.coverage.CoverageParser;
@@ -13,11 +13,9 @@ import edu.hm.hafner.coverage.PackageNode;
 import edu.hm.hafner.coverage.TestCase;
 import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.coverage.Value;
-
 import java.util.Collection;
 import java.util.NoSuchElementException;
-
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class NunitParserTest extends AbstractParserTest {
     @Override
@@ -35,7 +33,8 @@ class NunitParserTest extends AbstractParserTest {
         var tree = readNunitReport("nunit.xml");
         assertThat(getPackage(tree)).hasName("-");
         assertThat(getFirstClass(tree)).hasName("Tests");
-        assertThat(getFirstTest(tree).getDescription()).contains("Expected string length 4 but was 5. Strings differ at index 4");
+        assertThat(getFirstTest(tree).getDescription())
+                .contains("Expected string length 4 but was 5. Strings differ at index 4");
 
         assertThat(tree.aggregateValues()).contains(new Value(Metric.TESTS, 4));
     }

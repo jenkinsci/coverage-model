@@ -1,11 +1,7 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.Fraction;
-
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,6 +15,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.Fraction;
 
 /**
  * A metric to identify the type of the results. The enum order will be used to sort the values for display purposes.
@@ -28,8 +26,8 @@ import java.util.stream.Stream;
 @SuppressWarnings({"ImmutableEnumChecker", "PMD.ExcessivePublicCount"})
 public enum Metric {
     /**
-     * Coverage nodes that can have children. These nodes compute their coverage values on the fly based on
-     * their children's coverage.
+     * Coverage nodes that can have children. These nodes compute their coverage values on the fly based on their
+     * children's coverage.
      */
     CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
     MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
@@ -53,76 +51,204 @@ public enum Metric {
 
     /** Additional coverage values obtained from mutation testing. */
     MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
-    TEST_STRENGTH("Test Strength", "Test Strength", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter()),
+    TEST_STRENGTH(
+            "Test Strength",
+            "Test Strength",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.METRIC,
+            new PercentageFormatter()),
 
     // TODO: metrics might be better placed into a class that can have new instances dynamically
-    TESTS("Number of Tests", "Tests", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
-    TEST_SUCCESS_RATE("Test Success Rate", "Test Success %", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new RateFormatter()),
+    TESTS(
+            "Number of Tests",
+            "Tests",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.CLASS_METRIC,
+            new IntegerFormatter()),
+    TEST_SUCCESS_RATE(
+            "Test Success Rate",
+            "Test Success %",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.METRIC,
+            new RateFormatter()),
 
     /** Metrics from the PMD metrics reporter. */
-    LOC("Lines of Code", "LOC", new LocEvaluator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    NCSS("Non Commenting Source Statements", "NCSS", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    CYCLOMATIC_COMPLEXITY("Cyclomatic Complexity", "Complexity", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    COGNITIVE_COMPLEXITY("Cognitive Complexity", "Cognitive Complexity", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    NPATH_COMPLEXITY("N-Path Complexity", "N-Path", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METHOD_METRIC, new IntegerFormatter()),
-    ACCESS_TO_FOREIGN_DATA("Access to Foreign Data", "Foreign Data", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    COHESION("Class Cohesion", "Cohesion", new ValuesAggregator(Value::max, "maximum"),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    FAN_OUT("Fan Out", "Fan Out", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    NUMBER_OF_ACCESSORS("Number of Accessors", "Accessors", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
-    WEIGHT_OF_CLASS("Weight of Class", "Weigth", new ValuesAggregator(Value::max, "maximum"),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.CLASS_METRIC, new PercentageFormatter()),
-    WEIGHED_METHOD_COUNT("Weighted Method Count", "Methods", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.CLASS_METRIC, new IntegerFormatter()),
+    LOC(
+            "Lines of Code",
+            "LOC",
+            new LocEvaluator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    NCSS(
+            "Non Commenting Source Statements",
+            "NCSS",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    CYCLOMATIC_COMPLEXITY(
+            "Cyclomatic Complexity",
+            "Complexity",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC,
+            new IntegerFormatter()),
+    COGNITIVE_COMPLEXITY(
+            "Cognitive Complexity",
+            "Cognitive Complexity",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC,
+            new IntegerFormatter()),
+    NPATH_COMPLEXITY(
+            "N-Path Complexity",
+            "N-Path",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METHOD_METRIC,
+            new IntegerFormatter()),
+    ACCESS_TO_FOREIGN_DATA(
+            "Access to Foreign Data",
+            "Foreign Data",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    COHESION(
+            "Class Cohesion",
+            "Cohesion",
+            new ValuesAggregator(Value::max, "maximum"),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.CLASS_METRIC,
+            new PercentageFormatter()),
+    FAN_OUT(
+            "Fan Out",
+            "Fan Out",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    NUMBER_OF_ACCESSORS(
+            "Number of Accessors",
+            "Accessors",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.CLASS_METRIC,
+            new IntegerFormatter()),
+    WEIGHT_OF_CLASS(
+            "Weight of Class",
+            "Weigth",
+            new ValuesAggregator(Value::max, "maximum"),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.CLASS_METRIC,
+            new PercentageFormatter()),
+    WEIGHED_METHOD_COUNT(
+            "Weighted Method Count",
+            "Methods",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.CLASS_METRIC,
+            new IntegerFormatter()),
 
     /** Metrics from the static analysis tools. */
-    WARNINGS("Number of Warnings", "Warnings", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    BUGS("Number of Bugs", "Bugs", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    ERRORS("Number of Errors", "Errors", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    DUPLICATIONS("Number of Duplications", "Duplications", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    VULNERABILITIES("Number of Vulnerabilities", "Vulnerabilities", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    WARNINGS(
+            "Number of Warnings",
+            "Warnings",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    BUGS(
+            "Number of Bugs",
+            "Bugs",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    ERRORS(
+            "Number of Errors",
+            "Errors",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    DUPLICATIONS(
+            "Number of Duplications",
+            "Duplications",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    VULNERABILITIES(
+            "Number of Vulnerabilities",
+            "Vulnerabilities",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
 
     /** Metrics from git forensics. */
     // TODO: should we also expose dates like age of class or date of last commit?
-    AUTHORS("Different Authors", "Authors", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    COMMITS("Number of Commits", "Commits", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    CODE_CHURN("Code Churn", "Code Churn", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
+    AUTHORS(
+            "Different Authors",
+            "Authors",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    COMMITS(
+            "Number of Commits",
+            "Commits",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    CODE_CHURN(
+            "Code Churn",
+            "Code Churn",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
 
     /** Generic metrics. */
-    UNBOUNDED("Unbounded Integer Metric", "Unbounded", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    COUNT("Metric Counter", "Count", new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER, MetricValueType.METRIC, new IntegerFormatter()),
-    PERCENTAGE("Percentage Metric", "Percentage", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new PercentageFormatter()),
-    RATE("Rate Metric", "Rate", new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER, MetricValueType.METRIC, new RateFormatter());
+    UNBOUNDED(
+            "Unbounded Integer Metric",
+            "Unbounded",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    COUNT(
+            "Metric Counter",
+            "Count",
+            new ValuesAggregator(),
+            MetricTendency.SMALLER_IS_BETTER,
+            MetricValueType.METRIC,
+            new IntegerFormatter()),
+    PERCENTAGE(
+            "Percentage Metric",
+            "Percentage",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.METRIC,
+            new PercentageFormatter()),
+    RATE(
+            "Rate Metric",
+            "Rate",
+            new ValuesAggregator(),
+            MetricTendency.LARGER_IS_BETTER,
+            MetricValueType.METRIC,
+            new RateFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.
      *
-     * @param tag
-     *         the tag
-     *
+     * @param tag the tag
      * @return the metric
      * @see #toTagName()
      */
@@ -135,12 +261,9 @@ public enum Metric {
      * Additionally, all dashes and underscores are removed. This method also handles legacy metric names like
      * COMPLEXITY_MAXIMUM, COMPLEXITY_MINIMUM, and COMPLEXITY_AVERAGE by mapping them to CYCLOMATIC_COMPLEXITY.
      *
-     * @param name
-     *         the name
-     *
+     * @param name the name
      * @return the metric
-     * @throws IllegalArgumentException
-     *         if the name is blank or no metric could be found for the specified name
+     * @throws IllegalArgumentException if the name is blank or no metric could be found for the specified name
      */
     public static Metric fromName(final String name) {
         var normalizedName = normalize(name);
@@ -172,18 +295,30 @@ public enum Metric {
         this(displayName, label, evaluator, MetricTendency.LARGER_IS_BETTER);
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
+    Metric(
+            final String displayName,
+            final String label,
+            final MetricEvaluator evaluator,
             final MetricTendency tendency) {
         this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
-            final MetricTendency tendency, final MetricValueType type) {
+    Metric(
+            final String displayName,
+            final String label,
+            final MetricEvaluator evaluator,
+            final MetricTendency tendency,
+            final MetricValueType type) {
         this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
     }
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator,
-            final MetricTendency tendency, final MetricValueType type, final MetricFormatter formatter) {
+    Metric(
+            final String displayName,
+            final String label,
+            final MetricEvaluator evaluator,
+            final MetricTendency tendency,
+            final MetricValueType type,
+            final MetricFormatter formatter) {
         this.displayName = displayName;
         this.label = label;
         this.evaluator = evaluator;
@@ -238,9 +373,7 @@ public enum Metric {
     /**
      * Returns the aggregated value of this metric for the specified tree of nodes.
      *
-     * @param node
-     *         the root of the tree
-     *
+     * @param node the root of the tree
      * @return the aggregated value
      */
     public Optional<Value> getValueFor(final Node node) {
@@ -250,9 +383,7 @@ public enum Metric {
     /**
      * Returns the target nodes that store the values for this metric in the tree spanned by the specified node.
      *
-     * @param node
-     *         the node to get the target nodes from
-     *
+     * @param node the node to get the target nodes from
      * @return the target nodes
      */
     public List<? extends Node> getTargetNodes(final Node node) {
@@ -265,11 +396,8 @@ public enum Metric {
     /**
      * Formats the specified value according to the metrics formatter.
      *
-     * @param locale
-     *         the locale to use
-     * @param value
-     *         the value to format
-     *
+     * @param locale the locale to use
+     * @param value the value to format
      * @return the formatted value
      */
     public String format(final Locale locale, final double value) {
@@ -279,11 +407,8 @@ public enum Metric {
     /**
      * Formats the specified value according to the metrics formatter.
      *
-     * @param locale
-     *         the locale to use
-     * @param value
-     *         the value to format
-     *
+     * @param locale the locale to use
+     * @param value the value to format
      * @return the formatted value
      */
     public String formatDelta(final Locale locale, final double value) {
@@ -293,11 +418,8 @@ public enum Metric {
     /**
      * Formats the specified mean value according to the metrics formatter.
      *
-     * @param locale
-     *         the locale to use
-     * @param value
-     *         the mean value to format
-     *
+     * @param locale the locale to use
+     * @param value the mean value to format
      * @return the formatted mean value
      */
     public String formatMean(final Locale locale, final double value) {
@@ -307,11 +429,8 @@ public enum Metric {
     /**
      * Rounds and formats the specified value according to the metrics formatter.
      *
-     * @param locale
-     *         the locale to use
-     * @param value
-     *         the value to format
-     *
+     * @param locale the locale to use
+     * @param value the value to format
      * @return the formatted mean value
      */
     public String formatRounded(final Locale locale, final double value) {
@@ -325,9 +444,7 @@ public enum Metric {
     /**
      * Parses the specified {@link String} value as a {@link Fraction} and returns a corresponding value instance.
      *
-     * @param value
-     *         the value to parse as a fraction
-     *
+     * @param value the value to parse as a fraction
      * @return the value instance representing the parsed fraction
      */
     public Value parseValue(final String value) {
@@ -335,9 +452,7 @@ public enum Metric {
     }
 
     public static NavigableSet<Metric> getCoverageMetrics() {
-        return Arrays.stream(values())
-                .filter(Metric::isCoverage)
-                .collect(TreeSet::new, Set::add, Set::addAll);
+        return Arrays.stream(values()).filter(Metric::isCoverage).collect(TreeSet::new, Set::add, Set::addAll);
     }
 
     /**
@@ -351,9 +466,7 @@ public enum Metric {
         SMALLER_IS_BETTER
     }
 
-    /**
-     * Metric type: some metrics are represented as coverages, some other metrics are represented as plain values.
-     */
+    /** Metric type: some metrics are represented as coverages, some other metrics are represented as plain values. */
     public enum MetricValueType {
         /** Coverages are represented by values of the type {@link Coverage}. */
         COVERAGE,
@@ -382,8 +495,7 @@ public enum Metric {
         }
 
         Optional<Value> getValue(final Node node, final Metric searchMetric) {
-            return node.getValues()
-                    .stream()
+            return node.getValues().stream()
                     .filter(leaf -> leaf.getMetric() == searchMetric)
                     .findAny();
         }
@@ -429,21 +541,17 @@ public enum Metric {
             var builder = new CoverageBuilder().withMetric(searchMetric);
             if (hasCoverage(node)) {
                 builder.withCovered(1).withMissed(0);
-            }
-            else {
+            } else {
                 builder.withCovered(0).withMissed(1);
             }
             return builder.build();
         }
 
         private boolean hasCoverage(final Node node) {
-            boolean baseline = hasCoverage(node, INSTRUCTION)
-                    || hasCoverage(node, LINE)
-                    || hasCoverage(node, BRANCH);
+            boolean baseline = hasCoverage(node, INSTRUCTION) || hasCoverage(node, LINE) || hasCoverage(node, BRANCH);
 
-            boolean additional = hasCoverage(node, MCDC_PAIR)
-                    || hasCoverage(node, FUNCTION_CALL)
-                    || hasCoverage(node, MUTATION);
+            boolean additional =
+                    hasCoverage(node, MCDC_PAIR) || hasCoverage(node, FUNCTION_CALL) || hasCoverage(node, MUTATION);
 
             return baseline || additional;
         }
@@ -462,6 +570,7 @@ public enum Metric {
         @SuppressFBWarnings("SE_BAD_FIELD")
         @SuppressWarnings("serial")
         private final BinaryOperator<Value> accumulator;
+
         private final String name;
 
         ValuesAggregator() {
@@ -545,7 +654,9 @@ public enum Metric {
         }
 
         final double toRounded(final double value, final int scale) {
-            return BigDecimal.valueOf(value).setScale(scale, RoundingMode.HALF_UP).doubleValue();
+            return BigDecimal.valueOf(value)
+                    .setScale(scale, RoundingMode.HALF_UP)
+                    .doubleValue();
         }
 
         String percentage(final String value) {
@@ -593,9 +704,7 @@ public enum Metric {
         }
     }
 
-    /**
-     * A rate cannot show up as 100% unless it is exactly 1.0.
-     */
+    /** A rate cannot show up as 100% unless it is exactly 1.0. */
     private static class RateFormatter extends PercentageFormatter {
         @Serial
         private static final long serialVersionUID = 6718758308735877295L;
