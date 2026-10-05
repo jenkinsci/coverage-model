@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage>
+  <packages>
+    <package name="example">
+      <classes>
+        <class name="example" filename="example.c">
+          <methods>
+            <method name="example" signature="()" function-coverage="100.0% (1/1)" mcdcpair-coverage="50.0% (1/2)" functioncall-coverage="100.0% (1/1)"/>
+          </methods>
+          <lines>
+            <line number="10" hits="1" branch="true" condition-coverage="50.0% (1/2)" mcdcpair-coverage="50.0% (1/2)" functioncall-coverage="100.0% (1/1)"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
