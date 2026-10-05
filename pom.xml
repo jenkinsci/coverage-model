@@ -38,14 +38,14 @@
   <scm>
     <connection>scm:git:https://github.com/jenkinsci/coverage-model.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/coverage-model.git</developerConnection>
-    <tag>v0.73.0</tag>
+    <tag>${scmTag}</tag>
     <url>https://github.com/jenkinsci/coverage-model</url>
   </scm>
 
   <properties>
     <scmTag>HEAD</scmTag>
-    <revision>0.73.0</revision>
-    <changelist></changelist>
+    <revision>0.74.0</revision>
+    <changelist>-SNAPSHOT</changelist>
     <previousVersion>0.73.0</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
