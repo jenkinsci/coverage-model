@@ -344,6 +344,26 @@ class VectorCastParserTest extends AbstractParserTest {
         verifyMcdcFccClassFileNodeMetrics(root);
     }
 
+    @Test
+    void shouldReadSpacedCoverageCounts() {
+        var root = readReport("vectorcast-spaced-counts.xml");
+
+        assertThat(getCoverage(root, METHOD)).hasCovered(1).hasTotal(1);
+        assertThat(getCoverage(root, MCDC_PAIR)).hasCovered(1).hasTotal(2);
+        assertThat(getCoverage(root, FUNCTION_CALL)).hasCovered(1).hasTotal(1);
+    }
+
+    @Test
+    void shouldReadMethodSummaryWithoutDoubleCountingFileCoverage() {
+        var root = readReport("vectorcast-method-summary.xml");
+        var method = root.getAllMethodNodes().getFirst();
+
+        assertThat(getCoverage(method, MCDC_PAIR)).hasCovered(1).hasTotal(2);
+        assertThat(getCoverage(method, FUNCTION_CALL)).hasCovered(1).hasTotal(1);
+        assertThat(getCoverage(root, MCDC_PAIR)).hasCovered(1).hasTotal(2);
+        assertThat(getCoverage(root, FUNCTION_CALL)).hasCovered(1).hasTotal(1);
+    }
+
     private ModuleNode readExampleReport() {
         return readReport("vectorcast-statement-branch.xml");
     }
