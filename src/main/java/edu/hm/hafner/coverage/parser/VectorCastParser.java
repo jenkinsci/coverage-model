@@ -29,7 +29,8 @@ public class VectorCastParser extends CoberturaParser {
     @Serial
     private static final long serialVersionUID = 598117573006409816L;
 
-    private static final Pattern BRANCH_PATTERN = Pattern.compile(".*\\((?<covered>\\d+)/(?<total>\\d+)\\)");
+    private static final Pattern BRANCH_PATTERN =
+            Pattern.compile(".*\\(\\s*(?<covered>\\d+)\\s*/\\s*(?<total>\\d+)\\s*\\)\\s*");
 
     private static final Coverage DEFAULT_MCDCPAIR_COVERAGE = Coverage.nullObject(Metric.MCDC_PAIR);
     private static final Coverage DEFAULT_FUNCTION_COVERAGE = Coverage.nullObject(Metric.METHOD);
@@ -181,6 +182,12 @@ public class VectorCastParser extends CoberturaParser {
         getOptionalValueOf(element, FUNCTION_COVERAGE)
                 .map(this::fromFunctionCoverage)
                 .ifPresent(node::addValue);
+
+        if (METHOD.equals(element.getName())) {
+            // Extended VectorCAST methods contain summary attributes rather than nested lines.
+            coverageMap.put(Metric.MCDC_PAIR, readMcdcPairCoverage(element));
+            coverageMap.put(Metric.FUNCTION_CALL, readFunctionCallCoverage(element));
+        }
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();

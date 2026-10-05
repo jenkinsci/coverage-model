@@ -186,6 +186,117 @@ class FileNodeTest extends AbstractNodeTest {
     }
 
     @Test
+    void shouldMergeAllVectorCastMetricsIndependently() {
+        var left = new FileNode("condition.c", "condition.c");
+        left.addCounters(10, 1, 1);
+        left.addMcdcPairCounters(10, 0, 1);
+        left.addFunctionCallCounters(10, 0, 1);
+        var right = new FileNode("condition.c", "condition.c");
+        right.addCounters(10, 2, 0);
+        right.addMcdcPairCounters(10, 1, 0);
+        right.addFunctionCallCounters(10, 1, 0);
+
+        var merged = (FileNode) left.merge(right);
+        assertThat((Coverage) merged.getValue(Metric.LINE).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat((Coverage) merged.getValue(Metric.BRANCH).orElseThrow())
+                .hasCovered(2)
+                .hasTotal(2);
+        assertThat((Coverage) merged.getValue(Metric.MCDC_PAIR).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat((Coverage) merged.getValue(Metric.FUNCTION_CALL).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat(merged.getMcdcPairCoveredCounters()).containsExactly(1);
+        assertThat(merged.getFunctionCallCoveredCounters()).containsExactly(1);
+        assertThat(right.merge(left)).isEqualTo(merged);
+    }
+
+    @Test
+    void shouldPreserveLineCoverageWhenMergingMultiplePairsAndCalls() {
+        var left = new FileNode("condition.c", "condition.c");
+        left.addCounters(10, 1, 0);
+        left.addMcdcPairCounters(10, 1, 2);
+        left.addFunctionCallCounters(10, 1, 1);
+        var right = new FileNode("condition.c", "condition.c");
+        right.addCounters(10, 1, 0);
+        right.addMcdcPairCounters(10, 2, 1);
+        right.addFunctionCallCounters(10, 2, 0);
+
+        var merged = (FileNode) left.merge(right);
+        assertThat((Coverage) merged.getValue(Metric.LINE).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat((Coverage) merged.getValue(Metric.MCDC_PAIR).orElseThrow())
+                .hasCovered(2)
+                .hasTotal(3);
+        assertThat((Coverage) merged.getValue(Metric.FUNCTION_CALL).orElseThrow())
+                .hasCovered(2)
+                .hasTotal(2);
+    }
+
+    @Test
+    void shouldMergeReportsWithMissingExtendedMetrics() {
+        var left = new FileNode("condition.c", "condition.c");
+        left.addCounters(10, 1, 0);
+        var right = new FileNode("condition.c", "condition.c");
+        right.addCounters(10, 1, 0);
+        right.addMcdcPairCounters(10, 0, 1);
+        right.addFunctionCallCounters(10, 1, 0);
+
+        var merged = (FileNode) left.merge(right);
+        assertThat((Coverage) merged.getValue(Metric.MCDC_PAIR).orElseThrow())
+                .hasCovered(0)
+                .hasTotal(1);
+        assertThat((Coverage) merged.getValue(Metric.FUNCTION_CALL).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat(right.merge(left)).isEqualTo(merged);
+    }
+
+    @Test
+    void shouldRejectIncompatibleExtendedTotalsEvenWhenBranchTotalsDiffer() {
+        var left = new FileNode("condition.c", "condition.c");
+        left.addCounters(10, 1, 1);
+        left.addMcdcPairCounters(10, 0, 1);
+        var right = new FileNode("condition.c", "condition.c");
+        right.addCounters(10, 1, 2);
+        right.addMcdcPairCounters(10, 0, 2);
+
+        assertThatIllegalArgumentException().isThrownBy(() -> left.merge(right));
+    }
+
+    @Test
+    void shouldRetainExtendedCoverageOnlyForModifiedLines() {
+        var file = new FileNode("condition.c", "condition.c");
+        file.addCounters(10, 1, 1);
+        file.addMcdcPairCounters(10, 0, 3);
+        file.addFunctionCallCounters(10, 1, 0);
+        file.addCounters(20, 2, 0);
+        file.addMcdcPairCounters(20, 3, 0);
+        file.addFunctionCallCounters(20, 0, 2);
+        file.addModifiedLines(10);
+
+        var filtered = (FileNode) file.filterTreeByModifiedLines().orElseThrow();
+        assertThat((Coverage) filtered.getValue(Metric.LINE).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat((Coverage) filtered.getValue(Metric.BRANCH).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(2);
+        assertThat((Coverage) filtered.getValue(Metric.MCDC_PAIR).orElseThrow())
+                .hasCovered(0)
+                .hasTotal(3);
+        assertThat((Coverage) filtered.getValue(Metric.FUNCTION_CALL).orElseThrow())
+                .hasCovered(1)
+                .hasTotal(1);
+        assertThat(filtered.getMcdcPairMissedCounters()).containsExactly(3);
+        assertThat(filtered.getFunctionCallCoveredCounters()).containsExactly(1);
+    }
+
+    @Test
     void shouldAddModifiedLines() {
         var noModifiedLines = new FileNode("NoModified.java", ".");
         var modifiedLines = new FileNode("Modified.java", ".");
