@@ -90,10 +90,11 @@ class TestCaseMappingTest {
 
         assertThat(unmappedTests).extracting(Node::getName).containsOnly("ArchitectureTest", "PackageArchitectureTest");
 
-        assertThat(coverage.findFile("Metric.java")).hasValueSatisfying(file -> assertThat(file.getTestCases())
-                .hasSize(19)
-                .extracting(TestCase::getTestName)
-                .containsOnly(METRIC_TESTS));
+        assertThat(coverage.findFile("Metric.java"))
+                .hasValueSatisfying(file -> assertThat(file.getTestCases())
+                        .hasSize(19)
+                        .extracting(TestCase::getTestName)
+                        .containsOnly(METRIC_TESTS));
     }
 
     @SuppressFBWarnings("OBL")

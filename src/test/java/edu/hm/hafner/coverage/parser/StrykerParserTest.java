@@ -86,10 +86,11 @@ class StrykerParserTest extends AbstractParserTest {
         var tree = readReport("mutation-report.json");
 
         var file = findFile(tree, "add.js");
-        assertThat(file.getValue(MUTATION)).hasValueSatisfying(value -> assertThat(value)
-                .isInstanceOfSatisfying(
-                        Coverage.class,
-                        coverage -> assertThat(coverage).hasCovered(1).hasMissed(3)));
+        assertThat(file.getValue(MUTATION))
+                .hasValueSatisfying(value -> assertThat(value)
+                        .isInstanceOfSatisfying(
+                                Coverage.class,
+                                coverage -> assertThat(coverage).hasCovered(1).hasMissed(3)));
         assertThat(getLog().hasErrors()).isFalse();
     }
 

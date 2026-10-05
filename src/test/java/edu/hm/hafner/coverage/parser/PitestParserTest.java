@@ -123,9 +123,11 @@ class PitestParserTest extends AbstractParserTest {
     }
 
     private void verifyFilteredLog(final FileNode file) {
-        assertThat(file.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class, c -> assertThat(c)
-                .hasCovered(15)
-                .hasMissed(2));
+        assertThat(file.getValue(MUTATION))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(
+                        Coverage.class, c -> assertThat(c).hasCovered(15).hasMissed(2));
         assertThat(file.getLinesWithCoverage())
                 .containsExactly(94, 96, 99, 103, 122, 124, 128, 137, 145, 146, 156, 165, 174);
         assertThat(file.getCoveredCounters()).containsOnly(1).hasSize(13);
@@ -133,9 +135,11 @@ class PitestParserTest extends AbstractParserTest {
     }
 
     private void verifyLookaheadStream(final FileNode file) {
-        assertThat(file.getValue(MUTATION)).isPresent().get().isInstanceOfSatisfying(Coverage.class, c -> assertThat(c)
-                .hasCovered(18)
-                .hasMissed(1));
+        assertThat(file.getValue(MUTATION))
+                .isPresent()
+                .get()
+                .isInstanceOfSatisfying(
+                        Coverage.class, c -> assertThat(c).hasCovered(18).hasMissed(1));
         assertThat(file.getLinesWithCoverage())
                 .containsExactly(50, 55, 65, 77, 78, 79, 81, 84, 96, 97, 99, 115, 117, 119, 121, 130);
         assertThat(file.getCoveredCounters()).containsOnly(1).hasSize(16);

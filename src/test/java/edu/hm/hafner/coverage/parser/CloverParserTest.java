@@ -136,9 +136,11 @@ class CloverParserTest extends AbstractParserTest {
     void testRelativePathFromPackage() {
         var root = readReport("clover-declarative.xml");
 
-        assertThat(root.getAllFileNodes()).hasSize(1).satisfiesExactlyInAnyOrder(file -> assertThat(file)
-                .hasName(CLOVER_PUBLISHER)
-                .hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
+        assertThat(root.getAllFileNodes())
+                .hasSize(1)
+                .satisfiesExactlyInAnyOrder(file -> assertThat(file)
+                        .hasName(CLOVER_PUBLISHER)
+                        .hasRelativePath("hudson/plugins/clover/CloverPublisher.java"));
     }
 
     @Test
