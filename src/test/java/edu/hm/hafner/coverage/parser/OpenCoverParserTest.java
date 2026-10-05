@@ -53,17 +53,21 @@ class OpenCoverParserTest extends AbstractParserTest {
     @Test
     void shouldCreatePackageName() {
         var tree = readExampleReport();
-        assertThat(tree.find(PACKAGE, "-")).isNotEmpty().hasValueSatisfying(node -> assertThat(node)
-                .hasName("-")
-                .hasParentName("-.MyLogging")
-                .hasParent()
-                .isNotRoot());
+        assertThat(tree.find(PACKAGE, "-"))
+                .isNotEmpty()
+                .hasValueSatisfying(node -> assertThat(node)
+                        .hasName("-")
+                        .hasParentName("-.MyLogging")
+                        .hasParent()
+                        .isNotRoot());
         var fileName = "MyLogging.FancyClass.cs";
-        assertThat(tree.find(FILE, fileName)).isNotEmpty().hasValueSatisfying(node -> assertThat(node)
-                .hasName(fileName)
-                .hasParentName("-")
-                .hasParent()
-                .isNotRoot());
+        assertThat(tree.find(FILE, fileName))
+                .isNotEmpty()
+                .hasValueSatisfying(node -> assertThat(node)
+                        .hasName(fileName)
+                        .hasParentName("-")
+                        .hasParent()
+                        .isNotRoot());
     }
 
     @Test
@@ -97,11 +101,12 @@ class OpenCoverParserTest extends AbstractParserTest {
         var module = readExampleReport();
 
         assertThat(module.getAll(PACKAGE)).hasSize(1);
-        assertThat(module.findFile("MyLogging.FancyClass.cs")).isPresent().hasValueSatisfying(file -> assertThat(
-                        file.findClass("MyLogging.FancyClass"))
+        assertThat(module.findFile("MyLogging.FancyClass.cs"))
                 .isPresent()
-                .hasValueSatisfying(
-                        classNode -> assertThat(file.getAll(METHOD).size()).isEqualTo(14)));
+                .hasValueSatisfying(file -> assertThat(file.findClass("MyLogging.FancyClass"))
+                        .isPresent()
+                        .hasValueSatisfying(classNode ->
+                                assertThat(file.getAll(METHOD).size()).isEqualTo(14)));
 
         var methods = module.getAll(METHOD);
         assertThat(methods).hasSize(21);
@@ -162,11 +167,19 @@ class OpenCoverParserTest extends AbstractParserTest {
                                 .equals(m.getName()))
                 .collect(Collectors.toList());
 
-        assertThat(children).hasSize(1).element(0).isInstanceOfSatisfying(MethodNode.class, m -> assertThat(m)
-                .hasName(
-                        "System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()")
-                .hasSignature("System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()")
-                .hasValues(createLineCoverage(1, 0), createBranchCoverage(1, 1), new Value(CYCLOMATIC_COMPLEXITY, 2)));
+        assertThat(children)
+                .hasSize(1)
+                .element(0)
+                .isInstanceOfSatisfying(
+                        MethodNode.class,
+                        m -> assertThat(m)
+                                .hasName(
+                                        "System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()")
+                                .hasSignature("System.Boolean MyLogging.FancyClass::get_IsMyCodeWrittenWell()")
+                                .hasValues(
+                                        createLineCoverage(1, 0),
+                                        createBranchCoverage(1, 1),
+                                        new Value(CYCLOMATIC_COMPLEXITY, 2)));
     }
 
     private Coverage createBranchCoverage(final int covered, final int missed) {

@@ -1024,10 +1024,12 @@ class NodeTest {
         assertThat(mergedClass.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(7));
-        assertThat(mergedClass.getValue(WARNINGS)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
-                .isEqualTo(5));
-        assertThat(mergedClass.getValue(UNBOUNDED)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
-                .isEqualTo(4));
+        assertThat(mergedClass.getValue(WARNINGS))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
+        assertThat(mergedClass.getValue(UNBOUNDED))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(4));
     }
 
     @Test
@@ -1119,8 +1121,9 @@ class NodeTest {
         assertThat(mergedMethod.getValue(CYCLOMATIC_COMPLEXITY))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(3)); // max(2,3)
-        assertThat(mergedMethod.getValue(LOC)).isPresent().hasValueSatisfying(v -> assertThat(v.asInteger())
-                .isEqualTo(8)); // max(5,8)
+        assertThat(mergedMethod.getValue(LOC))
+                .isPresent()
+                .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(8)); // max(5,8)
     }
 
     @Test

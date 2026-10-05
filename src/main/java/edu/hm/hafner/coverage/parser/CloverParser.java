@@ -241,8 +241,9 @@ public class CloverParser extends CoverageParser {
 
     private TreeString constructPathForFile(
             final StartElement fileElement, final String packageName, final String fileName) {
-        return getOptionalValueOf(fileElement, PATH).map(TreeString::valueOf).orElseGet(() -> getTreeStringBuilder()
-                .intern(getPath(packageName, fileName)));
+        return getOptionalValueOf(fileElement, PATH)
+                .map(TreeString::valueOf)
+                .orElseGet(() -> getTreeStringBuilder().intern(getPath(packageName, fileName)));
     }
 
     private String getPath(final String packageName, final String fileName) {

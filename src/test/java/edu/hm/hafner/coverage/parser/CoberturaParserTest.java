@@ -47,9 +47,11 @@ class CoberturaParserTest extends AbstractParserTest {
                 .map(FileNode::getRelativePath)
                 .allSatisfy(file -> assertThat(file).doesNotStartWith("/_/").startsWith("Lib.LicenseScanner/"));
 
-        assertThat(root.getAllFileNodes()).hasSize(20).first().satisfies(file -> assertThat(file)
-                .hasName("IssueKeys.cs")
-                .hasRelativePath("Lib.LicenseScanner/IssueKeys.cs"));
+        assertThat(root.getAllFileNodes())
+                .hasSize(20)
+                .first()
+                .satisfies(file ->
+                        assertThat(file).hasName("IssueKeys.cs").hasRelativePath("Lib.LicenseScanner/IssueKeys.cs"));
     }
 
     @Test
@@ -286,10 +288,13 @@ class CoberturaParserTest extends AbstractParserTest {
                         builder.withMetric(LINE).withCovered(16).withMissed(6).build(),
                         builder.withMetric(BRANCH).withCovered(0).withMissed(3).build(),
                         new Value(LOC, 22));
-        assertThat(b.getAllFileNodes()).hasSize(1).element(0).satisfies(fileNode -> assertThat(fileNode)
-                .hasMissedLines(36, 37, 38, 40, 41, 42)
-                .doesNotHaveCoveredLines(36, 37, 38, 40, 41, 42)
-                .hasCoveredLines(1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 45, 54, 60, 66, 71, 72));
+        assertThat(b.getAllFileNodes())
+                .hasSize(1)
+                .element(0)
+                .satisfies(fileNode -> assertThat(fileNode)
+                        .hasMissedLines(36, 37, 38, 40, 41, 42)
+                        .doesNotHaveCoveredLines(36, 37, 38, 40, 41, 42)
+                        .hasCoveredLines(1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 45, 54, 60, 66, 71, 72));
 
         var expectedValuesAfterMerge = new Value[] {
             builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
@@ -310,9 +315,13 @@ class CoberturaParserTest extends AbstractParserTest {
     }
 
     private void verifyMissedAndCoveredLines(final Node left) {
-        assertThat(left.getAllFileNodes()).hasSize(1).element(0).satisfies(fileNode -> assertThat(fileNode)
-                .hasNoMissedLines()
-                .hasCoveredLines(1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 36, 37, 38, 40, 41, 42, 45, 54, 60, 66, 71, 72));
+        assertThat(left.getAllFileNodes())
+                .hasSize(1)
+                .element(0)
+                .satisfies(fileNode -> assertThat(fileNode)
+                        .hasNoMissedLines()
+                        .hasCoveredLines(
+                                1, 5, 6, 7, 8, 9, 10, 11, 20, 35, 36, 37, 38, 40, 41, 42, 45, 54, 60, 66, 71, 72));
     }
 
     @Test

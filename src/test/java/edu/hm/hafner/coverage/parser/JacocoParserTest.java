@@ -82,13 +82,18 @@ class JacocoParserTest extends AbstractParserTest {
                 .filter(m -> "<init>(II)V".equals(m.getName()))
                 .collect(Collectors.toList());
 
-        assertThat(children).hasSize(1).element(0).isInstanceOfSatisfying(MethodNode.class, m -> assertThat(m)
-                .hasName("<init>(II)V")
-                .hasSignature("(II)V")
-                .hasValues(
-                        createLineCoverage(10 - missed, missed),
-                        createBranchCoverage(2 + 4 - missed, 2 - (4 - missed)),
-                        new Value(CYCLOMATIC_COMPLEXITY, 3)));
+        assertThat(children)
+                .hasSize(1)
+                .element(0)
+                .isInstanceOfSatisfying(
+                        MethodNode.class,
+                        m -> assertThat(m)
+                                .hasName("<init>(II)V")
+                                .hasSignature("(II)V")
+                                .hasValues(
+                                        createLineCoverage(10 - missed, missed),
+                                        createBranchCoverage(2 + 4 - missed, 2 - (4 - missed)),
+                                        new Value(CYCLOMATIC_COMPLEXITY, 3)));
 
         assertThat(a)
                 .hasValues(
@@ -164,16 +169,20 @@ class JacocoParserTest extends AbstractParserTest {
         var left = new ModuleNode("root");
         model.getAll(PACKAGE).forEach(p -> left.addChild(p.copyTree()));
 
-        assertThat(left.find(PACKAGE, "edu.hm.hafner.util")).isPresent().get().satisfies(p -> assertThat(
-                        p.getValue(LINE))
-                .contains(builder.withCovered(60).withTotal(62).build()));
+        assertThat(left.find(PACKAGE, "edu.hm.hafner.util"))
+                .isPresent()
+                .get()
+                .satisfies(p -> assertThat(p.getValue(LINE))
+                        .contains(builder.withCovered(60).withTotal(62).build()));
 
         var right = new ModuleNode("root");
         style.getAll(PACKAGE).forEach(p -> right.addChild(p.copyTree()));
 
-        assertThat(right.find(PACKAGE, "edu.hm.hafner.util")).isPresent().get().satisfies(p -> assertThat(
-                        p.getValue(LINE))
-                .contains(builder.withCovered(294).withTotal(323).build()));
+        assertThat(right.find(PACKAGE, "edu.hm.hafner.util"))
+                .isPresent()
+                .get()
+                .satisfies(p -> assertThat(p.getValue(LINE))
+                        .contains(builder.withCovered(294).withTotal(323).build()));
 
         if (splitPackages) {
             left.splitPackages();
@@ -183,8 +192,13 @@ class JacocoParserTest extends AbstractParserTest {
         var merged = left.merge(right);
 
         var packageName = splitPackages ? "util" : "edu.hm.hafner.util";
-        assertThat(merged.find(PACKAGE, packageName)).isPresent().get().satisfies(p -> assertThat(p.getValue(LINE))
-                .contains(builder.withCovered(294 + 60).withTotal(323 + 62).build()));
+        assertThat(merged.find(PACKAGE, packageName))
+                .isPresent()
+                .get()
+                .satisfies(p -> assertThat(p.getValue(LINE))
+                        .contains(builder.withCovered(294 + 60)
+                                .withTotal(323 + 62)
+                                .build()));
     }
 
     @Test
@@ -195,9 +209,10 @@ class JacocoParserTest extends AbstractParserTest {
         assertThat(model.getAll(PACKAGE))
                 .extracting(Node::getName)
                 .containsExactly("fooDirectory", "fooDirectory.#_child_directory");
-        assertThat(model.findPackage("fooDirectory")).hasValueSatisfying(p -> assertThat(p.getAllFileNodes())
-                .map(FileNode::getFileName)
-                .containsExactly("Invoke-Foo.ps1", "Invoke-FooPlain.ps1", "Invoke-FooPlain2.ps1"));
+        assertThat(model.findPackage("fooDirectory"))
+                .hasValueSatisfying(p -> assertThat(p.getAllFileNodes())
+                        .map(FileNode::getFileName)
+                        .containsExactly("Invoke-Foo.ps1", "Invoke-FooPlain.ps1", "Invoke-FooPlain2.ps1"));
         assertThat(model.findPackage("fooDirectory.#_child_directory"))
                 .hasValueSatisfying(p -> assertThat(p.getAllFileNodes())
                         .map(FileNode::getFileName)
@@ -217,11 +232,12 @@ class JacocoParserTest extends AbstractParserTest {
         var module = readReport("jacocoTestReport.xml");
 
         assertThat(module.getAll(PACKAGE)).hasSize(1);
-        assertThat(module.findFile("CodeCoverageCategory.groovy")).isPresent().hasValueSatisfying(file -> assertThat(
-                        file.findClass("org.aboe026.CodeCoverageCategory"))
+        assertThat(module.findFile("CodeCoverageCategory.groovy"))
                 .isPresent()
-                .hasValueSatisfying(
-                        classNode -> assertThat(file.getAll(METHOD).size()).isEqualTo(3)));
+                .hasValueSatisfying(file -> assertThat(file.findClass("org.aboe026.CodeCoverageCategory"))
+                        .isPresent()
+                        .hasValueSatisfying(classNode ->
+                                assertThat(file.getAll(METHOD).size()).isEqualTo(3)));
 
         var methods = module.getAll(METHOD);
         assertThat(methods).hasSize(68);
@@ -268,8 +284,10 @@ class JacocoParserTest extends AbstractParserTest {
                         new Value(LOC, 294 + 29),
                         new Value(CYCLOMATIC_COMPLEXITY, 160));
 
-        assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(packageNode -> assertThat(packageNode)
-                .hasName("edu.hm.hafner.util"));
+        assertThat(tree.getChildren())
+                .hasSize(1)
+                .element(0)
+                .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"));
 
         var any = tree.getAll(FILE).stream()
                 .filter(n -> "Ensure.java".equals(n.getName()))
@@ -315,8 +333,10 @@ class JacocoParserTest extends AbstractParserTest {
                         builder.withMetric(CLASS).withCovered(15).withMissed(1).build(),
                         builder.withMetric(METHOD).withCovered(97).withMissed(5).build());
 
-        assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(packageNode -> assertThat(packageNode)
-                .hasName("edu.hm.hafner.util"));
+        assertThat(tree.getChildren())
+                .hasSize(1)
+                .element(0)
+                .satisfies(packageNode -> assertThat(packageNode).hasName("edu.hm.hafner.util"));
 
         var any = tree.getAll(FILE).stream()
                 .filter(n -> "Ensure.java".equals(n.getName()))
@@ -409,10 +429,11 @@ class JacocoParserTest extends AbstractParserTest {
                 .build();
         assertThat(tree.aggregateValues()).contains(coverage);
 
-        assertThat(tree.getChildren()).hasSize(1).element(0).satisfies(packageNode -> assertThat(packageNode)
-                .hasName("edu")
-                .hasParent()
-                .hasParentName(PROJECT_NAME));
+        assertThat(tree.getChildren())
+                .hasSize(1)
+                .element(0)
+                .satisfies(packageNode ->
+                        assertThat(packageNode).hasName("edu").hasParent().hasParentName(PROJECT_NAME));
     }
 
     @Test
@@ -420,18 +441,22 @@ class JacocoParserTest extends AbstractParserTest {
         var tree = readExampleReport();
 
         var fileName = "Ensure.java";
-        assertThat(tree.find(FILE, fileName)).isNotEmpty().hasValueSatisfying(node -> assertThat(node)
-                .hasName(fileName)
-                .hasParentName("edu.hm.hafner.util")
-                .hasParent()
-                .isNotRoot());
+        assertThat(tree.find(FILE, fileName))
+                .isNotEmpty()
+                .hasValueSatisfying(node -> assertThat(node)
+                        .hasName(fileName)
+                        .hasParentName("edu.hm.hafner.util")
+                        .hasParent()
+                        .isNotRoot());
 
         tree.splitPackages();
-        assertThat(tree.find(FILE, fileName)).isNotEmpty().hasValueSatisfying(node -> assertThat(node)
-                .hasName(fileName)
-                .hasParentName("edu.hm.hafner.util")
-                .hasParent()
-                .isNotRoot());
+        assertThat(tree.find(FILE, fileName))
+                .isNotEmpty()
+                .hasValueSatisfying(node -> assertThat(node)
+                        .hasName(fileName)
+                        .hasParentName("edu.hm.hafner.util")
+                        .hasParent()
+                        .isNotRoot());
     }
 
     private void verifyCoverageMetrics(final Node tree) {

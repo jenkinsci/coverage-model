@@ -62,8 +62,9 @@ class ModuleNodeTest extends AbstractNodeTest {
         assertThat(root.getAll(PACKAGE))
                 .hasSize(3)
                 .satisfiesExactly(
-                        s -> assertThat(s).hasName("hafner"), s -> assertThat(s).hasName("hm"), s -> assertThat(s)
-                                .hasName("edu"));
+                        s -> assertThat(s).hasName("hafner"),
+                        s -> assertThat(s).hasName("hm"),
+                        s -> assertThat(s).hasName("edu"));
     }
 
     @Test
