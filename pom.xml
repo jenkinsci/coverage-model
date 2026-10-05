@@ -53,11 +53,26 @@
     <incrementals-plugin.version>1.13</incrementals-plugin.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>tools.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>3.2.3</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>3.2.2</version>
     </dependency>
   </dependencies>
 
