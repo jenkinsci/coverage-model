@@ -1,20 +1,18 @@
 package edu.hm.hafner.coverage;
 
-import static edu.hm.hafner.coverage.MutationStatus.LineCoverage.*;
-
 /**
  * Represents all possible outcomes for mutations.
  *
  * @author Melissa Bauer
  */
 public enum MutationStatus {
-    KILLED(COVERED),
-    SURVIVED(COVERED),
-    NO_COVERAGE(MISSED),
-    NON_VIABLE(UNKNOWN),
-    TIMED_OUT(COVERED),
-    MEMORY_ERROR(UNKNOWN),
-    RUN_ERROR(UNKNOWN);
+    KILLED(LineCoverage.COVERED),
+    SURVIVED(LineCoverage.COVERED),
+    NO_COVERAGE(LineCoverage.MISSED),
+    NON_VIABLE(LineCoverage.UNKNOWN),
+    TIMED_OUT(LineCoverage.COVERED),
+    MEMORY_ERROR(LineCoverage.UNKNOWN),
+    RUN_ERROR(LineCoverage.UNKNOWN);
 
     private final LineCoverage lineCoverage;
 
@@ -31,11 +29,11 @@ public enum MutationStatus {
     }
 
     public boolean isCovered() {
-        return lineCoverage == COVERED;
+        return lineCoverage == LineCoverage.COVERED;
     }
 
     public boolean isMissed() {
-        return lineCoverage == MISSED;
+        return lineCoverage == LineCoverage.MISSED;
     }
 
     enum LineCoverage {
