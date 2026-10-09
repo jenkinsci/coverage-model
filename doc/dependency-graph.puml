@@ -6,7 +6,7 @@ skinparam rectangle {
   BackgroundColor<<runtime>> lightBlue
   BackgroundColor<<provided>> lightGray
 }
-rectangle "coverage-model\n\n0.75.0-SNAPSHOT" as edu_hm_hafner_coverage_model_jar
+rectangle "coverage-model\n\n0.76.0-SNAPSHOT" as edu_hm_hafner_coverage_model_jar
 rectangle "jackson-core\n\n3.2.3" as tools_jackson_core_jackson_core_jar
 rectangle "jackson-databind\n\n3.2.3" as tools_jackson_core_jackson_databind_jar
 rectangle "jackson-annotations\n\n2.22" as com_fasterxml_jackson_core_jackson_annotations_jar
