@@ -365,9 +365,32 @@ public abstract class Node implements Serializable {
      * @return aggregation of values below this tree
      */
     public List<Value> aggregateValues() {
+        return computeValues(this::getValue);
+    }
+
+    /**
+     * Aggregates all values that are part of the subtree that is spanned by this node using the specified aggregation.
+     * The values of the individual elements that store a metric (e.g., the methods for the cyclomatic complexity or the
+     * classes for the lines of code) are combined as total, maximum, minimum, or average value. Metrics without a value
+     * are omitted. The aggregation {@link MetricAggregation#TOTAL} is the default aggregation: it yields the values of
+     * {@link #aggregateValues()}.
+     *
+     * @param aggregation the aggregation type to use
+     * @return aggregation of values below this tree
+     * @see #aggregateValues()
+     * @see #getValue(Metric, MetricAggregation)
+     */
+    public List<Value> aggregateValues(final MetricAggregation aggregation) {
+        if (aggregation == MetricAggregation.getDefault()) {
+            return aggregateValues();
+        }
+        return computeValues(searchMetric -> getValue(searchMetric, aggregation));
+    }
+
+    private List<Value> computeValues(final Function<Metric, Optional<Value>> valueProvider) {
         return getMetrics().stream()
                 .sorted()
-                .map(this::getValue)
+                .map(valueProvider)
                 .flatMap(Optional::stream)
                 .collect(Collectors.toList());
     }

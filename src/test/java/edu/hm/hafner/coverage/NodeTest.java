@@ -1163,6 +1163,32 @@ class NodeTest {
                 .contains(Value.valueOf("CYCLOMATIC_COMPLEXITY: " + expected));
     }
 
+    @ParameterizedTest(name = "[{index}] {0} of (6, 12, 3) should be {1}")
+    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "AVERAGE, 7", "TOTAL, 21"})
+    void shouldAggregateAllValuesWithAggregation(final MetricAggregation aggregation, final int expected) {
+        var classNode = createClassNodeWithComplexityValues(6, 12, 3);
+
+        assertThat(classNode.aggregateValues(aggregation))
+                .contains(Value.valueOf("CYCLOMATIC_COMPLEXITY: " + expected));
+    }
+
+    @Test
+    void shouldAggregateAllValuesWithDefaultAggregation() {
+        var classNode = createClassNodeWithComplexityValues(6, 12, 3);
+
+        assertThat(classNode.aggregateValues(MetricAggregation.getDefault()))
+                .containsExactlyElementsOf(classNode.aggregateValues());
+    }
+
+    @Test
+    void shouldReturnNoAggregatedValuesWhenNoValues() {
+        var classNode = new ClassNode("TestClass");
+
+        for (MetricAggregation aggregation : MetricAggregation.values()) {
+            assertThat(classNode.aggregateValues(aggregation)).isEmpty();
+        }
+    }
+
     @Test
     void shouldReturnEmptyForAggregationWhenNoValues() {
         var classNode = new ClassNode("TestClass");
