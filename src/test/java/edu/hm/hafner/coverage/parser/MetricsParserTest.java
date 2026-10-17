@@ -10,9 +10,11 @@ import edu.hm.hafner.coverage.CoverageParser;
 import edu.hm.hafner.coverage.CoverageParser.ParsingException;
 import edu.hm.hafner.coverage.CoverageParser.ProcessingMode;
 import edu.hm.hafner.coverage.Metric;
+import edu.hm.hafner.coverage.MetricAggregation;
 import edu.hm.hafner.coverage.Node;
 import edu.hm.hafner.coverage.Value;
 import java.util.Locale;
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 import org.junitpioneer.jupiter.DefaultLocale;
 
@@ -56,6 +58,7 @@ class MetricsParserTest extends AbstractParserTest {
         assertThat(ensure).isPresent().hasValueSatisfying(this::verifyEnsureClassNode);
 
         assertThat(tree.aggregateValues())
+                .filteredOn(value -> value.getMetric() != COHESION && value.getMetric() != WEIGHT_OF_CLASS)
                 .containsOnly(
                         new Value(CYCLOMATIC_COMPLEXITY, 355),
                         new Value(NCSS, 1199),
@@ -63,11 +66,16 @@ class MetricsParserTest extends AbstractParserTest {
                         new Value(COGNITIVE_COMPLEXITY, 172),
                         new Value(NPATH_COMPLEXITY, 432),
                         new Value(ACCESS_TO_FOREIGN_DATA, 87),
-                        new Value(COHESION, 5, 7),
                         new Value(FAN_OUT, 224),
                         new Value(NUMBER_OF_ACCESSORS, 14),
-                        new Value(WEIGHT_OF_CLASS, 1),
                         new Value(WEIGHED_METHOD_COUNT, 354));
+        // percentages without parts: the overall value is the mean of all 24 classes
+        assertThat(tree.getValue(COHESION))
+                .hasValueSatisfying(value -> assertThat(value.asDouble()).isCloseTo(0.1359, Offset.offset(0.001)));
+        assertThat(tree.getValue(WEIGHT_OF_CLASS))
+                .hasValueSatisfying(value -> assertThat(value.asDouble()).isCloseTo(0.8365, Offset.offset(0.001)));
+        assertThat(tree.getValue(COHESION, MetricAggregation.MAXIMUM)).contains(new Value(COHESION, 5, 7));
+        assertThat(tree.getValue(WEIGHT_OF_CLASS, MetricAggregation.MAXIMUM)).contains(new Value(WEIGHT_OF_CLASS, 1));
 
         assertThat(tree.getValue(CYCLOMATIC_COMPLEXITY)).hasValueSatisfying(value -> {
             assertThat(value.asText(Locale.ENGLISH)).isEqualTo("355");

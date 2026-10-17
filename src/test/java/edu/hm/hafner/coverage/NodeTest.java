@@ -10,7 +10,7 @@ import static edu.hm.hafner.coverage.Metric.LOC;
 import static edu.hm.hafner.coverage.Metric.MODULE;
 import static edu.hm.hafner.coverage.Metric.MUTATION;
 import static edu.hm.hafner.coverage.Metric.PACKAGE;
-import static edu.hm.hafner.coverage.Metric.UNBOUNDED;
+import static edu.hm.hafner.coverage.Metric.TESTS;
 import static edu.hm.hafner.coverage.Metric.WARNINGS;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
@@ -1005,7 +1005,7 @@ class NodeTest {
         var classA = new ClassNode("Cls");
         classA.addValue(new Value(CYCLOMATIC_COMPLEXITY, 3));
         classA.addValue(new Value(WARNINGS, 2));
-        classA.addValue(new Value(UNBOUNDED, 10));
+        classA.addValue(new Value(TESTS, 10));
         pkgA.addChild(classA);
         moduleA.addChild(pkgA);
 
@@ -1014,7 +1014,7 @@ class NodeTest {
         var classB = new ClassNode("Cls");
         classB.addValue(new Value(CYCLOMATIC_COMPLEXITY, 7));
         classB.addValue(new Value(WARNINGS, 5));
-        classB.addValue(new Value(UNBOUNDED, 4));
+        classB.addValue(new Value(TESTS, 4));
         pkgB.addChild(classB);
         moduleB.addChild(pkgB);
 
@@ -1027,7 +1027,7 @@ class NodeTest {
         assertThat(mergedClass.getValue(WARNINGS))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(5));
-        assertThat(mergedClass.getValue(UNBOUNDED))
+        assertThat(mergedClass.getValue(TESTS))
                 .isPresent()
                 .hasValueSatisfying(v -> assertThat(v.asInteger()).isEqualTo(4));
     }
@@ -1155,7 +1155,7 @@ class NodeTest {
     }
 
     @ParameterizedTest(name = "[{index}] {0} of (6, 12, 3) should be {1}")
-    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "AVERAGE, 7", "TOTAL, 21"})
+    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "OVERALL, 21"})
     void shouldComputeAggregation(final MetricAggregation aggregation, final int expected) {
         var classNode = createClassNodeWithComplexityValues(6, 12, 3);
 
@@ -1164,7 +1164,7 @@ class NodeTest {
     }
 
     @ParameterizedTest(name = "[{index}] {0} of (6, 12, 3) should be {1}")
-    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "AVERAGE, 7", "TOTAL, 21"})
+    @CsvSource({"MAXIMUM, 12", "MINIMUM, 3", "OVERALL, 21"})
     void shouldAggregateAllValuesWithAggregation(final MetricAggregation aggregation, final int expected) {
         var classNode = createClassNodeWithComplexityValues(6, 12, 3);
 
@@ -1197,7 +1197,7 @@ class NodeTest {
                 .isEmpty();
         assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM))
                 .isEmpty();
-        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE))
+        assertThat(classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.OVERALL))
                 .isEmpty();
     }
 
@@ -1296,22 +1296,50 @@ class NodeTest {
         assertThat(minimum).isPresent();
         assertThat(minimum.get().asDouble()).isEqualTo(5.0);
 
-        var average = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.AVERAGE);
-        assertThat(average).isPresent();
-        assertThat(average.get().asDouble()).isEqualTo(10.0);
+        var overall = packageNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.OVERALL);
+        assertThat(overall).isPresent();
+        assertThat(overall.get().asDouble()).isEqualTo(20.0);
     }
 
     @Test
-    void shouldFallBackToTotalWhenUsingTotalAggregation() {
+    void shouldUseDefaultAggregationForRegularValue() {
         var classNode = new ClassNode("TestClass");
         var method1 = new MethodNode("method1", "()V");
         method1.addValue(new Value(CYCLOMATIC_COMPLEXITY, 5));
         classNode.addChild(method1);
 
-        var total = classNode.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.TOTAL);
+        var overall = classNode.getValue(CYCLOMATIC_COMPLEXITY, CYCLOMATIC_COMPLEXITY.getDefaultAggregation());
         var regular = classNode.getValue(CYCLOMATIC_COMPLEXITY);
 
-        assertThat(total).isEqualTo(regular);
+        assertThat(overall).isEqualTo(regular);
+    }
+
+    @Test
+    void shouldProvideOnlyOverallValueForContainerMetrics() {
+        var classNode = new ClassNode("TestClass");
+        var covered = new MethodNode("covered", "()V");
+        covered.addValue(new Coverage.CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(1)
+                .withMissed(0)
+                .build());
+        var missed = new MethodNode("missed", "()V");
+        missed.addValue(new Coverage.CoverageBuilder()
+                .withMetric(LINE)
+                .withCovered(0)
+                .withMissed(1)
+                .build());
+        classNode.addChild(covered);
+        classNode.addChild(missed);
+
+        var expected = new Coverage.CoverageBuilder()
+                .withMetric(Metric.METHOD)
+                .withCovered(1)
+                .withMissed(1)
+                .build();
+        assertThat(classNode.getValue(Metric.METHOD, MetricAggregation.OVERALL)).contains(expected);
+        assertThat(classNode.getValue(Metric.METHOD, MetricAggregation.MAXIMUM)).isEmpty();
+        assertThat(classNode.getValue(Metric.METHOD, MetricAggregation.MINIMUM)).isEmpty();
     }
 
     @Test
@@ -1326,9 +1354,6 @@ class NodeTest {
 
         var minimum = packageNode.getValue(LOC, MetricAggregation.MINIMUM);
         assertThat(minimum).isEmpty();
-
-        var average = packageNode.getValue(LOC, MetricAggregation.AVERAGE);
-        assertThat(average).isEmpty();
     }
 
     private static ClassNode createClassNodeWithComplexityValues(final int... complexityValues) {

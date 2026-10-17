@@ -1,10 +1,16 @@
 package edu.hm.hafner.coverage;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -24,9 +30,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * A hierarchical decomposition of coverage results.
@@ -38,6 +41,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 public abstract class Node implements Serializable {
     @Serial
     private static final long serialVersionUID = -6608885640271135273L;
+
+    private static final ValueCalculator VALUE_CALCULATOR = new ValueCalculator();
 
     static final String EMPTY_NAME = "-";
     static final String ROOT = "^";
@@ -313,30 +318,28 @@ public abstract class Node implements Serializable {
 
     /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
-     * of.
+     * of using the {@link Metric#getDefaultAggregation() default aggregation} of the metric.
      *
      * @param searchMetric the metric to get the value for
      * @return the value for the specified metric or an empty result if no value has been defined
      */
     public Optional<Value> getValue(final Metric searchMetric) {
-        return searchMetric.getValueFor(this);
+        return getValue(searchMetric, searchMetric.getDefaultAggregation());
     }
 
     /**
      * Returns the value for the specified metric using the specified aggregation type. The value is computed for the
-     * whole subtree this node is the root of.
+     * whole subtree this node is the root of. The {@link MetricAggregation#OVERALL overall} value combines all values
+     * of the subtree. The {@link MetricAggregation#MAXIMUM maximum} and {@link MetricAggregation#MINIMUM minimum}
+     * select the largest or smallest value of the elements that store the metric (see
+     * {@link Metric#getTargetNodes(Node)}). Container metrics (e.g., the file coverage) provide only an overall value.
      *
      * @param searchMetric the metric to get the value for
      * @param aggregation the aggregation type to use
      * @return the value for the specified metric or an empty result if no value has been defined
      */
     public Optional<Value> getValue(final Metric searchMetric, final MetricAggregation aggregation) {
-        var targetNodes = searchMetric.getTargetNodes(this);
-        var metricValues = targetNodes.stream()
-                .map(node -> node.getValue(searchMetric))
-                .flatMap(Optional::stream)
-                .toList();
-        return aggregation.aggregate(metricValues);
+        return VALUE_CALCULATOR.getValue(this, searchMetric, aggregation);
     }
 
     /**
@@ -350,7 +353,7 @@ public abstract class Node implements Serializable {
      */
     @SuppressWarnings("unchecked")
     public <T extends Value> T getTypedValue(final Metric searchMetric, final T defaultValue) {
-        var possiblyValue = searchMetric.getValueFor(this);
+        var possiblyValue = getValue(searchMetric);
 
         //noinspection unchecked
         return possiblyValue
@@ -358,9 +361,9 @@ public abstract class Node implements Serializable {
                 .orElse(defaultValue);
     }
 
-    // FIXME: when aggregating values we need to make sure that
     /**
-     * Aggregates all values that are part of the subtree that is spanned by this node.
+     * Aggregates all values that are part of the subtree that is spanned by this node. Each metric is aggregated using
+     * its {@link Metric#getDefaultAggregation() default aggregation}.
      *
      * @return aggregation of values below this tree
      */
@@ -370,10 +373,8 @@ public abstract class Node implements Serializable {
 
     /**
      * Aggregates all values that are part of the subtree that is spanned by this node using the specified aggregation.
-     * The values of the individual elements that store a metric (e.g., the methods for the cyclomatic complexity or the
-     * classes for the lines of code) are combined as total, maximum, minimum, or average value. Metrics without a value
-     * are omitted. The aggregation {@link MetricAggregation#TOTAL} is the default aggregation: it yields the values of
-     * {@link #aggregateValues()}.
+     * See {@link #getValue(Metric, MetricAggregation)} for details on how the values are aggregated. Metrics without a
+     * value are omitted.
      *
      * @param aggregation the aggregation type to use
      * @return aggregation of values below this tree
@@ -381,9 +382,6 @@ public abstract class Node implements Serializable {
      * @see #getValue(Metric, MetricAggregation)
      */
     public List<Value> aggregateValues(final MetricAggregation aggregation) {
-        if (aggregation == MetricAggregation.getDefault()) {
-            return aggregateValues();
-        }
         return computeValues(searchMetric -> getValue(searchMetric, aggregation));
     }
 

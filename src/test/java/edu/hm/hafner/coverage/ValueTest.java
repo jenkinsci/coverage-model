@@ -100,10 +100,10 @@ class ValueTest {
     @DisplayName("Percentage values should be exactly 100% for almost perfect rates")
     void shouldHandle100Percent(final int digits) {
         var value = BigInteger.TEN.pow(digits).intValue();
-        var percentage = new Value(Metric.PERCENTAGE, value - 1, value);
+        var percentage = new Value(Metric.TEST_STRENGTH, value - 1, value);
 
         assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("100.00%");
-        assertThat(percentage).hasToString("Percentage Metric: 100.00%");
+        assertThat(percentage).hasToString("Test Strength: 100.00%");
     }
 
     @ParameterizedTest(name = "digits={0}")
@@ -111,10 +111,10 @@ class ValueTest {
     @DisplayName("Not perfect rate values should be less than 100%")
     void shouldHandle100Rate(final int digits) {
         var value = BigInteger.TEN.pow(digits).intValue();
-        var rate = new Value(Metric.RATE, value - 1, value);
+        var rate = new Value(Metric.TEST_SUCCESS_RATE, value - 1, value);
 
         assertThat(rate.asText(Locale.ENGLISH)).isEqualTo("99.99%");
-        assertThat(rate).hasToString("Rate Metric: 99.99%");
+        assertThat(rate).hasToString("Test Success Rate: 99.99%");
     }
 
     @Test

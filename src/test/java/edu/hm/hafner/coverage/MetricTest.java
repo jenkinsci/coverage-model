@@ -80,10 +80,7 @@ class MetricTest {
                         Metric.MUTATION);
     }
 
-    /**
-     * TestCount if the object in the evaluator-attribute of class {@link Metric} correctly overrides its
-     * isAggregatingChildren-method.
-     */
+    /** Verifies that the container metrics are correctly identified. */
     @Test
     void shouldCorrectlyImplementIsContainer() {
         assertThat(Metric.MODULE)
@@ -141,7 +138,7 @@ class MetricTest {
                 .hasDisplayName("Cyclomatic Complexity");
         assertThat(complexity.format(Locale.ENGLISH, 355)).isEqualTo("355");
         assertThat(complexity.formatMean(Locale.ENGLISH, 355)).isEqualTo("355.00");
-        assertThat(complexity.getAggregationType()).isEqualTo("total");
+        assertThat(complexity.getDefaultAggregation()).isEqualTo(MetricAggregation.OVERALL);
         assertThat(complexity.getType()).isEqualTo(MetricValueType.METHOD_METRIC);
         assertThat(complexity.parseValue("355.7"))
                 .satisfies(value -> assertThat(value.asText(Locale.ENGLISH)).isEqualTo("356"));
@@ -160,7 +157,7 @@ class MetricTest {
                 .hasDisplayName("Class Cohesion");
         assertThat(cohesion.format(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
         assertThat(cohesion.formatMean(Locale.ENGLISH, 0.355)).isEqualTo("35.50%");
-        assertThat(cohesion.getAggregationType()).isEqualTo("maximum");
+        assertThat(cohesion.getDefaultAggregation()).isEqualTo(MetricAggregation.OVERALL);
         assertThat(cohesion.getType()).isEqualTo(MetricValueType.CLASS_METRIC);
         assertThat(cohesion.parseValue("0.355"))
                 .satisfies(value -> assertThat(value.asText(Locale.ENGLISH)).isEqualTo("35.50%"));
@@ -177,7 +174,7 @@ class MetricTest {
                 .isContainer()
                 .isCoverage()
                 .hasDisplayName("Package Coverage");
-        assertThat(coverage.getAggregationType()).isEmpty();
+        assertThat(coverage.getDefaultAggregation()).isEqualTo(MetricAggregation.OVERALL);
         assertThat(coverage.getType()).isEqualTo(MetricValueType.COVERAGE);
         assertThat(coverage.getTargetNodes(root))
                 .hasSize(1)
