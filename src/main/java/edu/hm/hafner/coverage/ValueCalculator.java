@@ -1,6 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -20,8 +19,8 @@ final class ValueCalculator {
      * Returns the value of the specified metric for the subtree that is spanned by the specified node. The
      * {@link MetricAggregation#OVERALL overall} value combines all values of the subtree. The
      * {@link MetricAggregation#MAXIMUM maximum} and {@link MetricAggregation#MINIMUM minimum} select the largest or
-     * smallest value of the elements that store the metric (see {@link Metric#getTargetNodes(Node)}). Container metrics
-     * (e.g., the file coverage) provide only an overall value.
+     * smallest value of the elements that provide the metric (see {@link Metric#getTargetNodes(Node)}). Empty coverage
+     * values are ignored. Container metrics (e.g., the file coverage) provide only an overall value.
      *
      * @param node the root of the subtree
      * @param metric the metric to get the value for
@@ -38,8 +37,21 @@ final class ValueCalculator {
         var metricValues = metric.getTargetNodes(node).stream()
                 .map(target -> computeOverallValue(target, metric))
                 .flatMap(Optional::stream)
+                .filter(this::isNotEmpty)
                 .toList();
         return aggregation.aggregate(metricValues);
+    }
+
+    /**
+     * Returns whether the specified value contains any data. A coverage without any covered or missed elements (e.g.,
+     * the line coverage of a file without code) is empty and is therefore ignored when selecting the maximum or
+     * minimum.
+     *
+     * @param value the value to check
+     * @return {@code true} if the value contains data, {@code false} otherwise
+     */
+    private boolean isNotEmpty(final Value value) {
+        return !(value instanceof Coverage coverage) || coverage.isSet();
     }
 
     /**
@@ -89,7 +101,6 @@ final class ValueCalculator {
         return computeOverallValue(node, Metric.LINE).map(this::getTotalLines);
     }
 
-    @SuppressFBWarnings(value = "BC", justification = "The value is a coverage value as it has the metric LINE")
     private Value getTotalLines(final Value lineCoverage) {
         return new Value(Metric.LOC, ((Coverage) lineCoverage).getTotal());
     }

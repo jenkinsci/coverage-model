@@ -77,7 +77,8 @@ class MetricTest {
                         Metric.STMT_CC,
                         Metric.CONDITION,
                         Metric.BYTES,
-                        Metric.MUTATION);
+                        Metric.MUTATION,
+                        Metric.TEST_STRENGTH);
     }
 
     /** Verifies that the container metrics are correctly identified. */
@@ -176,10 +177,12 @@ class MetricTest {
                 .hasDisplayName("Package Coverage");
         assertThat(coverage.getDefaultAggregation()).isEqualTo(MetricAggregation.OVERALL);
         assertThat(coverage.getType()).isEqualTo(MetricValueType.COVERAGE);
-        assertThat(coverage.getTargetNodes(root))
+
+        root.addChild(new FileNode("File.java", "package/File.java"));
+        assertThat(Metric.LINE.getTargetNodes(root))
                 .hasSize(1)
                 .first()
                 .extracting(Node::getName)
-                .isEqualTo("class");
+                .isEqualTo("File.java");
     }
 }

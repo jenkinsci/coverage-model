@@ -81,9 +81,7 @@ class MetricAggregationConsistencyTest {
     }
 
     private static List<Node> getNodes(final ModuleNode module) {
-        var packageNode = module.getChildren().get(0);
-        var fileNode = packageNode.getChildren().get(0);
-        return List.of(module, packageNode, fileNode);
+        return List.of(module, module.getChildren().get(0));
     }
 
     private static Value createExpectedValue(
@@ -102,9 +100,9 @@ class MetricAggregationConsistencyTest {
     }
 
     /**
-     * Creates a tree (module, package, file, two classes with two methods each) that stores values for the specified
-     * metrics only. Method metrics are stored in the methods (1, 2, 3, and 4), coverage metrics are stored in the
-     * classes (3/2 and 5/2), and all other metrics are stored in the classes (3 and 5).
+     * Creates a tree (module, package, two files with one class each, two methods per class) that stores values for the
+     * specified metrics only. Method metrics are stored in the methods (1, 2, 3, and 4), coverage metrics are stored in
+     * the classes (3/2 and 5/2), and all other metrics are stored in the classes (3 and 5).
      *
      * @param metric the metric to store the values for
      * @return the root of the tree
@@ -112,12 +110,15 @@ class MetricAggregationConsistencyTest {
     private static ModuleNode createTree(final Metric metric) {
         var module = new ModuleNode("module");
         var packageNode = new PackageNode("package");
-        var fileNode = new FileNode("File.java", "package/File.java");
         module.addChild(packageNode);
-        packageNode.addChild(fileNode);
 
-        fileNode.addChild(createClass("First", metric, 3, 2, 1, 2));
-        fileNode.addChild(createClass("Second", metric, 5, 2, 3, 4));
+        var firstFile = new FileNode("First.java", "package/First.java");
+        firstFile.addChild(createClass("First", metric, 3, 2, 1, 2));
+        packageNode.addChild(firstFile);
+
+        var secondFile = new FileNode("Second.java", "package/Second.java");
+        secondFile.addChild(createClass("Second", metric, 5, 2, 3, 4));
+        packageNode.addChild(secondFile);
 
         return module;
     }

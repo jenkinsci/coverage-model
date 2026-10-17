@@ -100,10 +100,10 @@ class ValueTest {
     @DisplayName("Percentage values should be exactly 100% for almost perfect rates")
     void shouldHandle100Percent(final int digits) {
         var value = BigInteger.TEN.pow(digits).intValue();
-        var percentage = new Value(Metric.TEST_STRENGTH, value - 1, value);
+        var percentage = new Value(Metric.COHESION, value - 1, value);
 
         assertThat(percentage.asText(Locale.ENGLISH)).isEqualTo("100.00%");
-        assertThat(percentage).hasToString("Test Strength: 100.00%");
+        assertThat(percentage).hasToString("Class Cohesion: 100.00%");
     }
 
     @ParameterizedTest(name = "digits={0}")

@@ -1,16 +1,10 @@
 package edu.hm.hafner.coverage;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-
 import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.TreeString;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,6 +24,9 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * A hierarchical decomposition of coverage results.
@@ -331,8 +328,9 @@ public abstract class Node implements Serializable {
      * Returns the value for the specified metric using the specified aggregation type. The value is computed for the
      * whole subtree this node is the root of. The {@link MetricAggregation#OVERALL overall} value combines all values
      * of the subtree. The {@link MetricAggregation#MAXIMUM maximum} and {@link MetricAggregation#MINIMUM minimum}
-     * select the largest or smallest value of the elements that store the metric (see
-     * {@link Metric#getTargetNodes(Node)}). Container metrics (e.g., the file coverage) provide only an overall value.
+     * select the largest or smallest value of the elements that provide the metric (see
+     * {@link Metric#getTargetNodes(Node)}). Empty coverage values are ignored. Container metrics (e.g., the file
+     * coverage) provide only an overall value.
      *
      * @param searchMetric the metric to get the value for
      * @param aggregation the aggregation type to use

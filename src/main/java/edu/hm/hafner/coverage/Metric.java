@@ -47,13 +47,7 @@ public enum Metric {
 
     /** Additional coverage values obtained from mutation testing. */
     MUTATION("Mutation Coverage", "Mutation", Computation.SUM),
-    TEST_STRENGTH(
-            "Test Strength",
-            "Test Strength",
-            Computation.SUM,
-            MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
-            new PercentageFormatter()),
+    TEST_STRENGTH("Test Strength", "Test Strength", Computation.SUM),
 
     TESTS(
             "Number of Tests",
@@ -347,7 +341,10 @@ public enum Metric {
     }
 
     /**
-     * Returns the target nodes that store the values for this metric in the tree spanned by the specified node.
+     * Returns the target nodes that provide the values for this metric in the tree spanned by the specified node. These
+     * nodes are used to compute the maximum, minimum, or mean of the values: method metrics are provided by the
+     * methods, coverage values by the files (some parsers report the line coverage for files only), and all other
+     * metrics by the classes.
      *
      * @param node the node to get the target nodes from
      * @return the target nodes
@@ -356,7 +353,10 @@ public enum Metric {
         if (getType() == MetricValueType.METHOD_METRIC) {
             return node.getAllMethodNodes();
         }
-        return node.getAllClassNodes(); // for all other metrics
+        if (isCoverage()) {
+            return node.getAllFileNodes();
+        }
+        return node.getAllClassNodes();
     }
 
     /**
