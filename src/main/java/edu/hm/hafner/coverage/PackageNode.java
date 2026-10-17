@@ -34,7 +34,12 @@ public final class PackageNode extends Node {
      * @param name the human-readable name of the node, see {@link #normalizePackageName(String)}
      */
     public PackageNode(@CheckForNull final String name) {
-        super(Metric.PACKAGE, normalizePackageName(name));
+        super(normalizePackageName(name));
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.PACKAGE;
     }
 
     @SuppressWarnings("CanIgnoreReturnValueSuggester")

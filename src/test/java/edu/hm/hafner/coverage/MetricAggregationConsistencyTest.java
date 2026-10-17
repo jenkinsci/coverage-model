@@ -12,79 +12,97 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.EnumSource.Mode;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * Verifies that the metric specific computation of values ({@link Node#getValue(Metric)}) is consistent with the
- * computation of values using a {@link MetricAggregation} ({@link Node#getValue(Metric, MetricAggregation)}).
- */
+/** Verifies the aggregation of the values of all metrics using the available {@link MetricAggregation aggregations}. */
 class MetricAggregationConsistencyTest {
-    private static final String MAXIMUM = "maximum";
-
     private static Stream<Metric> aggregatedMetrics() {
         return Arrays.stream(Metric.values()).filter(metric -> !metric.isContainer());
     }
 
+    private static Stream<Metric> containerMetrics() {
+        return Arrays.stream(Metric.values()).filter(Metric::isContainer);
+    }
+
     @ParameterizedTest(name = "[{index}] {0}")
     @MethodSource("aggregatedMetrics")
-    void shouldComputeSameValueWithDefaultAggregationOfMetric(final Metric metric) {
+    void shouldUseDefaultAggregationForRegularValue(final Metric metric) {
         var module = createTree(metric);
-        var packageNode = module.getChildren().getFirst();
-        var fileNode = packageNode.getChildren().getFirst();
 
-        var aggregation = getDefaultAggregation(metric);
-        for (Node node : List.of(module, packageNode, fileNode)) {
-            assertThat(node.getValue(metric, aggregation))
-                    .as("%s of %s using %s", metric, node, aggregation)
-                    .isEqualTo(node.getValue(metric));
+        for (Node node : getNodes(module)) {
+            assertThat(node.getValue(metric))
+                    .as("%s of %s", metric, node)
+                    .isEqualTo(node.getValue(metric, metric.getDefaultAggregation()));
         }
     }
 
     @ParameterizedTest(name = "[{index}] {0}")
-    @EnumSource(
-            value = Metric.class,
-            names = {"COHESION", "WEIGHT_OF_CLASS"},
-            mode = Mode.INCLUDE)
-    void shouldUseMaximumAsDefaultAggregation(final Metric metric) {
-        assertThat(metric.getAggregationType()).isEqualTo(MAXIMUM);
-
+    @MethodSource("aggregatedMetrics")
+    void shouldSelectMaximumAndMinimumOfTargetNodes(final Metric metric) {
         var module = createTree(metric);
 
-        assertThat(module.getValue(metric)).contains(new Value(metric, 5));
-        assertThat(module.getValue(metric, MetricAggregation.MAXIMUM)).contains(new Value(metric, 5));
-        assertThat(module.getValue(metric, MetricAggregation.TOTAL)).contains(new Value(metric, 8));
+        for (Node node : getNodes(module)) {
+            assertThat(node.getValue(metric, MetricAggregation.MAXIMUM))
+                    .as("Maximum of %s in %s", metric, node)
+                    .contains(createExpectedValue(metric, 4, 5, 2));
+            assertThat(node.getValue(metric, MetricAggregation.MINIMUM))
+                    .as("Minimum of %s in %s", metric, node)
+                    .contains(createExpectedValue(metric, 1, 3, 2));
+        }
+    }
+
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("containerMetrics")
+    void shouldProvideOnlyOverallValueForContainerMetrics(final Metric metric) {
+        var module = createTree(Metric.LINE);
+
+        assertThat(module.getValue(metric, MetricAggregation.MAXIMUM)).isEmpty();
+        assertThat(module.getValue(metric, MetricAggregation.MINIMUM)).isEmpty();
+        assertThat(module.getValue(metric, MetricAggregation.OVERALL)).isEqualTo(module.getValue(metric));
     }
 
     /**
-     * The aggregation {@link MetricAggregation#TOTAL} yields the same values as {@link Node#aggregateValues()}, i.e. it
-     * selects the metric specific default when aggregating all values of a tree.
+     * The overall value of these metrics is the mean of all values, since these metrics are percentages without the
+     * underlying parts.
      *
-     * @param metric a metric that uses the maximum as the default aggregation
+     * @param metric a metric that uses the mean as the overall value
      */
     @ParameterizedTest(name = "[{index}] {0}")
     @EnumSource(
             value = Metric.class,
             names = {"COHESION", "WEIGHT_OF_CLASS"},
             mode = Mode.INCLUDE)
-    void shouldAggregateAllValuesUsingDefaultAggregationOfMetric(final Metric metric) {
+    void shouldUseMeanAsOverallValue(final Metric metric) {
         var module = createTree(metric);
 
-        var expected = new Value(metric, 5);
-        assertThat(module.aggregateValues()).contains(expected);
-        assertThat(module.aggregateValues(MetricAggregation.TOTAL)).contains(expected);
-        assertThat(module.aggregateValues(MetricAggregation.MAXIMUM)).contains(expected);
+        assertThat(module.getValue(metric)).contains(new Value(metric, 4));
+        assertThat(module.getValue(metric, MetricAggregation.OVERALL)).contains(new Value(metric, 4));
+        assertThat(module.aggregateValues()).contains(new Value(metric, 4));
+        assertThat(module.aggregateValues(MetricAggregation.MAXIMUM)).contains(new Value(metric, 5));
         assertThat(module.aggregateValues(MetricAggregation.MINIMUM)).contains(new Value(metric, 3));
     }
 
-    private static MetricAggregation getDefaultAggregation(final Metric metric) {
-        if (MAXIMUM.equals(metric.getAggregationType())) {
-            return MetricAggregation.MAXIMUM;
+    private static List<Node> getNodes(final ModuleNode module) {
+        return List.of(module, module.getChildren().get(0));
+    }
+
+    private static Value createExpectedValue(
+            final Metric metric, final int methodValue, final int classValue, final int missed) {
+        if (metric.getType() == MetricValueType.METHOD_METRIC) {
+            return new Value(metric, methodValue);
+        } else if (metric.isCoverage()) {
+            return new CoverageBuilder()
+                    .withMetric(metric)
+                    .withCovered(classValue)
+                    .withMissed(missed)
+                    .build();
+        } else {
+            return new Value(metric, classValue);
         }
-        return MetricAggregation.getDefault();
     }
 
     /**
-     * Creates a tree (module, package, file, two classes with two methods each) that stores values for the specified
-     * metric only. Method metrics are stored in the methods (1, 2, 3, and 4), coverage metrics are stored in the
-     * classes (8/2 and 3/2), and all other metrics are stored in the classes (3 and 5).
+     * Creates a tree (module, package, two files with one class each, two methods per class) that stores values for the
+     * specified metrics only. Method metrics are stored in the methods (1, 2, 3, and 4), coverage metrics are stored in
+     * the classes (3/2 and 5/2), and all other metrics are stored in the classes (3 and 5).
      *
      * @param metric the metric to store the values for
      * @return the root of the tree
@@ -92,14 +110,15 @@ class MetricAggregationConsistencyTest {
     private static ModuleNode createTree(final Metric metric) {
         var module = new ModuleNode("module");
         var packageNode = new PackageNode("package");
-        var fileNode = new FileNode("File.java", "package/File.java");
         module.addChild(packageNode);
-        packageNode.addChild(fileNode);
 
-        var first = createClass("First", metric, 3, 2, 1, 2);
-        var second = createClass("Second", metric, 5, 2, 3, 4);
-        fileNode.addChild(first);
-        fileNode.addChild(second);
+        var firstFile = new FileNode("First.java", "package/First.java");
+        firstFile.addChild(createClass("First", metric, 3, 2, 1, 2));
+        packageNode.addChild(firstFile);
+
+        var secondFile = new FileNode("Second.java", "package/Second.java");
+        secondFile.addChild(createClass("Second", metric, 5, 2, 3, 4));
+        packageNode.addChild(secondFile);
 
         return module;
     }

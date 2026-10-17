@@ -7,23 +7,21 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Defines how metric values should be aggregated when computing statistics across multiple nodes in the coverage tree.
- * For example, when computing the cyclomatic complexity of a class, we can aggregate the complexity values of all
- * methods by using the total (sum), maximum, minimum, or average.
+ * The overall value combines all values of a tree to the value of the metric (e.g., the sum of the cyclomatic
+ * complexity of all methods or the line coverage of all lines), while the maximum and minimum select the value of the
+ * element with the largest or smallest value (e.g., the method with the largest cyclomatic complexity).
  *
  * @author Akash Manna
  */
 public enum MetricAggregation {
-    /** Aggregates values by summing them (default for most metrics). */
-    TOTAL("Total", "total"),
+    /** Combines all values to the overall value of the metric (default). */
+    OVERALL("Overall", "overall"),
 
     /** Aggregates values by finding the maximum. */
     MAXIMUM("Maximum", "maximum"),
 
     /** Aggregates values by finding the minimum. */
-    MINIMUM("Minimum", "minimum"),
-
-    /** Aggregates values by computing the average. */
-    AVERAGE("Average", "average");
+    MINIMUM("Minimum", "minimum");
 
     private final String displayName;
     private final String id;
@@ -60,10 +58,10 @@ public enum MetricAggregation {
     /**
      * Returns the default aggregation type for all metrics.
      *
-     * @return the default aggregation type (always TOTAL)
+     * @return the default aggregation type (always OVERALL)
      */
     public static MetricAggregation getDefault() {
-        return TOTAL;
+        return OVERALL;
     }
 
     /**
@@ -78,10 +76,9 @@ public enum MetricAggregation {
         }
 
         return switch (this) {
-            case TOTAL -> values.stream().reduce(Value::add);
+            case OVERALL -> values.stream().reduce(Value::add);
             case MAXIMUM -> values.stream().reduce(Value::max);
             case MINIMUM -> values.stream().reduce(Value::min);
-            case AVERAGE -> computeAverage(values);
         };
     }
 
@@ -110,19 +107,11 @@ public enum MetricAggregation {
      * @return the aggregation tag name
      */
     public String toTagName() {
-        return name().toLowerCase(Locale.ENGLISH).replaceAll("_", "-");
+        return name().toLowerCase(Locale.ENGLISH).replace("_", "-");
     }
 
     @Override
     public String toString() {
         return displayName;
-    }
-
-    private static Optional<Value> computeAverage(final List<Value> values) {
-        var sum = values.stream()
-                .reduce(Value::add)
-                .orElseThrow(() -> new IllegalStateException("Cannot compute average of empty list"));
-
-        return Optional.of(sum.divide(values.size()));
     }
 }

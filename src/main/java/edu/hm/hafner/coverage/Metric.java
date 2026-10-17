@@ -1,7 +1,5 @@
 package edu.hm.hafner.coverage;
 
-import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -13,8 +11,6 @@ import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.BinaryOperator;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.Fraction;
 
@@ -29,48 +25,41 @@ public enum Metric {
      * Coverage nodes that can have children. These nodes compute their coverage values on the fly based on their
      * children's coverage.
      */
-    CONTAINER("Container Coverage", "Container", new CoverageOfChildrenEvaluator()),
-    MODULE("Module Coverage", "Module", new CoverageOfChildrenEvaluator()),
-    PACKAGE("Package Coverage", "Package", new CoverageOfChildrenEvaluator()),
-    FILE("File Coverage", "File", new CoverageOfChildrenEvaluator()),
-    CLASS("Class Coverage", "Class", new CoverageOfChildrenEvaluator()),
-    METHOD("Method Coverage", "Method", new CoverageOfChildrenEvaluator()),
+    CONTAINER("Container Coverage", "Container", Computation.CONTAINER),
+    MODULE("Module Coverage", "Module", Computation.CONTAINER),
+    PACKAGE("Package Coverage", "Package", Computation.CONTAINER),
+    FILE("File Coverage", "File", Computation.CONTAINER),
+    CLASS("Class Coverage", "Class", Computation.CONTAINER),
+    METHOD("Method Coverage", "Method", Computation.CONTAINER),
 
     /** Coverage values that are leaves in the tree. */
-    LINE("Line Coverage", "Line", new ValuesAggregator()),
-    BRANCH("Branch Coverage", "Branch", new ValuesAggregator()),
-    INSTRUCTION("Instruction Coverage", "Instruction", new ValuesAggregator()),
-    MCDC_PAIR("Modified Condition and Decision Coverage", "MC/DC Pair", new ValuesAggregator()),
-    FUNCTION_CALL("Function Call Coverage", "Function Call", new ValuesAggregator()),
+    LINE("Line Coverage", "Line", Computation.SUM),
+    BRANCH("Branch Coverage", "Branch", Computation.SUM),
+    INSTRUCTION("Instruction Coverage", "Instruction", Computation.SUM),
+    MCDC_PAIR("Modified Condition and Decision Coverage", "MC/DC Pair", Computation.SUM),
+    FUNCTION_CALL("Function Call Coverage", "Function Call", Computation.SUM),
 
     /** Additional metrics for TRACE32 coverage. */
-    STMT_DC("Statement + Decision Coverage", "Statement + DC", new ValuesAggregator()),
-    STMT_CC("Statement + Condition Coverage", "Statement + CC", new ValuesAggregator()),
-    CONDITION("Condition Coverage", "Condition", new ValuesAggregator()),
-    BYTES("Bytes Coverage", "Bytes", new ValuesAggregator()),
+    STMT_DC("Statement + Decision Coverage", "Statement + DC", Computation.SUM),
+    STMT_CC("Statement + Condition Coverage", "Statement + CC", Computation.SUM),
+    CONDITION("Condition Coverage", "Condition", Computation.SUM),
+    BYTES("Bytes Coverage", "Bytes", Computation.SUM),
 
     /** Additional coverage values obtained from mutation testing. */
-    MUTATION("Mutation Coverage", "Mutation", new ValuesAggregator()),
-    TEST_STRENGTH(
-            "Test Strength",
-            "Test Strength",
-            new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
-            new PercentageFormatter()),
+    MUTATION("Mutation Coverage", "Mutation", Computation.SUM),
+    TEST_STRENGTH("Test Strength", "Test Strength", Computation.SUM),
 
-    // TODO: metrics might be better placed into a class that can have new instances dynamically
     TESTS(
             "Number of Tests",
             "Tests",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.LARGER_IS_BETTER,
             MetricValueType.CLASS_METRIC,
             new IntegerFormatter()),
     TEST_SUCCESS_RATE(
             "Test Success Rate",
             "Test Success %",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.LARGER_IS_BETTER,
             MetricValueType.METRIC,
             new RateFormatter()),
@@ -79,77 +68,77 @@ public enum Metric {
     LOC(
             "Lines of Code",
             "LOC",
-            new LocEvaluator(),
+            Computation.LINES_OF_CODE,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     NCSS(
             "Non Commenting Source Statements",
             "NCSS",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     CYCLOMATIC_COMPLEXITY(
             "Cyclomatic Complexity",
             "Complexity",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC,
             new IntegerFormatter()),
     COGNITIVE_COMPLEXITY(
             "Cognitive Complexity",
             "Cognitive Complexity",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC,
             new IntegerFormatter()),
     NPATH_COMPLEXITY(
             "N-Path Complexity",
             "N-Path",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METHOD_METRIC,
             new IntegerFormatter()),
     ACCESS_TO_FOREIGN_DATA(
             "Access to Foreign Data",
             "Foreign Data",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     COHESION(
             "Class Cohesion",
             "Cohesion",
-            new ValuesAggregator(Value::max, "maximum"),
+            Computation.MEAN,
             MetricTendency.LARGER_IS_BETTER,
             MetricValueType.CLASS_METRIC,
             new PercentageFormatter()),
     FAN_OUT(
             "Fan Out",
             "Fan Out",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     NUMBER_OF_ACCESSORS(
             "Number of Accessors",
             "Accessors",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.CLASS_METRIC,
             new IntegerFormatter()),
     WEIGHT_OF_CLASS(
             "Weight of Class",
             "Weigth",
-            new ValuesAggregator(Value::max, "maximum"),
+            Computation.MEAN,
             MetricTendency.LARGER_IS_BETTER,
             MetricValueType.CLASS_METRIC,
             new PercentageFormatter()),
     WEIGHED_METHOD_COUNT(
             "Weighted Method Count",
             "Methods",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.CLASS_METRIC,
             new IntegerFormatter()),
@@ -158,35 +147,35 @@ public enum Metric {
     WARNINGS(
             "Number of Warnings",
             "Warnings",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     BUGS(
             "Number of Bugs",
             "Bugs",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     ERRORS(
             "Number of Errors",
             "Errors",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     DUPLICATIONS(
             "Number of Duplications",
             "Duplications",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     VULNERABILITIES(
             "Number of Vulnerabilities",
             "Vulnerabilities",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
@@ -196,54 +185,24 @@ public enum Metric {
     AUTHORS(
             "Different Authors",
             "Authors",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     COMMITS(
             "Number of Commits",
             "Commits",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
             new IntegerFormatter()),
     CODE_CHURN(
             "Code Churn",
             "Code Churn",
-            new ValuesAggregator(),
+            Computation.SUM,
             MetricTendency.SMALLER_IS_BETTER,
             MetricValueType.METRIC,
-            new IntegerFormatter()),
-
-    /** Generic metrics. */
-    UNBOUNDED(
-            "Unbounded Integer Metric",
-            "Unbounded",
-            new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
-            new IntegerFormatter()),
-    COUNT(
-            "Metric Counter",
-            "Count",
-            new ValuesAggregator(),
-            MetricTendency.SMALLER_IS_BETTER,
-            MetricValueType.METRIC,
-            new IntegerFormatter()),
-    PERCENTAGE(
-            "Percentage Metric",
-            "Percentage",
-            new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
-            new PercentageFormatter()),
-    RATE(
-            "Rate Metric",
-            "Rate",
-            new ValuesAggregator(),
-            MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
-            new RateFormatter());
+            new IntegerFormatter());
 
     /**
      * Returns the metric that belongs to the specified tag.
@@ -253,7 +212,7 @@ public enum Metric {
      * @see #toTagName()
      */
     public static Metric fromTag(final String tag) {
-        return valueOf(tag.toUpperCase(Locale.ENGLISH).replaceAll("-", "_"));
+        return valueOf(tag.toUpperCase(Locale.ENGLISH).replace("-", "_"));
     }
 
     /**
@@ -286,42 +245,38 @@ public enum Metric {
 
     private final String displayName;
     private final String label;
-    private final MetricEvaluator evaluator;
+    private final Computation computation;
     private final MetricTendency tendency;
     private final MetricValueType type;
     private final MetricFormatter formatter;
 
-    Metric(final String displayName, final String label, final MetricEvaluator evaluator) {
-        this(displayName, label, evaluator, MetricTendency.LARGER_IS_BETTER);
+    Metric(final String displayName, final String label, final Computation computation) {
+        this(displayName, label, computation, MetricTendency.LARGER_IS_BETTER);
+    }
+
+    Metric(final String displayName, final String label, final Computation computation, final MetricTendency tendency) {
+        this(displayName, label, computation, tendency, MetricValueType.COVERAGE);
     }
 
     Metric(
             final String displayName,
             final String label,
-            final MetricEvaluator evaluator,
-            final MetricTendency tendency) {
-        this(displayName, label, evaluator, tendency, MetricValueType.COVERAGE);
-    }
-
-    Metric(
-            final String displayName,
-            final String label,
-            final MetricEvaluator evaluator,
+            final Computation computation,
             final MetricTendency tendency,
             final MetricValueType type) {
-        this(displayName, label, evaluator, tendency, type, new CoverageFormatter());
+        this(displayName, label, computation, tendency, type, new CoverageFormatter());
     }
 
     Metric(
             final String displayName,
             final String label,
-            final MetricEvaluator evaluator,
+            final Computation computation,
             final MetricTendency tendency,
             final MetricValueType type,
             final MetricFormatter formatter) {
         this.displayName = displayName;
         this.label = label;
-        this.evaluator = evaluator;
+        this.computation = computation;
         this.tendency = tendency;
         this.type = type;
         this.formatter = formatter;
@@ -345,7 +300,11 @@ public enum Metric {
      * @return if the metric is a node metric
      */
     public boolean isContainer() {
-        return evaluator.isAggregatingChildren();
+        return computation == Computation.CONTAINER;
+    }
+
+    Computation getComputation() {
+        return computation;
     }
 
     public MetricValueType getType() {
@@ -371,17 +330,21 @@ public enum Metric {
     }
 
     /**
-     * Returns the aggregated value of this metric for the specified tree of nodes.
+     * Returns the overall value of this metric for the specified tree of nodes.
      *
      * @param node the root of the tree
-     * @return the aggregated value
+     * @return the overall value
+     * @see Node#getValue(Metric, MetricAggregation)
      */
     public Optional<Value> getValueFor(final Node node) {
-        return evaluator.compute(node, this);
+        return node.getValue(this, MetricAggregation.OVERALL);
     }
 
     /**
-     * Returns the target nodes that store the values for this metric in the tree spanned by the specified node.
+     * Returns the target nodes that provide the values for this metric in the tree spanned by the specified node. These
+     * nodes are used to compute the maximum, minimum, or mean of the values: method metrics are provided by the
+     * methods, coverage values by the files (some parsers report the line coverage for files only), and all other
+     * metrics by the classes.
      *
      * @param node the node to get the target nodes from
      * @return the target nodes
@@ -390,7 +353,10 @@ public enum Metric {
         if (getType() == MetricValueType.METHOD_METRIC) {
             return node.getAllMethodNodes();
         }
-        return node.getAllClassNodes(); // for all other metrics
+        if (isCoverage()) {
+            return node.getAllFileNodes();
+        }
+        return node.getAllClassNodes();
     }
 
     /**
@@ -437,8 +403,14 @@ public enum Metric {
         return formatter.formatRounded(locale, value);
     }
 
-    public String getAggregationType() {
-        return evaluator.getAggregationType();
+    /**
+     * Returns the aggregation that is used by default to compute the value of this metric for a tree of nodes, see
+     * {@link Node#getValue(Metric)}. Currently, all metrics use the {@link MetricAggregation#OVERALL overall} value.
+     *
+     * @return the default aggregation of this metric
+     */
+    public MetricAggregation getDefaultAggregation() {
+        return MetricAggregation.getDefault();
     }
 
     /**
@@ -478,151 +450,19 @@ public enum Metric {
         CLASS_METRIC
     }
 
-    private abstract static class MetricEvaluator implements Serializable {
-        @Serial
-        private static final long serialVersionUID = -537814226149186300L;
-
-        final Optional<Value> compute(final Node node, final Metric searchMetric) {
-            return getValue(node, searchMetric).or(() -> computeDerivedValue(node, searchMetric));
-        }
-
-        abstract Optional<Value> computeDerivedValue(Node node, Metric searchMetric);
-
-        abstract boolean isAggregatingChildren();
-
-        String getAggregationType() {
-            return StringUtils.EMPTY;
-        }
-
-        Optional<Value> getValue(final Node node, final Metric searchMetric) {
-            return node.getValues().stream()
-                    .filter(leaf -> leaf.getMetric() == searchMetric)
-                    .findAny();
-        }
-    }
-
-    private static class CoverageOfChildrenEvaluator extends MetricEvaluator {
-        @Serial
-        private static final long serialVersionUID = 8788686429559762490L;
-
-        @Override
-        boolean isAggregatingChildren() {
-            return true;
-        }
-
-        @Override
-        Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            Optional<Value> aggregatedChildrenValue = node.getChildren().stream()
-                    .map(n -> n.getValue(searchMetric))
-                    .flatMap(Optional::stream)
-                    .reduce(Value::add);
-            Optional<Value> localMetricValue = getMetricOf(node, searchMetric);
-            return Stream.of(localMetricValue, aggregatedChildrenValue)
-                    .flatMap(Optional::stream)
-                    .reduce(Value::add);
-        }
-
-        private Optional<Value> getMetricOf(final Node node, final Metric searchMetric) {
-            if (node.getMetric() == searchMetric) {
-                return getValue(node, searchMetric).or(() -> deriveFromCoverage(node, searchMetric));
-            }
-            return Optional.empty();
-        }
-
-        private Optional<? extends Value> deriveFromCoverage(final Node node, final Metric searchMetric) {
-            var hasCoverage = node.getMetrics().stream().anyMatch(Metric::isCoverage);
-            if (hasCoverage) {
-                return Optional.ofNullable(deriveCoverageFromOtherMetrics(node, searchMetric));
-            }
-            return Optional.empty();
-        }
-
-        private Coverage deriveCoverageFromOtherMetrics(final Node node, final Metric searchMetric) {
-            var builder = new CoverageBuilder().withMetric(searchMetric);
-            if (hasCoverage(node)) {
-                builder.withCovered(1).withMissed(0);
-            } else {
-                builder.withCovered(0).withMissed(1);
-            }
-            return builder.build();
-        }
-
-        private boolean hasCoverage(final Node node) {
-            boolean baseline = hasCoverage(node, INSTRUCTION) || hasCoverage(node, LINE) || hasCoverage(node, BRANCH);
-
-            boolean additional =
-                    hasCoverage(node, MCDC_PAIR) || hasCoverage(node, FUNCTION_CALL) || hasCoverage(node, MUTATION);
-
-            return baseline || additional;
-        }
-
-        private boolean hasCoverage(final Node node, final Metric metric) {
-            return node.getValue(metric)
-                    .filter(value -> ((Coverage) value).getCovered() > 0)
-                    .isPresent();
-        }
-    }
-
-    private static class ValuesAggregator extends MetricEvaluator {
-        @Serial
-        private static final long serialVersionUID = 7908490688181149667L;
-
-        @SuppressFBWarnings("SE_BAD_FIELD")
-        @SuppressWarnings("serial")
-        private final BinaryOperator<Value> accumulator;
-
-        private final String name;
-
-        ValuesAggregator() {
-            this(Value::add, "total");
-        }
-
-        ValuesAggregator(final BinaryOperator<Value> accumulator, final String name) {
-            super();
-
-            this.accumulator = accumulator;
-            this.name = name;
-        }
-
-        @Override
-        String getAggregationType() {
-            return name;
-        }
-
-        @Override
-        boolean isAggregatingChildren() {
-            return false;
-        }
-
-        @Override
-        final Optional<Value> computeDerivedValue(final Node node, final Metric searchMetric) {
-            var defaultValue = getDefaultValue(node);
-
-            return defaultValue.or(() -> node.getChildren().stream()
-                    .map(n -> compute(n, searchMetric))
-                    .flatMap(Optional::stream)
-                    .reduce(accumulator));
-        }
-
-        Optional<Value> getDefaultValue(final Node node) {
-            return Optional.empty();
-        }
-    }
-
-    private static class LocEvaluator extends ValuesAggregator {
-        @Serial
-        private static final long serialVersionUID = 8819577749737375989L;
-
-        @Override
-        Optional<Value> getDefaultValue(final Node node) {
-            return LINE.getValueFor(node).map(this::getTotal);
-        }
-
-        @SuppressFBWarnings(value = "BC", justification = "The value is a coverage value as it has the metric LINE")
-        private Value getTotal(final Value leaf) {
-            var coverage = (Coverage) leaf;
-            return new Value(LOC, coverage.getTotal());
-        }
+    /**
+     * Defines how the overall value of a metric is computed for a node that does not store a value of this metric
+     * itself.
+     */
+    enum Computation {
+        /** The coverage of the nodes of the corresponding type, e.g., the number of covered files. */
+        CONTAINER,
+        /** The sum of the values of all children. Coverage values sum up their covered and missed parts. */
+        SUM,
+        /** The mean of the values of all target nodes, used for percentages without the underlying parts. */
+        MEAN,
+        /** The total number of lines of the line coverage, otherwise the sum of the values of all children. */
+        LINES_OF_CODE
     }
 
     private static class MetricFormatter implements Serializable {

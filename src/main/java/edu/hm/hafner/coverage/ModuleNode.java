@@ -30,7 +30,12 @@ public final class ModuleNode extends Node {
      * @param name the name of the module
      */
     public ModuleNode(final String name) {
-        super(Metric.MODULE, name);
+        super(name);
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.MODULE;
     }
 
     @Override

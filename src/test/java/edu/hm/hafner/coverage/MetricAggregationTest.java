@@ -16,10 +16,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 class MetricAggregationTest {
     @Test
     void shouldHaveCorrectDisplayNameIdAndToString() {
-        assertThat(MetricAggregation.TOTAL)
-                .hasDisplayName("Total")
-                .hasId("total")
-                .hasToString("Total");
+        assertThat(MetricAggregation.OVERALL)
+                .hasDisplayName("Overall")
+                .hasId("overall")
+                .hasToString("Overall");
         assertThat(MetricAggregation.MAXIMUM)
                 .hasDisplayName("Maximum")
                 .hasId("maximum")
@@ -28,21 +28,17 @@ class MetricAggregationTest {
                 .hasDisplayName("Minimum")
                 .hasId("minimum")
                 .hasToString("Minimum");
-        assertThat(MetricAggregation.AVERAGE)
-                .hasDisplayName("Average")
-                .hasId("average")
-                .hasToString("Average");
     }
 
     @Test
     void shouldReturnDefaultAggregation() {
-        assertThat(MetricAggregation.getDefault()).isEqualTo(MetricAggregation.TOTAL);
+        assertThat(MetricAggregation.getDefault()).isEqualTo(MetricAggregation.OVERALL);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"TOTAL", "total", "Total"})
-    void shouldParseTotal(final String value) {
-        assertThat(MetricAggregation.fromString(value)).isEqualTo(MetricAggregation.TOTAL);
+    @ValueSource(strings = {"OVERALL", "overall", "Overall"})
+    void shouldParseOverall(final String value) {
+        assertThat(MetricAggregation.fromString(value)).isEqualTo(MetricAggregation.OVERALL);
     }
 
     @ParameterizedTest
@@ -57,18 +53,11 @@ class MetricAggregationTest {
         assertThat(MetricAggregation.fromString(value)).isEqualTo(MetricAggregation.MINIMUM);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"AVERAGE", "average", "Average"})
-    void shouldParseAverage(final String value) {
-        assertThat(MetricAggregation.fromString(value)).isEqualTo(MetricAggregation.AVERAGE);
-    }
-
     @Test
     void shouldParseFromId() {
-        assertThat(MetricAggregation.fromString("total")).isEqualTo(MetricAggregation.TOTAL);
+        assertThat(MetricAggregation.fromString("overall")).isEqualTo(MetricAggregation.OVERALL);
         assertThat(MetricAggregation.fromString("maximum")).isEqualTo(MetricAggregation.MAXIMUM);
         assertThat(MetricAggregation.fromString("minimum")).isEqualTo(MetricAggregation.MINIMUM);
-        assertThat(MetricAggregation.fromString("average")).isEqualTo(MetricAggregation.AVERAGE);
     }
 
     @Test
