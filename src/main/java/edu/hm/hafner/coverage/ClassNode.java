@@ -21,7 +21,12 @@ public final class ClassNode extends Node {
      * @param name the name of the class
      */
     public ClassNode(final String name) {
-        super(Metric.CLASS, PackageNode.normalizePackageName(name));
+        super(PackageNode.normalizePackageName(name));
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.CLASS;
     }
 
     /**

@@ -44,8 +44,6 @@ public abstract class Node implements Serializable {
     static final String EMPTY_NAME = "-";
     static final String ROOT = "^";
 
-    private final Metric metric;
-
     private /* almost final */ String name;
 
     @SuppressWarnings("serial")
@@ -60,13 +58,9 @@ public abstract class Node implements Serializable {
     /**
      * Creates a new node with the given name.
      *
-     * @param metric the metric this node belongs to
      * @param name the human-readable name of the node
      */
-    protected Node(final Metric metric, final String name) {
-        Ensure.that(metric.isContainer()).isTrue("Cannot create a container node with a value metric");
-
-        this.metric = metric;
+    protected Node(final String name) {
         this.name = name;
     }
 
@@ -106,9 +100,13 @@ public abstract class Node implements Serializable {
         return String.join(".", parentsOfSameType);
     }
 
-    public Metric getMetric() {
-        return metric;
-    }
+    /**
+     * Returns the type of this node as a container metric, e.g., {@link Metric#FILE} for a file. This metric also
+     * defines the coverage of the nodes of this type, e.g., the number of covered files.
+     *
+     * @return the container metric of this node
+     */
+    public abstract Metric getMetric();
 
     /**
      * Returns the available metrics for the whole tree starting with this node.
@@ -424,7 +422,7 @@ public abstract class Node implements Serializable {
                 .map(child -> child.getAll(searchMetric))
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-        if (metric == searchMetric) {
+        if (getMetric() == searchMetric) {
             childNodes.add(this);
         }
         return childNodes;
@@ -564,7 +562,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final String searchName) {
-        return metric == searchMetric && getId().equals(searchName);
+        return getMetric() == searchMetric && getId().equals(searchName);
     }
 
     /**
@@ -575,7 +573,7 @@ public abstract class Node implements Serializable {
      * @return the result if found
      */
     public boolean matches(final Metric searchMetric, final int searchNameHashCode) {
-        return metric == searchMetric && getId().hashCode() == searchNameHashCode;
+        return getMetric() == searchMetric && getId().hashCode() == searchNameHashCode;
     }
 
     /**
@@ -820,15 +818,14 @@ public abstract class Node implements Serializable {
             return false;
         }
         var node = (Node) o;
-        return Objects.equals(metric, node.metric)
-                && Objects.equals(name, node.name)
+        return Objects.equals(name, node.name)
                 && Objects.equals(children, node.children)
                 && Objects.equals(values, node.values);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(metric, name, children, values);
+        return Objects.hash(name, children, values);
     }
 
     @Override

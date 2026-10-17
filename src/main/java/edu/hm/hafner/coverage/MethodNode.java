@@ -36,11 +36,16 @@ public final class MethodNode extends Node {
      * @param lineNumber The line number where the method begins (not including the method head)
      */
     public MethodNode(final String name, final String signature, final int lineNumber) {
-        super(Metric.METHOD, name + signature);
+        super(name + signature);
 
         this.signature = signature;
         this.methodName = name;
         this.lineNumber = lineNumber;
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.METHOD;
     }
 
     @Serial

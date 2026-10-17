@@ -83,9 +83,14 @@ public final class FileNode extends Node {
      * @param relativePath the relative path of the file
      */
     public FileNode(final String name, final TreeString relativePath) {
-        super(Metric.FILE, name);
+        super(name);
 
         this.relativePath = relativePath;
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.FILE;
     }
 
     /**
