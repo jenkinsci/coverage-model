@@ -44,9 +44,9 @@
 
   <properties>
     <scmTag>HEAD</scmTag>
-    <revision>0.80.0</revision>
+    <revision>0.79.0</revision>
     <changelist>-SNAPSHOT</changelist>
-    <previousVersion>0.79.0</previousVersion>
+    <previousVersion>0.78.0</previousVersion>
 
     <module.name>edu.hm.hafner.coverage</module.name>
 
