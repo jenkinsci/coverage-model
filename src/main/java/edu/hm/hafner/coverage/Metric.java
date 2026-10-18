@@ -307,6 +307,16 @@ public enum Metric {
         return computation;
     }
 
+    /**
+     * Returns the unit of the values of this metric. The unit defines how the values are scaled and displayed, e.g., as
+     * a percentage or as a number of elements.
+     *
+     * @return the unit of the values
+     */
+    public MetricUnit getUnit() {
+        return formatter.getUnit();
+    }
+
     public MetricValueType getType() {
         return type;
     }
@@ -438,6 +448,36 @@ public enum Metric {
         SMALLER_IS_BETTER
     }
 
+    /** The unit of the values of a metric: defines how the values are scaled and displayed. */
+    public enum MetricUnit {
+        /**
+         * The coverage of elements that are covered or missed (e.g., lines or mutations). The values are represented by
+         * {@link Coverage} instances and are displayed as a percentage in the interval [0, 100].
+         */
+        COVERAGE,
+        /**
+         * A fraction in the interval [0, 1] that is displayed as a percentage (e.g., the class cohesion). The parts of
+         * the fraction are not available.
+         */
+        PERCENTAGE,
+        /**
+         * A rate that is displayed as a percentage (e.g., the test success rate). A rate is shown as 100% only if it is
+         * perfect.
+         */
+        RATE,
+        /** A number of elements (e.g., the lines of code or the cyclomatic complexity). */
+        COUNT;
+
+        /**
+         * Returns whether the values of this unit are displayed as a percentage.
+         *
+         * @return {@code true} if the values are displayed as a percentage, {@code false} otherwise
+         */
+        public boolean isPercentage() {
+            return this != COUNT;
+        }
+    }
+
     /** Metric type: some metrics are represented as coverages, some other metrics are represented as plain values. */
     public enum MetricValueType {
         /** Coverages are represented by values of the type {@link Coverage}. */
@@ -465,9 +505,11 @@ public enum Metric {
         LINES_OF_CODE
     }
 
-    private static class MetricFormatter implements Serializable {
+    private abstract static class MetricFormatter implements Serializable {
         @Serial
         private static final long serialVersionUID = 7402798036375016965L;
+
+        abstract MetricUnit getUnit();
 
         String format(final Locale locale, final double value) {
             return formatDouble(locale, value);
@@ -509,6 +551,11 @@ public enum Metric {
         private static final long serialVersionUID = 4337117939462815181L;
 
         @Override
+        MetricUnit getUnit() {
+            return MetricUnit.COVERAGE;
+        }
+
+        @Override
         String format(final Locale locale, final double value) {
             return percentage(formatDouble(locale, value));
         }
@@ -527,6 +574,11 @@ public enum Metric {
     private static class PercentageFormatter extends MetricFormatter {
         @Serial
         private static final long serialVersionUID = -4995914265987128828L;
+
+        @Override
+        MetricUnit getUnit() {
+            return MetricUnit.PERCENTAGE;
+        }
 
         @Override
         String format(final Locale locale, final double value) {
@@ -550,6 +602,11 @@ public enum Metric {
         private static final long serialVersionUID = 6718758308735877295L;
 
         @Override
+        MetricUnit getUnit() {
+            return MetricUnit.RATE;
+        }
+
+        @Override
         String format(final Locale locale, final double value) {
             var percentage = super.format(locale, value);
             var perfect = super.format(locale, 1.0);
@@ -563,6 +620,11 @@ public enum Metric {
     private static class IntegerFormatter extends MetricFormatter {
         @Serial
         private static final long serialVersionUID = 8053070560640902081L;
+
+        @Override
+        MetricUnit getUnit() {
+            return MetricUnit.COUNT;
+        }
 
         @Override
         String format(final Locale locale, final double value) {

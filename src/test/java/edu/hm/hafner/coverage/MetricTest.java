@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.Metric.MetricTendency;
+import edu.hm.hafner.coverage.Metric.MetricUnit;
 import edu.hm.hafner.coverage.Metric.MetricValueType;
 import java.util.Locale;
 import java.util.NavigableSet;
@@ -18,6 +19,25 @@ import org.junit.jupiter.params.provider.ValueSource;
  * @author Ullrich Hafner
  */
 class MetricTest {
+    @Test
+    void shouldProvideUnit() {
+        assertThat(Metric.LINE.getUnit()).isEqualTo(MetricUnit.COVERAGE);
+        assertThat(Metric.TEST_STRENGTH.getUnit()).isEqualTo(MetricUnit.COVERAGE);
+        assertThat(Metric.COHESION.getUnit()).isEqualTo(MetricUnit.PERCENTAGE);
+        assertThat(Metric.WEIGHT_OF_CLASS.getUnit()).isEqualTo(MetricUnit.PERCENTAGE);
+        assertThat(Metric.TEST_SUCCESS_RATE.getUnit()).isEqualTo(MetricUnit.RATE);
+        assertThat(Metric.LOC.getUnit()).isEqualTo(MetricUnit.COUNT);
+        assertThat(Metric.CYCLOMATIC_COMPLEXITY.getUnit()).isEqualTo(MetricUnit.COUNT);
+    }
+
+    @EnumSource(Metric.class)
+    @ParameterizedTest(name = "{0} should have a unit that matches the type and the formatting")
+    void shouldHaveConsistentUnit(final Metric metric) {
+        assertThat(metric.getUnit() == MetricUnit.COVERAGE).isEqualTo(metric.isCoverage());
+        assertThat(metric.getUnit().isPercentage())
+                .isEqualTo(metric.format(Locale.ENGLISH, 0.5).endsWith("%"));
+    }
+
     @ValueSource(
             strings = {
                 "COMPLEXITY",
