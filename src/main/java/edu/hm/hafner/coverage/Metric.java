@@ -373,7 +373,7 @@ public enum Metric {
      *
      * @return the metric of the type of the target nodes ({@link #METHOD}, {@link #FILE}, or {@link #CLASS})
      */
-    Metric getTargetNodeMetric() {
+    public Metric getTargetNodeMetric() {
         if (getType() == MetricValueType.METHOD_METRIC) {
             return METHOD;
         }
