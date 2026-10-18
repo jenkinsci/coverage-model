@@ -12,14 +12,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -306,11 +303,6 @@ public abstract class Node implements Serializable {
         return values.stream().map(Value::getMetric);
     }
 
-    NavigableMap<Metric, Value> getMetricsDistribution() {
-        return new TreeMap<>(
-                aggregateValues().stream().collect(Collectors.toMap(Value::getMetric, Function.identity())));
-    }
-
     /**
      * Returns the value for the specified metric. The value is aggregated for the whole subtree this node is the root
      * of using the {@link Metric#getDefaultAggregation() default aggregation} of the metric.
@@ -327,8 +319,10 @@ public abstract class Node implements Serializable {
      * whole subtree this node is the root of. The {@link MetricAggregation#OVERALL overall} value combines all values
      * of the subtree. The {@link MetricAggregation#MAXIMUM maximum} and {@link MetricAggregation#MINIMUM minimum}
      * select the largest or smallest value of the elements that provide the metric (see
-     * {@link Metric#getTargetNodes(Node)}). Empty coverage values are ignored. Container metrics (e.g., the file
-     * coverage) provide only an overall value.
+     * {@link Metric#getTargetNodes(Node)}). If a subtree contains no such elements, then the value that is stored in
+     * the root of that subtree is used instead (e.g., the complexity of a file if a parser reports the complexity for
+     * files only). Empty coverage values are ignored. Container metrics (e.g., the file coverage) provide only an
+     * overall value.
      *
      * @param searchMetric the metric to get the value for
      * @param aggregation the aggregation type to use
@@ -390,25 +384,33 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Computes the delta of all metrics between this node and the specified reference node as fractions. Each delta
-     * value is computed by the value specific {@link Value#subtract(Value)} method. If the reference node does not
-     * contain a specific metric, then no delta is computed and the metric is omitted in the result map.
+     * Computes the delta of all metrics between this node and the specified reference node. Each metric is aggregated
+     * using its {@link Metric#getDefaultAggregation() default aggregation}. See {@link #computeDelta(Node,
+     * MetricAggregation)} for details.
      *
      * @param reference the reference node
-     * @return the delta coverage for each available metric
+     * @return the delta for each available metric
      */
     public List<Difference> computeDelta(final Node reference) {
-        List<Difference> deltaPercentages = new ArrayList<>();
-        NavigableMap<Metric, Value> metricPercentages = getMetricsDistribution();
-        NavigableMap<Metric, Value> referencePercentages = reference.getMetricsDistribution();
+        return computeDelta(reference, MetricAggregation.getDefault());
+    }
 
-        for (Entry<Metric, Value> entry : metricPercentages.entrySet()) {
-            var key = entry.getKey();
-            if (referencePercentages.containsKey(key)) {
-                deltaPercentages.add(entry.getValue().subtract(referencePercentages.get(key)));
-            }
-        }
-        return deltaPercentages;
+    /**
+     * Computes the delta of all metrics between this node and the specified reference node using the specified
+     * aggregation, e.g., the difference between the maximum cyclomatic complexity of the methods of both trees. Each
+     * delta value is computed by the value specific {@link Value#subtract(Value)} method. If the reference node does
+     * not contain a specific metric, then no delta is computed and the metric is omitted in the result.
+     *
+     * @param reference the reference node
+     * @param aggregation the aggregation that is used to compute the values of both nodes
+     * @return the delta for each available metric, sorted by metric
+     * @see #aggregateValues(MetricAggregation)
+     */
+    public List<Difference> computeDelta(final Node reference, final MetricAggregation aggregation) {
+        var referenceValues = reference.aggregateValues(aggregation);
+        return aggregateValues(aggregation).stream()
+                .flatMap(value -> Value.findValue(value.getMetric(), referenceValues).map(value::subtract).stream())
+                .collect(Collectors.toList());
     }
 
     /**

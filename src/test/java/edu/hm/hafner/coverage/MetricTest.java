@@ -169,6 +169,7 @@ class MetricTest {
                 .first()
                 .extracting(Node::getName)
                 .isEqualTo("method()");
+        assertThat(complexity.getTargetNodeMetric()).isEqualTo(Metric.METHOD);
 
         var cohesion = Metric.COHESION;
         assertThat(cohesion)
@@ -188,6 +189,7 @@ class MetricTest {
                 .first()
                 .extracting(Node::getName)
                 .isEqualTo("class");
+        assertThat(cohesion.getTargetNodeMetric()).isEqualTo(Metric.CLASS);
 
         var coverage = Metric.PACKAGE;
         assertThat(coverage)
@@ -204,5 +206,6 @@ class MetricTest {
                 .first()
                 .extracting(Node::getName)
                 .isEqualTo("File.java");
+        assertThat(Metric.LINE.getTargetNodeMetric()).isEqualTo(Metric.FILE);
     }
 }

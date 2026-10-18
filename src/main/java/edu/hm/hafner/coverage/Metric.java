@@ -360,13 +360,27 @@ public enum Metric {
      * @return the target nodes
      */
     public List<? extends Node> getTargetNodes(final Node node) {
+        return switch (getTargetNodeMetric()) {
+            case METHOD -> node.getAllMethodNodes();
+            case FILE -> node.getAllFileNodes();
+            default -> node.getAllClassNodes();
+        };
+    }
+
+    /**
+     * Returns the metric of the type of the target nodes that provide the values for this metric, see
+     * {@link #getTargetNodes(Node)}.
+     *
+     * @return the metric of the type of the target nodes ({@link #METHOD}, {@link #FILE}, or {@link #CLASS})
+     */
+    Metric getTargetNodeMetric() {
         if (getType() == MetricValueType.METHOD_METRIC) {
-            return node.getAllMethodNodes();
+            return METHOD;
         }
         if (isCoverage()) {
-            return node.getAllFileNodes();
+            return FILE;
         }
-        return node.getAllClassNodes();
+        return CLASS;
     }
 
     /**

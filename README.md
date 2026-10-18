@@ -24,6 +24,17 @@ This library consists basically of two separate parts.
 The first part is the model to manage several metrics in a hierarchical software project.
 Metrics can be attached to modules, packages, files, classes, or methods.
 The values can be aggregated or merged so that it is possible to zoom into every detail level.
+For each node of the tree, the value of a metric can be computed using one of the following aggregations:
+
+- `OVERALL` (default): the value of the whole subtree, e.g., the line coverage of all lines, the sum of the
+  cyclomatic complexity of all methods, or the mean value of percentages like the class cohesion.
+- `MAXIMUM` and `MINIMUM`: the largest or smallest value of the elements that provide the metric, e.g., the method
+  with the highest cyclomatic complexity or the file with the worst line coverage. These elements are the methods for
+  method metrics, the files for coverage metrics, and the classes for all other metrics.
+  If a parser reports a metric on a coarser level only (e.g., the complexity of files), then these values are used.
+
+The aggregated values of two trees can be compared as well, e.g., to compute the change of the maximum
+cyclomatic complexity with respect to a reference build.
 
 Supported metrics are code coverage (line, branch, instruction), mutation coverage (mutation killed rate, test strength), tests (number of tests), and general software metrics (lines of code, non-commenting source statements, cyclomatic complexity, cognitive complexity, NPath-complexity, and class cohesion).
 
