@@ -270,6 +270,92 @@ class ValueCalculatorTest {
         assertThat(minimum).isEmpty();
     }
 
+    @ParameterizedTest(name = "[{index}] {0} of files (5, 7) and methods (2, 10) should be {1}")
+    @CsvSource({"MAXIMUM, 10", "MINIMUM, 2", "OVERALL, 24"})
+    void shouldUseStoredValueIfSubtreeHasNoTargetNodesWithValues(
+            final MetricAggregation aggregation, final int expected) {
+        var packageNode = new PackageNode("com.example");
+        packageNode.addChild(createFileWithComplexity("First.java", 5));
+        var withClass = createFileWithComplexity("Second.java", 7);
+        withClass.addChild(new ClassNode("Second")); // a class without methods does not hide the stored value
+        packageNode.addChild(withClass);
+        var withMethods = new FileNode("Third.java", "com/example/Third.java");
+        withMethods.addChild(createClassNodeWithComplexityValues(2, 10));
+        packageNode.addChild(withMethods);
+
+        assertThat(packageNode.getValue(CYCLOMATIC_COMPLEXITY, aggregation))
+                .contains(new Value(CYCLOMATIC_COMPLEXITY, expected));
+    }
+
+    @Test
+    void shouldPreferValuesOfTargetNodesOverStoredValue() {
+        var file = createFileWithComplexity("File.java", 100);
+        file.addChild(createClassNodeWithComplexityValues(2, 10));
+
+        assertThat(file.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MAXIMUM))
+                .contains(new Value(CYCLOMATIC_COMPLEXITY, 10));
+        assertThat(file.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.MINIMUM))
+                .contains(new Value(CYCLOMATIC_COMPLEXITY, 2));
+        assertThat(file.getValue(CYCLOMATIC_COMPLEXITY, MetricAggregation.OVERALL))
+                .contains(new Value(CYCLOMATIC_COMPLEXITY, 100));
+    }
+
+    @Test
+    void shouldUseStoredValuesOfFilesForMean() {
+        var packageNode = new PackageNode("com.example");
+        var first = new FileNode("First.java", "com/example/First.java");
+        first.addValue(new Value(Metric.COHESION, 20, 100));
+        packageNode.addChild(first);
+        var second = new FileNode("Second.java", "com/example/Second.java");
+        second.addValue(new Value(Metric.COHESION, 40, 100));
+        packageNode.addChild(second);
+
+        assertThat(packageNode.getValue(Metric.COHESION).map(Value::asDouble)).contains(0.3);
+        assertThat(packageNode
+                        .getValue(Metric.COHESION, MetricAggregation.MAXIMUM)
+                        .map(Value::asDouble))
+                .contains(0.4);
+        assertThat(packageNode
+                        .getValue(Metric.COHESION, MetricAggregation.MINIMUM)
+                        .map(Value::asDouble))
+                .contains(0.2);
+    }
+
+    @ParameterizedTest(name = "[{index}] {0} delta of (6, 12, 3) and (5, 8) should be {1}")
+    @CsvSource({"MAXIMUM, 4", "MINIMUM, -2", "OVERALL, 8"})
+    void shouldComputeDeltaWithAggregation(final MetricAggregation aggregation, final int expected) {
+        var classNode = createClassNodeWithComplexityValues(6, 12, 3);
+        var reference = createClassNodeWithComplexityValues(5, 8);
+
+        assertThat(classNode.computeDelta(reference, aggregation))
+                .filteredOn(difference -> difference.getMetric() == CYCLOMATIC_COMPLEXITY)
+                .singleElement()
+                .satisfies(difference -> assertThat(difference.asDouble()).isEqualTo(expected));
+    }
+
+    @Test
+    void shouldComputeDeltaWithDefaultAggregation() {
+        var classNode = createClassNodeWithComplexityValues(6, 12, 3);
+        var reference = createClassNodeWithComplexityValues(5, 8);
+
+        assertThat(classNode.computeDelta(reference))
+                .isEqualTo(classNode.computeDelta(reference, MetricAggregation.getDefault()));
+    }
+
+    @Test
+    void shouldSkipDeltaOfMetricsWithoutReferenceValue() {
+        var classNode = createClassNodeWithComplexityValues(6, 12, 3);
+
+        assertThat(classNode.computeDelta(new ClassNode("Empty"), MetricAggregation.MAXIMUM))
+                .isEmpty();
+    }
+
+    private static FileNode createFileWithComplexity(final String name, final int complexity) {
+        var file = new FileNode(name, "com/example/" + name);
+        file.addValue(new Value(CYCLOMATIC_COMPLEXITY, complexity));
+        return file;
+    }
+
     private static ClassNode createClassNodeWithComplexityValues(final int... complexityValues) {
         var classNode = new ClassNode("TestClass");
 

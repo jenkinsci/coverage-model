@@ -621,12 +621,8 @@ public final class FileNode extends Node {
      */
     // TODO: wouldn't it make more sense to return an independent object?
     public void computeDelta(final FileNode referenceFile) {
-        NavigableMap<Metric, Value> referenceCoverage = referenceFile.getMetricsDistribution();
-        getMetricsDistribution().forEach((metric, value) -> {
-            if (referenceCoverage.containsKey(metric)) {
-                coverageDelta.put(metric, value.subtract(referenceCoverage.get(metric)));
-            }
-        });
+        computeDelta(referenceFile, MetricAggregation.getDefault())
+                .forEach(difference -> coverageDelta.put(difference.getMetric(), difference));
     }
 
     /**

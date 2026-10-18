@@ -2,6 +2,7 @@ package edu.hm.hafner.coverage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -19,8 +20,10 @@ final class ValueCalculator {
      * Returns the value of the specified metric for the subtree that is spanned by the specified node. The
      * {@link MetricAggregation#OVERALL overall} value combines all values of the subtree. The
      * {@link MetricAggregation#MAXIMUM maximum} and {@link MetricAggregation#MINIMUM minimum} select the largest or
-     * smallest value of the elements that provide the metric (see {@link Metric#getTargetNodes(Node)}). Empty coverage
-     * values are ignored. Container metrics (e.g., the file coverage) provide only an overall value.
+     * smallest value of the elements that provide the metric (see {@link Metric#getTargetNodes(Node)}). If a subtree
+     * contains no such elements, then the value that is stored in the root of that subtree is used instead: e.g., the
+     * complexity of a file is used if a parser reports the complexity for files only. Empty coverage values are
+     * ignored. Container metrics (e.g., the file coverage) provide only an overall value.
      *
      * @param node the root of the subtree
      * @param metric the metric to get the value for
@@ -34,12 +37,34 @@ final class ValueCalculator {
         if (metric.isContainer()) {
             return Optional.empty();
         }
-        var metricValues = metric.getTargetNodes(node).stream()
-                .map(target -> computeOverallValue(target, metric))
-                .flatMap(Optional::stream)
-                .filter(this::isNotEmpty)
+        return aggregation.aggregate(collectTargetValues(node, metric, target -> computeOverallValue(target, metric)));
+    }
+
+    /**
+     * Collects the values of the target nodes of the specified metric (see {@link Metric#getTargetNodes(Node)}) in the
+     * subtree that is spanned by the specified node. If a subtree contains no target node that provides a value, then
+     * the value that is stored in the root of this subtree is used instead. This fallback handles parsers that report
+     * the values on a coarser level only, e.g., the complexity of files rather than the complexity of methods.
+     *
+     * @param node the root of the subtree
+     * @param metric the metric to get the values for
+     * @param targetValue computes the value of a target node
+     * @return the values of the target nodes, empty coverage values are skipped
+     */
+    private List<Value> collectTargetValues(
+            final Node node, final Metric metric, final Function<Node, Optional<Value>> targetValue) {
+        if (node.getMetric() == metric.getTargetNodeMetric()) {
+            return targetValue.apply(node).filter(this::isNotEmpty).stream().toList();
+        }
+        var valuesOfChildren = node.getChildren().stream()
+                .map(child -> collectTargetValues(child, metric, targetValue))
+                .flatMap(List::stream)
                 .toList();
-        return aggregation.aggregate(metricValues);
+        if (valuesOfChildren.isEmpty()) {
+            return getStoredValue(node, metric).filter(this::isNotEmpty).stream()
+                    .toList();
+        }
+        return valuesOfChildren;
     }
 
     /**
@@ -90,10 +115,7 @@ final class ValueCalculator {
     }
 
     private Optional<Value> computeMeanOfTargetNodes(final Node node, final Metric metric) {
-        var targetValues = metric.getTargetNodes(node).stream()
-                .map(target -> getStoredValue(target, metric))
-                .flatMap(Optional::stream)
-                .toList();
+        var targetValues = collectTargetValues(node, metric, target -> getStoredValue(target, metric));
         return targetValues.stream().reduce(Value::add).map(sum -> sum.divide(targetValues.size()));
     }
 
