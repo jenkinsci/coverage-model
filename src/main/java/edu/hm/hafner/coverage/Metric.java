@@ -303,7 +303,13 @@ public enum Metric {
         return computation == Computation.CONTAINER;
     }
 
-    Computation getComputation() {
+    /**
+     * Returns how the overall value of this metric is computed for a node that does not store a value of this metric,
+     * e.g., the sum of the values of all children.
+     *
+     * @return the computation of the overall value
+     */
+    public Computation getComputation() {
         return computation;
     }
 
@@ -504,11 +510,8 @@ public enum Metric {
         CLASS_METRIC
     }
 
-    /**
-     * Defines how the overall value of a metric is computed for a node that does not store a value of this metric
-     * itself.
-     */
-    enum Computation {
+    /** Defines how the overall value of a metric is computed for a node that does not store a value of this metric. */
+    public enum Computation {
         /** The coverage of the nodes of the corresponding type, e.g., the number of covered files. */
         CONTAINER,
         /** The sum of the values of all children. Coverage values sum up their covered and missed parts. */
