@@ -43,6 +43,10 @@ public final class FileNode extends Node {
 
     private static final int UNSET = -1;
 
+    /** Coverages computed from line counters: merged by keeping the better value (see {@link #mergeCounters}). */
+    private static final Set<Metric> COUNTER_METRICS =
+            Set.of(Metric.LINE, Metric.BRANCH, Metric.INSTRUCTION, Metric.MCDC_PAIR, Metric.FUNCTION_CALL);
+
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
 
@@ -179,10 +183,76 @@ public final class FileNode extends Node {
     protected void mergeNode(final Node other) {
         Ensure.that(other).isInstanceOf(FileNode.class);
 
+        var otherFile = (FileNode) other;
+        var classes = getChildren();
+
         removeValues();
         removeChildren();
 
-        mergeCounters((FileNode) other);
+        mergeCounters(otherFile);
+        mergeClasses(classes, otherFile);
+        mergeMutations(otherFile);
+    }
+
+    /**
+     * Merges the classes (and their methods) of both files. The values that are stored in the file (line, branch, MC/DC
+     * and function call coverage) are recomputed from the merged counters, but values that are only available in the
+     * classes and methods (e.g., mutation coverage and test strength of PIT, or the complexity of methods) must survive
+     * the merge.
+     *
+     * @param classes the classes of this file before the merge
+     * @param otherFile the file to merge
+     */
+    private void mergeClasses(final List<Node> classes, final FileNode otherFile) {
+        addAllChildren(classes);
+        mergeMembers(this, otherFile);
+    }
+
+    /**
+     * Merges the classes and methods of {@code source} into {@code target}. The counter based coverages (lines,
+     * branches, instructions, MC/DC pairs, function calls) are combined like the counters of the file: two reports of
+     * the same code cover what either of them covers, so the better value is retained. All other values (e.g., mutation
+     * coverage or complexity) are merged like in {@link Node#merge(Node)}.
+     *
+     * @param target the node to merge into
+     * @param source the node to merge
+     */
+    private static void mergeMembers(final Node target, final Node source) {
+        for (Node sourceChild : source.getChildren()) {
+            var targetChild = target.getChildren().stream()
+                    .filter(c -> c.getId().equals(sourceChild.getId()))
+                    .findFirst();
+            if (targetChild.isPresent()) {
+                mergeMemberValues(targetChild.get(), sourceChild);
+                mergeMembers(targetChild.get(), sourceChild);
+            } else {
+                target.addChild(sourceChild.copyTree());
+            }
+        }
+    }
+
+    private static void mergeMemberValues(final Node target, final Node source) {
+        for (Value sourceValue : source.getValues()) {
+            var metric = sourceValue.getMetric();
+            var targetValue = target.getValues().stream()
+                    .filter(value -> value.getMetric() == metric)
+                    .findFirst();
+            if (targetValue.isEmpty()) {
+                target.addValue(sourceValue);
+            } else if (COUNTER_METRICS.contains(metric)) {
+                target.replaceValue(targetValue.get().max(sourceValue)); // covered by either report
+            } else if (metric.getTendency() == Metric.MetricTendency.SMALLER_IS_BETTER) {
+                target.replaceValue(targetValue.get().max(sourceValue)); // worse value, as in Node
+            } else {
+                target.replaceValue(targetValue.get().min(sourceValue)); // worse value, as in Node
+            }
+        }
+    }
+
+    private void mergeMutations(final FileNode otherFile) {
+        otherFile.mutations.stream()
+                .filter(mutation -> !mutations.contains(mutation))
+                .forEach(mutations::add);
     }
 
     @SuppressMutation(

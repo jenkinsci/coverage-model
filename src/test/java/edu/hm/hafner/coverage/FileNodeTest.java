@@ -6,6 +6,7 @@ import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.TreeString;
 import java.io.IOException;
+import java.util.List;
 import java.util.NavigableMap;
 import nl.jqno.equalsverifier.Warning;
 import nl.jqno.equalsverifier.api.EqualsVerifierApi;
@@ -183,6 +184,104 @@ class FileNodeTest extends AbstractNodeTest {
             assertThat(file.getCoveredOfLine(79)).isEqualTo(1);
             assertThat(file.getMissedOfLine(79)).isEqualTo(3);
         });
+    }
+
+    @Test
+    void shouldKeepMutationsWhenMergingLineCoverageWithPitResults() {
+        var lines = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        lines.addCounters(10, 1, 0);
+        lines.addCounters(11, 1, 0);
+        lines.addCounters(12, 0, 1);
+        var linesClass = new ClassNode("Calc");
+        linesClass.addChild(new MethodNode("add", "(II)I", 10));
+        lines.addChild(linesClass);
+
+        var pit = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        var killed = new Mutation.MutationBuilder()
+                .withLine(10)
+                .withIsDetected(true)
+                .withStatus(MutationStatus.KILLED)
+                .withMutatedClass("edu.hm.hafner.Calc")
+                .withMutatedMethod("add")
+                .withMutatedMethodSignature("(II)I")
+                .withSourceFile("Calc.java")
+                .withMutator("MATH")
+                .withDescription("replaced + with -")
+                .build();
+        var survived = new Mutation.MutationBuilder()
+                .withLine(11)
+                .withIsDetected(false)
+                .withStatus(MutationStatus.SURVIVED)
+                .withMutatedClass("edu.hm.hafner.Calc")
+                .withMutatedMethod("add")
+                .withMutatedMethodSignature("(II)I")
+                .withSourceFile("Calc.java")
+                .withMutator("RETURN")
+                .withDescription("replaced return value")
+                .build();
+        pit.addMutation(killed);
+        pit.addMutation(survived);
+        var pitClass = new ClassNode("Calc");
+        var pitMethod = new MethodNode("add", "(II)I", 10);
+        pitMethod.addValue(new Coverage.CoverageBuilder(Metric.MUTATION)
+                .withCovered(1)
+                .withMissed(1)
+                .build());
+        pitClass.addChild(pitMethod);
+        pit.addChild(pitClass);
+
+        for (var merged : List.of((FileNode) lines.merge(pit), (FileNode) pit.merge(lines))) {
+            assertThat((Coverage) merged.getValue(Metric.LINE).orElseThrow())
+                    .hasCovered(2)
+                    .hasMissed(1);
+            assertThat((Coverage) merged.getValue(Metric.MUTATION).orElseThrow())
+                    .hasCovered(1)
+                    .hasMissed(1);
+            assertThat(merged.getMutations()).containsExactlyInAnyOrder(killed, survived);
+            assertThat(merged.getAll(Metric.METHOD)).hasSize(1);
+        }
+    }
+
+    @Test
+    void shouldNotDuplicateMutationsWhenMergingTheSameReportTwice() {
+        var pit = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        pit.addMutation(new Mutation.MutationBuilder()
+                .withLine(10)
+                .withIsDetected(true)
+                .withStatus(MutationStatus.KILLED)
+                .withMutatedClass("edu.hm.hafner.Calc")
+                .withMutatedMethod("add")
+                .withSourceFile("Calc.java")
+                .build());
+
+        assertThat(((FileNode) pit.merge(pit.copyTree())).getMutations()).hasSize(1);
+    }
+
+    @Test
+    void shouldKeepComplexityOfMethodsWhenMergingFiles() {
+        var left = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        left.addCounters(10, 1, 0);
+        var leftClass = new ClassNode("Calc");
+        var leftMethod = new MethodNode("add", "(II)I", 10);
+        leftMethod.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 3));
+        leftClass.addChild(leftMethod);
+        left.addChild(leftClass);
+
+        var right = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        right.addCounters(10, 0, 1);
+        var rightClass = new ClassNode("Calc");
+        var rightMethod = new MethodNode("sub", "(II)I", 20);
+        rightMethod.addValue(new Value(Metric.CYCLOMATIC_COMPLEXITY, 5));
+        rightClass.addChild(rightMethod);
+        right.addChild(rightClass);
+
+        var merged = (FileNode) left.merge(right);
+
+        assertThat(merged.getAll(Metric.METHOD)).hasSize(2);
+        assertThat(merged.findMethod("sub", "(II)I")).isPresent();
+        assertThat((Coverage) merged.getValue(Metric.LINE).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(0);
     }
 
     @Test
