@@ -17,6 +17,7 @@ import edu.hm.hafner.coverage.Mutation;
 import edu.hm.hafner.coverage.MutationAssert;
 import edu.hm.hafner.coverage.MutationStatus;
 import edu.hm.hafner.coverage.Node;
+import java.util.List;
 import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
 
@@ -276,6 +277,37 @@ class PitestParserTest extends AbstractParserTest {
                         MutationStatus.NO_COVERAGE);
         assertThat(tree.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 2273/2836"));
         assertThat(tree.getValue(TEST_STRENGTH)).contains(Coverage.valueOf("TEST_STRENGTH: 2273/2730"));
+    }
+
+    /**
+     * Merges the line coverage of coverage.py (Cobertura format) and the mutations of mutmut (converted to the PIT
+     * format) for the same Python file. coverage.py uses the file name as class name and reports no methods, PIT uses
+     * the last segment of the mutated class. So the IDs do not match and both classes are kept side by side.
+     */
+    @Test
+    void shouldKeepMutationsWhenMergingWithLineCoverageOfPython() {
+        var lines = readReport(
+                "/edu/hm/hafner/coverage/parser/cobertura/cobertura-python-merge.xml", new CoberturaParser());
+        var mutations = readReport("mutations-python-merge.xml");
+
+        for (Node merged : List.of(lines.merge(mutations), mutations.merge(lines))) {
+            assertThat(merged.getAllFileNodes()).hasSize(1);
+            var file = merged.getAllFileNodes().getFirst();
+            assertThat(file.getRelativePath()).isEqualTo("example/mail/status.py");
+            assertThat(file.getMutations()).hasSize(9);
+            assertThat(file.getValue(LINE)).contains(Coverage.valueOf("LINE: 35/35"));
+            assertThat(file.getValue(BRANCH)).contains(Coverage.valueOf("BRANCH: 20/20"));
+            assertThat(file.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 9/9"));
+            assertThat(file.getValue(TEST_STRENGTH)).contains(Coverage.valueOf("TEST_STRENGTH: 9/9"));
+
+            assertThat(file.getChildren()).extracting(Node::getName).containsExactlyInAnyOrder("status.py", "status");
+            assertThat(file.findMethod("classify", "()"))
+                    .hasValueSatisfying(method ->
+                            assertThat(method.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 6/6")));
+            assertThat(file.findMethod("extract_code", "()"))
+                    .hasValueSatisfying(method ->
+                            assertThat(method.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 3/3")));
+        }
     }
 
     @Test
