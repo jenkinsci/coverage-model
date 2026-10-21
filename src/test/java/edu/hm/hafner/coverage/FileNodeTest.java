@@ -243,18 +243,25 @@ class FileNodeTest extends AbstractNodeTest {
     }
 
     @Test
-    void shouldNotDuplicateMutationsWhenMergingTheSameReportTwice() {
-        var pit = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
-        pit.addMutation(new Mutation.MutationBuilder()
+    void shouldKeepAllMutationsWithTheSamePropertiesWhenMerging() {
+        var mutation = new Mutation.MutationBuilder()
                 .withLine(10)
                 .withIsDetected(true)
                 .withStatus(MutationStatus.KILLED)
                 .withMutatedClass("edu.hm.hafner.Calc")
                 .withMutatedMethod("add")
                 .withSourceFile("Calc.java")
-                .build());
+                .withMutator("MATH")
+                .withDescription("replaced + with -");
 
-        assertThat(((FileNode) pit.merge(pit.copyTree())).getMutations()).hasSize(1);
+        var twice = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        twice.addMutation(mutation.build());
+        twice.addMutation(mutation.build());
+        var once = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        once.addMutation(mutation.build());
+
+        assertThat(((FileNode) twice.merge(once)).getMutations()).hasSize(3);
+        assertThat(((FileNode) once.merge(twice)).getMutations()).hasSize(3);
     }
 
     @Test

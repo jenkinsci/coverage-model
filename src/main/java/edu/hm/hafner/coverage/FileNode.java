@@ -214,6 +214,16 @@ public final class FileNode extends Node {
      * the same code cover what either of them covers, so the better value is retained. All other values (e.g., mutation
      * coverage or complexity) are merged like in {@link Node#merge(Node)}.
      *
+     * <p>Note that the counter based coverages of classes and methods are only an approximation (a lower bound) after
+     * the merge: the coverages of a file are computed from its line counters, but these counters are not available for
+     * classes and methods. If a method has 4 lines and one report covers 2 of them and the other report covers the
+     * other 2, then the file aggregates the lines to 4/4, while the method still reports 2/4.
+     *
+     * <p>Classes and methods are matched by their {@link Node#getId() ID}. If the parsers create different names for
+     * the same class, then the classes of both reports are kept side by side. E.g., JaCoCo uses the fully qualified
+     * class name while PIT uses the simple class name; Cobertura reports of coverage.py use the file name as class name
+     * and contain no methods.
+     *
      * @param target the node to merge into
      * @param source the node to merge
      */
@@ -250,9 +260,7 @@ public final class FileNode extends Node {
     }
 
     private void mergeMutations(final FileNode otherFile) {
-        otherFile.mutations.stream()
-                .filter(mutation -> !mutations.contains(mutation))
-                .forEach(mutations::add);
+        mutations.addAll(otherFile.mutations);
     }
 
     @SuppressMutation(
