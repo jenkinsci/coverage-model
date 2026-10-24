@@ -300,6 +300,8 @@ class CoberturaParserTest extends AbstractParserTest {
             builder.withMetric(MODULE).withCovered(1).withMissed(0).build(),
             builder.withMetric(PACKAGE).withCovered(1).withMissed(0).build(),
             builder.withMetric(FILE).withCovered(1).withMissed(0).build(),
+            builder.withMetric(CLASS).withCovered(1).withMissed(0).build(),
+            builder.withMetric(METHOD).withCovered(3).withMissed(0).build(),
             builder.withMetric(LINE).withCovered(22).withMissed(0).build(),
             builder.withMetric(BRANCH).withCovered(1).withMissed(1).build(),
             new Value(LOC, 22)
