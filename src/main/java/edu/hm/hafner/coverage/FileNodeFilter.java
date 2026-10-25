@@ -11,7 +11,8 @@ import java.util.function.Predicate;
  *
  * @author Ullrich Hafner
  */
-// TODO: check if it also makes sense to store the information of the modified lines as a second parameter rather than in the file node
+// TODO: check if it also makes sense to store the information of the modified lines as a second parameter rather than
+// in the file node
 final class FileNodeFilter {
     private FileNodeFilter() {
         // prevents instantiation

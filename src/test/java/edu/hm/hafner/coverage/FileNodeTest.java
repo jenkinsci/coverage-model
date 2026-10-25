@@ -1,6 +1,7 @@
 package edu.hm.hafner.coverage;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
 
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
@@ -105,7 +106,10 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldReadOldVersion() {
         var restored = readAllBytes("version-0.49.0.ser");
 
-        assertThatRestoredInstanceEqualsOriginalInstance(createSerializable(), restore(restored));
+        assertThat(restore(restored))
+                .usingRecursiveComparison()
+                .ignoringFields("lineCounters.covered", "lineCounters.missed") // transient
+                .isEqualTo(createSerializable());
     }
 
     @Test

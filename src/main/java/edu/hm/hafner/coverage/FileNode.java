@@ -30,30 +30,41 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CyclomaticComplexity", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"
-})
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public final class FileNode extends Node {
     @Serial
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
 
-    @SuppressWarnings("serial")
-    private final NavigableMap<Integer, Integer> coveredPerLine = new TreeMap<>();
+    private LineCounters lineCounters = new LineCounters();
+    private LineCounters mcdcPairCounters = new LineCounters();
+    private LineCounters functionCallCounters = new LineCounters();
 
-    @SuppressWarnings("serial")
-    private final NavigableMap<Integer, Integer> missedPerLine = new TreeMap<>();
+    // The following fields have been used before the counters have been moved into LineCounters. They are transient
+    // so that they are not written anymore. XStream in Jenkins still reads transient fields, so that the counters of
+    // existing builds can be restored in readResolve.
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> coveredPerLine;
 
-    @SuppressWarnings("serial")
-    private NavigableMap<Integer, Integer> mcdcPairCoveredPerLine = new TreeMap<>();
-    // metrics for MC/DC pairs per line
-    @SuppressWarnings("serial")
-    private NavigableMap<Integer, Integer> mcdcPairMissedPerLine = new TreeMap<>();
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> missedPerLine;
 
-    // metrics for function calls per line
-    @SuppressWarnings("serial")
-    private NavigableMap<Integer, Integer> functionCallCoveredPerLine = new TreeMap<>();
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> mcdcPairCoveredPerLine;
 
-    @SuppressWarnings("serial")
-    private NavigableMap<Integer, Integer> functionCallMissedPerLine = new TreeMap<>();
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> mcdcPairMissedPerLine;
+
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> functionCallCoveredPerLine;
+
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> functionCallMissedPerLine;
 
     @SuppressWarnings("serial")
     private final List<Mutation> mutations = new ArrayList<>();
@@ -75,6 +86,7 @@ public final class FileNode extends Node {
      * @param name the human-readable name of the node
      * @param relativePath the relative path of the file
      */
+    @SuppressWarnings("NullAway")
     public FileNode(final String name, final TreeString relativePath) {
         super(name);
 
@@ -112,33 +124,37 @@ public final class FileNode extends Node {
         if (relativePath == null) {
             relativePath = TreeString.valueOf(StringUtils.EMPTY);
         }
-        if (mcdcPairCoveredPerLine == null) {
-            mcdcPairCoveredPerLine = new TreeMap<>();
-        }
-        if (mcdcPairMissedPerLine == null) {
-            mcdcPairMissedPerLine = new TreeMap<>();
-        }
-        if (functionCallCoveredPerLine == null) {
-            functionCallCoveredPerLine = new TreeMap<>();
-        }
-        if (functionCallMissedPerLine == null) {
-            functionCallMissedPerLine = new TreeMap<>();
-        }
+        migrateLegacyCounters();
         return this;
+    }
+
+    /** Moves the counters of serializations that have been written before {@link LineCounters} have been introduced. */
+    @SuppressWarnings({"PMD.NullAssignment", "NullAway"})
+    private void migrateLegacyCounters() {
+        if (lineCounters == null) {
+            lineCounters = LineCounters.of(coveredPerLine, missedPerLine);
+        }
+        if (mcdcPairCounters == null) {
+            mcdcPairCounters = LineCounters.of(mcdcPairCoveredPerLine, mcdcPairMissedPerLine);
+        }
+        if (functionCallCounters == null) {
+            functionCallCounters = LineCounters.of(functionCallCoveredPerLine, functionCallMissedPerLine);
+        }
+        coveredPerLine = null;
+        missedPerLine = null;
+        mcdcPairCoveredPerLine = null;
+        mcdcPairMissedPerLine = null;
+        functionCallCoveredPerLine = null;
+        functionCallMissedPerLine = null;
     }
 
     @Override
     public FileNode copy() {
         var copy = new FileNode(getName(), relativePath);
 
-        copy.coveredPerLine.putAll(coveredPerLine);
-        copy.missedPerLine.putAll(missedPerLine);
-
-        copy.mcdcPairCoveredPerLine.putAll(mcdcPairCoveredPerLine);
-        copy.mcdcPairMissedPerLine.putAll(mcdcPairMissedPerLine);
-
-        copy.functionCallCoveredPerLine.putAll(functionCallCoveredPerLine);
-        copy.functionCallMissedPerLine.putAll(functionCallMissedPerLine);
+        copy.lineCounters = lineCounters.copy();
+        copy.mcdcPairCounters = mcdcPairCounters.copy();
+        copy.functionCallCounters = functionCallCounters.copy();
 
         copy.modifiedLines.addAll(modifiedLines);
 
@@ -241,7 +257,7 @@ public final class FileNode extends Node {
 
     // TODO: the API does not work yet for mutations
     public NavigableSet<Integer> getLinesWithCoverage() {
-        return new TreeSet<>(coveredPerLine.keySet());
+        return lineCounters.getLines();
     }
 
     /**
@@ -251,9 +267,7 @@ public final class FileNode extends Node {
      * @return {@code true} if this file has a coverage result for the specified line, {@code false} otherwise
      */
     public boolean hasCoverageForLine(final int line) {
-        return coveredPerLine.containsKey(line)
-                || mcdcPairCoveredPerLine.containsKey(line)
-                || functionCallCoveredPerLine.containsKey(line);
+        return lineCounters.contains(line) || mcdcPairCounters.contains(line) || functionCallCounters.contains(line);
     }
 
     @Override
@@ -309,10 +323,9 @@ public final class FileNode extends Node {
      * @return the lines with any coverage information
      */
     NavigableSet<Integer> getLinesWithAnyCounter() {
-        var lines = new TreeSet<Integer>();
-        lines.addAll(coveredPerLine.keySet());
-        lines.addAll(mcdcPairCoveredPerLine.keySet());
-        lines.addAll(functionCallCoveredPerLine.keySet());
+        var lines = lineCounters.getLines();
+        lines.addAll(mcdcPairCounters.getLines());
+        lines.addAll(functionCallCounters.getLines());
         return lines;
     }
 
@@ -356,8 +369,7 @@ public final class FileNode extends Node {
      */
     @CanIgnoreReturnValue
     public FileNode addCounters(final int lineNumber, final int covered, final int missed) {
-        coveredPerLine.put(lineNumber, covered);
-        missedPerLine.put(lineNumber, missed);
+        lineCounters.put(lineNumber, covered, missed);
 
         return this;
     }
@@ -372,8 +384,7 @@ public final class FileNode extends Node {
      */
     @CanIgnoreReturnValue
     public FileNode addMcdcPairCounters(final int lineNumber, final int covered, final int missed) {
-        mcdcPairCoveredPerLine.put(lineNumber, covered);
-        mcdcPairMissedPerLine.put(lineNumber, missed);
+        mcdcPairCounters.put(lineNumber, covered, missed);
 
         return this;
     }
@@ -388,34 +399,33 @@ public final class FileNode extends Node {
      */
     @CanIgnoreReturnValue
     public FileNode addFunctionCallCounters(final int lineNumber, final int covered, final int missed) {
-        functionCallCoveredPerLine.put(lineNumber, covered);
-        functionCallMissedPerLine.put(lineNumber, missed);
+        functionCallCounters.put(lineNumber, covered, missed);
 
         return this;
     }
 
     public int[] getCoveredCounters() {
-        return entriesToArray(coveredPerLine);
+        return lineCounters.getCoveredCounters();
     }
 
     public int[] getMissedCounters() {
-        return entriesToArray(missedPerLine);
+        return lineCounters.getMissedCounters();
     }
 
     public int[] getMcdcPairCoveredCounters() {
-        return entriesToArray(mcdcPairCoveredPerLine);
+        return mcdcPairCounters.getCoveredCounters();
     }
 
     public int[] getMcdcPairMissedCounters() {
-        return entriesToArray(mcdcPairMissedPerLine);
+        return mcdcPairCounters.getMissedCounters();
     }
 
     public int[] getFunctionCallCoveredCounters() {
-        return entriesToArray(functionCallCoveredPerLine);
+        return functionCallCounters.getCoveredCounters();
     }
 
     public int[] getFunctionCallMissedCounters() {
-        return entriesToArray(functionCallMissedPerLine);
+        return functionCallCounters.getMissedCounters();
     }
 
     /**
@@ -425,7 +435,7 @@ public final class FileNode extends Node {
      * @return the number of covered items for the specified line
      */
     public int getCoveredOfLine(final int line) {
-        return coveredPerLine.getOrDefault(line, 0);
+        return lineCounters.getCovered(line);
     }
 
     /**
@@ -435,7 +445,7 @@ public final class FileNode extends Node {
      * @return the number of covered items for the specified line
      */
     int getMcdcPairCoveredOfLine(final int line) {
-        return mcdcPairCoveredPerLine.getOrDefault(line, 0);
+        return mcdcPairCounters.getCovered(line);
     }
 
     /**
@@ -445,7 +455,7 @@ public final class FileNode extends Node {
      * @return the number of covered items for the specified line
      */
     int getFunctionCallCoveredOfLine(final int line) {
-        return functionCallCoveredPerLine.getOrDefault(line, 0);
+        return functionCallCounters.getCovered(line);
     }
 
     /**
@@ -455,7 +465,7 @@ public final class FileNode extends Node {
      * @return the number of missed items for the specified line
      */
     int getMcdcPairMissedOfLine(final int line) {
-        return mcdcPairMissedPerLine.getOrDefault(line, 0);
+        return mcdcPairCounters.getMissed(line);
     }
 
     /**
@@ -465,7 +475,7 @@ public final class FileNode extends Node {
      * @return the number of missed items for the specified line
      */
     int getFunctionCallMissedOfLine(final int line) {
-        return functionCallMissedPerLine.getOrDefault(line, 0);
+        return functionCallCounters.getMissed(line);
     }
 
     /**
@@ -475,11 +485,7 @@ public final class FileNode extends Node {
      * @return the number of missed items for the specified line
      */
     public int getMissedOfLine(final int line) {
-        return missedPerLine.getOrDefault(line, 0);
-    }
-
-    private int[] entriesToArray(final NavigableMap<Integer, Integer> map) {
-        return map.values().stream().mapToInt(i -> i).toArray();
+        return lineCounters.getMissed(line);
     }
 
     /**
@@ -501,7 +507,9 @@ public final class FileNode extends Node {
     }
 
     private NavigableSet<Integer> filterLines(final Predicate<Integer> predicate) {
-        return coveredPerLine.keySet().stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
+        return lineCounters.getCoveredPerLine().keySet().stream()
+                .filter(predicate)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     /**
@@ -550,11 +558,11 @@ public final class FileNode extends Node {
         return getLinesWithCoverage().stream()
                 .filter(line -> getCoveredOfLine(line) > 0)
                 .filter(line -> getMissedOfLine(line) > 0)
-                .collect(Collectors.toMap(line -> line, missedPerLine::get, (a, b) -> a, TreeMap::new));
+                .collect(Collectors.toMap(line -> line, lineCounters::getMissed, (a, b) -> a, TreeMap::new));
     }
 
     public NavigableMap<Integer, Integer> getCounters() {
-        return Collections.unmodifiableNavigableMap(coveredPerLine);
+        return lineCounters.getCoveredPerLine();
     }
 
     /**
@@ -607,12 +615,9 @@ public final class FileNode extends Node {
             return false;
         }
         var fileNode = (FileNode) o;
-        return Objects.equals(coveredPerLine, fileNode.coveredPerLine)
-                && Objects.equals(missedPerLine, fileNode.missedPerLine)
-                && Objects.equals(mcdcPairCoveredPerLine, fileNode.mcdcPairCoveredPerLine)
-                && Objects.equals(mcdcPairMissedPerLine, fileNode.mcdcPairMissedPerLine)
-                && Objects.equals(functionCallCoveredPerLine, fileNode.functionCallCoveredPerLine)
-                && Objects.equals(functionCallMissedPerLine, fileNode.functionCallMissedPerLine)
+        return Objects.equals(lineCounters, fileNode.lineCounters)
+                && Objects.equals(mcdcPairCounters, fileNode.mcdcPairCounters)
+                && Objects.equals(functionCallCounters, fileNode.functionCallCounters)
                 && Objects.equals(mutations, fileNode.mutations)
                 && Objects.equals(modifiedLines, fileNode.modifiedLines)
                 && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
@@ -624,14 +629,11 @@ public final class FileNode extends Node {
     public int hashCode() {
         return Objects.hash(
                 super.hashCode(),
-                coveredPerLine,
-                missedPerLine,
+                lineCounters,
+                mcdcPairCounters,
+                functionCallCounters,
                 mutations,
                 modifiedLines,
-                mcdcPairCoveredPerLine,
-                mcdcPairMissedPerLine,
-                functionCallCoveredPerLine,
-                functionCallMissedPerLine,
                 indirectCoverageChanges,
                 coverageDelta,
                 relativePath);

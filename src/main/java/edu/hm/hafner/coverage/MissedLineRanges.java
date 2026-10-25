@@ -23,6 +23,7 @@ final class MissedLineRanges {
      * @param file the file to get the missed lines for
      * @return the aggregated LineRanges that have no line coverage
      */
+    @SuppressWarnings("PMD.ShortMethodName")
     static LineRangeList of(final FileNode file) {
         var lineRanges = new LineRangeList();
 
