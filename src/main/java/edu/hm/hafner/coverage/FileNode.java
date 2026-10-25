@@ -191,6 +191,13 @@ public final class FileNode extends Node {
         new FileNodeMerger(this, (FileNode) other).merge();
     }
 
+    /**
+     * Returns the lines of this file that have been modified.
+     *
+     * @return the modified lines
+     * @deprecated use {@link ChangeSet#getModifiedLines(String)}
+     */
+    @Deprecated
     public SortedSet<Integer> getModifiedLines() {
         return new TreeSet<>(modifiedLines);
     }
@@ -199,8 +206,10 @@ public final class FileNode extends Node {
      * Returns whether this file has been modified in the active change set.
      *
      * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
+     * @deprecated use {@link ChangeSet#hasModifiedLines(String)}
      */
     @Override
+    @Deprecated
     public boolean hasModifiedLines() {
         return !modifiedLines.isEmpty();
     }
@@ -210,7 +219,9 @@ public final class FileNode extends Node {
      *
      * @param line the line to check
      * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
+     * @deprecated use {@link ChangeSet#isModified(String, int)}
      */
+    @Deprecated
     public boolean hasModifiedLine(final int line) {
         return modifiedLines.contains(line);
     }
@@ -219,7 +230,9 @@ public final class FileNode extends Node {
      * Marks the specified lines as being modified.
      *
      * @param lines the modified code lines
+     * @deprecated use {@link ChangeSet.ChangeSetBuilder#addModifiedLines(String, int...)}
      */
+    @Deprecated
     public void addModifiedLines(final int... lines) {
         for (int line : lines) {
             modifiedLines.add(line);
@@ -227,18 +240,18 @@ public final class FileNode extends Node {
     }
 
     @Override
-    protected Optional<Node> filterTreeByModifiedLines() {
-        return FileNodeFilter.byModifiedLines(this);
+    protected Optional<Node> filterTreeByModifiedLines(final ChangeSet changes) {
+        return FileNodeFilter.byModifiedLines(this, changes.getModifiedLines(getRelativePath()));
     }
 
     @Override
-    protected Optional<Node> filterTreeByModifiedFiles() {
-        return hasCoveredAndModifiedLines() ? Optional.of(copyTree()) : Optional.empty();
+    protected Optional<Node> filterTreeByModifiedFiles(final ChangeSet changes) {
+        return hasCoveredAndModifiedLines(changes) ? Optional.of(copyTree()) : Optional.empty();
     }
 
     @Override
-    protected Optional<Node> filterTreeByIndirectChanges() {
-        return FileNodeFilter.byIndirectChanges(this);
+    protected Optional<Node> filterTreeByIndirectChanges(final ChangeSet changes) {
+        return FileNodeFilter.byIndirectChanges(this, changes.getIndirectCoverageChanges(getRelativePath()));
     }
 
     /**
@@ -246,11 +259,20 @@ public final class FileNode extends Node {
      *
      * @param line The line with the coverage change
      * @param hitsDelta The delta of the coverage hits before and after the code changes
+     * @deprecated use {@link ChangeSet.ChangeSetBuilder#addIndirectCoverageChange(String, int, int)}
      */
+    @Deprecated
     public void addIndirectCoverageChange(final int line, final int hitsDelta) {
         indirectCoverageChanges.put(line, hitsDelta);
     }
 
+    /**
+     * Returns the indirect coverage changes of this file.
+     *
+     * @return the delta of the coverage hits per line
+     * @deprecated use {@link ChangeSet#getIndirectCoverageChanges(String)}
+     */
+    @Deprecated
     public SortedMap<Integer, Integer> getIndirectCoverageChanges() {
         return new TreeMap<>(indirectCoverageChanges);
     }
@@ -279,7 +301,9 @@ public final class FileNode extends Node {
      * Returns whether the coverage of this node is affected indirectly by the tests in the change set.
      *
      * @return {@code true} if this node is affected indirectly by the tests.
+     * @deprecated use {@link ChangeSet#hasIndirectCoverageChanges(String)}
      */
+    @Deprecated
     public boolean hasIndirectCoverageChanges() {
         return !indirectCoverageChanges.isEmpty();
     }
@@ -342,7 +366,9 @@ public final class FileNode extends Node {
      * Returns the lines with code coverage that also have been modified.
      *
      * @return the lines with code coverage that also have been modified
+     * @deprecated use {@link #getCoveredAndModifiedLines(ChangeSet)}
      */
+    @Deprecated
     public SortedSet<Integer> getCoveredAndModifiedLines() {
         SortedSet<Integer> coveredDelta = getLinesWithCoverage();
         coveredDelta.retainAll(getModifiedLines());
@@ -350,13 +376,38 @@ public final class FileNode extends Node {
     }
 
     /**
+     * Returns the lines with code coverage that also have been modified.
+     *
+     * @param changes the changes of the change set
+     * @return the lines with code coverage that also have been modified
+     */
+    public SortedSet<Integer> getCoveredAndModifiedLines(final ChangeSet changes) {
+        SortedSet<Integer> coveredAndModified = getLinesWithCoverage();
+        coveredAndModified.retainAll(changes.getModifiedLines(getRelativePath()));
+        return coveredAndModified;
+    }
+
+    /**
      * Returns whether this file has lines with code coverage that also have been modified.
      *
      * @return {@code true} if this file has lines with code coverage that also have been modified, {@code false}
      *     otherwise.
+     * @deprecated use {@link #hasCoveredAndModifiedLines(ChangeSet)}
      */
+    @Deprecated
     public boolean hasCoveredAndModifiedLines() {
         return !getCoveredAndModifiedLines().isEmpty();
+    }
+
+    /**
+     * Returns whether this file has lines with code coverage that also have been modified.
+     *
+     * @param changes the changes of the change set
+     * @return {@code true} if this file has lines with code coverage that also have been modified, {@code false}
+     *     otherwise.
+     */
+    public boolean hasCoveredAndModifiedLines(final ChangeSet changes) {
+        return !getCoveredAndModifiedLines(changes).isEmpty();
     }
 
     /**

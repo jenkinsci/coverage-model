@@ -17,6 +17,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOf
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
 import static edu.hm.hafner.coverage.assertions.Assertions.entry;
 
+import edu.hm.hafner.coverage.ChangeSet.ChangeSetBuilder;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.TreeString;
@@ -652,6 +653,73 @@ class NodeTest {
                 .isNotEmpty()
                 .contains(
                         builder.withMetric(BRANCH).withCovered(4).withMissed(4).build());
+    }
+
+    @Test
+    void shouldCreateEmptyTreesWithoutChangeSet() {
+        var tree = createTreeWithoutCoverage();
+        var file = tree.findFile(COVERED_FILE);
+        assertThat(file).isPresent();
+        registerIndirectCoverageChanges(file.get());
+
+        verifyEmptyTree(tree, tree.filterByModifiedLines(ChangeSet.empty()));
+        verifyEmptyTree(tree, tree.filterByModifiedFiles(ChangeSet.empty()));
+        verifyEmptyTree(tree, tree.filterByIndirectChanges(ChangeSet.empty()));
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void shouldCreateModifiedLinesCoverageTreeFromChangeSet() {
+        var tree = createTreeWithoutCoverage();
+        var file = tree.findFile(COVERED_FILE);
+        assertThat(file).isPresent();
+        registerCodeChangesAndCoverage(file.get());
+
+        var changes = new ChangeSetBuilder()
+                .addModifiedLines(file.get().getRelativePath(), file.get().getModifiedLines())
+                .build();
+
+        verifyFilteredTree(tree, tree.filterByModifiedLines(changes), this::verifyModifiedLines);
+        assertThat(tree.filterByModifiedLines(changes)).isEqualTo(tree.filterByModifiedLines());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void shouldCreateModifiedFilesCoverageTreeFromChangeSet() {
+        var tree = createTreeWithoutCoverage();
+        var file = tree.findFile(COVERED_FILE);
+        assertThat(file).isPresent();
+        registerCoverageWithoutChange(file.get());
+        registerCodeChangesAndCoverage(file.get());
+
+        var changes = new ChangeSetBuilder()
+                .addModifiedLines(file.get().getRelativePath(), file.get().getModifiedLines())
+                .build();
+
+        verifyFilteredTree(tree, tree.filterByModifiedFiles(changes), this::verifyModifiedFiles);
+        assertThat(tree.filterByModifiedFiles(changes)).isEqualTo(tree.filterByModifiedFiles());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void shouldCreateIndirectCoverageChangesTreeFromChangeSet() {
+        var tree = createTreeWithoutCoverage();
+        var file = tree.findFile(COVERED_FILE);
+        assertThat(file).isPresent();
+        registerIndirectCoverageChanges(file.get());
+
+        var builder = new ChangeSetBuilder();
+        file.get()
+                .getIndirectCoverageChanges()
+                .forEach((line, delta) ->
+                        builder.addIndirectCoverageChange(file.get().getRelativePath(), line, delta));
+        var changes = builder.build();
+
+        assertThat(tree.filterByIndirectChanges(changes))
+                .isNotSameAs(tree)
+                .hasFiles("path/to/" + COVERED_FILE)
+                .satisfies(this::verifyIndirectChanges);
+        assertThat(tree.filterByIndirectChanges(changes)).isEqualTo(tree.filterByIndirectChanges());
     }
 
     private void registerCodeChangesAndCoverage(final FileNode file) {

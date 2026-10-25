@@ -1,6 +1,6 @@
 package edu.hm.hafner.coverage;
 
-import static org.assertj.core.api.BDDAssertions.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
 
 import edu.hm.hafner.util.SerializableTest;
 import org.junit.jupiter.api.Test;
@@ -20,28 +20,28 @@ class LineCountersTest extends SerializableTest<LineCounters> {
     void shouldBeEmptyInitially() {
         var counters = new LineCounters();
 
-        then(counters.getLines()).isEmpty();
-        then(counters.contains(1)).isFalse();
-        then(counters.getCovered(1)).isZero();
-        then(counters.getMissed(1)).isZero();
-        then(counters.getCoveredCounters()).isEmpty();
-        then(counters.getMissedCounters()).isEmpty();
+        assertThat(counters).hasNoLines();
+        assertThat(counters.contains(1)).isFalse();
+        assertThat(counters.getCovered(1)).isZero();
+        assertThat(counters.getMissed(1)).isZero();
+        assertThat(counters).hasCoveredCounters();
+        assertThat(counters.getMissedCounters()).isEmpty();
     }
 
     @Test
     void shouldStoreCountersPerLine() {
         var counters = createCounters();
 
-        then(counters.getLines()).containsExactly(3, 10);
-        then(counters.contains(3)).isTrue();
-        then(counters.contains(4)).isFalse();
-        then(counters.getCovered(3)).isEqualTo(2);
-        then(counters.getMissed(3)).isEqualTo(1);
-        then(counters.getCovered(10)).isEqualTo(5);
-        then(counters.getMissed(10)).isZero();
-        then(counters.getCoveredCounters()).containsExactly(2, 5);
-        then(counters.getMissedCounters()).containsExactly(1, 0);
-        then(counters.getCoveredPerLine()).containsOnlyKeys(3, 10).containsEntry(3, 2);
+        assertThat(counters).hasOnlyLines(3, 10);
+        assertThat(counters.contains(3)).isTrue();
+        assertThat(counters.contains(4)).isFalse();
+        assertThat(counters.getCovered(3)).isEqualTo(2);
+        assertThat(counters.getMissed(3)).isEqualTo(1);
+        assertThat(counters.getCovered(10)).isEqualTo(5);
+        assertThat(counters.getMissed(10)).isZero();
+        assertThat(counters.getCoveredCounters()).containsExactly(2, 5);
+        assertThat(counters.getMissedCounters()).containsExactly(1, 0);
+        assertThat(counters.getCoveredPerLine()).containsOnlyKeys(3, 10).containsEntry(3, 2);
     }
 
     @Test
@@ -50,8 +50,8 @@ class LineCountersTest extends SerializableTest<LineCounters> {
 
         counters.put(3, 7, 8);
 
-        then(counters.getCovered(3)).isEqualTo(7);
-        then(counters.getMissed(3)).isEqualTo(8);
+        assertThat(counters.getCovered(3)).isEqualTo(7);
+        assertThat(counters.getMissed(3)).isEqualTo(8);
     }
 
     @Test
@@ -59,11 +59,11 @@ class LineCountersTest extends SerializableTest<LineCounters> {
         var counters = createCounters();
 
         var copy = counters.copy();
-        then(copy).isEqualTo(counters).isNotSameAs(counters);
+        assertThat(copy).isEqualTo(counters).isNotSameAs(counters);
 
         copy.put(20, 1, 1);
-        then(copy).isNotEqualTo(counters);
-        then(counters.contains(20)).isFalse();
+        assertThat(copy).isNotEqualTo(counters);
+        assertThat(counters.contains(20)).isFalse();
     }
 
     @Test
@@ -72,7 +72,7 @@ class LineCountersTest extends SerializableTest<LineCounters> {
 
         counters.getLines().clear();
 
-        then(counters.getLines()).hasSize(2);
+        assertThat(counters).hasOnlyLines(3, 10);
     }
 
     private LineCounters createCounters() {

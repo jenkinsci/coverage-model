@@ -2,6 +2,8 @@ package edu.hm.hafner.coverage;
 
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -11,8 +13,6 @@ import java.util.function.Predicate;
  *
  * @author Ullrich Hafner
  */
-// TODO: check if it also makes sense to store the information of the modified lines as a second parameter rather than
-// in the file node
 final class FileNodeFilter {
     private FileNodeFilter() {
         // prevents instantiation
@@ -22,30 +22,35 @@ final class FileNodeFilter {
      * Creates a copy of the specified file that contains only the coverage information of the modified lines.
      *
      * @param file the file to filter
+     * @param modifiedLines the modified lines of the file
      * @return the filtered copy, or an empty result if none of the modified lines has been covered
      */
-    static Optional<Node> byModifiedLines(final FileNode file) {
-        if (!file.hasCoveredAndModifiedLines()) {
+    @SuppressWarnings("deprecation")
+    static Optional<Node> byModifiedLines(final FileNode file, final NavigableSet<Integer> modifiedLines) {
+        var coveredAndModifiedLines = file.getLinesWithCoverage();
+        coveredAndModifiedLines.retainAll(modifiedLines);
+        if (coveredAndModifiedLines.isEmpty()) {
             return Optional.empty();
         }
 
         var copy = file.createEmptyCopy();
-        copy.addModifiedLines(
-                file.getModifiedLines().stream().mapToInt(Integer::intValue).toArray());
+        // TODO: remove together with the deprecated API of the modified lines in FileNode
+        copy.addModifiedLines(modifiedLines.stream().mapToInt(Integer::intValue).toArray());
 
-        filterLineAndBranchCoverage(file, copy);
-        filterExtendedCoverage(file, copy);
-        filterMutations(file, copy);
+        filterLineAndBranchCoverage(file, copy, coveredAndModifiedLines);
+        filterExtendedCoverage(file, copy, coveredAndModifiedLines);
+        filterMutations(file, copy, modifiedLines);
 
         return Optional.of(copy);
     }
 
-    private static void filterLineAndBranchCoverage(final FileNode file, final FileNode copy) {
+    private static void filterLineAndBranchCoverage(
+            final FileNode file, final FileNode copy, final NavigableSet<Integer> lines) {
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var lineBuilder = new CoverageBuilder().withMetric(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
         var branchBuilder = new CoverageBuilder().withMetric(Metric.BRANCH);
-        for (int line : file.getCoveredAndModifiedLines()) {
+        for (int line : lines) {
             var covered = file.getCoveredOfLine(line);
             var missed = file.getMissedOfLine(line);
             var total = covered + missed;
@@ -68,7 +73,8 @@ final class FileNodeFilter {
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
     }
 
-    private static void filterExtendedCoverage(final FileNode file, final FileNode copy) {
+    private static void filterExtendedCoverage(
+            final FileNode file, final FileNode copy, final NavigableSet<Integer> lines) {
         var mcdcCoverage = new CoverageBuilder()
                 .withMetric(Metric.MCDC_PAIR)
                 .withCovered(0)
@@ -77,7 +83,7 @@ final class FileNodeFilter {
                 .withMetric(Metric.FUNCTION_CALL)
                 .withCovered(0)
                 .withMissed(0);
-        for (int line : file.getCoveredAndModifiedLines()) {
+        for (int line : lines) {
             int mcdcCovered = file.getMcdcPairCoveredOfLine(line);
             int mcdcMissed = file.getMcdcPairMissedOfLine(line);
             copy.addMcdcPairCounters(line, mcdcCovered, mcdcMissed);
@@ -100,9 +106,10 @@ final class FileNodeFilter {
         }
     }
 
-    private static void filterMutations(final FileNode file, final FileNode copy) {
+    private static void filterMutations(
+            final FileNode file, final FileNode copy, final NavigableSet<Integer> modifiedLines) {
         file.getMutations().stream()
-                .filter(mutation -> file.hasModifiedLine(mutation.getLine()))
+                .filter(mutation -> modifiedLines.contains(mutation.getLine()))
                 .forEach(copy::addMutation);
         if (!copy.getMutations().isEmpty()) {
             var builder = new CoverageBuilder()
@@ -122,20 +129,21 @@ final class FileNodeFilter {
      * affected indirectly by the changes, i.e., lines that are not modified but whose coverage has changed.
      *
      * @param file the file to filter
+     * @param indirectCoverageChanges the indirect coverage changes of the file
      * @return the filtered copy, or an empty result if the file has no indirect coverage changes
      */
     // TODO: the API for indirect changes does not work yet for mutations
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
-    static Optional<Node> byIndirectChanges(final FileNode file) {
-        if (!file.hasIndirectCoverageChanges()) {
+    static Optional<Node> byIndirectChanges(
+            final FileNode file, final NavigableMap<Integer, Integer> indirectCoverageChanges) {
+        if (indirectCoverageChanges.isEmpty()) {
             return Optional.empty();
         }
 
         var copy = file.createEmptyCopy();
         var lineCoverage = Coverage.nullObject(Metric.LINE);
         var branchCoverage = Coverage.nullObject(Metric.BRANCH);
-        for (Map.Entry<Integer, Integer> change :
-                file.getIndirectCoverageChanges().entrySet()) {
+        for (Map.Entry<Integer, Integer> change : indirectCoverageChanges.entrySet()) {
             int delta = change.getValue();
             var currentCoverage = getBranchCoverage(file, change.getKey());
             if (!currentCoverage.isSet()) {
