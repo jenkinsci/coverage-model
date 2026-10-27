@@ -5,18 +5,19 @@ import edu.hm.hafner.util.Ensure;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.LineRangeList;
 import edu.hm.hafner.util.TreeString;
+import edu.hm.hafner.util.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -30,14 +31,14 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Ullrich Hafner
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
 public final class FileNode extends Node {
     @Serial
     private static final long serialVersionUID = -3795695377267542624L; // Set to 1 when release 1.0.0 is ready
 
-    private LineCounters lineCounters = new LineCounters();
-    private LineCounters mcdcPairCounters = new LineCounters();
-    private LineCounters functionCallCounters = new LineCounters();
+    private LineCounters lineCounters = new LineCounters(); // @since 0.88.0
+    private LineCounters mcdcPairCounters = new LineCounters(); // @since 0.88.0
+    private LineCounters functionCallCounters = new LineCounters(); // @since 0.88.0
 
     // The following fields have been used before the counters have been moved into LineCounters. They are transient
     // so that they are not written anymore. XStream in Jenkins still reads transient fields, so that the counters of
@@ -69,11 +70,15 @@ public final class FileNode extends Node {
     @SuppressWarnings("serial")
     private final List<Mutation> mutations = new ArrayList<>();
 
-    @SuppressWarnings("serial")
-    private final SortedSet<Integer> modifiedLines = new TreeSet<>();
+    // The modified lines and the indirect coverage changes are stored in a ChangeSet now. The following fields are
+    // only read to restore the changes of existing builds, see ChangeSet#fromLegacyTree.
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient SortedSet<Integer> modifiedLines; // @since 0.88.0
 
-    @SuppressWarnings("serial")
-    private final NavigableMap<Integer, Integer> indirectCoverageChanges = new TreeMap<>();
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Integer, Integer> indirectCoverageChanges;
 
     @SuppressWarnings("serial")
     private final NavigableMap<Metric, Value> coverageDelta = new TreeMap<>();
@@ -93,11 +98,6 @@ public final class FileNode extends Node {
         this.relativePath = relativePath;
     }
 
-    @Override
-    public Metric getMetric() {
-        return Metric.FILE;
-    }
-
     /**
      * Creates a new {@link FileNode} with the given name.
      *
@@ -106,6 +106,32 @@ public final class FileNode extends Node {
      */
     public FileNode(final String name, final String relativePath) {
         this(name, TreeString.valueOf(relativePath));
+    }
+
+    /**
+     * Creates a new {@link FileNode} that simulates a node of an existing build: the modified lines and the indirect
+     * coverage changes are stored in the legacy fields that are restored from the persisted XML files.
+     *
+     * @param name the human-readable name of the node
+     * @param relativePath the relative path of the file
+     * @param modifiedLines the modified lines of the legacy format
+     * @param indirectCoverageChanges the indirect coverage changes of the legacy format
+     */
+    @VisibleForTesting
+    FileNode(
+            final String name,
+            final String relativePath,
+            final Set<Integer> modifiedLines,
+            final Map<Integer, Integer> indirectCoverageChanges) {
+        this(name, relativePath);
+
+        this.modifiedLines = new TreeSet<>(modifiedLines);
+        this.indirectCoverageChanges = new TreeMap<>(indirectCoverageChanges);
+    }
+
+    @Override
+    public Metric getMetric() {
+        return Metric.FILE;
     }
 
     @Override
@@ -156,11 +182,8 @@ public final class FileNode extends Node {
         copy.mcdcPairCounters = mcdcPairCounters.copy();
         copy.functionCallCounters = functionCallCounters.copy();
 
-        copy.modifiedLines.addAll(modifiedLines);
-
         copy.mutations.addAll(mutations);
 
-        copy.indirectCoverageChanges.putAll(indirectCoverageChanges);
         copy.coverageDelta.putAll(coverageDelta);
 
         return copy;
@@ -192,51 +215,21 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Returns the lines of this file that have been modified.
+     * Returns the modified lines that have been stored in this file by previous versions.
      *
-     * @return the modified lines
-     * @deprecated use {@link ChangeSet#getModifiedLines(String)}
+     * @return the modified lines, or an empty set if there are none
      */
-    @Deprecated
-    public SortedSet<Integer> getModifiedLines() {
-        return new TreeSet<>(modifiedLines);
+    NavigableSet<Integer> getLegacyModifiedLines() {
+        return modifiedLines == null ? new TreeSet<>() : new TreeSet<>(modifiedLines);
     }
 
     /**
-     * Returns whether this file has been modified in the active change set.
+     * Returns the indirect coverage changes that have been stored in this file by previous versions.
      *
-     * @return {@code true} if this file has been modified in the active change set, {@code false} otherwise
-     * @deprecated use {@link ChangeSet#hasModifiedLines(String)}
+     * @return the indirect coverage changes, or an empty map if there are none
      */
-    @Override
-    @Deprecated
-    public boolean hasModifiedLines() {
-        return !modifiedLines.isEmpty();
-    }
-
-    /**
-     * Returns whether this file has been modified at the specified line.
-     *
-     * @param line the line to check
-     * @return {@code true} if this file has been modified at the specified line, {@code false} otherwise
-     * @deprecated use {@link ChangeSet#isModified(String, int)}
-     */
-    @Deprecated
-    public boolean hasModifiedLine(final int line) {
-        return modifiedLines.contains(line);
-    }
-
-    /**
-     * Marks the specified lines as being modified.
-     *
-     * @param lines the modified code lines
-     * @deprecated use {@link ChangeSet.ChangeSetBuilder#addModifiedLines(String, int...)}
-     */
-    @Deprecated
-    public void addModifiedLines(final int... lines) {
-        for (int line : lines) {
-            modifiedLines.add(line);
-        }
+    NavigableMap<Integer, Integer> getLegacyIndirectCoverageChanges() {
+        return indirectCoverageChanges == null ? new TreeMap<>() : new TreeMap<>(indirectCoverageChanges);
     }
 
     @Override
@@ -252,29 +245,6 @@ public final class FileNode extends Node {
     @Override
     protected Optional<Node> filterTreeByIndirectChanges(final ChangeSet changes) {
         return FileNodeFilter.byIndirectChanges(this, changes.getIndirectCoverageChanges(getRelativePath()));
-    }
-
-    /**
-     * Adds an indirect coverage change for a specific line.
-     *
-     * @param line The line with the coverage change
-     * @param hitsDelta The delta of the coverage hits before and after the code changes
-     * @deprecated use {@link ChangeSet.ChangeSetBuilder#addIndirectCoverageChange(String, int, int)}
-     */
-    @Deprecated
-    public void addIndirectCoverageChange(final int line, final int hitsDelta) {
-        indirectCoverageChanges.put(line, hitsDelta);
-    }
-
-    /**
-     * Returns the indirect coverage changes of this file.
-     *
-     * @return the delta of the coverage hits per line
-     * @deprecated use {@link ChangeSet#getIndirectCoverageChanges(String)}
-     */
-    @Deprecated
-    public SortedMap<Integer, Integer> getIndirectCoverageChanges() {
-        return new TreeMap<>(indirectCoverageChanges);
     }
 
     // TODO: the API does not work yet for mutations
@@ -295,17 +265,6 @@ public final class FileNode extends Node {
     @Override
     public Set<String> getFiles() {
         return Set.of(getRelativePath());
-    }
-
-    /**
-     * Returns whether the coverage of this node is affected indirectly by the tests in the change set.
-     *
-     * @return {@code true} if this node is affected indirectly by the tests.
-     * @deprecated use {@link ChangeSet#hasIndirectCoverageChanges(String)}
-     */
-    @Deprecated
-    public boolean hasIndirectCoverageChanges() {
-        return !indirectCoverageChanges.isEmpty();
     }
 
     /**
@@ -365,19 +324,6 @@ public final class FileNode extends Node {
     /**
      * Returns the lines with code coverage that also have been modified.
      *
-     * @return the lines with code coverage that also have been modified
-     * @deprecated use {@link #getCoveredAndModifiedLines(ChangeSet)}
-     */
-    @Deprecated
-    public SortedSet<Integer> getCoveredAndModifiedLines() {
-        SortedSet<Integer> coveredDelta = getLinesWithCoverage();
-        coveredDelta.retainAll(getModifiedLines());
-        return coveredDelta;
-    }
-
-    /**
-     * Returns the lines with code coverage that also have been modified.
-     *
      * @param changes the changes of the change set
      * @return the lines with code coverage that also have been modified
      */
@@ -385,18 +331,6 @@ public final class FileNode extends Node {
         SortedSet<Integer> coveredAndModified = getLinesWithCoverage();
         coveredAndModified.retainAll(changes.getModifiedLines(getRelativePath()));
         return coveredAndModified;
-    }
-
-    /**
-     * Returns whether this file has lines with code coverage that also have been modified.
-     *
-     * @return {@code true} if this file has lines with code coverage that also have been modified, {@code false}
-     *     otherwise.
-     * @deprecated use {@link #hasCoveredAndModifiedLines(ChangeSet)}
-     */
-    @Deprecated
-    public boolean hasCoveredAndModifiedLines() {
-        return !getCoveredAndModifiedLines().isEmpty();
     }
 
     /**
@@ -670,8 +604,6 @@ public final class FileNode extends Node {
                 && Objects.equals(mcdcPairCounters, fileNode.mcdcPairCounters)
                 && Objects.equals(functionCallCounters, fileNode.functionCallCounters)
                 && Objects.equals(mutations, fileNode.mutations)
-                && Objects.equals(modifiedLines, fileNode.modifiedLines)
-                && Objects.equals(indirectCoverageChanges, fileNode.indirectCoverageChanges)
                 && Objects.equals(coverageDelta, fileNode.coverageDelta)
                 && Objects.equals(relativePath, fileNode.relativePath);
     }
@@ -684,8 +616,6 @@ public final class FileNode extends Node {
                 mcdcPairCounters,
                 functionCallCounters,
                 mutations,
-                modifiedLines,
-                indirectCoverageChanges,
                 coverageDelta,
                 relativePath);
     }

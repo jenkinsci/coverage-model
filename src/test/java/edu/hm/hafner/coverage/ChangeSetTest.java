@@ -5,6 +5,8 @@ import static edu.hm.hafner.coverage.assertions.Assertions.*;
 import edu.hm.hafner.coverage.ChangeSet.ChangeSetBuilder;
 import edu.hm.hafner.util.SerializableTest;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
@@ -96,18 +98,11 @@ class ChangeSetTest extends SerializableTest<ChangeSet> {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void shouldReadChangesOfLegacyTree() {
         var module = new ModuleNode("module");
-        var file = new FileNode("File.java", FILE);
-        file.addModifiedLines(3, 4, 10);
-        var other = new FileNode("Other.java", OTHER_FILE);
-        other.addIndirectCoverageChange(20, 1);
-        other.addIndirectCoverageChange(21, -1);
-        var unchanged = new FileNode("Unchanged.java", "path/to/Unchanged.java");
-        module.addChild(file);
-        module.addChild(other);
-        module.addChild(unchanged);
+        module.addChild(new FileNode("File.java", FILE, Set.of(3, 4, 10), Map.of()));
+        module.addChild(new FileNode("Other.java", OTHER_FILE, Set.of(), Map.of(20, 1, 21, -1)));
+        module.addChild(new FileNode("Unchanged.java", "path/to/Unchanged.java"));
 
         assertThat(ChangeSet.fromLegacyTree(module)).isEqualTo(createChangeSet());
     }

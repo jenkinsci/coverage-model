@@ -848,31 +848,6 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
-     *
-     * @return {@code true} whether code changes have been detected
-     * @deprecated use {@link ChangeSet#hasModifiedLines()}
-     */
-    @Deprecated
-    @SuppressWarnings("InlineMeSuggester")
-    public boolean hasModifiedLines() {
-        return getChildren().stream().anyMatch(Node::hasModifiedLines);
-    }
-
-    /**
-     * Creates a new coverage tree that represents the modified lines coverage. This new tree will contain only those
-     * elements that contain modified lines.
-     *
-     * @return the filtered tree
-     * @deprecated use {@link #filterByModifiedLines(ChangeSet)}
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public Node filterByModifiedLines() {
-        return filterByModifiedLines(ChangeSet.fromLegacyTree(this));
-    }
-
-    /**
      * Creates a new coverage tree that represents the modified lines coverage. This new tree will contain only those
      * elements that contain modified lines.
      *
@@ -893,21 +868,6 @@ public abstract class Node implements Serializable {
      * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage of
      * the modified lines.
      *
-     * @return the filtered tree
-     * @deprecated use {@link #filterByModifiedFiles(ChangeSet)}
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public Node filterByModifiedFiles() {
-        return filterByModifiedFiles(ChangeSet.fromLegacyTree(this));
-    }
-
-    /**
-     * Creates a new coverage tree that represents the modified files coverage. This new tree will contain only those
-     * elements that have modified files. The difference against the modified line coverage is that the modified files
-     * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage of
-     * the modified lines.
-     *
      * @param changes the changes of the change set
      * @return the filtered tree
      */
@@ -917,19 +877,6 @@ public abstract class Node implements Serializable {
 
     protected Optional<Node> filterTreeByModifiedFiles(final ChangeSet changes) {
         return filterTreeByMapping(node -> node.filterTreeByModifiedFiles(changes));
-    }
-
-    /**
-     * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
-     * that have elements with a modified coverage but with no modified code lines.
-     *
-     * @return the filtered tree
-     * @deprecated use {@link #filterByIndirectChanges(ChangeSet)}
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public Node filterByIndirectChanges() {
-        return filterByIndirectChanges(ChangeSet.fromLegacyTree(this));
     }
 
     /**

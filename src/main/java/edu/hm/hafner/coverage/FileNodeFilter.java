@@ -25,7 +25,6 @@ final class FileNodeFilter {
      * @param modifiedLines the modified lines of the file
      * @return the filtered copy, or an empty result if none of the modified lines has been covered
      */
-    @SuppressWarnings("deprecation")
     static Optional<Node> byModifiedLines(final FileNode file, final NavigableSet<Integer> modifiedLines) {
         var coveredAndModifiedLines = file.getLinesWithCoverage();
         coveredAndModifiedLines.retainAll(modifiedLines);
@@ -34,9 +33,6 @@ final class FileNodeFilter {
         }
 
         var copy = file.createEmptyCopy();
-        // TODO: remove together with the deprecated API of the modified lines in FileNode
-        copy.addModifiedLines(modifiedLines.stream().mapToInt(Integer::intValue).toArray());
-
         filterLineAndBranchCoverage(file, copy, coveredAndModifiedLines);
         filterExtendedCoverage(file, copy, coveredAndModifiedLines);
         filterMutations(file, copy, modifiedLines);

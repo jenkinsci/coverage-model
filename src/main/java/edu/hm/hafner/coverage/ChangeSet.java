@@ -49,16 +49,13 @@ public final class ChangeSet implements Serializable {
      *
      * @param root the root of the coverage tree
      * @return the change set that is stored in the tree
-     * @deprecated only required to read old coverage trees
      */
-    @Deprecated
-    @SuppressWarnings("deprecation")
     public static ChangeSet fromLegacyTree(final Node root) {
         var builder = new ChangeSetBuilder();
         for (FileNode file : root.getAllFileNodes()) {
             var path = file.getRelativePath();
-            builder.addModifiedLines(path, file.getModifiedLines());
-            file.getIndirectCoverageChanges()
+            builder.addModifiedLines(path, file.getLegacyModifiedLines());
+            file.getLegacyIndirectCoverageChanges()
                     .forEach((line, delta) -> builder.addIndirectCoverageChange(path, line, delta));
         }
         return builder.build();

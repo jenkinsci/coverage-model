@@ -32,8 +32,6 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode(name, "path");
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
-        fileNode.addModifiedLines(10);
-        fileNode.addIndirectCoverageChange(15, 123);
         var empty = new FileNode("empty", "path");
         fileNode.computeDelta(empty);
         return fileNode;
@@ -417,19 +415,6 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasTotal(1);
         assertThat(filtered.getMcdcPairMissedCounters()).containsExactly(3);
         assertThat(filtered.getFunctionCallCoveredCounters()).containsExactly(1);
-    }
-
-    @Test
-    void shouldAddModifiedLines() {
-        var noModifiedLines = new FileNode("NoModified.java", ".");
-        var modifiedLines = new FileNode("Modified.java", ".");
-
-        modifiedLines.addModifiedLines(1, 3, 5);
-
-        assertThat(noModifiedLines.hasModifiedLines()).isFalse();
-        assertThat(modifiedLines.hasModifiedLines()).isTrue();
-        assertThat(modifiedLines).hasOnlyModifiedLines(1, 3, 5);
-        assertThat(modifiedLines.hasModifiedLine(4)).isFalse();
     }
 
     @Test
