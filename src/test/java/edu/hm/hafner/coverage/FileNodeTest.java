@@ -32,8 +32,6 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode(name, "path");
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
-        var empty = new FileNode("empty", "path");
-        fileNode.computeDelta(empty);
         return fileNode;
     }
 
@@ -109,30 +107,6 @@ class FileNodeTest extends AbstractNodeTest {
                 .usingRecursiveComparison()
                 .ignoringFields("lineCounters.covered", "lineCounters.missed") // transient
                 .isEqualTo(createSerializable());
-    }
-
-    @Test
-    void shouldComputeDelta() {
-        var builder = new Coverage.CoverageBuilder();
-
-        var fileA = new FileNode("FileA.java", ".");
-        var fileALineCoverage =
-                builder.withMetric(Metric.LINE).withCovered(10).withMissed(10).build();
-        fileA.addValue(fileALineCoverage);
-
-        var fileB = new FileNode("FileB.java", ".");
-        var fileBLineCoverage =
-                builder.withMetric(Metric.LINE).withCovered(20).withMissed(0).build();
-        var fileABranchCoverage =
-                builder.withMetric(Metric.BRANCH).withCovered(10).withMissed(5).build();
-        fileB.addValue(fileBLineCoverage);
-        fileB.addValue(fileABranchCoverage);
-
-        fileB.computeDelta(fileA);
-
-        assertThat(fileB.hasDelta(Metric.LINE)).isTrue();
-        assertThat(fileB.hasDelta(Metric.BRANCH)).isFalse();
-        assertThat(fileB.getDelta(Metric.LINE).asDouble()).isEqualTo(50);
     }
 
     @Test

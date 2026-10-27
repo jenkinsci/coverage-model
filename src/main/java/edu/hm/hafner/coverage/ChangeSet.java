@@ -69,17 +69,6 @@ public final class ChangeSet implements Serializable {
     }
 
     /**
-     * Returns the relative paths of all files that have modified lines or indirect coverage changes.
-     *
-     * @return the relative paths of the affected files, sorted alphabetically
-     */
-    public NavigableSet<String> getFiles() {
-        var files = new TreeSet<>(modifiedLines.keySet());
-        files.addAll(indirectCoverageChanges.keySet());
-        return Collections.unmodifiableNavigableSet(files);
-    }
-
-    /**
      * Returns whether at least one line of one file has been modified.
      *
      * @return {@code true} if there are modified lines, {@code false} otherwise
