@@ -98,6 +98,12 @@ class ChangeSetTest extends SerializableTest<ChangeSet> {
     }
 
     @Test
+    void shouldListAllFilesWithChanges() {
+        assertThat(ChangeSet.empty().getFiles()).isEmpty();
+        assertThat(createChangeSet().getFiles()).containsExactly(OTHER_FILE, FILE);
+    }
+
+    @Test
     void shouldReadChangesOfLegacyTree() {
         var module = new ModuleNode("module");
         module.addChild(new FileNode("File.java", FILE, Set.of(3, 4, 10), Map.of()));
