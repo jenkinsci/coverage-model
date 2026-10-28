@@ -24,7 +24,7 @@ import java.util.TreeSet;
 @SuppressFBWarnings("SING_SINGLETON_IMPLEMENTS_SERIALIZABLE")
 public final class ChangeSet implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4221523048242494525L; // Set to 1 when release 1.0.0 is ready
 
     private static final ChangeSet EMPTY_SET = new ChangeSet(new TreeMap<>(), new TreeMap<>());
 
@@ -66,17 +66,6 @@ public final class ChangeSet implements Serializable {
             final NavigableMap<String, NavigableMap<Integer, Integer>> indirectCoverageChanges) {
         this.modifiedLines = modifiedLines;
         this.indirectCoverageChanges = indirectCoverageChanges;
-    }
-
-    /**
-     * Returns the relative paths of all files that have modified lines or indirect coverage changes.
-     *
-     * @return the relative paths of the affected files, sorted alphabetically
-     */
-    public NavigableSet<String> getFiles() {
-        var files = new TreeSet<>(modifiedLines.keySet());
-        files.addAll(indirectCoverageChanges.keySet());
-        return Collections.unmodifiableNavigableSet(files);
     }
 
     /**

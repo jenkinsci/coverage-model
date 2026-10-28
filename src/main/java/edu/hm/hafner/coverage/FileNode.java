@@ -80,8 +80,11 @@ public final class FileNode extends Node {
     @SuppressFBWarnings("NP")
     private transient NavigableMap<Integer, Integer> indirectCoverageChanges;
 
-    @SuppressWarnings("serial")
-    private final NavigableMap<Metric, Value> coverageDelta = new TreeMap<>();
+    // The coverage deltas of the files are stored in FileDeltas now. The following field is only read to restore the
+    // deltas of existing builds, see FileDeltas#fromLegacyTree.
+    @Deprecated
+    @SuppressFBWarnings("NP")
+    private transient NavigableMap<Metric, Value> coverageDelta;
 
     private TreeString relativePath; // @since 0.22.0
 
@@ -127,6 +130,21 @@ public final class FileNode extends Node {
 
         this.modifiedLines = new TreeSet<>(modifiedLines);
         this.indirectCoverageChanges = new TreeMap<>(indirectCoverageChanges);
+    }
+
+    /**
+     * Creates a new {@link FileNode} that simulates a node of an existing build: the coverage delta is stored in the
+     * legacy field that is restored from the persisted XML files.
+     *
+     * @param name the human-readable name of the node
+     * @param relativePath the relative path of the file
+     * @param coverageDelta the coverage delta of the legacy format
+     */
+    @VisibleForTesting
+    FileNode(final String name, final String relativePath, final Map<Metric, Value> coverageDelta) {
+        this(name, relativePath);
+
+        this.coverageDelta = new TreeMap<>(coverageDelta);
     }
 
     @Override
@@ -184,8 +202,6 @@ public final class FileNode extends Node {
 
         copy.mutations.addAll(mutations);
 
-        copy.coverageDelta.putAll(coverageDelta);
-
         return copy;
     }
 
@@ -212,6 +228,15 @@ public final class FileNode extends Node {
         Ensure.that(other).isInstanceOf(FileNode.class);
 
         new FileNodeMerger(this, (FileNode) other).merge();
+    }
+
+    /**
+     * Returns the coverage delta that has been stored in this file by previous versions.
+     *
+     * @return the coverage delta, or an empty map if there is none
+     */
+    NavigableMap<Metric, Value> getLegacyCoverageDelta() {
+        return coverageDelta == null ? new TreeMap<>() : new TreeMap<>(coverageDelta);
     }
 
     /**
@@ -265,39 +290,6 @@ public final class FileNode extends Node {
     @Override
     public Set<String> getFiles() {
         return Set.of(getRelativePath());
-    }
-
-    /**
-     * Computes the delta of all values between this file and the given reference file. Values that are not present in
-     * both files are ignored.
-     *
-     * @param referenceFile the file to compare with this file
-     */
-    // TODO: wouldn't it make more sense to return an independent object?
-    public void computeDelta(final FileNode referenceFile) {
-        computeDelta(referenceFile, MetricAggregation.getDefault())
-                .forEach(difference -> coverageDelta.put(difference.getMetric(), difference));
-    }
-
-    /**
-     * Returns the delta for the specified metric. If no delta is available for the specified metric, then 0 is
-     * returned.
-     *
-     * @param metric the metric to get the delta for
-     * @return the delta for the specified metric
-     */
-    public Value getDelta(final Metric metric) {
-        return coverageDelta.getOrDefault(metric, Value.nullObject(metric));
-    }
-
-    /**
-     * Returns whether this file has a delta result for the specified metric.
-     *
-     * @param metric the metric to check
-     * @return {@code true} has delta results are available, {@code false} otherwise
-     */
-    public boolean hasDelta(final Metric metric) {
-        return coverageDelta.containsKey(metric);
     }
 
     /**
@@ -604,20 +596,13 @@ public final class FileNode extends Node {
                 && Objects.equals(mcdcPairCounters, fileNode.mcdcPairCounters)
                 && Objects.equals(functionCallCounters, fileNode.functionCallCounters)
                 && Objects.equals(mutations, fileNode.mutations)
-                && Objects.equals(coverageDelta, fileNode.coverageDelta)
                 && Objects.equals(relativePath, fileNode.relativePath);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
-                super.hashCode(),
-                lineCounters,
-                mcdcPairCounters,
-                functionCallCounters,
-                mutations,
-                coverageDelta,
-                relativePath);
+                super.hashCode(), lineCounters, mcdcPairCounters, functionCallCounters, mutations, relativePath);
     }
 
     @Override
