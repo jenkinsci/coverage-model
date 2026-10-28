@@ -1,7 +1,9 @@
 package edu.hm.hafner.coverage;
 
-import static edu.hm.hafner.coverage.assertions.Assertions.*;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
+import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
 
+import edu.hm.hafner.coverage.ChangeSet.ChangeSetBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.LineRange;
 import edu.hm.hafner.util.TreeString;
@@ -30,8 +32,6 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode(name, "path");
         fileNode.addCounters(10, 1, 0);
         fileNode.addCounters(11, 2, 2);
-        fileNode.addModifiedLines(10);
-        fileNode.addIndirectCoverageChange(15, 123);
         var empty = new FileNode("empty", "path");
         fileNode.computeDelta(empty);
         return fileNode;
@@ -105,7 +105,10 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldReadOldVersion() {
         var restored = readAllBytes("version-0.49.0.ser");
 
-        assertThatRestoredInstanceEqualsOriginalInstance(createSerializable(), restore(restored));
+        assertThat(restore(restored))
+                .usingRecursiveComparison()
+                .ignoringFields("lineCounters.covered", "lineCounters.missed") // transient
+                .isEqualTo(createSerializable());
     }
 
     @Test
@@ -374,6 +377,18 @@ class FileNodeTest extends AbstractNodeTest {
         assertThatIllegalArgumentException().isThrownBy(() -> left.merge(right));
     }
 
+    private ChangeSet createModifiedLines(final FileNode file, final int... lines) {
+        return new ChangeSetBuilder()
+                .addModifiedLines(file.getRelativePath(), lines)
+                .build();
+    }
+
+    private ChangeSet createIndirectChanges(final FileNode file, final int line, final int hitsDelta) {
+        return new ChangeSetBuilder()
+                .addIndirectCoverageChange(file.getRelativePath(), line, hitsDelta)
+                .build();
+    }
+
     @Test
     void shouldRetainExtendedCoverageOnlyForModifiedLines() {
         var file = new FileNode("condition.c", "condition.c");
@@ -383,9 +398,9 @@ class FileNodeTest extends AbstractNodeTest {
         file.addCounters(20, 2, 0);
         file.addMcdcPairCounters(20, 3, 0);
         file.addFunctionCallCounters(20, 0, 2);
-        file.addModifiedLines(10);
+        var changes = createModifiedLines(file, 10);
 
-        var filtered = (FileNode) file.filterTreeByModifiedLines().orElseThrow();
+        var filtered = (FileNode) file.filterTreeByModifiedLines(changes).orElseThrow();
         assertThat((Coverage) filtered.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(1)
                 .hasTotal(1);
@@ -400,19 +415,6 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasTotal(1);
         assertThat(filtered.getMcdcPairMissedCounters()).containsExactly(3);
         assertThat(filtered.getFunctionCallCoveredCounters()).containsExactly(1);
-    }
-
-    @Test
-    void shouldAddModifiedLines() {
-        var noModifiedLines = new FileNode("NoModified.java", ".");
-        var modifiedLines = new FileNode("Modified.java", ".");
-
-        modifiedLines.addModifiedLines(1, 3, 5);
-
-        assertThat(noModifiedLines.hasModifiedLines()).isFalse();
-        assertThat(modifiedLines.hasModifiedLines()).isTrue();
-        assertThat(modifiedLines).hasOnlyModifiedLines(1, 3, 5);
-        assertThat(modifiedLines.hasModifiedLine(4)).isFalse();
     }
 
     @Test
@@ -432,10 +434,10 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode("file.java", ".");
 
         fileNode.addCounters(2, 0, 0);
-        fileNode.addModifiedLines(2);
+        var changes = createModifiedLines(fileNode, 2);
 
         assertThatIllegalArgumentException()
-                .isThrownBy(fileNode::filterTreeByModifiedLines)
+                .isThrownBy(() -> fileNode.filterTreeByModifiedLines(changes))
                 .withMessageContaining("No coverage for line");
     }
 
@@ -447,11 +449,11 @@ class FileNodeTest extends AbstractNodeTest {
         var otherMutation = mutationBuilder.withLine(3).build();
 
         fileNode.addCounters(2, 1, 0);
-        fileNode.addModifiedLines(2);
         fileNode.addMutation(mutation);
         fileNode.addMutation(otherMutation);
 
-        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().orElseThrow();
+        fileNode = (FileNode) fileNode.filterTreeByModifiedLines(createModifiedLines(fileNode, 2))
+                .orElseThrow();
 
         assertThat(fileNode).hasOnlyMutations(mutation);
     }
@@ -461,9 +463,9 @@ class FileNodeTest extends AbstractNodeTest {
         var fileNode = new FileNode("file.java", ".");
 
         fileNode.addCounters(2, 1, 0);
-        fileNode.addModifiedLines(2);
 
-        fileNode = (FileNode) fileNode.filterTreeByModifiedLines().orElseThrow();
+        fileNode = (FileNode) fileNode.filterTreeByModifiedLines(createModifiedLines(fileNode, 2))
+                .orElseThrow();
 
         assertThat(fileNode).hasNoMutations();
     }
@@ -475,18 +477,19 @@ class FileNodeTest extends AbstractNodeTest {
         var lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
 
         lineCoverage.addCounters(1, 1, 0);
-        lineCoverage.addIndirectCoverageChange(1, 1);
         branchCoverage.addCounters(1, 2, 0);
-        branchCoverage.addIndirectCoverageChange(1, 3);
         lineAndBranchCoverage.addCounters(1, 2, 0);
         lineAndBranchCoverage.addCounters(2, 1, 0);
-        lineAndBranchCoverage.addIndirectCoverageChange(1, 2);
 
-        var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredBranchCoverage =
-                branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredLineAndBranchCoverage =
-                lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineCoverage = lineCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(lineCoverage, 1, 1))
+                .orElseThrow();
+        var filteredBranchCoverage = branchCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(branchCoverage, 1, 3))
+                .orElseThrow();
+        var filteredLineAndBranchCoverage = lineAndBranchCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(lineAndBranchCoverage, 1, 2))
+                .orElseThrow();
 
         assertThat(filteredLineCoverage).hasOnlyValueMetrics(Metric.LINE);
         assertThat((Coverage) filteredLineCoverage.getValue(Metric.LINE).orElseThrow())
@@ -514,18 +517,19 @@ class FileNodeTest extends AbstractNodeTest {
         var lineAndBranchCoverage = new FileNode("lineAndBranchCoverage.java", ".");
 
         lineCoverage.addCounters(1, 1, 0);
-        lineCoverage.addIndirectCoverageChange(1, -1);
         branchCoverage.addCounters(1, 2, 0);
-        branchCoverage.addIndirectCoverageChange(1, -3);
         lineAndBranchCoverage.addCounters(1, 2, 0);
         lineAndBranchCoverage.addCounters(2, 1, 0);
-        lineAndBranchCoverage.addIndirectCoverageChange(1, -2);
 
-        var filteredLineCoverage = lineCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredBranchCoverage =
-                branchCoverage.filterTreeByIndirectChanges().orElseThrow();
-        var filteredLineAndBranchCoverage =
-                lineAndBranchCoverage.filterTreeByIndirectChanges().orElseThrow();
+        var filteredLineCoverage = lineCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(lineCoverage, 1, -1))
+                .orElseThrow();
+        var filteredBranchCoverage = branchCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(branchCoverage, 1, -3))
+                .orElseThrow();
+        var filteredLineAndBranchCoverage = lineAndBranchCoverage
+                .filterTreeByIndirectChanges(createIndirectChanges(lineAndBranchCoverage, 1, -2))
+                .orElseThrow();
 
         assertThat(filteredLineCoverage).hasNoValueMetrics();
         assertThat(filteredBranchCoverage).hasOnlyValueMetrics(Metric.BRANCH);
@@ -545,10 +549,12 @@ class FileNodeTest extends AbstractNodeTest {
 
         fileNode.addCounters(1, 2, 0);
         fileNode.addCounters(2, 0, 1);
-        fileNode.addIndirectCoverageChange(1, 0);
-        fileNode.addIndirectCoverageChange(2, 0);
+        var changes = new ChangeSetBuilder()
+                .addIndirectCoverageChange(fileNode.getRelativePath(), 1, 0)
+                .addIndirectCoverageChange(fileNode.getRelativePath(), 2, 0)
+                .build();
 
-        var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
+        var filteredFileNode = fileNode.filterTreeByIndirectChanges(changes).orElseThrow();
 
         assertThat(filteredFileNode).hasNoValueMetrics();
     }
@@ -559,9 +565,9 @@ class FileNodeTest extends AbstractNodeTest {
 
         fileNode.addCounters(1, 2, 0);
         fileNode.addCounters(2, 1, 0);
-        fileNode.addIndirectCoverageChange(3, 1);
 
-        var filteredFileNode = fileNode.filterTreeByIndirectChanges().orElseThrow();
+        var filteredFileNode = fileNode.filterTreeByIndirectChanges(createIndirectChanges(fileNode, 3, 1))
+                .orElseThrow();
 
         assertThat(filteredFileNode).hasNoValueMetrics();
     }

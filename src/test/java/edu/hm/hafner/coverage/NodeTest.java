@@ -17,6 +17,7 @@ import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOf
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
 import static edu.hm.hafner.coverage.assertions.Assertions.entry;
 
+import edu.hm.hafner.coverage.ChangeSet.ChangeSetBuilder;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.util.TreeString;
@@ -492,7 +493,7 @@ class NodeTest {
     void shouldCreateEmptyModifiedLinesCoverageTreeWithoutChanges() {
         var tree = createTreeWithoutCoverage();
 
-        verifyEmptyTree(tree, tree.filterByModifiedLines());
+        verifyEmptyTree(tree, tree.filterByModifiedLines(ChangeSet.empty()));
     }
 
     @Test
@@ -502,9 +503,10 @@ class NodeTest {
         var file = tree.findFile(COVERED_FILE);
         assertThat(file).isPresent();
 
-        registerCodeChangesAndCoverage(file.get());
+        registerCoverageOfChangedCode(file.get());
 
-        verifyFilteredTree(tree, tree.filterByModifiedLines(), this::verifyModifiedLines);
+        verifyFilteredTree(
+                tree, tree.filterByModifiedLines(createModifiedLines(file.get())), this::verifyModifiedLines);
     }
 
     private void verifyFilteredTree(
@@ -514,7 +516,6 @@ class NodeTest {
                 .hasName(tree.getName())
                 .hasMetric(tree.getMetric())
                 .hasOnlyFiles("path/to/" + COVERED_FILE)
-                .hasModifiedLines()
                 .satisfies(treeVerification);
     }
 
@@ -547,19 +548,15 @@ class NodeTest {
     }
 
     private void verifyCountersOfCoveredClass(final FileNode file) {
-        assertThat(file).hasOnlyModifiedLines(10, 11, 12, 13, 14, 15, 16, 17, 18, 19);
-        assertThat(file.getIndirectCoverageChanges()).isEmpty();
-        List.of(10, 11, 12, 13, 14, 15, 16).forEach(line -> {
-            assertThat(file.hasModifiedLine(line)).isTrue();
-            assertThat(file.hasCoverageForLine(line)).isTrue();
-        });
+        List.of(10, 11, 12, 13, 14, 15, 16)
+                .forEach(line -> assertThat(file.hasCoverageForLine(line)).isTrue());
     }
 
     @Test
     void shouldCreateEmptyModifiedFilesCoverageTreeWithoutChanges() {
         var tree = createTreeWithoutCoverage();
 
-        var filteredTree = tree.filterByModifiedFiles();
+        var filteredTree = tree.filterByModifiedFiles(ChangeSet.empty());
         verifyEmptyTree(tree, filteredTree);
     }
 
@@ -581,9 +578,9 @@ class NodeTest {
         var fileNode = node.get();
 
         registerCoverageWithoutChange(fileNode);
-        registerCodeChangesAndCoverage(fileNode);
+        registerCoverageOfChangedCode(fileNode);
 
-        var filteredTree = tree.filterByModifiedFiles();
+        var filteredTree = tree.filterByModifiedFiles(createModifiedLines(fileNode));
         verifyFilteredTree(tree, filteredTree, this::verifyModifiedFiles);
     }
 
@@ -622,7 +619,7 @@ class NodeTest {
     @Test
     void shouldCreateEmptyIndirectCoverageChangesTreeWithoutChanges() {
         var tree = createTreeWithoutCoverage();
-        verifyEmptyTree(tree, tree.filterByIndirectChanges());
+        verifyEmptyTree(tree, tree.filterByIndirectChanges(ChangeSet.empty()));
     }
 
     @Test
@@ -631,9 +628,9 @@ class NodeTest {
 
         var node = tree.findFile(COVERED_FILE);
         assertThat(node).isPresent();
-        registerIndirectCoverageChanges(node.get());
+        registerCoverageOfIndirectChanges(node.get());
 
-        assertThat(tree.filterByIndirectChanges())
+        assertThat(tree.filterByIndirectChanges(createIndirectChanges(node.get())))
                 .isNotSameAs(tree)
                 .hasName(tree.getName())
                 .hasMetric(tree.getMetric())
@@ -654,20 +651,49 @@ class NodeTest {
                         builder.withMetric(BRANCH).withCovered(4).withMissed(4).build());
     }
 
-    private void registerCodeChangesAndCoverage(final FileNode file) {
-        file.addModifiedLines(
-                10,
-                11,
-                12,
-                13, // line
-                14,
-                15,
-                16, // branch
-                17,
-                18,
-                19 // mutation
-                );
+    @Test
+    void shouldCreateEmptyTreesWithoutChangeSet() {
+        var tree = createTreeWithoutCoverage();
+        var file = tree.findFile(COVERED_FILE);
+        assertThat(file).isPresent();
+        registerCoverageOfIndirectChanges(file.get());
 
+        verifyEmptyTree(tree, tree.filterByModifiedLines(ChangeSet.empty()));
+        verifyEmptyTree(tree, tree.filterByModifiedFiles(ChangeSet.empty()));
+        verifyEmptyTree(tree, tree.filterByIndirectChanges(ChangeSet.empty()));
+    }
+
+    private ChangeSet createModifiedLines(final FileNode file) {
+        return createModifiedLinesBuilder(file).build();
+    }
+
+    private ChangeSetBuilder createModifiedLinesBuilder(final FileNode file) {
+        return new ChangeSetBuilder()
+                .addModifiedLines(
+                        file.getRelativePath(),
+                        10,
+                        11,
+                        12,
+                        13, // line
+                        14,
+                        15,
+                        16, // branch
+                        17,
+                        18,
+                        19 // mutation
+                        );
+    }
+
+    private ChangeSet createIndirectChanges(final FileNode file) {
+        return createModifiedLinesBuilder(file)
+                .addIndirectCoverageChange(file.getRelativePath(), 20, 1)
+                .addIndirectCoverageChange(file.getRelativePath(), 21, -1)
+                .addIndirectCoverageChange(file.getRelativePath(), 24, -4)
+                .addIndirectCoverageChange(file.getRelativePath(), 25, 4)
+                .build();
+    }
+
+    private void registerCoverageOfChangedCode(final FileNode file) {
         var classNode = file.createClassNode(CLASS_WITH_MODIFICATIONS);
         addCounters(file, classNode, 0);
 
@@ -717,14 +743,9 @@ class NodeTest {
                 builder.withMetric(BRANCH).withCovered(6).withMissed(6).build());
     }
 
-    private void registerIndirectCoverageChanges(final FileNode file) {
-        registerCodeChangesAndCoverage(file);
+    private void registerCoverageOfIndirectChanges(final FileNode file) {
+        registerCoverageOfChangedCode(file);
         registerCoverageWithoutChange(file);
-
-        file.addIndirectCoverageChange(20, 1);
-        file.addIndirectCoverageChange(21, -1);
-        file.addIndirectCoverageChange(24, -4);
-        file.addIndirectCoverageChange(25, 4);
     }
 
     private Node createTreeWithoutCoverage() {
@@ -951,18 +972,6 @@ class NodeTest {
         assertThatExceptionOfType(AssertionError.class)
                 .isThrownBy(() -> moduleNode.removeChild(packageNode))
                 .withMessageContaining("The node %s is not a child of this node %s".formatted(packageNode, moduleNode));
-    }
-
-    @Test
-    void shouldReturnCorrectHasModifiedLines() {
-        var packageNode = new PackageNode("package");
-        var fileNode = new FileNode("file", ".");
-        packageNode.addChild(fileNode);
-
-        assertThat(packageNode).doesNotHaveModifiedLines();
-
-        fileNode.addModifiedLines(1);
-        assertThat(packageNode).hasModifiedLines();
     }
 
     @Test

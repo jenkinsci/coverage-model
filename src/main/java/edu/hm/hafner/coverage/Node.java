@@ -848,26 +848,18 @@ public abstract class Node implements Serializable {
     }
 
     /**
-     * Checks whether code any changes have been detected no matter if the code coverage is affected or not.
-     *
-     * @return {@code true} whether code changes have been detected
-     */
-    public boolean hasModifiedLines() {
-        return getChildren().stream().anyMatch(Node::hasModifiedLines);
-    }
-
-    /**
      * Creates a new coverage tree that represents the modified lines coverage. This new tree will contain only those
      * elements that contain modified lines.
      *
+     * @param changes the changes of the change set
      * @return the filtered tree
      */
-    public Node filterByModifiedLines() {
-        return filterTreeByModifiedLines().orElse(copy());
+    public Node filterByModifiedLines(final ChangeSet changes) {
+        return filterTreeByModifiedLines(changes).orElse(copy());
     }
 
-    protected Optional<Node> filterTreeByModifiedLines() {
-        return filterTreeByMapping(Node::filterTreeByModifiedLines);
+    protected Optional<Node> filterTreeByModifiedLines(final ChangeSet changes) {
+        return filterTreeByMapping(node -> node.filterTreeByModifiedLines(changes));
     }
 
     /**
@@ -876,28 +868,30 @@ public abstract class Node implements Serializable {
      * coverage tree represents the total coverage of all files with coverage relevant changes, not only the coverage of
      * the modified lines.
      *
+     * @param changes the changes of the change set
      * @return the filtered tree
      */
-    public Node filterByModifiedFiles() {
-        return filterTreeByModifiedFiles().orElse(copy());
+    public Node filterByModifiedFiles(final ChangeSet changes) {
+        return filterTreeByModifiedFiles(changes).orElse(copy());
     }
 
-    protected Optional<Node> filterTreeByModifiedFiles() {
-        return filterTreeByMapping(Node::filterTreeByModifiedFiles);
+    protected Optional<Node> filterTreeByModifiedFiles(final ChangeSet changes) {
+        return filterTreeByMapping(node -> node.filterTreeByModifiedFiles(changes));
     }
 
     /**
      * Creates a new coverage tree that shows indirect coverage changes. This new tree will contain only those elements
      * that have elements with a modified coverage but with no modified code lines.
      *
+     * @param changes the changes of the change set
      * @return the filtered tree
      */
-    public Node filterByIndirectChanges() {
-        return filterTreeByIndirectChanges().orElse(copy());
+    public Node filterByIndirectChanges(final ChangeSet changes) {
+        return filterTreeByIndirectChanges(changes).orElse(copy());
     }
 
-    protected Optional<Node> filterTreeByIndirectChanges() {
-        return filterTreeByMapping(Node::filterTreeByIndirectChanges);
+    protected Optional<Node> filterTreeByIndirectChanges(final ChangeSet changes) {
+        return filterTreeByMapping(node -> node.filterTreeByIndirectChanges(changes));
     }
 
     /**
