@@ -17,7 +17,7 @@ import java.util.TreeSet;
  */
 public final class LineCounters implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1599865187375616501L; // Set to 1 when release 1.0.0 is ready
 
     @SuppressWarnings("serial")
     private final NavigableMap<Integer, Integer> covered;

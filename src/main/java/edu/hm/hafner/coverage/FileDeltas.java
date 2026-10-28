@@ -21,7 +21,7 @@ import java.util.TreeMap;
 @SuppressFBWarnings("SING_SINGLETON_IMPLEMENTS_SERIALIZABLE")
 public final class FileDeltas implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -163087113381387017L; // Set to 1 when release 1.0.0 is ready
 
     private static final FileDeltas EMPTY_DELTAS = new FileDeltas(new TreeMap<>());
 
