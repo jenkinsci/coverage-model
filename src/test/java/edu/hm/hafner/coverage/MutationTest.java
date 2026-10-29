@@ -93,6 +93,10 @@ class MutationTest {
         assertThat(moduleNode.getAllFileNodes().getFirst())
                 .hasName("Class.java")
                 .hasMutations(mutationBuilder.build());
+        assertThat(moduleNode.getAll(Metric.PACKAGE)).extracting(Node::getName).containsExactly("module.package.file");
+        assertThat(moduleNode.getAll(Metric.CLASS))
+                .extracting(Node::getName)
+                .containsExactly("module.package.file.Class");
     }
 
     @Test
