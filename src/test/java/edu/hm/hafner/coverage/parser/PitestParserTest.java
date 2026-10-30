@@ -20,6 +20,8 @@ import edu.hm.hafner.coverage.Node;
 import java.util.List;
 import org.assertj.core.api.InstanceOfAssertFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class PitestParserTest extends AbstractParserTest {
     private static final String LOOKAHEAD_STREAM = "LookaheadStream.java";
@@ -209,16 +211,16 @@ class PitestParserTest extends AbstractParserTest {
                 .hasSize(10)
                 .extracting(Node::getName)
                 .containsExactlyInAnyOrder(
-                        "CoverageNode",
-                        "FileCoverageNode",
-                        "CoverageLeaf",
-                        "MethodCoverageNode",
-                        "PackageCoverageNode",
-                        "CoberturaParser",
-                        "JacocoParser",
-                        "XmlParser",
-                        "Metric",
-                        "Coverage");
+                        "edu.hm.hafner.coverage.CoverageNode",
+                        "edu.hm.hafner.coverage.FileCoverageNode",
+                        "edu.hm.hafner.coverage.CoverageLeaf",
+                        "edu.hm.hafner.coverage.MethodCoverageNode",
+                        "edu.hm.hafner.coverage.PackageCoverageNode",
+                        "edu.hm.hafner.metric.parser.CoberturaParser",
+                        "edu.hm.hafner.metric.parser.JacocoParser",
+                        "edu.hm.hafner.metric.parser.XmlParser",
+                        "edu.hm.hafner.metric.Metric",
+                        "edu.hm.hafner.metric.Coverage");
         assertThat(tree.getAll(METHOD)).hasSize(99);
 
         assertThat(tree).hasOnlyMetrics(MODULE, PACKAGE, FILE, CLASS, METHOD, MUTATION, LINE, TEST_STRENGTH, LOC);
@@ -296,7 +298,7 @@ class PitestParserTest extends AbstractParserTest {
     /**
      * Merges the line coverage of coverage.py (Cobertura format) and the mutations of mutmut (converted to the PIT
      * format) for the same Python file. coverage.py uses the file name as class name and reports no methods, PIT uses
-     * the last segment of the mutated class. So the IDs do not match and both classes are kept side by side.
+     * the fully qualified name of the mutated class. So the IDs do not match and both classes are kept side by side.
      */
     @Test
     void shouldKeepMutationsWhenMergingWithLineCoverageOfPython() {
@@ -314,7 +316,9 @@ class PitestParserTest extends AbstractParserTest {
             assertThat(file.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 9/9"));
             assertThat(file.getValue(TEST_STRENGTH)).contains(Coverage.valueOf("TEST_STRENGTH: 9/9"));
 
-            assertThat(file.getChildren()).extracting(Node::getName).containsExactlyInAnyOrder("status.py", "status");
+            assertThat(file.getChildren())
+                    .extracting(Node::getName)
+                    .containsExactlyInAnyOrder("status.py", "example.mail.status");
             assertThat(file.findMethod("classify", "()"))
                     .hasValueSatisfying(method ->
                             assertThat(method.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 6/6")));
@@ -322,6 +326,30 @@ class PitestParserTest extends AbstractParserTest {
                     .hasValueSatisfying(method ->
                             assertThat(method.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 3/3")));
         }
+    }
+
+    /**
+     * Verifies that PIT and JaCoCo create the same class nodes for the same source files. Otherwise, the classes would
+     * be shown differently in the UI and would not be merged into a single class node.
+     *
+     * @param fileName the name of the source file that is part of both reports
+     */
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"PathUtil.java", "TreeStringBuilder.java"})
+    void shouldUseSameClassNamesAsJacoco(final String fileName) {
+        var jacoco = readReport("/edu/hm/hafner/coverage/parser/jacoco/jacoco-codingstyle.xml", new JacocoParser());
+        var pit = readReport("mutations-codingstyle.xml");
+
+        assertThat(pit.findFile(fileName))
+                .hasValueSatisfying(pitFile -> assertThat(jacoco.findFile(fileName))
+                        .hasValueSatisfying(jacocoFile -> assertThat(getClassNames(pitFile))
+                                .isNotEmpty()
+                                .allMatch(name -> name.startsWith("edu.hm.hafner.util."))
+                                .containsExactlyInAnyOrderElementsOf(getClassNames(jacocoFile))));
+    }
+
+    private List<String> getClassNames(final FileNode file) {
+        return file.getChildren().stream().map(Node::getName).toList();
     }
 
     @Test
