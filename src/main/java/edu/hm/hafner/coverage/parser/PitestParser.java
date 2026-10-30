@@ -12,7 +12,8 @@ import edu.hm.hafner.util.FilteredLog;
 import edu.hm.hafner.util.SecureXmlParserFactory;
 import java.io.Reader;
 import java.io.Serial;
-import java.util.Set;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
@@ -83,28 +84,33 @@ public class PitestParser extends CoverageParser {
         }
     }
 
+    /**
+     * Derives the line coverage from the mutations of the specified file. A line is covered if at least one of its
+     * mutations has been executed by the tests (killed, survived, timed out). A line is missed only if none of its
+     * mutations has been executed, i.e., all of its mutations have the status {@link MutationStatus#NO_COVERAGE}.
+     *
+     * @param fileNode the file to derive the line coverage for
+     */
     private void collectLineCoverage(final FileNode fileNode) {
-        var builder = new CoverageBuilder(Metric.LINE);
-        var coveredLine = builder.withCovered(1).withMissed(0).build();
-        var uncoveredLine = builder.withCovered(0).withMissed(1).build();
+        var coveredLines = collectLines(fileNode, Mutation::isCovered);
+        var missedLines = collectLines(fileNode, Mutation::isMissed);
+        missedLines.removeAll(coveredLines);
 
-        var lineMapping = collectLines(fileNode, Mutation::isCovered).stream()
-                .collect(Collectors.toMap(k -> k, v -> coveredLine));
-        var covered = lineMapping.size();
+        coveredLines.forEach(line -> fileNode.addCounters(line, 1, 0));
+        missedLines.forEach(line -> fileNode.addCounters(line, 0, 1));
 
-        collectLines(fileNode, Mutation::isMissed).forEach(line -> lineMapping.put(line, uncoveredLine));
-        var missed = lineMapping.size() - covered;
-
-        lineMapping.forEach(
-                (line, coverage) -> fileNode.addCounters(line, coverage.getCovered(), coverage.getMissed()));
-        fileNode.addValue(builder.withCovered(covered).withMissed(missed).build());
+        fileNode.addValue(new CoverageBuilder(Metric.LINE)
+                .withCovered(coveredLines.size())
+                .withMissed(missedLines.size())
+                .build());
     }
 
-    private static Set<Integer> collectLines(final FileNode fileNode, final Predicate<Mutation> filterPredicate) {
+    private static NavigableSet<Integer> collectLines(
+            final FileNode fileNode, final Predicate<Mutation> filterPredicate) {
         return fileNode.getMutations().stream()
                 .filter(filterPredicate)
                 .map(Mutation::getLine)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     private void readMutation(final XMLEventReader reader, final ModuleNode root, final StartElement mutationElement)
