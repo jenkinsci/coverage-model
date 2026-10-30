@@ -168,6 +168,20 @@ class PitestParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldMarkLineAsCoveredIfAtLeastOneMutationHasBeenExecuted() {
+        var tree = readReport("mutations-mixed-line.xml");
+
+        assertThat(tree.findFile("Mixed.java")).isPresent().get().satisfies(file -> {
+            assertThat(file.getLinesWithCoverage()).containsExactly(10, 20, 30);
+            assertThat(file.getCoveredCounters()).containsExactly(1, 0, 1);
+            assertThat(file.getMissedCounters()).containsExactly(0, 1, 0);
+            assertThat(file.getMissedLines()).containsExactly(20);
+            assertThat(file.getValue(LINE)).contains(Coverage.valueOf("LINE: 2/3"));
+            assertThat(file.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 2/5"));
+        });
+    }
+
+    @Test
     void shouldConvertMutationsToTree() {
         var tree = readReport("mutations.xml");
 
