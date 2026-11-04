@@ -18,6 +18,24 @@ class SafeFractionTest {
         assertThat(safeFraction.multiplyBy(ten).doubleValue()).isEqualTo(100.0);
         assertThat(safeFraction.subtract(ten).doubleValue()).isEqualTo(0);
         assertThat(safeFraction.add(ten).doubleValue()).isEqualTo(20.0);
+        assertThat(safeFraction.divideBy(ten).doubleValue()).isEqualTo(1.0);
+    }
+
+    @Test
+    void shouldHandleOverflowForDivide() {
+        var fraction = Fraction.getFraction(Integer.MAX_VALUE - 2, Integer.MAX_VALUE);
+        var safeFraction = new SafeFraction(fraction);
+        assertThat(safeFraction.divideBy(Fraction.getFraction(7, 1)).doubleValue())
+                .isCloseTo(1.0 / 7, within(1E-6));
+    }
+
+    @Test
+    void shouldThrowExceptionOnDivideByZero() {
+        var safeFraction = new SafeFraction(1, 1);
+
+        assertThatExceptionOfType(ArithmeticException.class)
+                .isThrownBy(() -> safeFraction.divideBy(Fraction.ZERO))
+                .withMessageContaining("zero");
     }
 
     @Test

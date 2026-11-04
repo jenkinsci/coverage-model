@@ -3,6 +3,7 @@ package edu.hm.hafner.coverage;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -313,6 +314,15 @@ class ValueTest {
         var result = value.divide(2);
 
         assertThat(result).hasMetric(Metric.CYCLOMATIC_COMPLEXITY).hasFraction(Fraction.getFraction(7, 2));
+    }
+
+    @Test
+    void shouldDivideValueWithoutOverflow() {
+        var value = new Value(Metric.COHESION, Fraction.getFraction(Integer.MAX_VALUE - 2, Integer.MAX_VALUE));
+        var result = value.divide(7); // denominator would overflow
+
+        assertThat(result).hasMetric(Metric.COHESION);
+        assertThat(result.asDouble()).isCloseTo(1.0 / 7, within(1E-6));
     }
 
     @Test
