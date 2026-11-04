@@ -253,7 +253,7 @@ public class Value implements Serializable, Comparable<Value> {
         if (divisor == 0) {
             throw new IllegalArgumentException("Cannot divide by zero");
         }
-        return new Value(metric, fraction.divideBy(Fraction.getFraction(divisor, 1)));
+        return new Value(metric, asSafeFraction().divideBy(Fraction.getFraction(divisor, 1)));
     }
 
     /**

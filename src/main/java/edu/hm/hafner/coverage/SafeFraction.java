@@ -52,6 +52,26 @@ public class SafeFraction {
     }
 
     /**
+     * Divides the value of this fraction by another, returning the result in reduced form. Since there might be an
+     * arithmetic exception due to an overflow, this method will handle this situation by calculating the division based
+     * on the double values of the fractions.
+     *
+     * @param divisor the fraction to divide by
+     * @return a {@code Fraction} instance with the resulting values
+     * @throws ArithmeticException if the divisor is zero
+     */
+    public Fraction divideBy(final Fraction divisor) {
+        if (divisor.getNumerator() == 0) {
+            throw new ArithmeticException("The fraction to divide by must not be zero");
+        }
+        try {
+            return fraction.divideBy(divisor);
+        } catch (ArithmeticException exception) {
+            return Fraction.getFraction(fraction.doubleValue() / divisor.doubleValue());
+        }
+    }
+
+    /**
      * Subtracts the value of another fraction from the value of this one, returning the result in reduced form. Since
      * there might be an arithmetic exception due to an overflow, this method will handle this situation by calculating
      * the subtraction based on the double values of the fractions.
