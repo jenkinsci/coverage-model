@@ -102,10 +102,9 @@ final class FileNodeFilter {
         }
     }
 
-    private static void filterMutations(
-            final FileNode file, final FileNode copy, final NavigableSet<Integer> modifiedLines) {
+    private static void filterMutations(final FileNode file, final FileNode copy, final NavigableSet<Integer> lines) {
         file.getMutations().stream()
-                .filter(mutation -> modifiedLines.contains(mutation.getLine()))
+                .filter(mutation -> lines.contains(mutation.getLine()))
                 .forEach(copy::addMutation);
         if (!copy.getMutations().isEmpty()) {
             var builder = new CoverageBuilder()
@@ -122,13 +121,17 @@ final class FileNodeFilter {
 
     /**
      * Creates a copy of the specified file that contains only the coverage information of the lines that have been
-     * affected indirectly by the changes, i.e., lines that are not modified but whose coverage has changed.
+     * affected indirectly by the changes, i.e., lines that are not modified but whose coverage has changed. The
+     * mutations of these lines are retained as well: for mutation coverage reports the line coverage is derived from
+     * the mutations, so a line with an indirect coverage change has changed between {@link MutationStatus#NO_COVERAGE}
+     * and executed, and the current status of its mutations represents the change.
      *
      * @param file the file to filter
      * @param indirectCoverageChanges the indirect coverage changes of the file
      * @return the filtered copy, or an empty result if the file has no indirect coverage changes
      */
-    // TODO: the API for indirect changes does not work yet for mutations
+    // TODO: status changes of mutations without a change of the line coverage (e.g., SURVIVED -> KILLED) are not
+    //  detected yet, since the change set only stores the delta of the line coverage hits
     @SuppressWarnings({"PMD.CyclomaticComplexity", "PMD.CognitiveComplexity"})
     static Optional<Node> byIndirectChanges(
             final FileNode file, final NavigableMap<Integer, Integer> indirectCoverageChanges) {
@@ -171,6 +174,7 @@ final class FileNodeFilter {
             }
         }
         addLineAndBranchCoverage(copy, lineCoverage, branchCoverage);
+        filterMutations(file, copy, indirectCoverageChanges.navigableKeySet());
 
         return Optional.of(copy);
     }
