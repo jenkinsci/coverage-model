@@ -167,8 +167,8 @@ public class GoCovParser extends CoverageParser {
                     .withMissed(missedLines.size())
                     .build());
 
-            coveredLines.forEach(line -> file.addCounters(line, 1, 0));
-            missedLines.forEach(line -> file.addCounters(line, 0, 1));
+            coveredLines.forEach(line -> addCounters(file, line, 1, 0));
+            missedLines.forEach(line -> addCounters(file, line, 0, 1));
         }
     }
 

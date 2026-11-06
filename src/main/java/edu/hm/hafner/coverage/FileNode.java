@@ -274,7 +274,7 @@ public final class FileNode extends Node {
 
     /**
      * Returns all lines that have line or branch coverage counters. For mutation coverage reports (PIT, Stryker) the
-     * line counters are derived from the mutations, see {@link #addLineCoverageOfMutations()}.
+     * line counters are derived from the mutations, see {@link CoverageParser#addLineCoverageOfMutations(FileNode)}.
      *
      * @return the lines with line or branch coverage
      */
@@ -350,7 +350,7 @@ public final class FileNode extends Node {
      * @return this instance
      */
     @CanIgnoreReturnValue
-    public FileNode addCounters(final int lineNumber, final int covered, final int missed) {
+    FileNode addCounters(final int lineNumber, final int covered, final int missed) {
         lineCounters.put(lineNumber, covered, missed);
 
         return this;
@@ -365,7 +365,7 @@ public final class FileNode extends Node {
      * @return this instance
      */
     @CanIgnoreReturnValue
-    public FileNode addMcdcPairCounters(final int lineNumber, final int covered, final int missed) {
+    FileNode addMcdcPairCounters(final int lineNumber, final int covered, final int missed) {
         mcdcPairCounters.put(lineNumber, covered, missed);
 
         return this;
@@ -380,7 +380,7 @@ public final class FileNode extends Node {
      * @return this instance
      */
     @CanIgnoreReturnValue
-    public FileNode addFunctionCallCounters(final int lineNumber, final int covered, final int missed) {
+    FileNode addFunctionCallCounters(final int lineNumber, final int covered, final int missed) {
         functionCallCounters.put(lineNumber, covered, missed);
 
         return this;
@@ -539,7 +539,7 @@ public final class FileNode extends Node {
      * <p>This method should be called by parsers of mutation coverage reports after all mutations of the file have been
      * added, so that the line based API (e.g., {@link #getLinesWithCoverage()}) works for mutation coverage as well.
      */
-    public void addLineCoverageOfMutations() {
+    void addLineCoverageOfMutations() {
         var coveredLines = collectLinesOfMutations(Mutation::isCovered);
         var missedLines = collectLinesOfMutations(Mutation::isMissed);
         missedLines.removeAll(coveredLines);
@@ -581,12 +581,11 @@ public final class FileNode extends Node {
     }
 
     /**
-     * Adds a mutation to the method.
+     * Adds a mutation to this file. Parsers use {@link CoverageParser#addMutation(FileNode, Mutation)}.
      *
      * @param mutation the mutation to add
      */
-    // TODO: not part of API, only for tests?
-    public void addMutation(final Mutation mutation) {
+    void addMutation(final Mutation mutation) {
         mutations.add(mutation);
     }
 

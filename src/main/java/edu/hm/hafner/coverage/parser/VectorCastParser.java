@@ -125,11 +125,14 @@ public class VectorCastParser extends CoberturaParser {
             if (CLASS.equals(element.getName())) { // Use the line counters at the class level for a file
                 int lineNumber = getIntegerValueOf(nextElement, NUMBER);
 
-                fileNode.addCounters(lineNumber, lineBranchCoverage.getCovered(), lineBranchCoverage.getMissed());
-                fileNode.addMcdcPairCounters(
-                        lineNumber, mcdcPairLineCoverage.getCovered(), mcdcPairLineCoverage.getMissed());
-                fileNode.addFunctionCallCounters(
-                        lineNumber, functionCallLineCoverage.getCovered(), functionCallLineCoverage.getMissed());
+                addCounters(fileNode, lineNumber, lineBranchCoverage.getCovered(), lineBranchCoverage.getMissed());
+                addMcdcPairCounters(
+                        fileNode, lineNumber, mcdcPairLineCoverage.getCovered(), mcdcPairLineCoverage.getMissed());
+                addFunctionCallCounters(
+                        fileNode,
+                        lineNumber,
+                        functionCallLineCoverage.getCovered(),
+                        functionCallLineCoverage.getMissed());
             }
         } else if (classOrMethodElement(nextElement)) {
             coverageMap.put(

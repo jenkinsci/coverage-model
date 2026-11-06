@@ -119,6 +119,7 @@
             <configuration>
               <includes>
                 <include>**/*Assert*</include>
+                <include>**/FileNodeFixture*</include>
               </includes>
             </configuration>
           </execution>

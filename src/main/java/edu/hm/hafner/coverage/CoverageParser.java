@@ -158,6 +158,65 @@ public abstract class CoverageParser implements Serializable {
      */
     protected abstract ModuleNode parseReport(Reader reader, String fileName, FilteredLog log);
 
+    /**
+     * Adds the line and branch coverage counters for the specified line of a file.
+     *
+     * @param file the file to add the counters to
+     * @param line the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
+     */
+    protected static void addCounters(final FileNode file, final int line, final int covered, final int missed) {
+        file.addCounters(line, covered, missed);
+    }
+
+    /**
+     * Adds the MC/DC pair coverage counters for the specified line of a file.
+     *
+     * @param file the file to add the counters to
+     * @param line the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
+     */
+    protected static void addMcdcPairCounters(
+            final FileNode file, final int line, final int covered, final int missed) {
+        file.addMcdcPairCounters(line, covered, missed);
+    }
+
+    /**
+     * Adds the function call coverage counters for the specified line of a file.
+     *
+     * @param file the file to add the counters to
+     * @param line the line number to add the counters for
+     * @param covered the number of covered items
+     * @param missed the number of missed items
+     */
+    protected static void addFunctionCallCounters(
+            final FileNode file, final int line, final int covered, final int missed) {
+        file.addFunctionCallCounters(line, covered, missed);
+    }
+
+    /**
+     * Adds a mutation to a file.
+     *
+     * @param file the file to add the mutation to
+     * @param mutation the mutation to add
+     */
+    protected static void addMutation(final FileNode file, final Mutation mutation) {
+        file.addMutation(mutation);
+    }
+
+    /**
+     * Derives the line coverage of a file from its mutations. Parsers of mutation coverage reports should call this
+     * method after all mutations of the file have been added.
+     *
+     * @param file the file to derive the line coverage for
+     * @see FileNode#getLinesWithCoverage()
+     */
+    protected static void addLineCoverageOfMutations(final FileNode file) {
+        file.addLineCoverageOfMutations();
+    }
+
     protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         var value = element.getAttributeByName(attribute);
         if (value == null) {

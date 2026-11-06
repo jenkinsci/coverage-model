@@ -223,9 +223,9 @@ public class CloverParser extends CoverageParser {
 
     private void addCountersToFile(final int count, final FileNode fileNode, final int line) {
         if (count > 0) {
-            fileNode.addCounters(line, 1, 0);
+            addCounters(fileNode, line, 1, 0);
         } else {
-            fileNode.addCounters(line, 0, 1);
+            addCounters(fileNode, line, 0, 1);
         }
     }
 
@@ -233,9 +233,9 @@ public class CloverParser extends CoverageParser {
         int trueCount = getIntegerValueOf(e, TURE_COUNT);
         int falseCount = getIntegerValueOf(e, FALSE_COUNT);
         if (trueCount > 0 || falseCount > 0) {
-            fileNode.addCounters(line, 1, 0);
+            addCounters(fileNode, line, 1, 0);
         } else {
-            fileNode.addCounters(line, 0, 1);
+            addCounters(fileNode, line, 0, 1);
         }
     }
 
