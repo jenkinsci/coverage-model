@@ -96,7 +96,7 @@ public class StrykerParser extends CoverageParser {
         if (mutants.isArray()) {
             for (var mutantNode : mutants) {
                 var mutation = createMutation(fileName, relativePath, mutantNode);
-                coverageFile.addMutation(mutation);
+                addMutation(coverageFile, mutation);
 
                 if (!mutation.isValid()) {
                     continue;
@@ -115,7 +115,7 @@ public class StrykerParser extends CoverageParser {
                     .withMissed(missed)
                     .build());
         }
-        coverageFile.addLineCoverageOfMutations();
+        addLineCoverageOfMutations(coverageFile);
     }
 
     private Mutation createMutation(final String fileName, final String relativePath, final JsonNode mutantNode) {

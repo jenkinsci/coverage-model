@@ -207,7 +207,7 @@ public class OpenCoverParser extends CoverageParser {
 
         // Create all counters for each point
         for (var point : points.entrySet()) {
-            addCounters(
+            addLineAndBranchCounters(
                     fileNode,
                     point.getKey(),
                     point.getValue().getLeft(),
@@ -333,7 +333,7 @@ public class OpenCoverParser extends CoverageParser {
         }
     }
 
-    private void addCounters(
+    private void addLineAndBranchCounters(
             final FileNode fileNode, final int lineNumber, final int coveredInstructions, final int coveredBranches) {
         int missed;
         int covered;
@@ -344,7 +344,7 @@ public class OpenCoverParser extends CoverageParser {
             covered = coveredBranches;
             missed = coveredBranches - coveredInstructions;
         }
-        fileNode.addCounters(lineNumber, covered, missed);
+        addCounters(fileNode, lineNumber, covered, missed);
     }
 
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")

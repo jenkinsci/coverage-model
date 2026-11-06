@@ -151,12 +151,12 @@ public class LcovParser extends CoverageParser {
                 int lineNumber = lineEntry.getKey();
                 int instrCovered = lineEntry.getValue().getLeft();
                 int branchesCovered = lineEntry.getValue().getRight();
-                addCounters(fileNode, lineNumber, instrCovered, branchesCovered);
+                addLineAndBranchCounters(fileNode, lineNumber, instrCovered, branchesCovered);
             }
         }
     }
 
-    private void addCounters(
+    private void addLineAndBranchCounters(
             final FileNode fileNode, final int lineNumber, final int coveredInstructions, final int coveredBranches) {
         int missed;
         int covered;
@@ -172,7 +172,7 @@ public class LcovParser extends CoverageParser {
             covered = coveredBranches;
             missed = coveredBranches - coveredInstructions;
         }
-        fileNode.addCounters(lineNumber, covered, missed);
+        addCounters(fileNode, lineNumber, covered, missed);
     }
 
     private static String normalizePath(final String path) {

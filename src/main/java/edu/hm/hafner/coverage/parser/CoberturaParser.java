@@ -194,7 +194,7 @@ public class CoberturaParser extends CoverageParser {
                 if (CLASS.equals(endElement.getName()) || METHOD.equals(endElement.getName())) {
                     if (CLASS.equals(endElement.getName())) {
                         coveragePerLine.forEach((lineNumber, coverage) ->
-                                fileNode.addCounters(lineNumber, coverage.getCovered(), coverage.getMissed()));
+                                addCounters(fileNode, lineNumber, coverage.getCovered(), coverage.getMissed()));
                     }
 
                     var coverages = recalculateCoverageFromMergedLines(coveragePerLine);

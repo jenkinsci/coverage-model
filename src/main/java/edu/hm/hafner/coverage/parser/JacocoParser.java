@@ -260,7 +260,7 @@ public class JacocoParser extends CoverageParser {
             covered = coveredBranches;
             missed = missedBranches;
         }
-        fileNode.addCounters(lineNumber, covered, missed);
+        addCounters(fileNode, lineNumber, covered, missed);
     }
 
     @CanIgnoreReturnValue

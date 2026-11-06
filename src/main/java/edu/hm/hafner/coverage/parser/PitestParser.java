@@ -1,7 +1,6 @@
 package edu.hm.hafner.coverage.parser;
 
 import edu.hm.hafner.coverage.CoverageParser;
-import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation.MutationBuilder;
 import edu.hm.hafner.coverage.MutationStatus;
@@ -70,7 +69,7 @@ public class PitestParser extends CoverageParser {
                 }
             }
             handleEmptyResults(fileName, log, isEmpty);
-            root.getAllFileNodes().forEach(FileNode::addLineCoverageOfMutations);
+            root.getAllFileNodes().forEach(CoverageParser::addLineCoverageOfMutations);
             return root;
         } catch (XMLStreamException exception) {
             throw new ParsingException(exception);
