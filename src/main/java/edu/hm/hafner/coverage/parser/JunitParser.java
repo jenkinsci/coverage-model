@@ -67,7 +67,7 @@ public class JunitParser extends AbstractTestParser {
                 var packageName = createPackageForClass(className);
                 var packageNode = root.findOrCreatePackageNode(packageName);
                 var classNode = packageNode.findOrCreateClassNode(className);
-                classNode.addTestCase(builder.build());
+                addTestCase(classNode, builder.build());
                 return builder.build();
             }
         }

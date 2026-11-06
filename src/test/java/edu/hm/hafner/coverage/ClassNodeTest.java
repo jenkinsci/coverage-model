@@ -3,7 +3,9 @@ package edu.hm.hafner.coverage;
 import static edu.hm.hafner.coverage.assertions.Assertions.*;
 
 import edu.hm.hafner.coverage.TestCase.TestCaseBuilder;
+import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.util.TreeString;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ClassNodeTest extends AbstractNodeTest {
@@ -57,5 +59,61 @@ class ClassNodeTest extends AbstractNodeTest {
         var file = new FileNode("a.b.c.file.txt", TreeString.valueOf("/path/to/file.txt"));
         file.addChild(another);
         assertThat(another.getPackageName()).isEqualTo(Node.EMPTY_NAME);
+    }
+
+    /**
+     * Verifies that the number of tests and the success rate are computed for each class. Skipped tests are not part of
+     * the success rate.
+     */
+    @Test
+    void shouldComputeTestValuesOfClass() {
+        var classNode = new ClassNode("Tests");
+
+        classNode.addTestCase(createTestCase("passed-1", TestResult.PASSED));
+        classNode.addTestCases(List.of(
+                createTestCase("passed-2", TestResult.PASSED),
+                createTestCase("failed", TestResult.FAILED),
+                createTestCase("skipped", TestResult.SKIPPED)));
+
+        assertThat(classNode.getValues())
+                .containsExactlyInAnyOrder(new Value(Metric.TESTS, 4), new Rate(Metric.TEST_SUCCESS_RATE, 2, 3));
+    }
+
+    /** Verifies that no success rate is computed for a class that contains only skipped tests. */
+    @Test
+    void shouldNotComputeSuccessRateIfAllTestsAreSkipped() {
+        var classNode = new ClassNode("Tests");
+
+        classNode.addTestCase(createTestCase("skipped", TestResult.SKIPPED));
+
+        assertThat(classNode.getValues()).containsExactly(new Value(Metric.TESTS, 1));
+    }
+
+    /** Verifies that the number of tests and the success rate of the classes are aggregated to the parent nodes. */
+    @Test
+    void shouldAggregateTestValuesOfClasses() {
+        var module = new ModuleNode("module");
+        var packageNode = module.findOrCreatePackageNode("edu.hm.hafner");
+        new ClassNodeFixture(packageNode.findOrCreateClassNode("Passed"))
+                .withTestCase(createTestCase("passed-1", TestResult.PASSED))
+                .withTestCase(createTestCase("passed-2", TestResult.PASSED))
+                .withTestCase(createTestCase("passed-3", TestResult.PASSED));
+        new ClassNodeFixture(packageNode.findOrCreateClassNode("Failed"))
+                .withTestCase(createTestCase("passed", TestResult.PASSED))
+                .withTestCase(createTestCase("failed", TestResult.FAILED))
+                .withTestCase(createTestCase("skipped", TestResult.SKIPPED));
+
+        assertThat(module.getValues()).isEmpty();
+        assertThat(packageNode.aggregateValues())
+                .containsExactlyInAnyOrder(new Value(Metric.TESTS, 6), new Rate(Metric.TEST_SUCCESS_RATE, 4, 5));
+        assertThat(module.getValue(Metric.TEST_SUCCESS_RATE)).contains(new Rate(Metric.TEST_SUCCESS_RATE, 4, 5));
+        assertThat(module.getValue(Metric.TEST_SUCCESS_RATE, MetricAggregation.MINIMUM))
+                .contains(new Rate(Metric.TEST_SUCCESS_RATE, 1, 2));
+        assertThat(module.getValue(Metric.TEST_SUCCESS_RATE, MetricAggregation.MAXIMUM))
+                .contains(new Rate(Metric.TEST_SUCCESS_RATE, 3, 3));
+    }
+
+    private TestCase createTestCase(final String name, final TestResult result) {
+        return new TestCaseBuilder().withTestName(name).withStatus(result).build();
     }
 }

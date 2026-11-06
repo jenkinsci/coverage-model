@@ -120,6 +120,7 @@
               <includes>
                 <include>**/*Assert*</include>
                 <include>**/FileNodeFixture*</include>
+                <include>**/ClassNodeFixture*</include>
               </includes>
             </configuration>
           </execution>

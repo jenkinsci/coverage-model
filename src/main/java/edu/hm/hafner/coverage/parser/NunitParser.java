@@ -68,7 +68,7 @@ public class NunitParser extends AbstractTestParser {
                 builder.withClassName(className);
                 var packageNode = root.findOrCreatePackageNode(EMPTY);
                 var classNode = packageNode.findOrCreateClassNode(className);
-                classNode.addTestCase(builder.build());
+                addTestCase(classNode, builder.build());
                 return builder.build();
             }
         }
