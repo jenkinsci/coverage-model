@@ -217,6 +217,16 @@ public abstract class CoverageParser implements Serializable {
         file.addLineCoverageOfMutations();
     }
 
+    /**
+     * Adds a test case to a class. The number of tests and the test success rate of the class are updated accordingly.
+     *
+     * @param classNode the class to add the test case to
+     * @param testCase the test case to add
+     */
+    protected static void addTestCase(final ClassNode classNode, final TestCase testCase) {
+        classNode.addTestCase(testCase);
+    }
+
     protected static Optional<String> getOptionalValueOf(final StartElement element, final QName attribute) {
         var value = element.getAttributeByName(attribute);
         if (value == null) {

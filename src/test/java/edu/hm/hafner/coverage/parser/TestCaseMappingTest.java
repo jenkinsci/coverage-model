@@ -87,6 +87,7 @@ class TestCaseMappingTest {
         assertThat(unmappedTests).flatMap(Node::getTestCases).hasSize(10);
         assertThat(coverage.getTestCases()).hasSize(247);
         assertThat(coverage.getValue(Metric.TESTS)).contains(new Value(Metric.TESTS, numberOfTests));
+        assertThat(coverage.getValue(Metric.TEST_SUCCESS_RATE)).isPresent();
 
         assertThat(unmappedTests).extracting(Node::getName).containsOnly("ArchitectureTest", "PackageArchitectureTest");
 

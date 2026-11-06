@@ -5,6 +5,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
 /** A {@link Node} for a specific class. */
@@ -72,27 +73,38 @@ public final class ClassNode extends Node {
     }
 
     /**
-     * Adds a new test case to this class.
+     * Adds a new test case to this class. Parsers use {@link CoverageParser#addTestCase(ClassNode, TestCase)}.
      *
      * @param testCase the test case to add
      */
-    public void addTestCase(final TestCase testCase) {
+    void addTestCase(final TestCase testCase) {
         addTestCases(List.of(testCase));
     }
 
     /**
-     * Adds all given test cases to this class.
+     * Adds all given test cases to this class. The number of tests and the test success rate of this class are updated
+     * accordingly. The values of the parent nodes are aggregated from the values of their classes.
      *
      * @param additionalTestCases the test cases to add
      */
-    public void addTestCases(final Collection<TestCase> additionalTestCases) {
+    void addTestCases(final Collection<TestCase> additionalTestCases) {
         this.testCases.addAll(additionalTestCases);
 
-        updateTestCount();
+        updateTestValues();
     }
 
-    private void updateTestCount() {
+    private void updateTestValues() {
         replaceValue(new Value(Metric.TESTS, testCases.size()));
+
+        var passed = countTests(TestCase::isPassed);
+        var executed = passed + countTests(TestCase::isFailed);
+        if (executed > 0) {
+            replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, passed, executed));
+        }
+    }
+
+    private long countTests(final Predicate<TestCase> filter) {
+        return testCases.stream().filter(filter).count();
     }
 
     @Override

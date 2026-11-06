@@ -61,7 +61,7 @@ public enum Metric {
             "Test Success %",
             Computation.SUM,
             MetricTendency.LARGER_IS_BETTER,
-            MetricValueType.METRIC,
+            MetricValueType.CLASS_METRIC,
             new RateFormatter()),
 
     /** Metrics from the PMD metrics reporter. */
