@@ -546,6 +546,76 @@ class FileNodeTest extends AbstractNodeTest {
         assertThat(filteredFileNode).hasNoValueMetrics();
     }
 
+    /**
+     * Verifies that the mutations of lines with indirect coverage changes are retained and that the mutation coverage
+     * is computed from these mutations.
+     */
+    @Test
+    void shouldFilterTreeByIndirectChangesWithMutations() {
+        var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        var killed = createMutation(10, MutationStatus.KILLED);
+        var survived = createMutation(11, MutationStatus.SURVIVED);
+        var notCovered = createMutation(12, MutationStatus.NO_COVERAGE);
+        var unchanged = createMutation(13, MutationStatus.KILLED);
+        file.addMutation(killed);
+        file.addMutation(survived);
+        file.addMutation(notCovered);
+        file.addMutation(unchanged);
+        file.addLineCoverageOfMutations();
+
+        var changes = new ChangeSetBuilder()
+                .addIndirectCoverageChange(file.getRelativePath(), 10, 1)
+                .addIndirectCoverageChange(file.getRelativePath(), 11, 1)
+                .addIndirectCoverageChange(file.getRelativePath(), 12, -1)
+                .build();
+
+        var filtered = (FileNode) file.filterTreeByIndirectChanges(changes).orElseThrow();
+
+        assertThat(filtered).hasOnlyMutations(killed, survived, notCovered);
+        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE, Metric.MUTATION);
+        assertThat((Coverage) filtered.getValue(Metric.LINE).orElseThrow())
+                .hasCovered(2)
+                .hasMissed(1);
+        assertThat((Coverage) filtered.getValue(Metric.MUTATION).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(2);
+    }
+
+    /** Verifies that mutations of lines without indirect coverage changes are not retained. */
+    @Test
+    void shouldIgnoreMutationsOfLinesWithoutIndirectChanges() {
+        var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        file.addCounters(1, 1, 0);
+        file.addMutation(createMutation(10, MutationStatus.KILLED));
+
+        var filtered = (FileNode) file.filterTreeByIndirectChanges(createIndirectChanges(file, 1, 1))
+                .orElseThrow();
+
+        assertThat(filtered).hasNoMutations();
+        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE);
+    }
+
+    /**
+     * Creates a mutation for the specified line with the specified status.
+     *
+     * @param line the line of the mutation
+     * @param status the status of the mutation
+     * @return the created mutation
+     */
+    private Mutation createMutation(final int line, final MutationStatus status) {
+        return new MutationBuilder()
+                .withLine(line)
+                .withIsDetected(status.isDetected())
+                .withStatus(status)
+                .withMutatedClass("edu.hm.hafner.Calc")
+                .withMutatedMethod("add")
+                .withMutatedMethodSignature("(II)I")
+                .withSourceFile("Calc.java")
+                .withMutator("MATH")
+                .withDescription("replaced + with - in line " + line)
+                .build();
+    }
+
     @Test
     void shouldReturnMissedLineRanges() {
         var fileNode = new FileNode("file.java", ".");
