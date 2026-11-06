@@ -272,7 +272,12 @@ public final class FileNode extends Node {
         return FileNodeFilter.byIndirectChanges(this, changes.getIndirectCoverageChanges(getRelativePath()));
     }
 
-    // TODO: the API does not work yet for mutations
+    /**
+     * Returns all lines that have line or branch coverage counters. For mutation coverage reports (PIT, Stryker) the
+     * line counters are derived from the mutations, see {@link #addLineCoverageOfMutations()}.
+     *
+     * @return the lines with line or branch coverage
+     */
     public NavigableSet<Integer> getLinesWithCoverage() {
         return lineCounters.getLines();
     }
@@ -523,6 +528,39 @@ public final class FileNode extends Node {
         return getMutations().stream()
                 .filter(predicate)
                 .collect(Collectors.groupingBy(Mutation::getLine, TreeMap::new, Collectors.toList()));
+    }
+
+    /**
+     * Derives the line coverage from the mutations of this file. A line is covered if at least one of its mutations has
+     * been executed by the tests (killed, survived, timed out). A line is missed only if none of its mutations has been
+     * executed, i.e., all of its valid mutations have the status {@link MutationStatus#NO_COVERAGE}. Mutations with an
+     * unknown line coverage (e.g., non-viable mutations or run errors) are ignored.
+     *
+     * <p>This method should be called by parsers of mutation coverage reports after all mutations of the file have been
+     * added, so that the line based API (e.g., {@link #getLinesWithCoverage()}) works for mutation coverage as well.
+     */
+    public void addLineCoverageOfMutations() {
+        var coveredLines = collectLinesOfMutations(Mutation::isCovered);
+        var missedLines = collectLinesOfMutations(Mutation::isMissed);
+        missedLines.removeAll(coveredLines);
+
+        coveredLines.forEach(line -> addCounters(line, 1, 0));
+        missedLines.forEach(line -> addCounters(line, 0, 1));
+
+        if (!coveredLines.isEmpty() || !missedLines.isEmpty()) {
+            addValue(new Coverage.CoverageBuilder(Metric.LINE)
+                    .withCovered(coveredLines.size())
+                    .withMissed(missedLines.size())
+                    .build());
+        }
+    }
+
+    private NavigableSet<Integer> collectLinesOfMutations(final Predicate<Mutation> filterPredicate) {
+        return getMutations().stream()
+                .filter(filterPredicate)
+                .map(Mutation::getLine)
+                .filter(line -> line > 0)
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     /**
