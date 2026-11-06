@@ -95,6 +95,26 @@ class StrykerParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldDeriveLineCoverageFromMutations() {
+        var tree = readReport("mutation-report.json");
+
+        assertThat(findFile(tree, "add.js")).satisfies(file -> {
+            assertThat(file.getLinesWithCoverage()).containsExactly(1, 2, 3, 4);
+            assertThat(file.getCoveredLines()).containsExactly(1, 2, 4);
+            assertThat(file.getMissedLines()).containsExactly(3);
+            assertThat(file.getValue(LINE)).contains(Coverage.valueOf("LINE: 3/4"));
+        });
+        assertThat(findFile(tree, "multiply.js")).satisfies(file -> {
+            assertThat(file.getLinesWithCoverage()).containsExactly(1);
+            assertThat(file.getValue(LINE)).contains(Coverage.valueOf("LINE: 1/1"));
+        });
+        assertThat(findFile(tree, "helper.js")).satisfies(file -> {
+            assertThat(file.getLinesWithCoverage()).isEmpty();
+            assertThat(file.getValue(LINE)).isEmpty();
+        });
+    }
+
+    @Test
     void shouldReturnEmptyKilledByWhenNodeIsAbsentOrNonArray() {
         var tree = readReport("mutation-report.json");
 

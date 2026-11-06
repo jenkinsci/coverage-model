@@ -115,6 +115,7 @@ public class StrykerParser extends CoverageParser {
                     .withMissed(missed)
                     .build());
         }
+        coverageFile.addLineCoverageOfMutations();
     }
 
     private Mutation createMutation(final String fileName, final String relativePath, final JsonNode mutantNode) {
