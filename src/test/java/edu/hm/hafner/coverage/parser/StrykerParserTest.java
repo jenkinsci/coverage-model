@@ -90,8 +90,26 @@ class StrykerParserTest extends AbstractParserTest {
                 .hasValueSatisfying(value -> assertThat(value)
                         .isInstanceOfSatisfying(
                                 Coverage.class,
-                                coverage -> assertThat(coverage).hasCovered(1).hasMissed(3)));
+                                coverage -> assertThat(coverage).hasCovered(2).hasMissed(2)));
+        assertThat(file.getValue(TEST_STRENGTH))
+                .hasValueSatisfying(value -> assertThat(value)
+                        .isInstanceOfSatisfying(
+                                Coverage.class,
+                                coverage -> assertThat(coverage).hasCovered(2).hasMissed(1)));
         assertThat(getLog().hasErrors()).isFalse();
+    }
+
+    /**
+     * Verifies that invalid mutations (compile errors, runtime errors, ignored mutations) are neither part of the
+     * mutation coverage nor of the test strength.
+     */
+    @Test
+    void shouldIgnoreInvalidMutationsInMultiplyFile() {
+        var tree = readReport("mutation-report.json");
+
+        var file = findFile(tree, "multiply.js");
+        assertThat(file.getValue(MUTATION)).contains(Coverage.valueOf("MUTATION: 1/1"));
+        assertThat(file.getValue(TEST_STRENGTH)).contains(Coverage.valueOf("TEST_STRENGTH: 1/1"));
     }
 
     @Test
@@ -157,7 +175,7 @@ class StrykerParserTest extends AbstractParserTest {
                 .containsExactlyInAnyOrder(
                         MutationStatus.KILLED,
                         MutationStatus.RUN_ERROR,
-                        MutationStatus.MEMORY_ERROR,
+                        MutationStatus.NON_VIABLE,
                         MutationStatus.NON_VIABLE,
                         MutationStatus.NON_VIABLE);
     }
@@ -172,23 +190,14 @@ class StrykerParserTest extends AbstractParserTest {
     }
 
     @Test
-    void shouldMapCompileErrorToMemoryError() {
-        var tree = readReport("mutation-report.json");
-
-        assertThat(findFile(tree, "multiply.js").getMutations())
-                .extracting(Mutation::getStatus)
-                .contains(MutationStatus.MEMORY_ERROR);
-    }
-
-    @Test
-    void shouldMapIgnoredAndUnknownStatusToNonViable() {
+    void shouldMapCompileErrorIgnoredAndUnknownStatusToNonViable() {
         var tree = readReport("mutation-report.json");
 
         var nonViableCount = findFile(tree, "multiply.js").getMutations().stream()
                 .map(Mutation::getStatus)
                 .filter(MutationStatus.NON_VIABLE::equals)
                 .count();
-        assertThat(nonViableCount).isEqualTo(2);
+        assertThat(nonViableCount).isEqualTo(3);
     }
 
     @Test
