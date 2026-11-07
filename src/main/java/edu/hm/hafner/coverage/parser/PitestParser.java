@@ -34,7 +34,6 @@ public class PitestParser extends CoverageParser {
     private static final QName MUTATOR = new QName("mutator");
     private static final QName DESCRIPTION = new QName("description");
     private static final QName LINE_NUMBER = new QName("lineNumber");
-    private static final QName DETECTED = new QName("detected");
     private static final QName STATUS = new QName("status");
 
     /** Creates a new instance of {@link PitestParser}. */
@@ -81,7 +80,6 @@ public class PitestParser extends CoverageParser {
         var builder = new MutationBuilder();
 
         builder.withStatus(MutationStatus.valueOf(getValueOf(mutationElement, STATUS)));
-        builder.withIsDetected(Boolean.parseBoolean(getValueOf(mutationElement, DETECTED)));
 
         while (reader.hasNext()) {
             var event = reader.nextEvent();

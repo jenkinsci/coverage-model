@@ -108,7 +108,9 @@ final class FileNodeFilter {
         var mutationCoverage = createEmptyCoverage(Metric.MUTATION);
         var testStrength = createEmptyCoverage(Metric.TEST_STRENGTH);
         for (Mutation mutation : copy.getMutations()) {
-            increment(mutationCoverage, mutation);
+            if (mutation.isValid()) {
+                increment(mutationCoverage, mutation);
+            }
             if (mutation.isRelevantForTestStrength()) {
                 increment(testStrength, mutation);
             }

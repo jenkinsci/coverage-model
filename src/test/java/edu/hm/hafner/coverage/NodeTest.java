@@ -725,17 +725,13 @@ class NodeTest {
         var builder =
                 new MutationBuilder().withMutatedClass(classNode.getName()).withMutatedMethod("method");
 
-        fileNode.addMutation(builder.withLine(17 + offset)
-                .withStatus(MutationStatus.KILLED)
-                .withIsDetected(true)
-                .build());
+        fileNode.addMutation(
+                builder.withLine(17 + offset).withStatus(MutationStatus.KILLED).build());
         fileNode.addMutation(builder.withLine(18 + offset)
                 .withStatus(MutationStatus.SURVIVED)
-                .withIsDetected(false)
                 .build());
         fileNode.addMutation(builder.withLine(19 + offset)
                 .withStatus(MutationStatus.NO_COVERAGE)
-                .withIsDetected(false)
                 .build());
     }
 

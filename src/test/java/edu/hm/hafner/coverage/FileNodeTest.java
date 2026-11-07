@@ -176,7 +176,6 @@ class FileNodeTest extends AbstractNodeTest {
         var pit = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
         var killed = new Mutation.MutationBuilder()
                 .withLine(10)
-                .withIsDetected(true)
                 .withStatus(MutationStatus.KILLED)
                 .withMutatedClass("edu.hm.hafner.Calc")
                 .withMutatedMethod("add")
@@ -187,7 +186,6 @@ class FileNodeTest extends AbstractNodeTest {
                 .build();
         var survived = new Mutation.MutationBuilder()
                 .withLine(11)
-                .withIsDetected(false)
                 .withStatus(MutationStatus.SURVIVED)
                 .withMutatedClass("edu.hm.hafner.Calc")
                 .withMutatedMethod("add")
@@ -223,7 +221,6 @@ class FileNodeTest extends AbstractNodeTest {
     void shouldKeepAllMutationsWithTheSamePropertiesWhenMerging() {
         var mutation = new Mutation.MutationBuilder()
                 .withLine(10)
-                .withIsDetected(true)
                 .withStatus(MutationStatus.KILLED)
                 .withMutatedClass("edu.hm.hafner.Calc")
                 .withMutatedMethod("add")
@@ -584,6 +581,33 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasMissed(1);
     }
 
+    /**
+     * Verifies that invalid mutations are retained but are neither part of the mutation coverage nor of the test
+     * strength.
+     */
+    @Test
+    void shouldIgnoreInvalidMutationsWhenFilteringModifiedLines() {
+        var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        var timedOut = createMutation(10, MutationStatus.TIMED_OUT);
+        var runError = createMutation(10, MutationStatus.RUN_ERROR);
+        var nonViable = createMutation(10, MutationStatus.NON_VIABLE);
+        file.addMutation(timedOut);
+        file.addMutation(runError);
+        file.addMutation(nonViable);
+        file.addLineCoverageOfMutations();
+
+        var filtered = (FileNode)
+                file.filterTreeByModifiedLines(createModifiedLines(file, 10)).orElseThrow();
+
+        assertThat(filtered).hasOnlyMutations(timedOut, runError, nonViable);
+        assertThat((Coverage) filtered.getValue(Metric.MUTATION).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(0);
+        assertThat((Coverage) filtered.getValue(Metric.TEST_STRENGTH).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(0);
+    }
+
     /** Verifies that no test strength is computed if none of the retained mutations has been covered by a test. */
     @Test
     void shouldSkipTestStrengthOfIndirectChangesWithoutCoveredMutations() {
@@ -651,7 +675,6 @@ class FileNodeTest extends AbstractNodeTest {
     private Mutation createMutation(final int line, final MutationStatus status) {
         return new MutationBuilder()
                 .withLine(line)
-                .withIsDetected(status.isDetected())
                 .withStatus(status)
                 .withMutatedClass("edu.hm.hafner.Calc")
                 .withMutatedMethod("add")

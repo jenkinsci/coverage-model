@@ -1,7 +1,9 @@
 package edu.hm.hafner.coverage.parser;
 
+import edu.hm.hafner.coverage.Coverage;
 import edu.hm.hafner.coverage.Coverage.CoverageBuilder;
 import edu.hm.hafner.coverage.CoverageParser;
+import edu.hm.hafner.coverage.FileNode;
 import edu.hm.hafner.coverage.Metric;
 import edu.hm.hafner.coverage.ModuleNode;
 import edu.hm.hafner.coverage.Mutation;
@@ -89,8 +91,10 @@ public class StrykerParser extends CoverageParser {
         var packageNode = root.findOrCreatePackageNode(packageName);
         var coverageFile = packageNode.findOrCreateFileNode(fileName, TreeString.valueOf(relativePath));
 
-        int covered = 0;
-        int missed = 0;
+        var mutationCoverage =
+                new CoverageBuilder(Metric.MUTATION).withCovered(0).withMissed(0);
+        var testStrength =
+                new CoverageBuilder(Metric.TEST_STRENGTH).withCovered(0).withMissed(0);
 
         var mutants = fileNode.path(MUTANTS);
         if (mutants.isArray()) {
@@ -98,24 +102,32 @@ public class StrykerParser extends CoverageParser {
                 var mutation = createMutation(fileName, relativePath, mutantNode);
                 addMutation(coverageFile, mutation);
 
-                if (!mutation.isValid()) {
-                    continue;
+                if (mutation.isValid()) {
+                    increment(mutationCoverage, mutation);
                 }
-                if (mutation.isDetected()) {
-                    covered++;
-                } else {
-                    missed++;
+                if (mutation.isRelevantForTestStrength()) {
+                    increment(testStrength, mutation);
                 }
             }
         }
 
-        if (covered + missed > 0) {
-            coverageFile.addValue(new CoverageBuilder(Metric.MUTATION)
-                    .withCovered(covered)
-                    .withMissed(missed)
-                    .build());
-        }
+        addIfSet(coverageFile, mutationCoverage.build());
+        addIfSet(coverageFile, testStrength.build());
         addLineCoverageOfMutations(coverageFile);
+    }
+
+    private static void increment(final CoverageBuilder builder, final Mutation mutation) {
+        if (mutation.isDetected()) {
+            builder.incrementCovered();
+        } else {
+            builder.incrementMissed();
+        }
+    }
+
+    private static void addIfSet(final FileNode file, final Coverage coverage) {
+        if (coverage.isSet()) {
+            file.addValue(coverage);
+        }
     }
 
     private Mutation createMutation(final String fileName, final String relativePath, final JsonNode mutantNode) {
@@ -126,7 +138,6 @@ public class StrykerParser extends CoverageParser {
         var description = mutantNode.path(DESCRIPTION).asString(StringUtils.EMPTY);
 
         return new Mutation.MutationBuilder()
-                .withIsDetected(status == MutationStatus.KILLED)
                 .withStatus(status)
                 .withLine(line)
                 .withMutator(mutatorName)
@@ -176,7 +187,7 @@ public class StrykerParser extends CoverageParser {
             case "nocoverage" -> MutationStatus.NO_COVERAGE;
             case "timeout" -> MutationStatus.TIMED_OUT;
             case "runtimeerror" -> MutationStatus.RUN_ERROR;
-            case "compileerror" -> MutationStatus.MEMORY_ERROR;
+            case "compileerror" -> MutationStatus.NON_VIABLE;
             case "ignored" -> MutationStatus.NON_VIABLE;
             default -> MutationStatus.NON_VIABLE;
         };

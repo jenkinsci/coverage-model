@@ -29,7 +29,6 @@ public final class Mutation implements Serializable {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     private Mutation(
-            final boolean detected,
             final MutationStatus status,
             final int line,
             final String mutator,
@@ -38,7 +37,7 @@ public final class Mutation implements Serializable {
             final String method,
             final String signature,
             final String description) {
-        this.detected = detected;
+        this.detected = status.isDetected(); // only stored to keep the serialization format
         this.status = status;
         this.line = line;
 
@@ -67,16 +66,28 @@ public final class Mutation implements Serializable {
         return description;
     }
 
+    /**
+     * Returns whether this mutation has been detected by the tests.
+     *
+     * @return {@code true} if this mutation has been detected, {@code false} otherwise
+     * @see MutationStatus#isDetected()
+     */
     public boolean isDetected() {
-        return detected;
+        return status.isDetected();
     }
 
     public MutationStatus getStatus() {
         return status;
     }
 
+    /**
+     * Returns whether this mutation is valid, i.e., whether it could be evaluated by the tests.
+     *
+     * @return {@code true} if this mutation is valid, {@code false} otherwise
+     * @see MutationStatus#isValid()
+     */
     public boolean isValid() {
-        return isCovered() || isMissed();
+        return status.isValid();
     }
 
     public boolean isCovered() {
@@ -165,7 +176,6 @@ public final class Mutation implements Serializable {
     /** Builder to create new {@link Mutation} instances. */
     @SuppressWarnings({"checkstyle:MissingJavadocMethod", "checkstyle:HiddenField", "ParameterHidesMemberVariable"})
     public static class MutationBuilder {
-        private boolean isDetected;
         private MutationStatus status = MutationStatus.NO_COVERAGE;
         private int line;
         private String mutator = StringUtils.EMPTY;
@@ -175,13 +185,6 @@ public final class Mutation implements Serializable {
         private String mutatedClass = StringUtils.EMPTY;
         private String mutatedMethod = StringUtils.EMPTY;
         private String mutatedMethodSignature = StringUtils.EMPTY;
-
-        @CanIgnoreReturnValue
-        public MutationBuilder withIsDetected(final boolean isDetected) {
-            this.isDetected = isDetected;
-
-            return this;
-        }
 
         @CanIgnoreReturnValue
         public MutationBuilder withStatus(final MutationStatus status) {
@@ -269,7 +272,9 @@ public final class Mutation implements Serializable {
                     .findMethod(mutatedMethod, mutatedMethodSignature)
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 
-            updateMetricForMethod(Metric.MUTATION, methodNode);
+            if (status.isValid()) {
+                updateMetricForMethod(Metric.MUTATION, methodNode);
+            }
             if (status.isRelevantForTestStrength()) {
                 updateMetricForMethod(Metric.TEST_STRENGTH, methodNode);
             }
@@ -280,7 +285,7 @@ public final class Mutation implements Serializable {
             var existingCoverage =
                     methodNode.getValue(metric).map(Coverage.class::cast).orElse(Coverage.nullObject(metric));
             var builder = new CoverageBuilder(existingCoverage);
-            if (isDetected) {
+            if (status.isDetected()) {
                 builder.incrementCovered();
             } else {
                 builder.incrementMissed();
@@ -290,7 +295,6 @@ public final class Mutation implements Serializable {
 
         public Mutation build() {
             return new Mutation(
-                    isDetected,
                     status,
                     line,
                     mutator,
