@@ -572,13 +572,59 @@ class FileNodeTest extends AbstractNodeTest {
         var filtered = (FileNode) file.filterTreeByIndirectChanges(changes).orElseThrow();
 
         assertThat(filtered).hasOnlyMutations(killed, survived, notCovered);
-        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE, Metric.MUTATION);
+        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE, Metric.MUTATION, Metric.TEST_STRENGTH);
         assertThat((Coverage) filtered.getValue(Metric.LINE).orElseThrow())
                 .hasCovered(2)
                 .hasMissed(1);
         assertThat((Coverage) filtered.getValue(Metric.MUTATION).orElseThrow())
                 .hasCovered(1)
                 .hasMissed(2);
+        assertThat((Coverage) filtered.getValue(Metric.TEST_STRENGTH).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(1);
+    }
+
+    /** Verifies that no test strength is computed if none of the retained mutations has been covered by a test. */
+    @Test
+    void shouldSkipTestStrengthOfIndirectChangesWithoutCoveredMutations() {
+        var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        var notCovered = createMutation(12, MutationStatus.NO_COVERAGE);
+        file.addMutation(notCovered);
+        file.addLineCoverageOfMutations();
+
+        var filtered = (FileNode) file.filterTreeByIndirectChanges(createIndirectChanges(file, 12, -1))
+                .orElseThrow();
+
+        assertThat(filtered).hasOnlyMutations(notCovered);
+        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE, Metric.MUTATION);
+        assertThat((Coverage) filtered.getValue(Metric.MUTATION).orElseThrow())
+                .hasCovered(0)
+                .hasMissed(1);
+    }
+
+    /**
+     * Verifies that the test strength of the modified lines is computed from the mutations that have been covered by a
+     * test.
+     */
+    @Test
+    void shouldComputeTestStrengthOfModifiedLines() {
+        var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
+        file.addMutation(createMutation(10, MutationStatus.KILLED));
+        file.addMutation(createMutation(10, MutationStatus.SURVIVED));
+        file.addMutation(createMutation(11, MutationStatus.NO_COVERAGE));
+        file.addMutation(createMutation(12, MutationStatus.KILLED));
+        file.addLineCoverageOfMutations();
+
+        var filtered = (FileNode) file.filterTreeByModifiedLines(createModifiedLines(file, 10, 11))
+                .orElseThrow();
+
+        assertThat(filtered).hasOnlyValueMetrics(Metric.LINE, Metric.MUTATION, Metric.TEST_STRENGTH);
+        assertThat((Coverage) filtered.getValue(Metric.MUTATION).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(2);
+        assertThat((Coverage) filtered.getValue(Metric.TEST_STRENGTH).orElseThrow())
+                .hasCovered(1)
+                .hasMissed(1);
     }
 
     /** Verifies that mutations of lines without indirect coverage changes are not retained. */

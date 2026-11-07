@@ -11,6 +11,7 @@ import static edu.hm.hafner.coverage.Metric.MODULE;
 import static edu.hm.hafner.coverage.Metric.MUTATION;
 import static edu.hm.hafner.coverage.Metric.PACKAGE;
 import static edu.hm.hafner.coverage.Metric.TESTS;
+import static edu.hm.hafner.coverage.Metric.TEST_STRENGTH;
 import static edu.hm.hafner.coverage.Metric.WARNINGS;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThat;
 import static edu.hm.hafner.coverage.assertions.Assertions.assertThatExceptionOfType;
@@ -535,6 +536,12 @@ class NodeTest {
                 .contains(builder.withMetric(MUTATION)
                         .withCovered(1)
                         .withMissed(2)
+                        .build());
+        assertThat(root.getValue(TEST_STRENGTH))
+                .isNotEmpty()
+                .contains(builder.withMetric(TEST_STRENGTH)
+                        .withCovered(1)
+                        .withMissed(1)
                         .build());
 
         assertThat(root.findFile(COVERED_FILE)).isPresent().get().satisfies(file -> {

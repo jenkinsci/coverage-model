@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Creates reduced copies of a {@link FileNode} that contain only the coverage information of a change set: either the
@@ -106,16 +105,33 @@ final class FileNodeFilter {
         file.getMutations().stream()
                 .filter(mutation -> lines.contains(mutation.getLine()))
                 .forEach(copy::addMutation);
-        if (!copy.getMutations().isEmpty()) {
-            var builder = new CoverageBuilder()
-                    .withMetric(Metric.MUTATION)
-                    .withMissed(0)
-                    .withCovered(0);
-            copy.getMutations().stream().filter(Mutation::isDetected).forEach(mutation -> builder.incrementCovered());
-            copy.getMutations().stream()
-                    .filter(Predicate.not(Mutation::isDetected))
-                    .forEach(mutation -> builder.incrementMissed());
-            copy.addValue(builder.build());
+        var mutationCoverage = createEmptyCoverage(Metric.MUTATION);
+        var testStrength = createEmptyCoverage(Metric.TEST_STRENGTH);
+        for (Mutation mutation : copy.getMutations()) {
+            increment(mutationCoverage, mutation);
+            if (mutation.isRelevantForTestStrength()) {
+                increment(testStrength, mutation);
+            }
+        }
+        addIfSet(copy, mutationCoverage.build());
+        addIfSet(copy, testStrength.build());
+    }
+
+    private static CoverageBuilder createEmptyCoverage(final Metric metric) {
+        return new CoverageBuilder().withMetric(metric).withCovered(0).withMissed(0);
+    }
+
+    private static void increment(final CoverageBuilder builder, final Mutation mutation) {
+        if (mutation.isDetected()) {
+            builder.incrementCovered();
+        } else {
+            builder.incrementMissed();
+        }
+    }
+
+    private static void addIfSet(final FileNode copy, final Coverage coverage) {
+        if (coverage.isSet()) {
+            copy.addValue(coverage);
         }
     }
 

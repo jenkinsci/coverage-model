@@ -28,6 +28,16 @@ public enum MutationStatus {
         return this == SURVIVED || this == NO_COVERAGE;
     }
 
+    /**
+     * Returns whether a mutation with this status is part of the test strength, i.e., whether the mutation has not been
+     * skipped due to missing coverage.
+     *
+     * @return {@code true} if a mutation with this status is part of the test strength, {@code false} otherwise
+     */
+    public boolean isRelevantForTestStrength() {
+        return this != NO_COVERAGE;
+    }
+
     public boolean isCovered() {
         return lineCoverage == LineCoverage.COVERED;
     }
