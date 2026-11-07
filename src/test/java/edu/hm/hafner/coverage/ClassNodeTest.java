@@ -7,6 +7,7 @@ import edu.hm.hafner.coverage.TestCase.TestResult;
 import edu.hm.hafner.util.TreeString;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 class ClassNodeTest extends AbstractNodeTest {
     @Override
@@ -87,6 +88,47 @@ class ClassNodeTest extends AbstractNodeTest {
         classNode.addTestCase(createTestCase("skipped", TestResult.SKIPPED));
 
         assertThat(classNode.getValues()).containsExactly(new Value(Metric.TESTS, 1));
+    }
+
+    /**
+     * Verifies that the success rate is updated incrementally if the test cases are added one by one, even if the first
+     * test case has been skipped.
+     */
+    @Test
+    void shouldUpdateSuccessRateIncrementally() {
+        var classNode = new ClassNode("Tests");
+
+        classNode.addTestCase(createTestCase("skipped", TestResult.SKIPPED));
+        assertThat(classNode.getValues()).containsExactly(new Value(Metric.TESTS, 1));
+
+        classNode.addTestCase(createTestCase("passed", TestResult.PASSED));
+        assertThat(classNode.getValues())
+                .containsExactlyInAnyOrder(new Value(Metric.TESTS, 2), new Rate(Metric.TEST_SUCCESS_RATE, 1, 1));
+
+        classNode.addTestCase(createTestCase("failed", TestResult.FAILED));
+        classNode.addTestCase(createTestCase("another-skipped", TestResult.SKIPPED));
+        assertThat(classNode.getValues())
+                .containsExactlyInAnyOrder(new Value(Metric.TESTS, 4), new Rate(Metric.TEST_SUCCESS_RATE, 1, 2));
+    }
+
+    /**
+     * Verifies that adding a single test case evaluates only the new test case. Otherwise, adding a huge number of test
+     * cases one by one would take quadratic time.
+     */
+    @Test
+    @Timeout(10)
+    void shouldAddManyTestCasesInLinearTime() {
+        var classNode = new ClassNode("Tests");
+        var builder = new TestCaseBuilder().withStatus(TestResult.PASSED);
+        var count = 200_000;
+
+        for (int i = 0; i < count; i++) {
+            classNode.addTestCase(builder.withTestName("Test #" + i).build());
+        }
+
+        assertThat(classNode.getValues())
+                .containsExactlyInAnyOrder(
+                        new Value(Metric.TESTS, count), new Rate(Metric.TEST_SUCCESS_RATE, count, count));
     }
 
     /** Verifies that the number of tests and the success rate of the classes are aggregated to the parent nodes. */
