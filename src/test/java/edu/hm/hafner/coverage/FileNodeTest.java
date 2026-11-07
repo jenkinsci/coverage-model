@@ -584,9 +584,7 @@ class FileNodeTest extends AbstractNodeTest {
                 .hasMissed(1);
     }
 
-    /**
-     * Verifies that no test strength is computed if none of the retained mutations has been covered by a test.
-     */
+    /** Verifies that no test strength is computed if none of the retained mutations has been covered by a test. */
     @Test
     void shouldSkipTestStrengthOfIndirectChangesWithoutCoveredMutations() {
         var file = new FileNode("Calc.java", "edu/hm/hafner/Calc.java");
@@ -605,8 +603,8 @@ class FileNodeTest extends AbstractNodeTest {
     }
 
     /**
-     * Verifies that the test strength of the modified lines is computed from the mutations that have been covered by
-     * a test.
+     * Verifies that the test strength of the modified lines is computed from the mutations that have been covered by a
+     * test.
      */
     @Test
     void shouldComputeTestStrengthOfModifiedLines() {
