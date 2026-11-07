@@ -5,6 +5,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
@@ -90,21 +91,40 @@ public final class ClassNode extends Node {
     void addTestCases(final Collection<TestCase> additionalTestCases) {
         this.testCases.addAll(additionalTestCases);
 
-        updateTestValues();
-    }
-
-    private void updateTestValues() {
         replaceValue(new Value(Metric.TESTS, testCases.size()));
-
-        var passed = countTests(TestCase::isPassed);
-        var executed = passed + countTests(TestCase::isFailed);
-        if (executed > 0) {
-            replaceValue(new Rate(Metric.TEST_SUCCESS_RATE, passed, executed));
-        }
+        computeSuccessRate(additionalTestCases).ifPresent(this::addSuccessRate);
     }
 
-    private long countTests(final Predicate<TestCase> filter) {
-        return testCases.stream().filter(filter).count();
+    /**
+     * Computes the success rate of the specified test cases. Skipped tests are not part of the success rate.
+     *
+     * @param tests the test cases to evaluate
+     * @return the success rate or an empty result if none of the test cases has been executed
+     */
+    private Optional<Value> computeSuccessRate(final Collection<TestCase> tests) {
+        var passed = countTests(tests, TestCase::isPassed);
+        var executed = passed + countTests(tests, TestCase::isFailed);
+        if (executed > 0) {
+            return Optional.of(new Rate(Metric.TEST_SUCCESS_RATE, passed, executed));
+        }
+        return Optional.empty();
+    }
+
+    private long countTests(final Collection<TestCase> tests, final Predicate<TestCase> filter) {
+        return tests.stream().filter(filter).count();
+    }
+
+    /**
+     * Adds the specified success rate to the stored success rate of this class. Only the newly added test cases need to
+     * be evaluated, so adding the test cases of a class one by one runs in linear time.
+     *
+     * @param additionalRate the success rate of the newly added test cases
+     */
+    private void addSuccessRate(final Value additionalRate) {
+        var storedRate = getValues().stream()
+                .filter(value -> value.getMetric() == Metric.TEST_SUCCESS_RATE)
+                .findAny();
+        replaceValue(storedRate.map(rate -> rate.add(additionalRate)).orElse(additionalRate));
     }
 
     @Override
