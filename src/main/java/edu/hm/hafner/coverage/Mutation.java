@@ -83,6 +83,16 @@ public final class Mutation implements Serializable {
         return status.isCovered();
     }
 
+    /**
+     * Returns whether this mutation is part of the test strength.
+     *
+     * @return {@code true} if this mutation is part of the test strength, {@code false} otherwise
+     * @see MutationStatus#isRelevantForTestStrength()
+     */
+    public boolean isRelevantForTestStrength() {
+        return status.isRelevantForTestStrength();
+    }
+
     public boolean isMissed() {
         return status.isMissed();
     }
@@ -260,7 +270,7 @@ public final class Mutation implements Serializable {
                     .orElseGet(() -> classNode.createMethodNode(mutatedMethod, mutatedMethodSignature));
 
             updateMetricForMethod(Metric.MUTATION, methodNode);
-            if (status != MutationStatus.NO_COVERAGE) {
+            if (status.isRelevantForTestStrength()) {
                 updateMetricForMethod(Metric.TEST_STRENGTH, methodNode);
             }
             fileNode.addMutation(build());
