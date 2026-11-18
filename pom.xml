@@ -44,7 +44,7 @@
 
   <properties>
     <scmTag>HEAD</scmTag>
-    <revision>0.87.0</revision>
+    <revision>0.86.0</revision>
     <changelist>-SNAPSHOT</changelist>
     <previousVersion>0.85.0</previousVersion>
 
