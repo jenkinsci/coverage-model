@@ -62,7 +62,8 @@ public class JunitParser extends AbstractTestParser {
                 builder.withStatus(TestCase.TestResult.SKIPPED);
             } else if (event.isEndElement()
                     && TEST_CASE.equals(event.asEndElement().getName())) {
-                var className = getOptionalValueOf(testCaseElement, CLASS_NAME).orElse(suiteName);
+                var className = createClassName(
+                        getOptionalValueOf(testCaseElement, CLASS_NAME).orElse(suiteName), suiteName);
                 builder.withClassName(className);
                 var packageName = createPackageForClass(className);
                 var packageNode = root.findOrCreatePackageNode(packageName);
@@ -78,6 +79,22 @@ public class JunitParser extends AbstractTestParser {
         var name = getElementName(event);
 
         return FAILURE.equals(name) || ERROR.equals(name);
+    }
+
+    /**
+     * Some tools (e.g., ArchUnit) report the simple class name in the attribute {@code className} only, while the suite
+     * name contains the fully qualified class name. In this case, the suite name is used as class name so that the
+     * package of the test class is available.
+     *
+     * @param className the class name of the test case
+     * @param suiteName the name of the test suite
+     * @return the fully qualified class name if available, the original class name otherwise
+     */
+    private String createClassName(final String className, final String suiteName) {
+        if (className.indexOf('.') < 0 && suiteName.endsWith("." + className)) {
+            return suiteName;
+        }
+        return className;
     }
 
     private String createPackageForClass(final String className) {

@@ -66,6 +66,19 @@ class JunitParserTest extends AbstractParserTest {
     }
 
     @Test
+    void shouldUseSuiteNameIfClassNameHasNoPackage() {
+        var tree = readJunitReport("archunit-simple-classname.xml");
+
+        assertThat(tree.getAll(Metric.PACKAGE)).hasSize(1);
+        assertThat(getPackage(tree)).hasName("edu.hm.hafner.archunit");
+        assertThat(tree.getAll(Metric.CLASS)).hasSize(1);
+        assertThat(getFirstClass(tree)).hasName("edu.hm.hafner.archunit.ArchitectureTest");
+        assertThat(tree.getTestCases())
+                .hasSize(3)
+                .allSatisfy(testCase -> assertThat(testCase).hasClassName("edu.hm.hafner.archunit.ArchitectureTest"));
+    }
+
+    @Test
     void shouldReadWithNameOnly() {
         var tree = readJunitReport("cfn-lint.xml");
         assertThat(getPackage(tree)).hasName(EMPTY);
