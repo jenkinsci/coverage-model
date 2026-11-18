@@ -103,6 +103,30 @@ class NodeTest {
     }
 
     @Test
+    void shouldAllowChildrenWithSameNameButDifferentMetric() {
+        var container = new ContainerNode("Container");
+        var module = new ModuleNode("-");
+        container.addChild(module);
+
+        assertThat(container.hasChild(MODULE, "-")).isTrue();
+        assertThat(container.hasChild(PACKAGE, "-")).isFalse();
+
+        var packageNode = new PackageNode("-");
+        container.addChild(packageNode);
+
+        assertThat(container.getChildren()).containsExactly(module, packageNode);
+        assertThat(container.findPackage("-")).contains(packageNode);
+        assertThat(container.hasChild(PACKAGE, "-")).isTrue();
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> container.addChild(new PackageNode("-")))
+                .withMessageContaining("There is already the same child");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> container.addChild(new ModuleNode("-")))
+                .withMessageContaining("There is already the same child");
+    }
+
+    @Test
     void shouldHandleNonExistingParent() {
         var root = new ModuleNode("Root");
 

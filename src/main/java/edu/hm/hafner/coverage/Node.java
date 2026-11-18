@@ -168,7 +168,7 @@ public abstract class Node implements Serializable {
      * @param child the child to add
      */
     public void addChild(final Node child) {
-        if (hasChild(child.getId())) {
+        if (hasChild(child.getMetric(), child.getId())) {
             throw new IllegalArgumentException("There is already the same child %s with the name %s in %s"
                     .formatted(child, child.getName(), this));
         }
@@ -193,6 +193,21 @@ public abstract class Node implements Serializable {
      */
     public boolean hasChild(final String childName) {
         return children.stream().map(Node::getId).anyMatch(childName::equals);
+    }
+
+    /**
+     * Returns whether this node has a child with the specified metric and name. Children with the same name but a
+     * different metric (e.g., a module and a package that both use the empty name) are not considered as duplicates.
+     *
+     * @param childMetric the metric of the child to look for
+     * @param childName the name of the child to look for
+     * @return {@code true} if this node has a child with the specified metric and name, {@code false} otherwise
+     */
+    public boolean hasChild(final Metric childMetric, final String childName) {
+        return children.stream()
+                .filter(child -> child.getMetric() == childMetric)
+                .map(Node::getId)
+                .anyMatch(childName::equals);
     }
 
     /**

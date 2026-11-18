@@ -44,8 +44,8 @@ class TestCaseMappingTest {
         "shouldReturnEmptyOptionalOnComputeDensityEvaluator"
     };
     private static final String[] TEST_CLASSES = {
-        "ArchitectureTest",
-        "PackageArchitectureTest",
+        "edu.hm.hafner.ArchitectureTest",
+        "edu.hm.hafner.PackageArchitectureTest",
         "edu.hm.hafner.coverage.ClassNodeTest",
         "edu.hm.hafner.coverage.ContainerNodeTest",
         "edu.hm.hafner.coverage.CoverageParserTest",
@@ -89,7 +89,9 @@ class TestCaseMappingTest {
         assertThat(coverage.getValue(Metric.TESTS)).contains(new Value(Metric.TESTS, numberOfTests));
         assertThat(coverage.getValue(Metric.TEST_SUCCESS_RATE)).isPresent();
 
-        assertThat(unmappedTests).extracting(Node::getName).containsOnly("ArchitectureTest", "PackageArchitectureTest");
+        assertThat(unmappedTests)
+                .extracting(Node::getName)
+                .containsOnly("edu.hm.hafner.ArchitectureTest", "edu.hm.hafner.PackageArchitectureTest");
 
         assertThat(coverage.findFile("Metric.java"))
                 .hasValueSatisfying(file -> assertThat(file.getTestCases())
